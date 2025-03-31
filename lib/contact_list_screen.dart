@@ -6,7 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class ContactListScreen extends StatefulWidget {
-  const ContactListScreen({super.key});
+  final List<Contact> contacts;
+  final Function(List<Contact>) updateContacts;
+
+  const ContactListScreen({super.key, required this.contacts, required this.updateContacts});
 
   @override
   State<ContactListScreen> createState() => _ContactListScreenState();
@@ -82,6 +85,8 @@ String formatTimeRemaining(DateTime nextMeeting) {
   void addContact(Contact contact) {
     setState(() {
       contacts.add(contact);
+      widget.contacts.add(contact);
+      widget.updateContacts(widget.contacts);
     });
     saveContacts();
   }
