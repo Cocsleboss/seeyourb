@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'contact_list_screen.dart';
-import 'models/contact.dart';
+import '/models/contact.dart';
+import 'dart:io';  // Assure-toi que cette ligne est présente
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  List<Contact> contacts = [];
-
-  void updateContacts(List<Contact> newContacts) {
-    setState(() {
-      contacts = newContacts;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +19,13 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MainPage(contacts: contacts, updateContacts: updateContacts),
+      home: const MainPage(),
     );
   }
 }
 
 class MainPage extends StatefulWidget {
-  final List<Contact> contacts;
-  final Function(List<Contact>) updateContacts;
-
-  const MainPage({super.key, required this.contacts, required this.updateContacts});
+  const MainPage({super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -46,6 +33,33 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
+  List<Contact> contacts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadContacts();
+  }
+
+  // Charger les contacts depuis SharedPreferences
+  Future<void> loadContacts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? contactsJson = prefs.getString('contacts');
+
+    if (contactsJson != null) {
+      final List<dynamic> decoded = jsonDecode(contactsJson);
+      setState(() {
+        contacts = decoded.map((c) => Contact.fromJson(c)).toList();
+      });
+    }
+  }
+
+  // Récupérer les 5 contacts les plus récents (Prochainement)
+  List<Contact> get upcomingContacts {
+    List<Contact> sortedContacts = List.from(contacts);
+    sortedContacts.sort((a, b) => a.nextMeetingDate.compareTo(b.nextMeetingDate));
+    return sortedContacts.take(5).toList();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -55,21 +69,18 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Contact> upcomingContacts = widget.contacts
-        .where((contact) => contact.nextMeetingDate.isAfter(DateTime.now()))
-        .toList()
-      ..sort((a, b) => a.nextMeetingDate.compareTo(b.nextMeetingDate));
-
-    upcomingContacts = upcomingContacts.take(5).toList();
-
     return Scaffold(
       appBar: AppBar(title: const Text('Meet Reminder')),
       body: _currentIndex == 0
-          ? HomePage(upcomingContacts: upcomingContacts)
-          : ContactListScreen(contacts: widget.contacts, updateContacts: widget.updateContacts),
+          ? UpcomingContactsPage(upcomingContacts: upcomingContacts) // Page principale
+          : ContactListScreen(contacts: contacts, updateContacts: (updatedContacts) {
+              setState(() {
+                contacts = updatedContacts;
+              });
+            }),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Prochainement'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Contacts'),
         ],
         currentIndex: _currentIndex,
@@ -79,50 +90,28 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class HomePage extends StatelessWidget {
+class UpcomingContactsPage extends StatelessWidget {
   final List<Contact> upcomingContacts;
 
-  const HomePage({super.key, required this.upcomingContacts});
+  const UpcomingContactsPage({super.key, required this.upcomingContacts});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text('Prochaines rencontres', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: upcomingContacts.length,
-            itemBuilder: (context, index) {
-              final contact = upcomingContacts[index];
-              return ListTile(
-                leading: contact.imagePath != null
-                    ? CircleAvatar(backgroundImage: AssetImage(contact.imagePath!))
-                    : const CircleAvatar(child: Icon(Icons.person)),
-                title: Text(contact.name),
-                subtitle: Text('Dans ${_timeUntil(contact.nextMeetingDate)}'),
-              );
-            },
-          ),
-        ),
-      ],
+    return ListView.builder(
+      itemCount: upcomingContacts.length,
+      itemBuilder: (context, index) {
+        final contact = upcomingContacts[index];
+        return ListTile(
+          leading: contact.imagePath != null
+              ? CircleAvatar(backgroundImage: FileImage(File(contact.imagePath!))) // Utilisation de File
+              : const CircleAvatar(child: Icon(Icons.person)),
+          title: Text(contact.name),
+          subtitle: Text("Prochaine rencontre : ${contact.nextMeetingDate.toString()}"),
+          onTap: () {
+            // Ajouter l'action de navigation ou d'édition ici si nécessaire
+          },
+        );
+      },
     );
-  }
-
-  String _timeUntil(DateTime date) {
-    final now = DateTime.now();
-    final difference = date.difference(now);
-
-    if (difference.inDays >= 730) {
-      return '${(difference.inDays / 365).floor()} ans';
-    } else if (difference.inDays >= 30) {
-      return '${(difference.inDays / 30).floor()} mois';
-    } else if (difference.inDays >= 7) {
-      return '${(difference.inDays / 7).floor()} semaines';
-    } else {
-      return '${difference.inDays} jours';
-    }
   }
 }
