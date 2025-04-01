@@ -61,6 +61,10 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  void _updateState() {
+    setState(() {});
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -88,7 +92,7 @@ class _MainPageState extends State<MainPage> {
             SizedBox(height: 10),
             Expanded(
               child: ListView(
-                children: _rdvs.map((rdv) => RdvItem(rdv: rdv)).toList(),
+                children: _rdvs.map((rdv) => RdvItem(rdv: rdv, onUpdate: _updateState)).toList(),
               ),
             ),
           ],
