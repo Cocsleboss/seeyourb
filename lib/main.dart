@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'contacts_page.dart'; // Assurez-vous que ce fichier existe dans votre projet
+import 'contacts_page.dart';
+import 'models/contact.dart';
+import 'models/rdv.dart';
+import 'widgets/contact_item.dart';
+import 'widgets/rdv_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 void main() {
   runApp(MyApp());
@@ -7,7 +13,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,31 +26,87 @@ class MyApp extends StatelessWidget {
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
-  
+
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
+  List<Contact> _contacts = [];
+  List<Rdv> _rdvs = [];
 
-  // Liste des pages : la première page est vide, la deuxième affiche les contacts.
-  final List<Widget> _pages = [
-    Scaffold(
-      appBar: AppBar(title: Text("Page Principale")),
-      body: Center(child: Text("Page principale vide")),
-    ),
-    ContactsPage(), // Page des contacts
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? contactList = prefs.getStringList('contacts');
+    List<String>? rdvList = prefs.getStringList('rdvs');
+
+    if (contactList != null) {
+      setState(() {
+        _contacts = contactList.map((c) => Contact.fromJson(json.decode(c))).toList();
+        _contacts.sort((a, b) => a.nextMeetingDate.compareTo(b.nextMeetingDate));
+      });
+    }
+
+    if (rdvList != null) {
+      setState(() {
+        _rdvs = rdvList.map((r) => Rdv.fromJson(json.decode(r))).toList();
+      });
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-  
+
+  Widget _buildHomePage() {
+    return Scaffold(
+      appBar: AppBar(title: Text("Page Principale")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Prochains contacts à voir", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Column(
+              children: _contacts.take(5).map((contact) => ContactItem(
+                contact: contact,
+                onUpdate: () { setState(() {}); }
+              )).toList(),
+            ),
+            SizedBox(height: 20),
+            Text("Tous les RDVs", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Expanded(
+              child: ListView(
+                children: _rdvs.map((rdv) => RdvItem(rdv: rdv)).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  final List<Widget> _pages = [
+    // Cette liste sera remplie dans build
+    Container(),
+    ContactsPage(),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    _pages[0] = _buildHomePage();
+
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
