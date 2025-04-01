@@ -1,8 +1,11 @@
+
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import '/models/contact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 
 class ContactDetailsPage extends StatefulWidget {
   final Contact contact;
@@ -56,15 +59,15 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
             ),
             SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {}, // Ajouter un RDV
+              onPressed: () {}, // Ajouter un RDV (non implémenté)
               child: Text("Ajouter un RDV"),
             ),
             ElevatedButton(
-              onPressed: () => _showEditDialog(context),
+              onPressed: () => _showEditDialog2(context),
               child: Text("Modifier la fréquence"),
             ),
             ElevatedButton(
-              onPressed: () {}, // Voir galerie des RDV
+              onPressed: () {}, // Voir galerie des RDV (non implémenté)
               child: Text("Voir la galerie des RDV"),
             ),
           ],
@@ -85,25 +88,109 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return "${date.day}/${date.month}/${date.year}";
-  }
+    String _formatDate(DateTime date) {
+      return "${date.day}/${date.month}/${date.year}";
+    }
+
+    Future<void> _showEditDialog2(BuildContext context) async {
+      String name = widget.contact.name;
+      int frequency = widget.contact.frequencyInDays;
+      String selectedUnit = "jours";
+
+      if (frequency % 365 == 0) {
+        selectedUnit = "années";
+        frequency ~/= 365;
+      } else if (frequency % 30 == 0) {
+        selectedUnit = "mois";
+        frequency ~/= 30;
+      } else if (frequency % 7 == 0) {
+        selectedUnit = "semaines";
+        frequency ~/= 7;
+      }
+
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Modifier le contact"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(labelText: "Nom"),
+                  controller: TextEditingController(text: name),
+                  onChanged: (value) {
+                    name = value;
+                  },
+                ),
+                TextField(
+                  decoration: InputDecoration(labelText: "Fréquence"),
+                  keyboardType: TextInputType.number,
+                  controller: TextEditingController(text: frequency.toString()),
+                  onChanged: (value) {
+                    frequency = int.tryParse(value) ?? 1;
+                  },
+                ),
+                DropdownButton<String>(
+                  value: selectedUnit,
+                  items: ["jours", "semaines", "mois", "années"].map((String unit) {
+                    return DropdownMenuItem<String>(
+                      value: unit,
+                      child: Text(unit),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedUnit = value;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: Text("Annuler"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text("Enregistrer"),
+                onPressed: () async {
+                  int frequencyInDays = _convertToDays(frequency, selectedUnit);
+                  widget.contact.name = name;
+                  widget.contact.frequencyInDays = frequencyInDays;
+                  widget.contact.lastMet = DateTime.now();
+
+                  await _saveUpdatedContact();
+                  widget.onUpdate();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    int _convertToDays(int value, String unit) {
+      switch (unit) {
+        case "semaines":
+          return value * 7;
+        case "mois":
+          return value * 30;
+        case "années":
+          return value * 365;
+        default:
+          return value;
+      }
+    }
 
   Future<void> _showEditDialog(BuildContext context) async {
     String name = widget.contact.name;
-    int frequency = widget.contact.frequencyInDays;
-    String selectedUnit = "jours";
-
-    if (frequency % 365 == 0) {
-      selectedUnit = "années";
-      frequency ~/= 365;
-    } else if (frequency % 30 == 0) {
-      selectedUnit = "mois";
-      frequency ~/= 30;
-    } else if (frequency % 7 == 0) {
-      selectedUnit = "semaines";
-      frequency ~/= 7;
-    }
+    String? imagePath = widget.contact.imagePath;
 
     await showDialog(
       context: context,
@@ -120,29 +207,20 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                   name = value;
                 },
               ),
-              TextField(
-                decoration: InputDecoration(labelText: "Fréquence"),
-                keyboardType: TextInputType.number,
-                controller: TextEditingController(text: frequency.toString()),
-                onChanged: (value) {
-                  frequency = int.tryParse(value) ?? 1;
-                },
-              ),
-              DropdownButton<String>(
-                value: selectedUnit,
-                items: ["jours", "semaines", "mois", "années"].map((String unit) {
-                  return DropdownMenuItem<String>(
-                    value: unit,
-                    child: Text(unit),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      selectedUnit = value;
-                    });
+              SizedBox(height: 10),
+              imagePath != null
+                  ? Image.file(File(imagePath!), height: 100)
+                  : Container(),
+              ElevatedButton(
+                onPressed: () async {
+                  final picker = ImagePicker();
+                  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                  if (pickedFile != null) {
+                    imagePath = pickedFile.path;
+                    setState(() {}); // Actualise l'aperçu de l'image
                   }
                 },
+                child: Text("Choisir une image"),
               ),
             ],
           ),
@@ -156,11 +234,8 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
             TextButton(
               child: Text("Enregistrer"),
               onPressed: () async {
-                int frequencyInDays = _convertToDays(frequency, selectedUnit);
                 widget.contact.name = name;
-                widget.contact.frequencyInDays = frequencyInDays;
-                widget.contact.lastMet = DateTime.now();
-
+                widget.contact.imagePath = imagePath;
                 await _saveUpdatedContact();
                 widget.onUpdate();
                 Navigator.of(context).pop();
@@ -170,19 +245,6 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
         );
       },
     );
-  }
-
-  int _convertToDays(int value, String unit) {
-    switch (unit) {
-      case "semaines":
-        return value * 7;
-      case "mois":
-        return value * 30;
-      case "années":
-        return value * 365;
-      default:
-        return value;
-    }
   }
 
   Future<void> _saveUpdatedContact() async {
