@@ -3,6 +3,7 @@ import '../models/contact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
+import '../contact_details_page.dart';
 
 class ContactItem extends StatefulWidget {
   final Contact contact;
@@ -29,7 +30,21 @@ class _ContactItemState extends State<ContactItem> {
           : CircleAvatar(child: Text(widget.contact.name[0])),
       title: Text(widget.contact.name),
       subtitle: Text("À revoir $formattedTime"),
-      onTap: () => _showEditDialog(context),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ContactDetailsPage(
+              contact: widget.contact,
+              onUpdate: widget.onUpdate,
+            ),
+          ),
+        ).then((_) {
+          // Rafraîchit la liste des contacts à votre retour
+          widget.onUpdate();
+        });
+      },
+
     );
   }
 
