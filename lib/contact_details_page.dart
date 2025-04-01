@@ -1,8 +1,7 @@
-
-
 import 'package:flutter/material.dart';
 import 'dart:io';
 import '/models/contact.dart';
+import '/models/rdv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
@@ -59,7 +58,7 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
             ),
             SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {}, // Ajouter un RDV (non implémenté)
+              onPressed: () => _showAddRdvDialog(context), // Nouvelle logique pour ajouter un RDV
               child: Text("Ajouter un RDV"),
             ),
             ElevatedButton(
@@ -88,105 +87,105 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     }
   }
 
-    String _formatDate(DateTime date) {
-      return "${date.day}/${date.month}/${date.year}";
+  String _formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
+  }
+
+  Future<void> _showEditDialog2(BuildContext context) async {
+    String name = widget.contact.name;
+    int frequency = widget.contact.frequencyInDays;
+    String selectedUnit = "jours";
+
+    if (frequency % 365 == 0) {
+      selectedUnit = "années";
+      frequency ~/= 365;
+    } else if (frequency % 30 == 0) {
+      selectedUnit = "mois";
+      frequency ~/= 30;
+    } else if (frequency % 7 == 0) {
+      selectedUnit = "semaines";
+      frequency ~/= 7;
     }
 
-    Future<void> _showEditDialog2(BuildContext context) async {
-      String name = widget.contact.name;
-      int frequency = widget.contact.frequencyInDays;
-      String selectedUnit = "jours";
-
-      if (frequency % 365 == 0) {
-        selectedUnit = "années";
-        frequency ~/= 365;
-      } else if (frequency % 30 == 0) {
-        selectedUnit = "mois";
-        frequency ~/= 30;
-      } else if (frequency % 7 == 0) {
-        selectedUnit = "semaines";
-        frequency ~/= 7;
-      }
-
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Modifier le contact"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: InputDecoration(labelText: "Nom"),
-                  controller: TextEditingController(text: name),
-                  onChanged: (value) {
-                    name = value;
-                  },
-                ),
-                TextField(
-                  decoration: InputDecoration(labelText: "Fréquence"),
-                  keyboardType: TextInputType.number,
-                  controller: TextEditingController(text: frequency.toString()),
-                  onChanged: (value) {
-                    frequency = int.tryParse(value) ?? 1;
-                  },
-                ),
-                DropdownButton<String>(
-                  value: selectedUnit,
-                  items: ["jours", "semaines", "mois", "années"].map((String unit) {
-                    return DropdownMenuItem<String>(
-                      value: unit,
-                      child: Text(unit),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedUnit = value;
-                      });
-                    }
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                child: Text("Annuler"),
-                onPressed: () {
-                  Navigator.of(context).pop();
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Modifier le contact"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: "Nom"),
+                controller: TextEditingController(text: name),
+                onChanged: (value) {
+                  name = value;
                 },
               ),
-              TextButton(
-                child: Text("Enregistrer"),
-                onPressed: () async {
-                  int frequencyInDays = _convertToDays(frequency, selectedUnit);
-                  widget.contact.name = name;
-                  widget.contact.frequencyInDays = frequencyInDays;
-                  widget.contact.lastMet = DateTime.now();
-
-                  await _saveUpdatedContact();
-                  widget.onUpdate();
-                  Navigator.of(context).pop();
+              TextField(
+                decoration: InputDecoration(labelText: "Fréquence"),
+                keyboardType: TextInputType.number,
+                controller: TextEditingController(text: frequency.toString()),
+                onChanged: (value) {
+                  frequency = int.tryParse(value) ?? 1;
+                },
+              ),
+              DropdownButton<String>(
+                value: selectedUnit,
+                items: ["jours", "semaines", "mois", "années"].map((String unit) {
+                  return DropdownMenuItem<String>(
+                    value: unit,
+                    child: Text(unit),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      selectedUnit = value;
+                    });
+                  }
                 },
               ),
             ],
-          );
-        },
-      );
-    }
+          ),
+          actions: [
+            TextButton(
+              child: Text("Annuler"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Enregistrer"),
+              onPressed: () async {
+                int frequencyInDays = _convertToDays(frequency, selectedUnit);
+                widget.contact.name = name;
+                widget.contact.frequencyInDays = frequencyInDays;
+                widget.contact.lastMet = DateTime.now();
 
-    int _convertToDays(int value, String unit) {
-      switch (unit) {
-        case "semaines":
-          return value * 7;
-        case "mois":
-          return value * 30;
-        case "années":
-          return value * 365;
-        default:
-          return value;
-      }
+                await _saveUpdatedContact();
+                widget.onUpdate();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  int _convertToDays(int value, String unit) {
+    switch (unit) {
+      case "semaines":
+        return value * 7;
+      case "mois":
+        return value * 30;
+      case "années":
+        return value * 365;
+      default:
+        return value;
     }
+  }
 
   Future<void> _showEditDialog(BuildContext context) async {
     String name = widget.contact.name;
@@ -262,5 +261,83 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
         await prefs.setStringList('contacts', updatedList);
       }
     }
+  }
+
+  // Nouvelle fonction pour ajouter un RDV
+  Future<void> _showAddRdvDialog(BuildContext context) async {
+    DateTime selectedDate = DateTime.now();
+    String? rdvPhotoPath;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // Utilisation d'un StatefulBuilder pour gérer l'état local du dialogue
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text("Ajouter un RDV"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Sélection de la date
+                  Row(
+                    children: [
+                      Text("Date : "),
+                      Text("${selectedDate.day}/${selectedDate.month}/${selectedDate.year}"),
+                      IconButton(
+                        icon: Icon(Icons.calendar_today),
+                        onPressed: () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (pickedDate != null) {
+                            setState(() {
+                              selectedDate = pickedDate;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  
+                ],
+              ),
+              actions: [
+                TextButton(
+                  child: Text("Annuler"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text("Ajouter"),
+                  onPressed: () async {
+                    // Création du RDV et sauvegarde dans SharedPreferences
+                    Rdv newRdv = Rdv(
+                      contact: widget.contact,
+                      date: selectedDate,
+                      photoPath: rdvPhotoPath,
+                    );
+                    await _saveNewRdv(newRdv);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _saveNewRdv(Rdv newRdv) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? rdvList = prefs.getStringList('rdvs');
+    rdvList = rdvList ?? [];
+    rdvList.add(json.encode(newRdv.toJson()));
+    await prefs.setStringList('rdvs', rdvList);
   }
 }
