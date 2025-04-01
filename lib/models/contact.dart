@@ -1,8 +1,8 @@
 class Contact {
-  final String name;
+  String name;
   DateTime lastMet;
   int frequencyInDays;
-  String? imagePath; // Ajout du chemin de l'image
+  String? imagePath;
 
   Contact({
     required this.name,
