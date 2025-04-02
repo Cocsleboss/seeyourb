@@ -42,31 +42,73 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    print("init");
     _loadData();
+    print("données chargée");
   }
   
+  Future<void> _saveAllRdvs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> rdvList = _rdvs.map((rdv) => json.encode(rdv.toJson())).toList();
+    await prefs.setStringList('rdvs', rdvList);
+    print("RDVs sauvegardés : $rdvList"); // Ajoute ce print pour vérifier
+  }
+
+
+
+
   Future<void> _loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? contactList = prefs.getStringList('contacts');
     List<String>? rdvList = prefs.getStringList('rdvs');
-    
+
     if (contactList != null) {
       setState(() {
-        _contacts = contactList.map((c) => Contact.fromJson(json.decode(c))).toList();
+        _contacts = contactList
+            .where((c) => c.isNotEmpty) // Filtre les chaînes vides
+            .map((c) {
+              try {
+                return Contact.fromJson(json.decode(c));
+              } catch (e) {
+                print("Erreur de parsing JSON (contact) : $e");
+                return null; // Ignore les entrées corrompues
+              }
+            })
+            .where((c) => c != null)
+            .cast<Contact>()
+            .toList();
+
         _contacts.sort((a, b) => a.nextMeetingDate.compareTo(b.nextMeetingDate));
       });
     }
-    
+
     if (rdvList != null) {
+      print("RDVs récupérés depuis SharedPreferences : $rdvList");
       setState(() {
-        _rdvs = rdvList.map((r) => Rdv.fromJson(json.decode(r))).toList();
+        _rdvs = rdvList
+            .where((r) => r.isNotEmpty) // Filtre les chaînes vides
+            .map((r) {
+              try {
+                return Rdv.fromJson(json.decode(r));
+              } catch (e) {
+                print("Erreur de parsing JSON (rdv) : $e");
+                return null;
+              }
+            })
+            .where((r) => r != null)
+            .cast<Rdv>()
+            .toList();
       });
     }
   }
+
   
   void _updateState() {
-    setState(() {});
+    setState(() {
+      _saveAllRdvs(); // Sauvegarde tous les RDVs après mise à jour
+    });
   }
+
   
   void _onItemTapped(int index) {
     setState(() {
@@ -101,7 +143,11 @@ class _MainPageState extends State<MainPage> {
             SizedBox(height: 10),
             Expanded(
               child: ListView(
-                children: _rdvs.map((rdv) => RdvItem(rdv: rdv, onUpdate: () { setState(() {}); })).toList(),
+                children: _rdvs.map((rdv) => RdvItem(
+                  rdv: rdv,
+                  onUpdate: () { setState(() {}); },
+                  onSave: _saveAllRdvs, // Passe la fonction ici
+                )).toList(),
               ),
             ),
           ],

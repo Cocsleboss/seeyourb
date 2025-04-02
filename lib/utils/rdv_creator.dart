@@ -129,8 +129,8 @@ Future<void> showAddRdvDialog(BuildContext context, List<Contact> contacts, Func
                       date: finalDateTime,
                       photoPath: null, // On ne gère plus la photo ici
                     );
-                    await saveNewRdv(newRdv);
                     onRdvAdded(newRdv);
+                    await saveNewRdv(newRdv);
                     Navigator.of(context).pop();
                   }
                 },

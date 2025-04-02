@@ -7,8 +7,14 @@ import '../models/rdv.dart';
 class RdvItem extends StatefulWidget {
   final Rdv rdv;
   final VoidCallback onUpdate;
+  final VoidCallback onSave; // Ajout du callback pour la sauvegarde
 
-  const RdvItem({Key? key, required this.rdv, required this.onUpdate}) : super(key: key);
+  const RdvItem({
+    Key? key,
+    required this.rdv,
+    required this.onUpdate,
+    required this.onSave, // Ajout ici
+  }) : super(key: key);
 
   @override
   _RdvItemState createState() => _RdvItemState();
@@ -46,7 +52,6 @@ class _RdvItemState extends State<RdvItem> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    // Sélection de la date
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: widget.rdv.date,
@@ -54,26 +59,26 @@ class _RdvItemState extends State<RdvItem> {
       lastDate: DateTime(2100),
     );
     if (pickedDate != null) {
-      // Sélection de l'heure
       TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(widget.rdv.date),
       );
       if (pickedTime != null) {
-        DateTime newDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
         setState(() {
-          widget.rdv.date = newDateTime;
+          widget.rdv.date = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
         });
         widget.onUpdate();
+        widget.onSave(); // Sauvegarde après modification
       }
     }
   }
+
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
