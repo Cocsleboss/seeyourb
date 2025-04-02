@@ -5,6 +5,7 @@ import '/models/contact.dart';
 import '/widgets/contact_item.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'creators/contact_creator.dart'; // Import du manager
 
 class ContactsPage extends StatefulWidget {
   const ContactsPage({Key? key}) : super(key: key);
@@ -15,6 +16,7 @@ class ContactsPage extends StatefulWidget {
 
 class _ContactsPageState extends State<ContactsPage> {
   List<Contact> contacts = [];
+  String searchQuery = "";
 
   @override
   void initState() {
@@ -48,148 +50,75 @@ class _ContactsPageState extends State<ContactsPage> {
     saveContacts();
   }
 
-  Future<void> _showAddContactDialog() async {
-  String name = "";
-  int frequency = 1;
-  String selectedUnit = "jours";
-  String? imagePath;
-
-  await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Ajouter un contact"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: InputDecoration(labelText: "Nom"),
-              onChanged: (value) {
-                name = value;
-              },
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: "Fréquence"),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                frequency = int.tryParse(value) ?? 1;
-              },
-            ),
-            DropdownButton<String>(
-              value: selectedUnit,
-              items: ["jours", "semaines", "mois", "années"].map((String unit) {
-                return DropdownMenuItem<String>(
-                  value: unit,
-                  child: Text(unit),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  selectedUnit = value;
-                }
-              },
-            ),
-            SizedBox(height: 10),
-            imagePath != null
-                ? Image.file(File(imagePath!), height: 100)
-                : Container(),
-            ElevatedButton(
-              onPressed: () async {
-                final picker = ImagePicker();
-                final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-                if (pickedFile != null) {
-                  imagePath = pickedFile.path;
-                }
-              },
-              child: Text("Choisir une image"),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            child: Text("Annuler"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          TextButton(
-            child: Text("Ajouter"),
-            onPressed: () {
-              if (name.isNotEmpty && frequency > 0) {
-                int frequencyInDays = _convertToDays(frequency, selectedUnit);
-                addContact(Contact(
-                  name: name,
-                  lastMet: DateTime.now(),
-                  frequencyInDays: frequencyInDays,
-                  imagePath: imagePath,
-                ));
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
-  int _convertToDays(int value, String unit) {
-    switch (unit) {
-      case "semaines":
-        return value * 7;
-      case "mois":
-        return value * 30;
-      case "années":
-        return value * 365;
-      default:
-        return value; // Jours par défaut
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Filtrer les contacts en fonction de la recherche
+    List<Contact> filteredContacts = contacts.where((contact) {
+      return contact.name.toLowerCase().contains(searchQuery.toLowerCase());
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Contacts"),
       ),
-
-      body: ListView.builder(
-        itemCount: contacts.length,
-        itemBuilder: (context, index) {
-          final contact = contacts[index];
-          return Dismissible(
-            key: Key(contact.name), // Utiliser un identifiant unique
-            direction: DismissDirection.endToStart, // Balayage vers la gauche
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Icon(Icons.delete, color: Colors.white),
+      body: Column(
+        children: [
+          // Champ de recherche
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              decoration: InputDecoration(
+                labelText: "Rechercher un contact",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
             ),
-            onDismissed: (direction) {
-              setState(() {
-                contacts.removeAt(index);
-              });
-              saveContacts(); // Sauvegarde après suppression
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("${contact.name} supprimé")),
-              );
-            },
-            child: ContactItem(
-              contact: contact,
-              onUpdate: saveContacts,
+          ),
+          // Liste des contacts filtrés
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredContacts.length,
+              itemBuilder: (context, index) {
+                final contact = filteredContacts[index];
+                return Dismissible(
+                  key: Key(contact.name),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
+                    setState(() {
+                      contacts.removeWhere((c) => c.name == contact.name);
+                    });
+                    saveContacts();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("${contact.name} supprimé")),
+                    );
+                  },
+                  child: ContactItem(
+                    contact: contact,
+                    onUpdate: saveContacts,
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
-
-
-
-
-
       floatingActionButton: FloatingActionButton(
-        onPressed: _showAddContactDialog,
+        onPressed: () {
+          showAddContactDialog(context, (Contact newContact) {
+            addContact(newContact);
+          });
+        },
         child: Icon(Icons.add),
       ),
     );
