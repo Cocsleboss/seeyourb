@@ -73,7 +73,7 @@ class _MainPageState extends State<MainPage> {
 
   Widget _buildHomePage() {
     return Scaffold(
-      appBar: AppBar(title: Text("Page Principale")),
+      appBar: AppBar(title: Text("SeeYourB")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
