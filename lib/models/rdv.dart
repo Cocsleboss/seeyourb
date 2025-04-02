@@ -11,7 +11,6 @@ class Rdv {
     this.photoPath,
   });
 
-  // Conversion en JSON
   Map<String, dynamic> toJson() {
     return {
       'contact': contact.toJson(),
@@ -20,7 +19,6 @@ class Rdv {
     };
   }
 
-  // Conversion depuis JSON
   factory Rdv.fromJson(Map<String, dynamic> json) {
     return Rdv(
       contact: Contact.fromJson(json['contact']),

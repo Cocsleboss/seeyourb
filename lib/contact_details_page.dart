@@ -263,9 +263,10 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
     }
   }
 
-  // Nouvelle fonction pour ajouter un RDV
+  // fonction pour ajouter un rdv
   Future<void> _showAddRdvDialog(BuildContext context) async {
     DateTime selectedDate = DateTime.now();
+    TimeOfDay selectedTime = TimeOfDay.now();
     String? rdvPhotoPath;
 
     await showDialog(
@@ -274,6 +275,8 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
         // Utilisation d'un StatefulBuilder pour gérer l'état local du dialogue
         return StatefulBuilder(
           builder: (context, setState) {
+            String formattedDate = "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";
+            String formattedTime = selectedTime.format(context);
             return AlertDialog(
               title: Text("Ajouter un RDV"),
               content: Column(
@@ -283,11 +286,11 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                   Row(
                     children: [
                       Text("Date : "),
-                      Text("${selectedDate.day}/${selectedDate.month}/${selectedDate.year}"),
+                      Text(formattedDate),
                       IconButton(
                         icon: Icon(Icons.calendar_today),
                         onPressed: () async {
-                          final pickedDate = await showDatePicker(
+                          DateTime? pickedDate = await showDatePicker(
                             context: context,
                             initialDate: selectedDate,
                             firstDate: DateTime(2000),
@@ -302,7 +305,43 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                       ),
                     ],
                   ),
-                  
+                  // Sélection de l'heure
+                  Row(
+                    children: [
+                      Text("Heure : "),
+                      Text(formattedTime),
+                      IconButton(
+                        icon: Icon(Icons.access_time),
+                        onPressed: () async {
+                          TimeOfDay? pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: selectedTime,
+                          );
+                          if (pickedTime != null) {
+                            setState(() {
+                              selectedTime = pickedTime;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  rdvPhotoPath != null
+                      ? Image.file(File(rdvPhotoPath!), height: 100)
+                      : Container(),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final picker = ImagePicker();
+                      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                      if (pickedFile != null) {
+                        setState(() {
+                          rdvPhotoPath = pickedFile.path;
+                        });
+                      }
+                    },
+                    child: Text("Choisir une image"),
+                  ),
                 ],
               ),
               actions: [
@@ -315,10 +354,17 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                 TextButton(
                   child: Text("Ajouter"),
                   onPressed: () async {
-                    // Création du RDV et sauvegarde dans SharedPreferences
+                    // Combine la date et l'heure sélectionnées
+                    DateTime finalDateTime = DateTime(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day,
+                      selectedTime.hour,
+                      selectedTime.minute,
+                    );
                     Rdv newRdv = Rdv(
                       contact: widget.contact,
-                      date: selectedDate,
+                      date: finalDateTime,
                       photoPath: rdvPhotoPath,
                     );
                     await _saveNewRdv(newRdv);

@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../models/rdv.dart';
 
+
 class RdvItem extends StatefulWidget {
   final Rdv rdv;
   final VoidCallback onUpdate;
@@ -23,7 +24,7 @@ class _RdvItemState extends State<RdvItem> {
             children: [
               ListTile(
                 leading: Icon(Icons.calendar_today),
-                title: Text("Modifier la date"),
+                title: Text("Modifier la date et l'heure"),
                 onTap: () {
                   Navigator.pop(context);
                   _selectDate(context);
@@ -45,25 +46,38 @@ class _RdvItemState extends State<RdvItem> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    // Sélection de la date
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: widget.rdv.date,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-
-    if (pickedDate != null && pickedDate != widget.rdv.date) {
-      setState(() {
-        widget.rdv.date = pickedDate;
-      });
-      widget.onUpdate();
+    if (pickedDate != null) {
+      // Sélection de l'heure
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(widget.rdv.date),
+      );
+      if (pickedTime != null) {
+        DateTime newDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        setState(() {
+          widget.rdv.date = newDateTime;
+        });
+        widget.onUpdate();
+      }
     }
   }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       setState(() {
         widget.rdv.photoPath = pickedFile.path;
@@ -74,6 +88,8 @@ class _RdvItemState extends State<RdvItem> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = "${widget.rdv.date.day}/${widget.rdv.date.month}/${widget.rdv.date.year} "
+        "${widget.rdv.date.hour}:${widget.rdv.date.minute.toString().padLeft(2, '0')}";
     return GestureDetector(
       onTap: () => _showEditDialog(context),
       child: Card(
@@ -81,7 +97,7 @@ class _RdvItemState extends State<RdvItem> {
         child: ListTile(
           leading: Icon(Icons.calendar_today, color: Colors.blue),
           title: Text(widget.rdv.contact.name),
-          subtitle: Text("${widget.rdv.date.day}/${widget.rdv.date.month}/${widget.rdv.date.year}"),
+          subtitle: Text(formattedDate),
           trailing: widget.rdv.photoPath != null
               ? Image.file(File(widget.rdv.photoPath!), width: 50, height: 50, fit: BoxFit.cover)
               : null,
