@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'creators/rdv_creator.dart';
+import 'utils/rdv_creator.dart';
 
 void main() {
   runApp(MyApp());

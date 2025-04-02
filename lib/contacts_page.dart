@@ -5,7 +5,7 @@ import '/models/contact.dart';
 import '/widgets/contact_item.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'creators/contact_creator.dart'; // Import du manager
+import 'utils/contact_creator.dart'; // Import du manager
 
 class ContactsPage extends StatefulWidget {
   const ContactsPage({Key? key}) : super(key: key);
