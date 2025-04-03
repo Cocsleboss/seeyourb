@@ -10,12 +10,15 @@ class RdvItem extends StatefulWidget {
   final Rdv rdv;
   final VoidCallback onUpdate;
   final VoidCallback onSave;
+  final VoidCallback onDelete;
+
 
   const RdvItem({
     Key? key,
     required this.rdv,
     required this.onUpdate,
     required this.onSave,
+    required this.onDelete,
   }) : super(key: key);
 
   @override
@@ -23,6 +26,7 @@ class RdvItem extends StatefulWidget {
 }
 
 class _RdvItemState extends State<RdvItem> {
+
   Future<void> _showEditDialog(BuildContext context) async {
     showModalBottomSheet(
       context: context,
@@ -54,12 +58,33 @@ class _RdvItemState extends State<RdvItem> {
                   _editContacts(context);
                 },
               ),
+              ListTile(
+                leading: Icon(Icons.check),
+                title: Text("Marquer comme fait"),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    widget.rdv.isDone = true;
+                  });
+                  widget.onUpdate();
+                  widget.onSave();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete, color: Colors.red),
+                title: Text("Supprimer"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDelete();
+                },
+              ),
             ],
           ),
         );
       },
     );
   }
+
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
@@ -100,6 +125,32 @@ class _RdvItemState extends State<RdvItem> {
       widget.onSave();
     }
   }
+
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Supprimer ce RDV ?"),
+          content: Text("Cette action est irréversible."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Annuler"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                widget.onDelete(); // Appelle la fonction de suppression
+              },
+              child: Text("Supprimer", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   /// Permet d'éditer la liste des contacts associés au RDV.
   Future<void> _editContacts(BuildContext context) async {

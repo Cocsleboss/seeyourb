@@ -143,11 +143,15 @@ class _MainPageState extends State<MainPage> {
             SizedBox(height: 10),
             Expanded(
               child: ListView(
-                children: _rdvs.map((rdv) => RdvItem(
-                  rdv: rdv,
-                  onUpdate: () { setState(() {}); },
-                  onSave: _saveAllRdvs, // Passe la fonction ici
-                )).toList(),
+                children: _rdvs
+                    .where((rdv) => !rdv.isDone) // Affiche seulement les RDVs non faits
+                    .map((rdv) => RdvItem(
+                          rdv: rdv,
+                          onUpdate: () { setState(() {}); },
+                          onSave: _saveAllRdvs,
+                          onDelete: () => _deleteRdv(rdv), // Passe la fonction ici
+                        ))
+                    .toList(),
               ),
             ),
           ],
@@ -161,6 +165,14 @@ class _MainPageState extends State<MainPage> {
     Container(),
     ContactsPage(),
   ];
+
+  void _deleteRdv(Rdv rdv) {
+    setState(() {
+      _rdvs.remove(rdv);
+    });
+    _saveAllRdvs();
+  }
+
   
   Future<void> _showAddRdvDialogMain(BuildContext context) async {
     await showAddRdvDialog(context, _contacts, (Rdv newRdv) {
