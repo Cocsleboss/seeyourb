@@ -363,9 +363,9 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
                       selectedTime.minute,
                     );
                     Rdv newRdv = Rdv(
-                      contact: widget.contact,
+                      contacts: [widget.contact],
                       date: finalDateTime,
-                      photoPath: rdvPhotoPath,
+                      photoPath: null,
                     );
                     await _saveNewRdv(newRdv);
                     Navigator.of(context).pop();

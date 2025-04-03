@@ -4,11 +4,12 @@ import 'dart:convert';
 import '../models/rdv.dart';
 import '../models/contact.dart';
 
-/// Affiche un dialogue pour ajouter un RDV.
+/// Affiche un dialogue pour ajouter un RDV avec plusieurs contacts.
 /// [contacts] : la liste des contacts disponibles.
 /// [onRdvAdded] : callback appelé avec le nouveau RDV une fois créé.
-Future<void> showAddRdvDialog(BuildContext context, List<Contact> contacts, Function(Rdv) onRdvAdded) async {
-  Contact? selectedContact = contacts.isNotEmpty ? contacts.first : null;
+Future<void> showAddRdvDialog(
+    BuildContext context, List<Contact> contacts, Function(Rdv) onRdvAdded) async {
+  List<Contact> selectedContacts = [];
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
 
@@ -17,7 +18,8 @@ Future<void> showAddRdvDialog(BuildContext context, List<Contact> contacts, Func
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (context, setState) {
-          String formattedDate = "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";
+          String formattedDate =
+              "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";
           String formattedTime = selectedTime.format(context);
           return AlertDialog(
             title: Text("Ajouter un RDV"),
@@ -25,40 +27,56 @@ Future<void> showAddRdvDialog(BuildContext context, List<Contact> contacts, Func
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Choix du contact avec suggestions Autocomplete
+                  // Autocomplete pour rechercher et sélectionner des contacts
                   Autocomplete<Contact>(
                     optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text == '') {
+                      if (textEditingValue.text.isEmpty) {
                         return const Iterable<Contact>.empty();
                       }
                       return contacts.where((Contact option) {
-                        return option.name.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                        return option.name
+                            .toLowerCase()
+                            .contains(textEditingValue.text.toLowerCase());
                       });
                     },
                     displayStringForOption: (Contact option) => option.name,
                     onSelected: (Contact selection) {
                       setState(() {
-                        selectedContact = selection;
+                        if (!selectedContacts.contains(selection)) {
+                          selectedContacts.add(selection);
+                        }
                       });
                     },
                     fieldViewBuilder: (BuildContext context,
                         TextEditingController textEditingController,
                         FocusNode focusNode,
                         VoidCallback onFieldSubmitted) {
-                      // Si un contact est déjà sélectionné, on affiche son nom
-                      if (selectedContact != null) {
-                        textEditingController.text = selectedContact!.name;
-                      }
                       return TextField(
                         controller: textEditingController,
                         focusNode: focusNode,
                         decoration: InputDecoration(
-                          labelText: 'Contact',
+                          labelText: 'Rechercher un contact',
+                          border: OutlineInputBorder(),
                         ),
                       );
                     },
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 5),
+                  // Affichage des contacts sélectionnés sous forme de Chips
+                  Wrap(
+                    spacing: 8,
+                    children: selectedContacts
+                        .map((c) => Chip(
+                              label: Text(c.name),
+                              onDeleted: () {
+                                setState(() {
+                                  selectedContacts.remove(c);
+                                });
+                              },
+                            ))
+                        .toList(),
+                  ),
+                  Divider(),
                   // Sélection de la date
                   Row(
                     children: [
@@ -116,7 +134,7 @@ Future<void> showAddRdvDialog(BuildContext context, List<Contact> contacts, Func
               TextButton(
                 child: Text("Ajouter"),
                 onPressed: () async {
-                  if (selectedContact != null) {
+                  if (selectedContacts.isNotEmpty) {
                     DateTime finalDateTime = DateTime(
                       selectedDate.year,
                       selectedDate.month,
@@ -125,7 +143,7 @@ Future<void> showAddRdvDialog(BuildContext context, List<Contact> contacts, Func
                       selectedTime.minute,
                     );
                     Rdv newRdv = Rdv(
-                      contact: selectedContact!,
+                      contacts: selectedContacts,
                       date: finalDateTime,
                       photoPath: null, // On ne gère plus la photo ici
                     );
