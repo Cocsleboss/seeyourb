@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'utils/rdv_creator.dart';
+import 'historique_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -135,10 +136,23 @@ class _MainPageState extends State<MainPage> {
             SizedBox(height: 20),
             Text("Tous les RDVs", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            // Bouton pour ajouter un RDV
-            ElevatedButton(
-              onPressed: () => _showAddRdvDialogMain(context),
-              child: Text("Ajouter un RDV"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _showAddRdvDialogMain(context),
+                  child: Text("Ajouter un RDV"),
+                ),
+                IconButton(
+                  icon: Icon(Icons.history),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HistoriquePage(rdvs: _rdvs)),
+                    );
+                  },
+                ),
+              ],
             ),
             SizedBox(height: 10),
             Expanded(
