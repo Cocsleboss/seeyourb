@@ -1,7 +1,7 @@
 import 'contact.dart';
 
 class Rdv {
-  final List<Contact> contacts;
+  List<Contact> contacts; // Retirez "final" ici
   DateTime date;
   String? photoPath;
 

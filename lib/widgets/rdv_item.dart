@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/rdv.dart';
+import '../models/contact.dart';
 
 class RdvItem extends StatefulWidget {
   final Rdv rdv;
@@ -41,6 +44,14 @@ class _RdvItemState extends State<RdvItem> {
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.group),
+                title: Text("Modifier les contacts"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _editContacts(context);
                 },
               ),
             ],
@@ -88,6 +99,117 @@ class _RdvItemState extends State<RdvItem> {
       widget.onUpdate();
       widget.onSave();
     }
+  }
+
+  /// Permet d'éditer la liste des contacts associés au RDV.
+  Future<void> _editContacts(BuildContext context) async {
+    // Charger tous les contacts depuis SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? contactList = prefs.getStringList('contacts');
+    List<Contact> allContacts = [];
+    if (contactList != null) {
+      allContacts = contactList
+          .where((c) => c.isNotEmpty)
+          .map((c) {
+            try {
+              return Contact.fromJson(json.decode(c));
+            } catch (e) {
+              print("Erreur de parsing JSON (contact) : $e");
+              return null;
+            }
+          })
+          .where((c) => c != null)
+          .cast<Contact>()
+          .toList();
+    }
+
+    // Créer une copie de la liste actuelle des contacts du RDV
+    List<Contact> editedContacts = List.from(widget.rdv.contacts);
+    TextEditingController textController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setStateDialog) {
+          return AlertDialog(
+            title: Text("Modifier les contacts"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Autocomplete<Contact>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return const Iterable<Contact>.empty();
+                      }
+                      return allContacts.where((Contact option) {
+                        return option.name.toLowerCase().contains(
+                            textEditingValue.text.toLowerCase());
+                      });
+                    },
+                    displayStringForOption: (Contact option) => option.name,
+                    onSelected: (Contact selection) {
+                      setStateDialog(() {
+                        if (!editedContacts.contains(selection)) {
+                          editedContacts.add(selection);
+                        }
+                      });
+                    },
+                    fieldViewBuilder: (BuildContext context,
+                        TextEditingController controller,
+                        FocusNode focusNode,
+                        VoidCallback onFieldSubmitted) {
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          labelText: 'Rechercher un contact',
+                          border: OutlineInputBorder(),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  // Affichage des contacts sélectionnés sous forme de Chips
+                  Wrap(
+                    spacing: 8,
+                    children: editedContacts
+                        .map((c) => Chip(
+                              label: Text(c.name),
+                              onDeleted: () {
+                                setStateDialog(() {
+                                  editedContacts.remove(c);
+                                });
+                              },
+                            ))
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text("Annuler"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text("Enregistrer"),
+                onPressed: () {
+                  setState(() {
+                    widget.rdv.contacts = editedContacts;
+                  });
+                  widget.onUpdate();
+                  widget.onSave();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   @override
