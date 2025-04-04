@@ -5,6 +5,7 @@ import '/models/rdv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import 'gallery_page.dart';
 
 class ContactDetailsPage extends StatefulWidget {
   final Contact contact;
@@ -66,7 +67,14 @@ class _ContactDetailsPageState extends State<ContactDetailsPage> {
               child: Text("Modifier la fréquence"),
             ),
             ElevatedButton(
-              onPressed: () {}, // Voir galerie des RDV (non implémenté)
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RdvGalleryPage(contact: widget.contact),
+                  ),
+                );
+              },
               child: Text("Voir la galerie des RDV"),
             ),
           ],

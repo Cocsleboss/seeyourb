@@ -43,16 +43,13 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    print("init");
     _loadData();
-    print("données chargée");
   }
   
   Future<void> _saveAllRdvs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> rdvList = _rdvs.map((rdv) => json.encode(rdv.toJson())).toList();
     await prefs.setStringList('rdvs', rdvList);
-    print("RDVs sauvegardés : $rdvList"); // Ajoute ce print pour vérifier
   }
 
 
@@ -84,7 +81,6 @@ class _MainPageState extends State<MainPage> {
     }
 
     if (rdvList != null) {
-      print("RDVs récupérés depuis SharedPreferences : $rdvList");
       setState(() {
         _rdvs = rdvList
             .where((r) => r.isNotEmpty) // Filtre les chaînes vides
