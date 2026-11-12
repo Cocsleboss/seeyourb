@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased dark:bg-[#0b0b0f] dark:text-gray-100;
+  min-height: 100dvh;
+}
+
+/* Évite le zoom automatique d'iOS sur les champs (taille < 16px) */
+input,
+select,
+textarea,
+button {
+  font-size: 16px;
+}
+
+/* Champs date/heure natifs : hauteur cohérente sur iOS */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  min-height: 2.875rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* En mode installé : comportement "app" (pas de sélection accidentelle sur les boutons) */
+@media (display-mode: standalone) {
+  a,
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Flèche des listes déroulantes (appearance-none retire la flèche native) */
+.select-arrow {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 16px;
+}
