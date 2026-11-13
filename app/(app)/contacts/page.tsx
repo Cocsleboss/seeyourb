@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search, UserPlus, Users } from "lucide-react";
+import { BookUser, Plus, Search, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ContactRow } from "@/components/contacts/ContactRow";
@@ -77,13 +77,23 @@ export default function ContactsPage() {
       <TopBar
         title="Contacts"
         right={
-          <Link
-            href="/contacts/new"
-            aria-label="Ajouter un contact"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-white shadow-sm active:scale-95"
-          >
-            <Plus className="h-5 w-5" strokeWidth={2.5} />
-          </Link>
+          <>
+            <Link
+              href="/contacts/import"
+              aria-label="Importer des contacts du téléphone"
+              title="Importer des contacts"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-brand-600 hover:bg-gray-100 active:scale-95 dark:text-brand-300 dark:hover:bg-gray-800"
+            >
+              <BookUser className="h-5 w-5" />
+            </Link>
+            <Link
+              href="/contacts/new"
+              aria-label="Ajouter un contact"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-white shadow-sm active:scale-95"
+            >
+              <Plus className="h-5 w-5" strokeWidth={2.5} />
+            </Link>
+          </>
         }
       />
       <Page className="space-y-4">
@@ -102,9 +112,14 @@ export default function ContactsPage() {
             title="Aucun contact pour l'instant"
             description="Ajoutez les personnes que vous voulez revoir régulièrement : l'app vous rappellera quand il est temps de les recontacter."
             action={
-              <LinkButton href="/contacts/new">
-                <UserPlus className="h-5 w-5" /> Ajouter un contact
-              </LinkButton>
+              <div className="flex flex-col items-stretch gap-2">
+                <LinkButton href="/contacts/new">
+                  <UserPlus className="h-5 w-5" /> Ajouter un contact
+                </LinkButton>
+                <LinkButton href="/contacts/import" variant="secondary">
+                  <BookUser className="h-5 w-5" /> Importer depuis le téléphone
+                </LinkButton>
+              </div>
             }
           />
         ) : (

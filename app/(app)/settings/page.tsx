@@ -1,11 +1,11 @@
 "use client";
 
-import { Download } from "lucide-react";
+import { BookUser, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AccountSection } from "@/components/settings/AccountSection";
 import { InstallHelp } from "@/components/settings/InstallHelp";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
-import { Button, Card, Field, Input, Page, SectionTitle, TopBar, buttonClasses, useToast } from "@/components/ui";
+import { Button, Card, Field, Input, LinkButton, Page, SectionTitle, TopBar, buttonClasses, useToast } from "@/components/ui";
 import { updateProfile } from "@/lib/data";
 import { useSession } from "@/lib/session";
 
@@ -80,6 +80,10 @@ export default function SettingsPage() {
         <section>
           <SectionTitle>Données</SectionTitle>
           <Card className="space-y-2">
+            <LinkButton href="/contacts/import" variant="outline" full>
+              <BookUser className="h-5 w-5" /> Importer des contacts du téléphone
+            </LinkButton>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Depuis le carnet d&apos;adresses ou un fichier .vcf, avec revue contact par contact.</p>
             <a href="/api/export" download className={buttonClasses({ variant: "outline", full: true })}>
               <Download className="h-5 w-5" /> Exporter mes données (JSON)
             </a>

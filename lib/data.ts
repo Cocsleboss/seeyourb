@@ -139,6 +139,22 @@ export async function createContact(input: ContactInput): Promise<Contact> {
   return data as Contact;
 }
 
+/** Création groupée (import) : insère par lots de 100, renvoie les contacts créés. */
+export async function createContacts(inputs: ContactInput[]): Promise<Contact[]> {
+  const uid = await currentUserId();
+  const created: Contact[] = [];
+  for (let i = 0; i < inputs.length; i += 100) {
+    const rows = inputs.slice(i, i + 100).map((input) => ({ ...cleanContactInput(input), user_id: uid }));
+    const { data, error } = await sb().from("contacts").insert(rows).select("*");
+    if (error) {
+      const msg = translateError(error.message);
+      throw new Error(created.length ? ` contact(s) ajouté(s) avant l'erreur : ` : msg);
+    }
+    created.push(...((data ?? []) as Contact[]));
+  }
+  return created;
+}
+
 export async function updateContact(
   id: string,
   patch: Partial<ContactInput> & { snooze_until?: string | null }

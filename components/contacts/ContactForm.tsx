@@ -3,31 +3,23 @@
 import { Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { PhotoPicker } from "@/components/PhotoPicker";
-import { Avatar, Button, Chip, ChipRow, Field, Input, Select, Textarea, useToast } from "@/components/ui";
+import { CategoryPicker } from "@/components/contacts/CategoryPicker";
+import { FrequencyPicker } from "@/components/contacts/FrequencyPicker";
+import { Avatar, Button, Field, Input, Textarea, useToast } from "@/components/ui";
 import { createContact, setContactPhoto, updateContact } from "@/lib/data";
-import { addFrequency, formatDateLong, frequencyLabel, FREQUENCY_UNIT_LABEL, todayISO } from "@/lib/dates";
-import { CATEGORY_SUGGESTIONS, FREQUENCY_PRESETS, type Contact, type ContactInput, type FrequencyUnit } from "@/lib/types";
-
-const UNITS: FrequencyUnit[] = ["days", "weeks", "months", "years"];
+import { addFrequency, formatDateLong, frequencyLabel, todayISO } from "@/lib/dates";
+import type { Contact, ContactInput, FrequencyUnit } from "@/lib/types";
 
 /** Formulaire de création / modification d'un contact (gère aussi l'enregistrement et la photo). */
 export function ContactForm({ initial, onSaved }: { initial?: Contact; onSaved: (contact: Contact) => void }) {
   const toast = useToast();
   const isEdit = Boolean(initial);
 
-  const initialCategoryIsPreset =
-    !initial?.category || (CATEGORY_SUGGESTIONS as readonly string[]).includes(initial.category);
-  const initialFreqIsPreset =
-    !initial || FREQUENCY_PRESETS.some((p) => p.value === initial.frequency_value && p.unit === initial.frequency_unit);
-
   const [name, setName] = useState(initial?.name ?? "");
-  const [category, setCategory] = useState<string | null>(initialCategoryIsPreset ? (initial?.category ?? null) : null);
-  const [customCategoryMode, setCustomCategoryMode] = useState(!initialCategoryIsPreset);
-  const [customCategory, setCustomCategory] = useState(initialCategoryIsPreset ? "" : (initial?.category ?? ""));
+  const [category, setCategory] = useState<string | null>(initial?.category ?? null);
   const [lastMeeting, setLastMeeting] = useState(initial?.last_meeting_date ?? todayISO());
   const [freqValue, setFreqValue] = useState<number>(initial?.frequency_value ?? 1);
   const [freqUnit, setFreqUnit] = useState<FrequencyUnit>(initial?.frequency_unit ?? "months");
-  const [customFreq, setCustomFreq] = useState(!initialFreqIsPreset);
   const [phone, setPhone] = useState(initial?.phone ?? "");
   const [email, setEmail] = useState(initial?.email ?? "");
   const [birthday, setBirthday] = useState(initial?.birthday ?? "");
@@ -70,7 +62,7 @@ export function ContactForm({ initial, onSaved }: { initial?: Contact; onSaved: 
     try {
       const values: ContactInput = {
         name: name.trim(),
-        category: customCategoryMode ? customCategory.trim() || null : category,
+        category,
         phone: phone.trim() || null,
         email: email.trim() || null,
         birthday: birthday || null,
@@ -136,33 +128,7 @@ export function ContactForm({ initial, onSaved }: { initial?: Contact; onSaved: 
       </Field>
 
       <Field label="Catégorie">
-        <ChipRow>
-          {CATEGORY_SUGGESTIONS.map((c) => (
-            <Chip
-              key={c}
-              active={!customCategoryMode && category === c}
-              onClick={() => {
-                setCustomCategoryMode(false);
-                setCategory(category === c && !customCategoryMode ? null : c);
-              }}
-            >
-              {c}
-            </Chip>
-          ))}
-          <Chip active={customCategoryMode} onClick={() => setCustomCategoryMode(true)}>
-            Autre…
-          </Chip>
-        </ChipRow>
-        {customCategoryMode && (
-          <Input
-            value={customCategory}
-            onChange={(e) => setCustomCategory(e.target.value)}
-            placeholder="Ex. Voisins, Club de sport…"
-            maxLength={40}
-            className="mt-2"
-            autoFocus
-          />
-        )}
+        <CategoryPicker value={category} onChange={setCategory} />
       </Field>
 
       <Field label="Dernière fois que vous l'avez vu(e)" htmlFor="last" required error={errors.lastMeeting}>
@@ -170,44 +136,14 @@ export function ContactForm({ initial, onSaved }: { initial?: Contact; onSaved: 
       </Field>
 
       <Field label="À revoir tous les…" required error={errors.freq}>
-        <ChipRow>
-          {FREQUENCY_PRESETS.map((p) => (
-            <Chip
-              key={p.label}
-              active={!customFreq && freqValue === p.value && freqUnit === p.unit}
-              onClick={() => {
-                setCustomFreq(false);
-                setFreqValue(p.value);
-                setFreqUnit(p.unit);
-              }}
-            >
-              {p.label}
-            </Chip>
-          ))}
-          <Chip active={customFreq} onClick={() => setCustomFreq(true)}>
-            Personnalisée
-          </Chip>
-        </ChipRow>
-        {customFreq && (
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={1000}
-              value={freqValue}
-              onChange={(e) => setFreqValue(parseInt(e.target.value, 10) || 0)}
-              aria-label="Nombre"
-            />
-            <Select value={freqUnit} onChange={(e) => setFreqUnit(e.target.value as FrequencyUnit)} aria-label="Unité">
-              {UNITS.map((u) => (
-                <option key={u} value={u}>
-                  {FREQUENCY_UNIT_LABEL[u][freqValue > 1 ? 1 : 0]}
-                </option>
-              ))}
-            </Select>
-          </div>
-        )}
+        <FrequencyPicker
+          value={freqValue}
+          unit={freqUnit}
+          onChange={(v, u) => {
+            setFreqValue(v);
+            setFreqUnit(u);
+          }}
+        />
         {nextDue && (
           <p className="mt-2 rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-800 dark:bg-brand-900/20 dark:text-brand-200">
             {freqValue >= 1 && `${frequencyLabel(freqValue, freqUnit)} · `}

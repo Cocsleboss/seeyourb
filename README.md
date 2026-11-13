@@ -9,6 +9,7 @@ Chaque utilisateur crée un compte et dispose d'un espace strictement privé (is
 ## Fonctionnalités
 
 - **Contacts** : nom, photo, catégorie (Famille, Amis, Pro…), téléphone, email, anniversaire, notes, date de dernière rencontre et **fréquence souhaitée** (ex. tous les 2 mois).
+- **Import des contacts du téléphone** : sélecteur natif (Chrome Android, Safari iOS) ou fichier vCard (.vcf) pour tout importer d'un coup ; l'app passe ensuite chaque personne en revue (fréquence, catégorie, ajouter / ignorer) et écarte celles déjà présentes.
 - **Échéances automatiques** : l'app calcule quand revoir chaque personne et affiche « en retard de 3 jours », « à revoir dans 2 semaines »… Un contact en retard reste en tête de liste tant qu'aucune rencontre n'est enregistrée.
 - **Rendez-vous** : un ou plusieurs contacts, date, heure, lieu, notes, photos. Cycle de vie : *planifié* → *a eu lieu* (met à jour automatiquement la date de dernière rencontre des participants) ou *annulé*.
 - **Actions rapides** : « Vu aujourd'hui » (enregistre une rencontre passée en 2 secondes), « Reporter » (repousse le rappel), « Planifier ».
@@ -160,6 +161,14 @@ curl -H "Authorization: Bearer VOTRE_CRON_SECRET" http://localhost:3000/api/cron
 - **Notifications** : `/api/cron/tick` (appelé toutes les 10 min) traite trois choses : rappels avant rendez-vous, suivi après rendez-vous non confirmé, récapitulatif quotidien par utilisateur (à l'heure choisie, dans son fuseau horaire) + anniversaires. Chaque envoi est d'abord « réclamé » en base (flags `reminder_sent`, `followup_sent`, `last_digest_date`, `notified_current_cycle`) : aucun doublon même si deux exécutions se chevauchent. Envoi push sur tous les appareils abonnés ; si aucun n'accepte, email de secours.
 - **Sécurité** : RLS activée sur chaque table et sur le bucket de stockage (`<user_id>/…`). Auth, mots de passe et sessions gérés par Supabase. La clé `service_role` n'est utilisée que dans les routes serveur (`/api/cron/tick`, `/api/push/*`, `/api/account/delete`), jamais exposée au navigateur. Le cron est protégé par `CRON_SECRET`.
 
+## Importer les contacts du téléphone
+
+Contacts → icône carnet (en haut) ou Réglages → Données → *Importer des contacts du téléphone*. Trois étapes : choisir la source, passer chaque contact en revue (fréquence, catégorie, dernière rencontre, **Ajouter** / **Ignorer**, ou « les restants d'un coup »), confirmer. Rien n'est enregistré avant la confirmation ; les contacts déjà présents (même nom, numéro ou email) sont écartés.
+
+- **Sélecteur natif** (`navigator.contacts`, API Contact Picker) : disponible dans Chrome sur Android et Safari sur iPhone. Le bouton n'apparaît que si le navigateur le propose ; il peut manquer dans l'app installée sur l'écran d'accueil iOS → ouvrir SeeYourB dans Safari pour cette opération, ou passer par un fichier.
+- **Fichier .vcf** (vCard 2.1 / 3.0 / 4.0, un ou plusieurs fichiers) : marche partout et permet d'importer tout le carnet. iPhone : icloud.com → Contacts → tout sélectionner → ⚙ → *Exporter vCard* (ou, fiche par fiche, *Partager le contact* → *Enregistrer dans Fichiers*). Android : app Contacts → *Exporter*. Google : contacts.google.com → *Exporter* → vCard. Champs repris : nom, téléphone, email, anniversaire, organisation / titre / note. Les photos ne sont pas importées.
+- Une PWA n'a jamais d'accès permanent au carnet d'adresses : il s'agit d'un import ponctuel, pas d'une synchronisation en continu. Code : `lib/contact-import.ts`, `lib/vcard.ts`, `app/(app)/contacts/import/`.
+
 ## Structure du projet
 
 ```
@@ -181,6 +190,7 @@ scripts/              génération des icônes et des clés VAPID
 | Page de login : « Configuration manquante » | Variables `NEXT_PUBLIC_SUPABASE_*` absentes sur Vercel → ajoutez-les puis redéployez. |
 | Inscription : « Vérifiez votre boîte mail » mais rien n'arrive | *Confirm email* est activé dans Supabase et le quota d'emails gratuit est atteint. Désactivez *Confirm email* (étape 1.4) ou configurez un SMTP dans Supabase → Authentication → SMTP Settings. |
 | Pas de bouton « Activer » les notifications sur iPhone | L'app doit être ouverte **depuis l'icône de l'écran d'accueil** (iOS 16.4+), pas depuis Safari. |
+| Pas de bouton « Choisir dans mes contacts » | Le navigateur ne propose pas l'API Contact Picker (desktop, Firefox, app iOS installée sur l'écran d'accueil…). Ouvrez l'app dans Safari (iPhone) ou Chrome (Android), ou importez un fichier .vcf. |
 | Notification de test : « Aucun canal disponible » | Push : aucun appareil abonné ou clés VAPID absentes (voir Réglages → Diagnostic). Email : configurez Brevo/Resend. |
 | Les rappels n'arrivent jamais | Le cron n'est pas installé : exécutez `supabase/cron.sql` avec la bonne URL et le bon secret, puis vérifiez `cron.job_run_details` et `net._http_response` (doit renvoyer 200). |
 | Upload de photo refusé | Fichier > 10 Mo ou bucket non créé : relancez `schema.sql`. |
