@@ -1,0 +1,16 @@
+# Supabase CLI configuration (only the parts SeeU customizes; the CLI fills in defaults).
+project_id = "seeu"
+
+[auth]
+site_url = "seeu://auth-callback"
+additional_redirect_urls = ["seeu://auth-callback"]
+
+[auth.email]
+enable_confirmations = true
+
+# Called by the database with a shared secret (no user JWT).
+[functions.dispatch]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = true
