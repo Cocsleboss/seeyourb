@@ -1,12 +1,13 @@
 "use client";
 
-import { Clock, Home, Settings, Users } from "lucide-react";
+import { Clock, HeartHandshake, Home, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
   { href: "/", label: "Accueil", icon: Home, match: (p: string) => p === "/" },
   { href: "/contacts", label: "Contacts", icon: Users, match: (p: string) => p.startsWith("/contacts") },
+  { href: "/friends", label: "Amis", icon: HeartHandshake, match: (p: string) => p.startsWith("/friends") },
   { href: "/history", label: "Historique", icon: Clock, match: (p: string) => p.startsWith("/history") },
   { href: "/settings", label: "Réglages", icon: Settings, match: (p: string) => p.startsWith("/settings") },
 ];

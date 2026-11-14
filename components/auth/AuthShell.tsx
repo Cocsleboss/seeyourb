@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 /** Habillage commun des écrans d'authentification (logo, titre, accroche). */
 export function AuthShell({
   children,
-  title = "SeeYourB",
+  title = "SeeU",
   subtitle = "Ne plus oublier les personnes qu'on aimerait revoir.",
 }: {
   children: ReactNode;
@@ -18,7 +18,7 @@ export function AuthShell({
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/icon-192.png" alt="SeeYourB" width={72} height={72} className="h-[72px] w-[72px] rounded-2xl shadow-lg" />
+          <img src="/icons/icon-192.png" alt="SeeU" width={72} height={72} className="h-[72px] w-[72px] rounded-2xl shadow-lg" />
           <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
         </div>

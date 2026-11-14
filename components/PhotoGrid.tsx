@@ -11,11 +11,14 @@ import type { Photo } from "@/lib/types";
 export function PhotoGrid({
   photos,
   onDelete,
+  canDelete,
   columns = 3,
   pendingCount = 0,
 }: {
   photos: Photo[];
   onDelete?: (photo: Photo) => Promise<void> | void;
+  /** limite la suppression à certaines photos (galerie partagée : seulement les siennes) */
+  canDelete?: (photo: Photo) => boolean;
   columns?: 3 | 4;
   /** vignettes "en cours d'envoi" affichées en fin de grille */
   pendingCount?: number;
@@ -59,7 +62,7 @@ export function PhotoGrid({
           onClose={() => setIndex(null)}
           onNavigate={setIndex}
           onDelete={
-            onDelete
+            onDelete && photos[index] && (!canDelete || canDelete(photos[index]))
               ? async (p) => {
                   await onDelete(p);
                   setIndex(null);

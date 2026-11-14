@@ -1,36 +1,69 @@
 "use client";
 
-import { BookUser, Download } from "lucide-react";
+import { BookUser, Download, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AccountSection } from "@/components/settings/AccountSection";
 import { InstallHelp } from "@/components/settings/InstallHelp";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
+import { UsernameInput, usernameOk, type UsernameState } from "@/components/UsernameInput";
 import { Button, Card, Field, Input, LinkButton, Page, SectionTitle, TopBar, buttonClasses, useToast } from "@/components/ui";
 import { updateProfile } from "@/lib/data";
+import { todayISO } from "@/lib/dates";
 import { useSession } from "@/lib/session";
+import { handle } from "@/lib/username";
 
 export default function SettingsPage() {
   const { user, profile, setProfile } = useSession();
   const toast = useToast();
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameState, setUsernameState] = useState<UsernameState>("empty");
+  const [birthday, setBirthday] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (profile) setName(profile.display_name ?? "");
+    if (!profile) return;
+    setName(profile.display_name ?? "");
+    setUsername(profile.username ?? "");
+    setBirthday(profile.birthday ?? "");
   }, [profile]);
 
-  const dirty = profile ? name.trim() !== (profile.display_name ?? "") : false;
+  /** false tant que la base n'a pas été migrée (colonne username absente) */
+  const hasUsername = profile ? profile.username !== undefined : false;
+  const dirty = profile
+    ? name.trim() !== (profile.display_name ?? "") ||
+      (hasUsername && (username !== (profile.username ?? "") || birthday !== (profile.birthday ?? "")))
+    : false;
+  const valid = name.trim().length > 0 && (!hasUsername || usernameOk(usernameState));
 
-  const saveName = async () => {
+  const saveProfile = async () => {
     setSaving(true);
     try {
-      const p = await updateProfile({ display_name: name.trim() || null });
+      const p = await updateProfile({
+        display_name: name.trim(),
+        ...(hasUsername ? { username, birthday: birthday || null } : {}),
+      });
       setProfile(p);
       toast.success("Profil mis à jour");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Enregistrement impossible");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const shareProfile = async () => {
+    if (!profile?.username) return;
+    const url = `${window.location.origin}/friends?add=${encodeURIComponent(profile.username)}`;
+    const text = `Ajoute-moi sur SeeU : ${handle(profile.username)}`;
+    try {
+      if (navigator.share) await navigator.share({ title: "SeeU", text, url });
+      else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        toast.success("Lien copié");
+      }
+    } catch {
+      /* partage annulé */
     }
   };
 
@@ -42,16 +75,32 @@ export default function SettingsPage() {
           <SectionTitle>Profil</SectionTitle>
           <Card className="space-y-4">
             <Field label="Nom affiché" htmlFor="display-name">
-              <div className="flex gap-2">
-                <Input id="display-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Votre prénom" maxLength={60} disabled={!profile} />
-                <Button onClick={saveName} disabled={!dirty} loading={saving}>
-                  Enregistrer
-                </Button>
-              </div>
+              <Input id="display-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Votre prénom" maxLength={60} disabled={!profile} />
             </Field>
+            {hasUsername && (
+              <>
+                <UsernameInput value={username} onChange={setUsername} onState={setUsernameState} current={profile?.username} />
+                <Field label="Date de naissance" htmlFor="my-birthday" hint="Visible par vos amis SeeU uniquement : leur fiche à votre nom se remplit toute seule.">
+                  <Input id="my-birthday" type="date" value={birthday} max={todayISO()} onChange={(e) => setBirthday(e.target.value)} />
+                </Field>
+              </>
+            )}
+            <div className="flex gap-2">
+              <Button className="flex-1" onClick={saveProfile} disabled={!dirty || !valid} loading={saving}>
+                Enregistrer
+              </Button>
+              {profile?.username && (
+                <Button variant="secondary" onClick={shareProfile}>
+                  <Share2 className="h-5 w-5" /> Partager mon @
+                </Button>
+              )}
+            </div>
             <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
               <dt className="text-gray-500 dark:text-gray-400">Email</dt>
-              <dd className="break-all text-gray-900 dark:text-gray-100">{user.email}</dd>
+              <dd className="break-all text-gray-900 dark:text-gray-100">
+                {user.email}
+                <span className="block text-xs text-gray-500">Jamais affiché aux autres utilisateurs avant qu&apos;ils soient vos amis</span>
+              </dd>
               <dt className="text-gray-500 dark:text-gray-400">Fuseau horaire</dt>
               <dd className="text-gray-900 dark:text-gray-100">
                 {profile?.timezone ?? "…"}
@@ -72,7 +121,7 @@ export default function SettingsPage() {
             <InstallHelp />
             <Card className="flex items-center justify-between text-sm">
               <span className="text-gray-500 dark:text-gray-400">Version</span>
-              <span className="font-medium">1.0.0</span>
+              <span className="font-medium">1.2.0</span>
             </Card>
           </div>
         </section>
@@ -96,7 +145,7 @@ export default function SettingsPage() {
           <AccountSection />
         </section>
 
-        <p className="pb-4 text-center text-xs text-gray-400">SeeYourB · Vos données restent privées et ne sont jamais partagées.</p>
+        <p className="pb-4 text-center text-xs text-gray-400">SeeU · Vos données restent privées : seuls les rendez-vous que vous envoyez à un ami sont partagés avec lui.</p>
       </Page>
     </>
   );

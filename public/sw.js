@@ -1,6 +1,6 @@
-/* SeeYourB — service worker : notifications push + cache léger (hors-ligne partiel) */
-const VERSION = "v1.0.0";
-const CACHE = `seeyourb-${VERSION}`;
+/* SeeU — service worker : notifications push + cache léger (hors-ligne partiel) */
+const VERSION = "v1.2.0";
+const CACHE = `seeu-${VERSION}`;
 const OFFLINE_URL = "/offline";
 
 self.addEventListener("install", (event) => {
@@ -67,9 +67,9 @@ self.addEventListener("push", (event) => {
   try {
     data = event.data ? event.data.json() : {};
   } catch {
-    data = { title: "SeeYourB", body: event.data ? event.data.text() : "" };
+    data = { title: "SeeU", body: event.data ? event.data.text() : "" };
   }
-  const title = data.title || "SeeYourB";
+  const title = data.title || "SeeU";
   const options = {
     body: data.body || "",
     icon: "/icons/icon-192.png",

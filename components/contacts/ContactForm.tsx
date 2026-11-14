@@ -11,17 +11,29 @@ import { addFrequency, formatDateLong, frequencyLabel, todayISO } from "@/lib/da
 import type { Contact, ContactInput, FrequencyUnit } from "@/lib/types";
 
 /** Formulaire de création / modification d'un contact (gère aussi l'enregistrement et la photo). */
-export function ContactForm({ initial, onSaved }: { initial?: Contact; onSaved: (contact: Contact) => void }) {
+export function ContactForm({
+  initial,
+  defaults,
+  linkedUserId,
+  onSaved,
+}: {
+  initial?: Contact;
+  /** valeurs pré-remplies à la création (ex. ami SeeU) */
+  defaults?: { name?: string; email?: string };
+  /** à la création : associe le contact au compte SeeU de cet ami */
+  linkedUserId?: string | null;
+  onSaved: (contact: Contact) => void;
+}) {
   const toast = useToast();
   const isEdit = Boolean(initial);
 
-  const [name, setName] = useState(initial?.name ?? "");
+  const [name, setName] = useState(initial?.name ?? defaults?.name ?? "");
   const [category, setCategory] = useState<string | null>(initial?.category ?? null);
   const [lastMeeting, setLastMeeting] = useState(initial?.last_meeting_date ?? todayISO());
   const [freqValue, setFreqValue] = useState<number>(initial?.frequency_value ?? 1);
   const [freqUnit, setFreqUnit] = useState<FrequencyUnit>(initial?.frequency_unit ?? "months");
   const [phone, setPhone] = useState(initial?.phone ?? "");
-  const [email, setEmail] = useState(initial?.email ?? "");
+  const [email, setEmail] = useState(initial?.email ?? defaults?.email ?? "");
   const [birthday, setBirthday] = useState(initial?.birthday ?? "");
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -71,7 +83,9 @@ export function ContactForm({ initial, onSaved }: { initial?: Contact; onSaved: 
         frequency_value: freqValue,
         frequency_unit: freqUnit,
       };
-      let contact = initial ? await updateContact(initial.id, values) : await createContact(values);
+      let contact = initial
+        ? await updateContact(initial.id, values)
+        : await createContact(linkedUserId ? { ...values, linked_user_id: linkedUserId } : values);
       if (photoFile) contact = await setContactPhoto(contact, photoFile);
       else if (photoRemoved && contact.photo_path) contact = await setContactPhoto(contact, null);
       onSaved(contact);

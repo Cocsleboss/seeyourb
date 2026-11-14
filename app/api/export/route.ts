@@ -18,7 +18,7 @@ export async function GET() {
 
   const payload = {
     exported_at: new Date().toISOString(),
-    app: "SeeYourB",
+    app: "SeeU",
     user: { id: user.id, email: user.email },
     profile: profile.data,
     contacts: contacts.data ?? [],
@@ -30,7 +30,7 @@ export async function GET() {
   return new NextResponse(JSON.stringify(payload, null, 2), {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="seeyourb-export-${new Date().toISOString().slice(0, 10)}.json"`,
+      "Content-Disposition": `attachment; filename="seeu-export-${new Date().toISOString().slice(0, 10)}.json"`,
       "Cache-Control": "no-store",
     },
   });

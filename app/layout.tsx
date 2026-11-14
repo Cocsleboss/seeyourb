@@ -4,14 +4,14 @@ import { PwaRegister } from "@/components/PwaRegister";
 import { ToastProvider } from "@/components/ui/Toast";
 
 export const metadata: Metadata = {
-  title: { default: "SeeYourB", template: "%s · SeeYourB" },
+  title: { default: "SeeU", template: "%s · SeeU" },
   description: "Ne plus oublier les personnes qu'on aimerait revoir.",
-  applicationName: "SeeYourB",
+  applicationName: "SeeU",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "SeeYourB",
+    title: "SeeU",
   },
   formatDetection: { telephone: false },
   icons: {

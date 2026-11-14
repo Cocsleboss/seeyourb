@@ -1,8 +1,8 @@
 {
-  "name": "seeyourb",
-  "version": "1.0.0",
+  "name": "seeu",
+  "version": "1.2.0",
   "private": true,
-  "description": "SeeYourB — ne plus oublier les personnes qu'on veut revoir (PWA)",
+  "description": "SeeU — ne plus oublier les personnes qu'on veut revoir (PWA)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

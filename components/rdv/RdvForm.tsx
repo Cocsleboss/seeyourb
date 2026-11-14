@@ -1,10 +1,10 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { MapPin, Send } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ContactPicker } from "@/components/rdv/ContactPicker";
 import { Button, Field, Input, Textarea, Toggle, useToast } from "@/components/ui";
-import { createRdv, listContacts, updateRdv } from "@/lib/data";
+import { createRdv, listContacts, sendRdvInvite, updateRdv } from "@/lib/data";
 import { combineDateTime, nextQuarterHour, splitDateTime } from "@/lib/dates";
 import { useAsyncData } from "@/lib/hooks";
 import type { RendezvousWithContacts } from "@/lib/types";
@@ -31,8 +31,15 @@ export function RdvForm({
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [happened, setHappened] = useState(false);
   const [happenedTouched, setHappenedTouched] = useState(false);
+  const [invite, setInvite] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /** participants associés à un ami SeeU : on peut leur envoyer le rendez-vous */
+  const friendsSelected = useMemo(
+    () => (contacts ?? []).filter((c) => contactIds.includes(c.id) && c.linked_user_id),
+    [contactIds, contacts]
+  );
 
   const isPast = useMemo(() => {
     if (!date || !time) return false;
@@ -61,6 +68,12 @@ export function RdvForm({
       const rdv = initial
         ? await updateRdv(initial.id, base, contactIds)
         : await createRdv({ ...base, status: happened ? "valide" : "planifie" }, contactIds);
+      if (!initial && invite && friendsSelected.length) {
+        const results = await Promise.allSettled(friendsSelected.map((c) => sendRdvInvite(rdv.id, c.linked_user_id as string)));
+        const sent = results.filter((r) => r.status === "fulfilled").length;
+        if (sent) toast.success(sent > 1 ? `Invitations envoyées à ${sent} amis` : `Invitation envoyée à ${friendsSelected[0].name}`);
+        if (sent < results.length) toast.error("Une invitation n'a pas pu être envoyée : réessayez depuis le rendez-vous.");
+      }
       onSaved(rdv);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Enregistrement impossible");
@@ -117,6 +130,24 @@ export function RdvForm({
             }}
             label="Ce rendez-vous a déjà eu lieu"
           />
+        </div>
+      )}
+
+      {!initial && friendsSelected.length > 0 && (
+        <div className="flex items-start justify-between gap-4 rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-900/60 dark:bg-brand-900/10">
+          <div>
+            <p className="flex items-center gap-1.5 font-medium text-gray-900 dark:text-gray-100">
+              <Send className="h-4 w-4 text-brand-600 dark:text-brand-300" /> Envoyer à {friendsSelected.map((c) => c.name).join(", ")}
+            </p>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+              {invite
+                ? happened
+                  ? "Votre ami recevra cette rencontre : s'il l'accepte, sa période est remise à zéro et vous partagez les photos."
+                  : "Votre ami reçoit une invitation : s'il accepte, vous avez tous les deux le rendez-vous et une galerie de photos commune. Vos notes restent privées."
+                : "Le rendez-vous reste uniquement chez vous. Vous pourrez l'envoyer plus tard depuis sa fiche."}
+            </p>
+          </div>
+          <Toggle checked={invite} onChange={setInvite} label="Envoyer le rendez-vous à mes amis SeeU" />
         </div>
       )}
 

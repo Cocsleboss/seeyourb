@@ -24,6 +24,7 @@ import { contactPickerSupported, dedupeImported, pickPhoneContacts, type Importe
 import { createContacts, listContacts } from "@/lib/data";
 import { formatDate, frequencyLabel, todayISO } from "@/lib/dates";
 import { useAsyncData } from "@/lib/hooks";
+import { isIOS } from "@/lib/push-client";
 import { plural } from "@/lib/text";
 import type { ContactInput, FrequencyUnit } from "@/lib/types";
 import { readVcfFiles } from "@/lib/vcard";
@@ -68,7 +69,7 @@ export default function ImportContactsPage() {
   const ingest = (list: ImportedContact[]) => {
     const { fresh, alreadyThere, duplicates } = dedupeImported(list, existing ?? []);
     if (!fresh.length) {
-      toast.info(list.length ? "Ces contacts sont déjà dans SeeYourB." : "Aucun contact trouvé.");
+      toast.info(list.length ? "Ces contacts sont déjà dans SeeU." : "Aucun contact trouvé.");
       return;
     }
     setCandidates(fresh);
@@ -176,7 +177,7 @@ export default function ImportContactsPage() {
                   Contact {index + 1} sur {candidates.length}
                 </span>
                 {skippedTotal > 0 && (
-                  <span title="Déjà présents dans SeeYourB ou en double dans la sélection">
+                  <span title="Déjà présents dans SeeU ou en double dans la sélection">
                     {plural(skippedTotal, "écarté")}
                   </span>
                 )}
@@ -277,8 +278,16 @@ function SourceStep({
   const fileRef = useRef<HTMLInputElement>(null);
   const [supported, setSupported] = useState<boolean | null>(null);
   const [busy, setBusy] = useState<"picker" | "file" | null>(null);
+  const [ios, setIos] = useState(false);
 
-  useEffect(() => setSupported(contactPickerSupported()), []);
+  useEffect(() => {
+    setSupported(contactPickerSupported());
+    setIos(isIOS());
+  }, []);
+
+  // iPhone / iPad : Apple n'ouvre pas le carnet d'adresses aux apps web (API désactivée par défaut dans Safari).
+  // On guide donc vers l'export natif de l'app Contacts, qui produit un fichier lisible ici en une fois.
+  const iosGuide = ios && supported === false;
 
   const fromPhone = async () => {
     setBusy("picker");
@@ -296,7 +305,7 @@ function SourceStep({
     setBusy("file");
     try {
       const list = await readVcfFiles(files);
-      if (!list.length) toast.info("Aucun contact lisible dans ce fichier.");
+      if (!list.length) toast.info("Aucun contact lisible dans ce fichier. Choisissez le fichier .vcf exporté depuis l'app Contacts.");
       else onLoaded(list);
     } catch {
       toast.error("Fichier illisible. Exportez vos contacts au format vCard (.vcf).");
@@ -304,6 +313,22 @@ function SourceStep({
       setBusy(null);
     }
   };
+
+  const fileInput = (
+    <input
+      ref={fileRef}
+      type="file"
+      // Sur iOS, un filtre "accept" grise souvent les fichiers .vcf dans Fichiers : on n'en met pas, le contenu est vérifié à la lecture.
+      accept={ios ? undefined : ".vcf,.vcard,text/vcard,text/x-vcard,text/directory"}
+      multiple
+      className="hidden"
+      onChange={(e) => {
+        const files = Array.from(e.target.files ?? []);
+        e.target.value = "";
+        if (files.length) fromFiles(files);
+      }}
+    />
+  );
 
   return (
     <>
@@ -315,6 +340,66 @@ function SourceStep({
           </Button>
         </Card>
       )}
+
+      {iosGuide && (
+        <Card className="space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-gray-800 dark:text-brand-300">
+              <Smartphone className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Importer depuis l&apos;iPhone</h3>
+              <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                Apple ne laisse pas les apps web ouvrir directement le carnet d&apos;adresses. L&apos;app Contacts sait en revanche
+                tout exporter en un fichier, que SeeU lit ensuite ici — moins d&apos;une minute :
+              </p>
+            </div>
+          </div>
+          <ol className="list-decimal space-y-2 pl-5 text-sm text-gray-700 dark:text-gray-200">
+            <li>
+              Ouvrez l&apos;app <span className="font-semibold">Contacts</span>, puis touchez <span className="font-semibold">Listes</span> en haut à gauche.
+            </li>
+            <li>
+              Gardez le doigt appuyé sur <span className="font-semibold">Tous les contacts</span> (ou « Tous iCloud »), puis{" "}
+              <span className="font-semibold">Exporter</span> → <span className="font-semibold">OK</span>.
+            </li>
+            <li>
+              Choisissez <span className="font-semibold">Enregistrer dans Fichiers</span> (par ex. « Sur mon iPhone »).
+            </li>
+            <li>
+              Revenez ici et touchez le bouton ci-dessous, puis sélectionnez le fichier <span className="font-semibold">.vcf</span> enregistré.
+            </li>
+          </ol>
+          {fileInput}
+          <Button full size="lg" onClick={() => fileRef.current?.click()} loading={busy === "file"} disabled={disabled || busy !== null}>
+            <FileText className="h-5 w-5" /> Ouvrir le fichier de contacts
+          </Button>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Vous choisirez ensuite, personne par personne, qui ajouter et à quelle fréquence : rien n&apos;est importé d&apos;office.
+          </p>
+          <details className="text-sm text-gray-600 dark:text-gray-300">
+            <summary className="cursor-pointer font-medium text-brand-600 dark:text-brand-300">Autres possibilités</summary>
+            <ul className="mt-2 list-disc space-y-1.5 pl-5">
+              <li>
+                <span className="font-medium">Seulement quelques personnes</span> : app Contacts → ouvrir la fiche → <em>Partager le contact</em> →{" "}
+                <em>Enregistrer dans Fichiers</em>, puis ouvrez le ou les fichiers ici (sélection multiple possible).
+              </li>
+              <li>
+                <span className="font-medium">Depuis un ordinateur</span> : icloud.com → Contacts → tout sélectionner → <em>Exporter une vCard</em>, puis
+                importez le fichier dans SeeU depuis l&apos;ordinateur.
+              </li>
+              <li>
+                <span className="font-medium">Sélecteur direct (expérimental)</span> : Réglages → Apps → Safari → Avancé → Feature Flags →
+                activer « Contact Picker API », puis rouvrir SeeU <em>dans Safari</em>. Un bouton « Choisir dans mes contacts » apparaît alors
+                sur cette page. Option cachée d&apos;Apple, pas garantie selon la version d&apos;iOS.
+              </li>
+            </ul>
+          </details>
+        </Card>
+      )}
+
+      {!iosGuide && (
+        <>
 
       <Card className="space-y-4">
         <div className="flex items-start gap-3">
@@ -331,8 +416,8 @@ function SourceStep({
         </div>
         {supported === false ? (
           <p className="rounded-xl bg-gray-50 px-3 py-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-            Non disponible dans ce navigateur. Sur iPhone, ouvrez SeeYourB dans Safari ; sur Android, dans Chrome. Sinon,
-            utilisez un fichier .vcf ci-dessous.
+            Non disponible dans ce navigateur (le sélecteur direct n&apos;existe que dans Chrome sur Android). Utilisez un
+            fichier .vcf ci-dessous.
           </p>
         ) : (
           <Button full size="lg" onClick={fromPhone} loading={busy === "picker"} disabled={disabled || busy !== null || supported === null}>
@@ -353,18 +438,7 @@ function SourceStep({
             </p>
           </div>
         </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept=".vcf,text/vcard,text/x-vcard,text/directory"
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            const files = Array.from(e.target.files ?? []);
-            e.target.value = "";
-            if (files.length) fromFiles(files);
-          }}
-        />
+        {fileInput}
         <Button variant="secondary" full size="lg" onClick={() => fileRef.current?.click()} loading={busy === "file"} disabled={disabled || busy !== null}>
           <FileText className="h-5 w-5" /> Ouvrir un fichier .vcf
         </Button>
@@ -372,8 +446,9 @@ function SourceStep({
           <summary className="cursor-pointer font-medium text-brand-600 dark:text-brand-300">Comment exporter mes contacts en .vcf ?</summary>
           <ul className="mt-2 list-disc space-y-1.5 pl-5">
             <li>
-              <span className="font-medium">iPhone, tout le carnet</span> : sur un ordinateur, icloud.com → Contacts → tout
-              sélectionner → ⚙ → <em>Exporter vCard</em>. Envoyez-vous le fichier (Mail, AirDrop, Fichiers).
+              <span className="font-medium">iPhone, tout le carnet</span> : app Contacts → <em>Listes</em> → appui long sur{" "}
+              <em>Tous les contacts</em> → <em>Exporter</em> → <em>Enregistrer dans Fichiers</em>. Ou, sur un ordinateur, icloud.com →
+              Contacts → tout sélectionner → <em>Exporter une vCard</em>.
             </li>
             <li>
               <span className="font-medium">iPhone, quelques fiches</span> : app Contacts → ouvrir la fiche → <em>Partager le contact</em> →{" "}
@@ -388,6 +463,8 @@ function SourceStep({
           </ul>
         </details>
       </Card>
+        </>
+      )}
 
       <p className="flex items-start gap-2 px-1 text-xs text-gray-500 dark:text-gray-400">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />

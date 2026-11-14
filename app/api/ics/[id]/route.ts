@@ -36,13 +36,13 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   const names = (rdv.contact_rendezvous ?? []).map((x) => x.contacts?.name ?? "").filter(Boolean);
   const start = new Date(rdv.appointment_at);
   const end = new Date(start.getTime() + 60 * 60 * 1000);
-  const summary = rdv.title || (names.length ? `Rendez-vous avec ${names.join(", ")}` : "Rendez-vous SeeYourB");
+  const summary = rdv.title || (names.length ? `Rendez-vous avec ${names.join(", ")}` : "Rendez-vous SeeU");
   const description = [names.length ? `Avec : ${names.join(", ")}` : null, rdv.notes].filter(Boolean).join("\n");
 
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//SeeYourB//FR",
+    "PRODID:-//SeeU//FR",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -57,7 +57,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
     "BEGIN:VALARM",
     "TRIGGER:-PT30M",
     "ACTION:DISPLAY",
-    "DESCRIPTION:Rappel SeeYourB",
+    "DESCRIPTION:Rappel SeeU",
     "END:VALARM",
     "END:VEVENT",
     "END:VCALENDAR",
@@ -66,7 +66,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   return new NextResponse(lines.join("\r\n") + "\r\n", {
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `attachment; filename="seeyourb-${rdv.id.slice(0, 8)}.ics"`,
+      "Content-Disposition": `attachment; filename="seeu-${rdv.id.slice(0, 8)}.ics"`,
       "Cache-Control": "no-store",
     },
   });

@@ -17,7 +17,7 @@ export async function POST() {
       user.id,
       {
         kind: "test",
-        title: "SeeYourB fonctionne ✅",
+        title: "SeeU fonctionne ✅",
         body: "Vous recevrez ici vos rappels de contacts et de rendez-vous.",
         url: "/settings",
         tag: "test",

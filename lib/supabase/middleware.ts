@@ -44,16 +44,14 @@ export async function updateSession(request: NextRequest) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.search = "";
-    if (pathname !== "/") loginUrl.searchParams.set("next", pathname);
+    if (pathname !== "/") loginUrl.searchParams.set("next", pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 
   if (user && pathname === "/login") {
     const next = request.nextUrl.searchParams.get("next");
-    const homeUrl = request.nextUrl.clone();
-    homeUrl.pathname = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
-    homeUrl.search = "";
-    return NextResponse.redirect(homeUrl);
+    const safe = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+    return NextResponse.redirect(new URL(safe, request.nextUrl.origin));
   }
 
   return supabaseResponse;

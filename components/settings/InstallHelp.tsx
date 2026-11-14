@@ -27,7 +27,7 @@ export function InstallHelp() {
   return (
     <Card className="space-y-3 text-sm">
       <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
-        <Smartphone className="h-5 w-5 text-brand-600" /> Installer SeeYourB
+        <Smartphone className="h-5 w-5 text-brand-600" /> Installer SeeU
       </div>
       <p className="text-gray-600 dark:text-gray-300">
         Ajoutez l&apos;app à votre écran d&apos;accueil pour l&apos;ouvrir comme une application et recevoir les notifications.

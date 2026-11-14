@@ -10,7 +10,7 @@ export default function OfflinePage() {
       </div>
       <h1 className="text-xl font-bold">Vous êtes hors ligne</h1>
       <p className="mt-2 max-w-xs text-sm text-gray-500">
-        SeeYourB a besoin d&apos;une connexion pour charger vos contacts et rendez-vous. Réessayez dès que le réseau
+        SeeU a besoin d&apos;une connexion pour charger vos contacts et rendez-vous. Réessayez dès que le réseau
         revient.
       </p>
       <a

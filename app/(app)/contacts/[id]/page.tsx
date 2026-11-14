@@ -1,6 +1,6 @@
 "use client";
 
-import { Cake, CalendarPlus, Check, Clock, Mail, Pencil, Phone, StickyNote, Trash2 } from "lucide-react";
+import { Cake, CalendarPlus, Check, Clock, Mail, Pencil, Phone, Star, StickyNote, Trash2, Users } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -24,7 +24,8 @@ import {
   TopBar,
   useToast,
 } from "@/components/ui";
-import { addPhoto, deleteContact, deletePhoto, getContact, listPhotosForContact, listRdvForContact } from "@/lib/data";
+import { addPhoto, deleteContact, deletePhoto, getContact, listPhotosForContact, listRdvForContact, setSeeSoon } from "@/lib/data";
+import { useSession } from "@/lib/session";
 import { effectiveDueDate, formatDateLong, frequencyLabel, nextBirthday } from "@/lib/dates";
 import { useAsyncData } from "@/lib/hooks";
 
@@ -39,6 +40,7 @@ export default function ContactDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const toast = useToast();
+  const { user } = useSession();
   const { data, loading, error, reload } = useAsyncData(
     () => Promise.all([getContact(id), listRdvForContact(id), listPhotosForContact(id)]),
     [id]
@@ -123,6 +125,11 @@ export default function ContactDetailPage() {
               {contact.category}
             </span>
           )}
+          {contact.linked_user_id && (
+            <Link href="/friends" className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-900/30 dark:text-brand-200">
+              <Users className="h-3.5 w-3.5" /> Ami SeeU · rendez-vous et photos partageables
+            </Link>
+          )}
           {bday && (bday.days <= 30 || bday.days === 0) && (
             <p className="mt-2 flex items-center gap-1.5 text-sm text-pink-600 dark:text-pink-300">
               <Cake className="h-4 w-4" /> {birthdayLabel(bday)}
@@ -156,6 +163,22 @@ export default function ContactDetailPage() {
           </Button>
           <Button variant="secondary" onClick={() => setSnoozeOpen(true)}>
             <Clock className="h-5 w-5" /> Reporter
+          </Button>
+          <Button
+            variant={contact.see_soon ? "outline" : "secondary"}
+            className="col-span-2"
+            onClick={async () => {
+              try {
+                await setSeeSoon(contact.id, !contact.see_soon);
+                toast.success(contact.see_soon ? "Retiré de la liste « à voir bientôt »" : "Ajouté à la liste « à voir bientôt » de l'accueil");
+                reload();
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Action impossible");
+              }
+            }}
+          >
+            <Star className="h-5 w-5" fill={contact.see_soon ? "currentColor" : "none"} />
+            {contact.see_soon ? "Dans « à voir bientôt » · retirer" : "À voir bientôt"}
           </Button>
         </div>
 
@@ -240,6 +263,7 @@ export default function ContactDetailPage() {
             <PhotoGrid
               photos={photos}
               pendingCount={uploading}
+              canDelete={(p) => p.user_id === user.id}
               onDelete={async (p) => {
                 await deletePhoto(p);
                 toast.success("Photo supprimée");

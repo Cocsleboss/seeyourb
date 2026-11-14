@@ -9,13 +9,18 @@ import type {
   Contact,
   ContactInput,
   ContactLite,
+  Friend,
+  FriendRequestResult,
+  IncomingInvite,
   NotificationRow,
   Photo,
   Profile,
   RdvInput,
+  RdvInvitation,
   RdvStatus,
   Rendezvous,
   RendezvousWithContacts,
+  UserSearchResult,
 } from "@/lib/types";
 
 const sb = () => createClient();
@@ -30,7 +35,11 @@ export function translateError(msg: string): string {
   if (m.includes("failed to fetch") || m.includes("network")) return "Pas de connexion. Vérifiez votre réseau.";
   if (m.includes("jwt") || m.includes("not authenticated") || m.includes("refresh_token")) return "Session expirée, reconnectez-vous.";
   if (m.includes("row-level security")) return "Action non autorisée.";
+  if (m.includes("idx_profiles_username")) return "Ce nom d'utilisateur est déjà pris.";
+  if (m.includes("profiles_username_format")) return "Nom d'utilisateur invalide.";
   if (m.includes("duplicate key")) return "Cet élément existe déjà.";
+  if (m.includes("could not find the function") || m.includes("schema cache") || (m.includes("column") && m.includes("does not exist")))
+    return "Base de données pas encore à jour : lancez supabase/migration_v1.2.sql dans Supabase (SQL Editor).";
   if (m.includes("payload too large") || m.includes("exceeded the maximum allowed size")) return "Fichier trop volumineux (10 Mo max).";
   return msg;
 }
@@ -100,6 +109,13 @@ export async function updateProfile(patch: Partial<Omit<Profile, "id" | "created
   return data as Profile;
 }
 
+/** Vrai si ce nom d'utilisateur est valide et libre (ou déjà le mien). Utilisable avant connexion. */
+export async function usernameAvailable(username: string): Promise<boolean> {
+  const { data, error } = await sb().rpc("username_available", { p_username: username });
+  if (error) fail(error);
+  return data === true;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Contacts                                                            */
 /* ------------------------------------------------------------------ */
@@ -148,7 +164,7 @@ export async function createContacts(inputs: ContactInput[]): Promise<Contact[]>
     const { data, error } = await sb().from("contacts").insert(rows).select("*");
     if (error) {
       const msg = translateError(error.message);
-      throw new Error(created.length ? ` contact(s) ajouté(s) avant l'erreur : ` : msg);
+      throw new Error(created.length ? `${created.length} contact(s) ajouté(s) avant l'erreur : ${msg}` : msg);
     }
     created.push(...((data ?? []) as Contact[]));
   }
@@ -157,7 +173,7 @@ export async function createContacts(inputs: ContactInput[]): Promise<Contact[]>
 
 export async function updateContact(
   id: string,
-  patch: Partial<ContactInput> & { snooze_until?: string | null }
+  patch: Partial<ContactInput> & { snooze_until?: string | null; see_soon?: boolean }
 ): Promise<Contact> {
   const { data, error } = await sb().from("contacts").update(cleanContactInput(patch)).eq("id", id).select("*").single();
   if (error) fail(error);
@@ -188,6 +204,11 @@ export async function snoozeContact(id: string, untilISO: string): Promise<Conta
   return updateContact(id, { snooze_until: untilISO });
 }
 
+/** Ajoute / retire un contact de la liste « à voir bientôt », quelle que soit son échéance. */
+export async function setSeeSoon(id: string, value: boolean): Promise<Contact> {
+  return updateContact(id, { see_soon: value });
+}
+
 /**
  * "Vu aujourd'hui" : enregistre une rencontre déjà passée (rdv validé).
  * Le trigger en base met à jour la date de dernière rencontre → nouvelle échéance.
@@ -210,7 +231,7 @@ export async function logMeeting(
 /*  Rendez-vous                                                         */
 /* ------------------------------------------------------------------ */
 
-const RDV_SELECT = "*, contact_rendezvous(contacts(id, name, photo_path, category)), photos(*)";
+const RDV_SELECT = "*, contact_rendezvous(contacts(id, name, photo_path, category, linked_user_id)), photos(*)";
 
 type RawRdv = Rendezvous & {
   contact_rendezvous?: { contacts: ContactLite | null }[] | null;
@@ -310,8 +331,21 @@ export async function createRdv(input: RdvInput, contactIds: string[]): Promise<
 export async function updateRdv(id: string, patch: Partial<RdvInput>, contactIds?: string[]): Promise<RendezvousWithContacts> {
   const clean = cleanRdvInput(patch);
   if (Object.keys(clean).length) {
+    // rendez-vous partagé : on regarde ce qui change pour prévenir les amis (validé, annulé, déplacé)
+    type Before = Pick<Rendezvous, "share_id" | "status" | "appointment_at">;
+    const before: Before | null =
+      "status" in clean || "appointment_at" in clean
+        ? (((await sb().from("rendezvous").select("share_id, status, appointment_at").eq("id", id).maybeSingle()).data as Before | null) ?? null)
+        : null;
     const { error } = await sb().from("rendezvous").update(clean).eq("id", id);
     if (error) fail(error);
+    if (before?.share_id) {
+      const statusChanged = typeof clean.status === "string" && clean.status !== before.status;
+      const moved =
+        typeof clean.appointment_at === "string" && new Date(clean.appointment_at).getTime() !== new Date(before.appointment_at).getTime();
+      if (statusChanged) notifySocial("rdv_change", id, clean.status as string);
+      else if (moved) notifySocial("rdv_change", id, "moved");
+    }
   }
   if (contactIds) {
     const uid = await currentUserId();
@@ -364,13 +398,27 @@ export async function listPhotosForContact(contactId: string): Promise<Photo[]> 
     const { data } = await sb().from("photos").select("*").in("rendezvous_id", ids);
     viaRdv = (data ?? []) as Photo[];
   }
+  // + photos ajoutées par les amis sur les rendez-vous partagés avec ce contact
+  let shared: Photo[] = [];
+  if (ids.length) {
+    const { data: sharedRdv } = await sb().from("rendezvous").select("id").in("id", ids).not("share_id", "is", null);
+    const lists = await Promise.all(((sharedRdv ?? []) as { id: string }[]).map((r) => listSharedPhotosForRdv(r.id).catch(() => [])));
+    shared = lists.flat();
+  }
   const all = new Map<string, Photo>();
-  [...((direct ?? []) as Photo[]), ...viaRdv].forEach((p) => all.set(p.id, p));
+  [...((direct ?? []) as Photo[]), ...viaRdv, ...shared].forEach((p) => all.set(p.id, p));
   return Array.from(all.values()).sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 }
 
 export async function listPhotosForRdv(rdvId: string): Promise<Photo[]> {
   const { data, error } = await sb().from("photos").select("*").eq("rendezvous_id", rdvId).order("created_at", { ascending: false });
+  if (error) fail(error);
+  return (data ?? []) as Photo[];
+}
+
+/** Photos ajoutées par les AUTRES participants d'un rendez-vous partagé (lecture seule). */
+export async function listSharedPhotosForRdv(rdvId: string): Promise<Photo[]> {
+  const { data, error } = await sb().rpc("list_shared_rdv_photos", { p_rdv: rdvId });
   if (error) fail(error);
   return (data ?? []) as Photo[];
 }
@@ -404,6 +452,124 @@ export async function deletePhoto(photo: Photo): Promise<void> {
   const { error } = await sb().from("photos").delete().eq("id", photo.id);
   if (error) fail(error);
   await removeFiles([photo.storage_path]).catch(() => {});
+}
+
+/* ------------------------------------------------------------------ */
+/*  Amis SeeU                                                           */
+/* ------------------------------------------------------------------ */
+
+/** Prévient l'autre personne (push / email). Jamais bloquant : un échec est ignoré. */
+function notifySocial(
+  type: "friend_request" | "friend_accept" | "rdv_invite" | "rdv_response" | "rdv_change" | "wave",
+  id: string,
+  change?: string
+): void {
+  fetch("/api/social/notify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type, id, change }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+/** Amis acceptés + demandes en cours (reçues et envoyées). */
+export async function listFriends(): Promise<Friend[]> {
+  const { data, error } = await sb().rpc("list_friends");
+  if (error) fail(error);
+  return (data ?? []) as Friend[];
+}
+
+/** Comptes dont le nom d'utilisateur commence par la saisie (2 caractères minimum, 8 résultats). */
+export async function searchUsers(query: string): Promise<UserSearchResult[]> {
+  const { data, error } = await sb().rpc("search_users", { p_query: query });
+  if (error) fail(error);
+  return (data ?? []) as UserSearchResult[];
+}
+
+/** Envoie une demande d'ami au compte portant ce nom d'utilisateur (exact, avec ou sans « @ »). */
+export async function sendFriendRequest(username: string): Promise<FriendRequestResult> {
+  const { data, error } = await sb().rpc("send_friend_request", { p_username: username.trim() });
+  if (error) fail(error);
+  const res = data as FriendRequestResult;
+  if (res.friendship_id && res.status === "sent") notifySocial("friend_request", res.friendship_id);
+  if (res.friendship_id && res.status === "accepted") notifySocial("friend_accept", res.friendship_id);
+  return res;
+}
+
+export async function respondFriendRequest(friendshipId: string, accept: boolean): Promise<void> {
+  const { error } = await sb().rpc("respond_friend_request", { p_id: friendshipId, p_accept: accept });
+  if (error) fail(error);
+  if (accept) notifySocial("friend_accept", friendshipId);
+}
+
+/** Retire un ami ou annule une demande envoyée. Les contacts associés sont conservés (dissociés). */
+export async function removeFriend(friendshipId: string): Promise<void> {
+  const { error } = await sb().from("friendships").delete().eq("id", friendshipId);
+  if (error) fail(error);
+}
+
+/** Associe un ami à l'un de mes contacts (un seul contact par ami). */
+export async function linkFriendToContact(friendUserId: string, contactId: string): Promise<Contact> {
+  const { error: e1 } = await sb().from("contacts").update({ linked_user_id: null }).eq("linked_user_id", friendUserId).neq("id", contactId);
+  if (e1) fail(e1);
+  const { data, error } = await sb().from("contacts").update({ linked_user_id: friendUserId }).eq("id", contactId).select("*").single();
+  if (error) fail(error);
+  return data as Contact;
+}
+
+/**
+ * « Envie de te voir » : l'ami reçoit une notification et je passe dans sa liste « à voir bientôt ».
+ * Limité à un signe par ami et par 24 h.
+ */
+export async function sendWave(friendUserId: string): Promise<void> {
+  const { data, error } = await sb().rpc("send_wave", { p_to: friendUserId });
+  if (error) fail(error);
+  notifySocial("wave", data as string);
+}
+
+export async function unlinkFriend(friendUserId: string): Promise<void> {
+  const { error } = await sb().from("contacts").update({ linked_user_id: null }).eq("linked_user_id", friendUserId);
+  if (error) fail(error);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Rendez-vous partagés                                                */
+/* ------------------------------------------------------------------ */
+
+/** Propose un de mes rendez-vous à un ami. Renvoie l'id de l'invitation. */
+export async function sendRdvInvite(rdvId: string, friendUserId: string): Promise<string> {
+  const { data, error } = await sb().rpc("send_rdv_invite", { p_rdv: rdvId, p_to: friendUserId });
+  if (error) fail(error);
+  const id = data as string;
+  notifySocial("rdv_invite", id);
+  return id;
+}
+
+/** Invitations liées à un de mes rendez-vous (celles que j'ai envoyées, ou celle par laquelle je l'ai reçu). */
+export async function listInvitesForRdv(rdvId: string): Promise<RdvInvitation[]> {
+  const { data, error } = await sb().from("rdv_invitations").select("*").or(`rdv_id.eq.${rdvId},to_rdv_id.eq.${rdvId}`);
+  if (error) fail(error);
+  return (data ?? []) as RdvInvitation[];
+}
+
+export async function cancelRdvInvite(inviteId: string): Promise<void> {
+  const { error } = await sb().from("rdv_invitations").delete().eq("id", inviteId);
+  if (error) fail(error);
+}
+
+/** Invitations reçues, en attente de ma réponse. */
+export async function listIncomingInvites(): Promise<IncomingInvite[]> {
+  const { data, error } = await sb().rpc("list_rdv_invites");
+  if (error) fail(error);
+  return (data ?? []) as IncomingInvite[];
+}
+
+/** Accepte (→ renvoie l'id de MA copie du rendez-vous) ou refuse (→ null) une invitation. */
+export async function respondRdvInvite(inviteId: string, accept: boolean): Promise<string | null> {
+  const { data, error } = await sb().rpc("respond_rdv_invite", { p_invite: inviteId, p_accept: accept });
+  if (error) fail(error);
+  notifySocial("rdv_response", inviteId);
+  return (data as string | null) ?? null;
 }
 
 /* ------------------------------------------------------------------ */

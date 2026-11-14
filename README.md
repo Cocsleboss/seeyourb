@@ -1,8 +1,8 @@
-# SeeYourB
+# SeeU
 
 **Ne plus oublier les personnes qu'on aimerait revoir.**
 
-SeeYourB est une application web progressive (PWA) : on l'ouvre dans le navigateur, on l'ajoute à l'écran d'accueil de son iPhone ou Android, et elle se comporte comme une vraie app (icône, plein écran, notifications push).
+SeeU est une application web progressive (PWA) : on l'ouvre dans le navigateur, on l'ajoute à l'écran d'accueil de son iPhone ou Android, et elle se comporte comme une vraie app (icône, plein écran, notifications push).
 
 Chaque utilisateur crée un compte et dispose d'un espace strictement privé (isolation au niveau base de données, *Row Level Security*).
 
@@ -68,7 +68,7 @@ Acceptez les valeurs par défaut (projet Next.js détecté). Le premier déploie
 
 ```bash
 git add .
-git commit -m "SeeYourB"
+git commit -m "SeeU"
 # créez un dépôt sur github.com puis :
 git remote add origin https://github.com/VOTRE-COMPTE/seeyourb.git
 git push -u origin main
@@ -90,7 +90,7 @@ Vercel → **Add New Project** → importez le dépôt → ajoutez les variables
 | `NEXT_PUBLIC_APP_URL` | `https://votre-app.vercel.app` (sans `/` final) | conseillé |
 | `BREVO_API_KEY` | clé API Brevo | optionnel (email) |
 | `RESEND_API_KEY` | clé API Resend | optionnel (email) |
-| `EMAIL_FROM` | `SeeYourB <votre@email.com>` | si email |
+| `EMAIL_FROM` | `SeeU <votre@email.com>` | si email |
 
 Après chaque modification des variables, **redéployez** (Vercel → Deployments → ⋯ → Redeploy, ou `vercel --prod`).
 
@@ -122,7 +122,7 @@ select status_code, content::text from net._http_response order by id desc limit
 
 Si un utilisateur n'a pas activé les notifications push, l'app lui envoie les rappels par email. Deux fournisseurs gratuits :
 
-- **Brevo** (recommandé ce soir) : créez un compte sur [brevo.com](https://www.brevo.com), **Senders & IP → Add a sender** et validez votre adresse email, puis **SMTP & API → API Keys → Generate**. Variables : `BREVO_API_KEY` et `EMAIL_FROM="SeeYourB <votre@email.com>"` (300 emails/jour).
+- **Brevo** (recommandé ce soir) : créez un compte sur [brevo.com](https://www.brevo.com), **Senders & IP → Add a sender** et validez votre adresse email, puis **SMTP & API → API Keys → Generate**. Variables : `BREVO_API_KEY` et `EMAIL_FROM="SeeU <votre@email.com>"` (300 emails/jour).
 - **Resend** : [resend.com](https://resend.com) → API key. Attention, sans domaine vérifié, Resend n'envoie qu'à votre propre adresse. Variables : `RESEND_API_KEY` et `EMAIL_FROM`.
 
 Redéployez après avoir ajouté les variables.
@@ -131,7 +131,7 @@ Redéployez après avoir ajouté les variables.
 
 1. Ouvrez `https://votre-app.vercel.app` dans **Safari**, créez votre compte.
 2. Touchez **Partager** (le carré avec la flèche) → **Sur l'écran d'accueil** → **Ajouter**.
-3. Ouvrez SeeYourB **depuis l'icône** (indispensable pour les notifications sur iOS, version 16.4 minimum).
+3. Ouvrez SeeU **depuis l'icône** (indispensable pour les notifications sur iOS, version 16.4 minimum).
 4. **Réglages → Notifications → Activer**, puis **Envoyer une notification de test**.
 
 Sur Android (Chrome) : menu ⋮ → **Installer l'application** (ou acceptez la bannière), puis activez les notifications dans Réglages.
@@ -161,11 +161,24 @@ curl -H "Authorization: Bearer VOTRE_CRON_SECRET" http://localhost:3000/api/cron
 - **Notifications** : `/api/cron/tick` (appelé toutes les 10 min) traite trois choses : rappels avant rendez-vous, suivi après rendez-vous non confirmé, récapitulatif quotidien par utilisateur (à l'heure choisie, dans son fuseau horaire) + anniversaires. Chaque envoi est d'abord « réclamé » en base (flags `reminder_sent`, `followup_sent`, `last_digest_date`, `notified_current_cycle`) : aucun doublon même si deux exécutions se chevauchent. Envoi push sur tous les appareils abonnés ; si aucun n'accepte, email de secours.
 - **Sécurité** : RLS activée sur chaque table et sur le bucket de stockage (`<user_id>/…`). Auth, mots de passe et sessions gérés par Supabase. La clé `service_role` n'est utilisée que dans les routes serveur (`/api/cron/tick`, `/api/push/*`, `/api/account/delete`), jamais exposée au navigateur. Le cron est protégé par `CRON_SECRET`.
 
+## Amis, rendez-vous partagés et galerie commune (v1.1 – v1.2)
+
+- **Nom d'utilisateur** : chaque compte a un nom d'utilisateur unique, toujours affiché avec un « @ » (3 à 20 caractères : minuscules, chiffres, `.` et `_`). Il est demandé à l'inscription ; les comptes créés avant la v1.2 (ou par lien magique) passent par un écran « Complétez votre profil » à leur prochaine ouverture. Modifiable dans Réglages → Profil.
+- **Amis** (onglet *Amis*) : on cherche quelqu'un par son nom d'utilisateur (ou via son lien « Partager mon @ ») ; il accepte ou refuse. L'email d'un compte n'est visible que par ses amis acceptés. Chaque ami s'associe ensuite à un contact (existant ou nouveau) : c'est la période de ce contact qui repart de zéro.
+- **Envie de se voir** : depuis la fiche d'un ami, un signe (1 par jour) lui envoie une notification et vous place dans sa liste « À voir bientôt ».
+- **Anniversaire partagé** : la date de naissance saisie dans son profil remplit automatiquement la fiche contact associée chez ses amis (sans écraser une date saisie à la main).
+- **Rendez-vous partagé modifié** : quand l'un valide, annule ou déplace un rendez-vous partagé, l'autre reçoit une notification.
+- **Rendez-vous partagé** : à la création (ou depuis la fiche du rendez-vous, section *Partage*), on envoie le rendez-vous aux participants qui sont des amis. S'ils acceptent, ils reçoivent leur propre copie. Date, lieu, titre et statut restent synchronisés entre les copies ; les notes restent privées. Quand l'un valide (« a eu lieu »), toutes les copies sont validées et chaque utilisateur voit **sa** période remise à zéro.
+- **Galerie commune** : les photos ajoutées à un rendez-vous partagé sont visibles par tous les participants ; chacun ne peut supprimer que les siennes.
+- **À voir bientôt** : bouton **+** de la section *À recontacter* de l'accueil (ou bouton étoile sur une fiche contact) pour ajouter quelqu'un en tête de liste même si son échéance est loin ; le marqueur disparaît à la prochaine rencontre.
+- **Anniversaires** : message sur l'accueil le jour J, et liste des anniversaires des 7 prochains jours.
+- **Base de données** : `supabase/schema.sql` est la référence pour une installation neuve. **Pour une base déjà en production, lancez [`supabase/migration_v1.2.sql`](supabase/migration_v1.2.sql) dans Supabase → SQL Editor AVANT de déployer** : il n'ajoute que les nouveautés (colonnes `profiles.username` / `birthday`, `contacts.see_soon` / `linked_user_id`, `rendezvous.share_id`, tables `friendships`, `rdv_invitations`, `waves`, fonctions `search_users`, `send_friend_request`, `respond_rdv_invite`, `send_wave`…), ne touche à aucune donnée existante et peut être relancé sans risque. Les notifications sociales passent par `/api/social/notify`.
+
 ## Importer les contacts du téléphone
 
 Contacts → icône carnet (en haut) ou Réglages → Données → *Importer des contacts du téléphone*. Trois étapes : choisir la source, passer chaque contact en revue (fréquence, catégorie, dernière rencontre, **Ajouter** / **Ignorer**, ou « les restants d'un coup »), confirmer. Rien n'est enregistré avant la confirmation ; les contacts déjà présents (même nom, numéro ou email) sont écartés.
 
-- **Sélecteur natif** (`navigator.contacts`, API Contact Picker) : disponible dans Chrome sur Android et Safari sur iPhone. Le bouton n'apparaît que si le navigateur le propose ; il peut manquer dans l'app installée sur l'écran d'accueil iOS → ouvrir SeeYourB dans Safari pour cette opération, ou passer par un fichier.
+- **Sélecteur natif** (`navigator.contacts`, API Contact Picker) : disponible uniquement dans Chrome sur Android. Sur iPhone, Apple laisse cette API désactivée par défaut dans Safari (option cachée *Réglages → Apps → Safari → Avancé → Feature Flags → Contact Picker API*) : la page d'import détecte l'iPhone et guide vers l'export natif — app Contacts → *Listes* → appui long sur *Tous les contacts* → *Exporter* → *Enregistrer dans Fichiers* — puis lit le fichier.
 - **Fichier .vcf** (vCard 2.1 / 3.0 / 4.0, un ou plusieurs fichiers) : marche partout et permet d'importer tout le carnet. iPhone : icloud.com → Contacts → tout sélectionner → ⚙ → *Exporter vCard* (ou, fiche par fiche, *Partager le contact* → *Enregistrer dans Fichiers*). Android : app Contacts → *Exporter*. Google : contacts.google.com → *Exporter* → vCard. Champs repris : nom, téléphone, email, anniversaire, organisation / titre / note. Les photos ne sont pas importées.
 - Une PWA n'a jamais d'accès permanent au carnet d'adresses : il s'agit d'un import ponctuel, pas d'une synchronisation en continu. Code : `lib/contact-import.ts`, `lib/vcard.ts`, `app/(app)/contacts/import/`.
 
@@ -178,7 +191,7 @@ app/
   api/                cron, push, ics, export, suppression de compte, diagnostic
 components/           UI partagée (ui/), contacts/, rdv/, settings/, PWA
 lib/                  types, accès données (data.ts), dates, photos, notifications (serveur)
-supabase/             schema.sql (à exécuter une fois), cron.sql
+supabase/             schema.sql (installation neuve), migration_v1.2.sql (mise à jour d'une base existante), cron.sql
 public/sw.js          service worker (push + cache)
 scripts/              génération des icônes et des clés VAPID
 ```

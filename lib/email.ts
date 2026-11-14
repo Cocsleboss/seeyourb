@@ -3,7 +3,7 @@
  * Fournisseurs supportés (le premier configuré est utilisé) :
  *   - Brevo  : BREVO_API_KEY  (gratuit, 300 mails/jour, expéditeur = email vérifié)
  *   - Resend : RESEND_API_KEY (gratuit, mais domaine vérifié requis pour écrire à d'autres adresses)
- * Dans les deux cas EMAIL_FROM doit être défini, ex. "SeeYourB <vous@exemple.com>".
+ * Dans les deux cas EMAIL_FROM doit être défini, ex. "SeeU <vous@exemple.com>".
  */
 
 export function emailProvider(): "brevo" | "resend" | null {
@@ -19,8 +19,8 @@ export function emailConfigured(): boolean {
 
 function parseFrom(from: string): { name: string; email: string } {
   const m = from.match(/^\s*"?([^"<]*)"?\s*<([^>]+)>\s*$/);
-  if (m) return { name: m[1].trim() || "SeeYourB", email: m[2].trim() };
-  return { name: "SeeYourB", email: from.trim() };
+  if (m) return { name: m[1].trim() || "SeeU", email: m[2].trim() };
+  return { name: "SeeU", email: from.trim() };
 }
 
 export interface EmailMessage {
@@ -75,14 +75,14 @@ function escapeHtml(s: string): string {
 
 /** Gabarit HTML simple et lisible sur mobile. */
 export function renderEmailHtml(opts: { title: string; body: string; url: string; cta?: string }): string {
-  const { title, body, url, cta = "Ouvrir SeeYourB" } = opts;
+  const { title, body, url, cta = "Ouvrir SeeU" } = opts;
   return `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(title)}</title></head>
 <body style="margin:0;padding:0;background:#f4f4f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f7;padding:24px 12px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;">
-        <tr><td style="background:linear-gradient(135deg,#6366f1,#7c3aed);padding:20px 24px;color:#fff;font-size:18px;font-weight:700;">SeeYourB</td></tr>
+        <tr><td style="background:linear-gradient(135deg,#6366f1,#7c3aed);padding:20px 24px;color:#fff;font-size:18px;font-weight:700;">SeeU</td></tr>
         <tr><td style="padding:24px;">
           <h1 style="margin:0 0 12px;font-size:20px;line-height:1.3;">${escapeHtml(title)}</h1>
           <p style="margin:0 0 20px;font-size:16px;line-height:1.5;color:#374151;white-space:pre-line;">${escapeHtml(body)}</p>

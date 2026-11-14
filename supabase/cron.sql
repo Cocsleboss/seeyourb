@@ -1,5 +1,5 @@
 -- =====================================================================
---  SeeYourB — tâche planifiée (pg_cron + pg_net, inclus gratuitement
+--  SeeU — tâche planifiée (pg_cron + pg_net, inclus gratuitement
 --  dans Supabase). Toutes les 10 minutes, Supabase appelle l'API de
 --  l'application qui envoie les rappels (push, puis email en secours).
 --

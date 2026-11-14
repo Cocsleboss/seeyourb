@@ -39,6 +39,12 @@ const KIND_LABEL: Record<string, string> = {
   rdv_reminder: "Rappel de rendez-vous",
   rdv_followup: "Suivi de rendez-vous",
   birthday: "Anniversaire",
+  friend_request: "Demande d'ami",
+  friend_accept: "Ami accepté",
+  rdv_invite: "Invitation à un rendez-vous",
+  rdv_response: "Réponse à une invitation",
+  rdv_change: "Rendez-vous partagé modifié",
+  wave: "Envie de se voir",
   test: "Test",
 };
 
@@ -145,7 +151,7 @@ export function NotificationSettings() {
           ),
         };
       case "denied":
-        return { icon: <BellOff className="h-5 w-5 text-red-500" />, text: "Notifications bloquées : autorisez-les dans Réglages → Notifications → SeeYourB." };
+        return { icon: <BellOff className="h-5 w-5 text-red-500" />, text: "Notifications bloquées : autorisez-les dans Réglages → Notifications → SeeU." };
       case "unsupported":
         return { icon: <BellOff className="h-5 w-5 text-gray-400" />, text: "Ce navigateur ne supporte pas les notifications push ; les rappels partiront par email." };
       case "no-key":

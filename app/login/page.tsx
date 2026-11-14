@@ -4,6 +4,7 @@ import { Eye, EyeOff, MailCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { UsernameInput, usernameOk, type UsernameState } from "@/components/UsernameInput";
 import { Button, Card, Field, Input, PageLoader, SegmentedControl } from "@/components/ui";
 import { translateAuthError } from "@/lib/auth-errors";
 import { createClient, supabaseConfigured } from "@/lib/supabase/client";
@@ -30,6 +31,8 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameState, setUsernameState] = useState<UsernameState>("empty");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(params.get("error"));
@@ -59,7 +62,7 @@ function LoginForm() {
           password,
           options: {
             emailRedirectTo: `${origin}/auth/callback?next=/`,
-            data: name.trim() ? { display_name: name.trim() } : undefined,
+            data: { username, ...(name.trim() ? { display_name: name.trim() } : {}) },
           },
         });
         if (error) throw error;
@@ -166,9 +169,12 @@ function LoginForm() {
 
         <form onSubmit={submit} className="space-y-4" noValidate>
           {mode === "signup" && (
-            <Field label="Prénom (nom affiché)" htmlFor="name">
-              <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex. Andrea" maxLength={60} />
-            </Field>
+            <>
+              <Field label="Prénom (nom affiché)" htmlFor="name">
+                <Input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex. Andrea" maxLength={60} />
+              </Field>
+              <UsernameInput value={username} onChange={setUsername} onState={setUsernameState} required />
+            </>
           )}
           <Field label="Email" htmlFor="email" required>
             <Input
@@ -215,7 +221,7 @@ function LoginForm() {
             </p>
           )}
 
-          <Button type="submit" full size="lg" loading={busy} disabled={!email || (isPwMode && password.length < 6)}>
+          <Button type="submit" full size="lg" loading={busy} disabled={!email || (isPwMode && password.length < 6) || (mode === "signup" && !usernameOk(usernameState))}>
             {SUBMIT_LABEL[mode]}
           </Button>
         </form>

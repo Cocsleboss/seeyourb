@@ -73,7 +73,7 @@ export function emailKey(email: string | null | undefined): string | null {
 export interface DedupeResult {
   /** contacts nouveaux, à proposer à l'utilisateur */
   fresh: ImportedContact[];
-  /** déjà présents dans SeeYourB (même nom, numéro ou email) */
+  /** déjà présents dans SeeU (même nom, numéro ou email) */
   alreadyThere: number;
   /** doublons à l'intérieur de la sélection elle-même */
   duplicates: number;

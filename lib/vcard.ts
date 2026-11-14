@@ -1,7 +1,7 @@
 /**
  * Lecture de fichiers vCard (.vcf) exportés depuis iPhone, Android, Google Contacts, Outlook…
  * Gère les versions 2.1 / 3.0 / 4.0 : pliage de lignes, quoted-printable, groupes "item1.",
- * paramètres avec ou sans "TYPE=". Seuls les champs utiles à SeeYourB sont extraits.
+ * paramètres avec ou sans "TYPE=". Seuls les champs utiles à SeeU sont extraits.
  * Les photos (base64) sont ignorées.
  */
 import { cleanEmail, cleanPhone, nextImportKey, type ImportedContact } from "@/lib/contact-import";
