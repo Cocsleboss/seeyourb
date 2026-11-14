@@ -1,12 +1,53 @@
-node_modules
-.next
-out
-.env
-.env.local
-.env*.local
-.vercel
-.DS_Store
+# Miscellaneous
+*.class
 *.log
-npm-debug.log*
-next-env.d.ts
-*.tsbuildinfo
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ / VS Code
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
+
+# Android Studio
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Secrets / local config (see config/env.example.json)
+config/env.json
+.env
+.env.*
+supabase/.temp/
+supabase/.branches/
+supabase/functions/.env
+
+# Firebase config files are project-specific: add them locally (see README)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
