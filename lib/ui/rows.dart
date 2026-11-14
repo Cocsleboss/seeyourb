@@ -126,7 +126,7 @@ class RdvRow extends StatelessWidget {
 
 /// Small "label: value" line used in detail cards.
 class InfoLine extends StatelessWidget {
-  const InfoLine(this.label, this.value, {super.key, this.labelWidth = 150});
+  const InfoLine(this.label, this.value, {super.key, this.labelWidth = 140});
   final String label;
   final String value;
   final double labelWidth;
@@ -136,8 +136,8 @@ class InfoLine extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SizedBox(width: labelWidth, child: Text(label, style: TextStyle(fontSize: 15, color: c.textMuted))),
-        Expanded(child: Text(value, style: TextStyle(fontSize: 15, color: c.text, fontWeight: FontWeight.w500))),
+        SizedBox(width: labelWidth, child: Text(label, style: TextStyle(fontSize: 14.5, color: c.textMuted))),
+        Expanded(child: Text(value, style: TextStyle(fontSize: 14.5, color: c.text, fontWeight: FontWeight.w500))),
       ]),
     );
   }

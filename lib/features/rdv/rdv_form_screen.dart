@@ -245,6 +245,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                 label: 'Date',
                 required: true,
                 child: DateField(
+                  compact: true,
                   value: _date,
                   onChanged: (d) => setState(() {
                     _date = d ?? _date;

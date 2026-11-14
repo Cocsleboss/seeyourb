@@ -191,6 +191,7 @@ class DateField extends StatelessWidget {
     this.last,
     this.placeholder = 'Choisir une date',
     this.clearable = false,
+    this.compact = false,
   });
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
@@ -199,10 +200,13 @@ class DateField extends StatelessWidget {
   final String placeholder;
   final bool clearable;
 
+  /// "sam. 14 nov. 2026" instead of "samedi 14 novembre 2026" (narrow fields).
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
     final field = PickerField(
-      text: value == null ? placeholder : formatDateLong(value!),
+      text: value == null ? placeholder : (compact ? formatDateMedium(value!) : formatDateLong(value!)),
       placeholder: value == null,
       icon: LucideIcons.calendar,
       onTap: () async {

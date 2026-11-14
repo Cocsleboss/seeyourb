@@ -142,7 +142,9 @@ class _Body extends ConsumerWidget {
             Row(children: [
               StatusPill(rdv.status),
               const Spacer(),
-              Text(relativeDayLabel(rdv.appointmentAt), style: TextStyle(color: c.textMuted, fontSize: 15)),
+              // "Aujourd'hui" / "Demain" / "Hier" only (otherwise it repeats the date below)
+              if (calendarDaysBetween(today(), rdv.appointmentAt).abs() <= 1)
+                Text(relativeDayLabel(rdv.appointmentAt), style: TextStyle(color: c.textMuted, fontSize: 15)),
             ]),
             const SizedBox(height: 14),
             Text(capitalize(formatDateLong(rdv.appointmentAt)),

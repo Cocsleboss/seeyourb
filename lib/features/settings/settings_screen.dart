@@ -143,15 +143,12 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
             hint: 'Visible par vos amis SeeU uniquement : leur fiche à votre nom se remplit toute seule.',
             child: DateField(value: _birthday, last: today(), clearable: true, onChanged: (d) => setState(() => _birthday = d)),
           ),
-          Row(children: [
-            Expanded(child: AppButton('Enregistrer', full: true, loading: _busy, onPressed: _changed && _valid ? _save : null)),
-            const SizedBox(width: 10),
-            if (p.username != null)
-              Expanded(
-                child: AppButton('Partager mon @',
-                    icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareMyHandle(p.username!)),
-              ),
-          ]),
+          AppButton('Enregistrer', full: true, loading: _busy, onPressed: _changed && _valid ? _save : null),
+          if (p.username != null) ...[
+            const SizedBox(height: 10),
+            AppButton('Partager mon @',
+                icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareMyHandle(p.username!)),
+          ],
           const SizedBox(height: 16),
           _ReadOnly(label: 'Email', value: p.email ?? '—', hint: "Jamais affiché aux autres utilisateurs avant qu'ils soient vos amis"),
           _ReadOnly(label: 'Fuseau horaire', value: p.timezone, hint: "Détecté automatiquement, utilisé pour l'heure des rappels"),

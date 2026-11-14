@@ -190,7 +190,8 @@ class AppCard extends StatelessWidget {
                 BoxShadow(color: Color(0x1A101828), blurRadius: 3, offset: Offset(0, 1)),
               ],
       ),
-      child: child,
+      // Ink (ListTile/InkWell ripples) must paint above the card background.
+      child: Material(type: MaterialType.transparency, child: child),
     );
     return onTap == null ? box : Pressable(onTap: onTap, scale: 0.99, child: box);
   }

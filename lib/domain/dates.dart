@@ -152,6 +152,9 @@ String unitLabel(FrequencyUnit unit, int value) => switch (unit) {
 /// 12 nov. 2026
 String formatDate(DateTime d) => DateFormat('d MMM y', _locale).format(d);
 
+/// sam. 14 nov. 2026
+String formatDateMedium(DateTime d) => DateFormat('EEE d MMM y', _locale).format(d);
+
 /// mercredi 12 novembre 2026
 String formatDateLong(DateTime d) => DateFormat('EEEE d MMMM y', _locale).format(d);
 
