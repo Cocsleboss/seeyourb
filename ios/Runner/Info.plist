@@ -5,9 +5,47 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<string>fr</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>fr</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>app.seeu</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>seeu</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>sms</string>
+		<string>mailto</string>
+		<string>maps</string>
+	</array>
+	<key>NSContactsUsageDescription</key>
+	<string>SeeU lit les contacts que vous choisissez d'importer (nom, téléphone, email, anniversaire, notes). Rien n'est envoyé sans votre confirmation.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Prenez une photo pour la fiche d'un contact ou la galerie d'un rendez-vous.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choisissez des photos pour la fiche d'un contact ou la galerie d'un rendez-vous.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Ajoutez vos rendez-vous SeeU à votre calendrier.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Ajoutez vos rendez-vous SeeU à votre calendrier.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Ajoutez vos rendez-vous SeeU à votre calendrier.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Seeu</string>
+	<string>SeeU</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

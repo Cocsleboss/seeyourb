@@ -1,0 +1,205 @@
+// Photo gallery (grid of 3), uploader and fullscreen viewer (§4.6, §5.8).
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../../core/theme.dart';
+import '../../data/providers.dart';
+import '../../domain/models.dart';
+import '../../ui/feedback.dart';
+import '../../ui/kit.dart';
+
+/// Picks images resized to 1600 px max (long side) at ~80 % JPEG quality.
+Future<List<XFile>> pickPhotos(BuildContext context, {bool multiple = true}) async {
+  final source = await showAppSheet<ImageSource>(
+    context,
+    title: 'Ajouter une photo',
+    builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      AppButton('Prendre une photo',
+          icon: LucideIcons.camera, variant: ButtonVariant.secondary, onPressed: () => Navigator.pop(ctx, ImageSource.camera)),
+      const SizedBox(height: 10),
+      AppButton('Choisir dans la galerie',
+          icon: LucideIcons.images, variant: ButtonVariant.secondary, onPressed: () => Navigator.pop(ctx, ImageSource.gallery)),
+    ]),
+  );
+  if (source == null) return [];
+  final picker = ImagePicker();
+  try {
+    if (source == ImageSource.gallery && multiple) {
+      return await picker.pickMultiImage(maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
+    }
+    final one = await picker.pickImage(source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
+    return one == null ? [] : [one];
+  } catch (e) {
+    showToast('Accès aux photos refusé. Autorisez-le dans les réglages du téléphone.', kind: ToastKind.error);
+    return [];
+  }
+}
+
+class PhotoSection extends ConsumerStatefulWidget {
+  const PhotoSection({super.key, required this.title, required this.photos, this.contactId, this.rdvId, this.emptyText});
+  final String title;
+  final AsyncValue<List<Photo>> photos;
+  final String? contactId;
+  final String? rdvId;
+  final String? emptyText;
+
+  @override
+  ConsumerState<PhotoSection> createState() => _PhotoSectionState();
+}
+
+class _PhotoSectionState extends ConsumerState<PhotoSection> {
+  int _uploading = 0;
+
+  Future<void> _add() async {
+    final files = await pickPhotos(context);
+    if (files.isEmpty) return;
+    setState(() => _uploading += files.length);
+    for (final f in files) {
+      await guard(() async => ref.read(apiProvider).addPhoto(await f.readAsBytes(), contactId: widget.contactId, rdvId: widget.rdvId));
+      if (!mounted) return;
+      setState(() => _uploading--);
+      refreshData(ref);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final photos = widget.photos.value ?? const <Photo>[];
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SectionTitle(
+        widget.title,
+        action: AppButton('Ajouter',
+            icon: LucideIcons.camera, variant: ButtonVariant.ghost, size: ButtonSize.sm, onPressed: _uploading > 0 ? null : _add),
+      ),
+      if (widget.photos.isLoading && !widget.photos.hasValue)
+        const SkeletonList(rows: 1)
+      else if (photos.isEmpty && _uploading == 0)
+        Text(widget.emptyText ?? 'Ajoutez des photos de vos moments partagés.', style: TextStyle(color: c.textMuted, fontSize: 14.5))
+      else
+        GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 6,
+          crossAxisSpacing: 6,
+          children: [
+            for (var i = 0; i < _uploading; i++) _PendingTile(),
+            for (var i = 0; i < photos.length; i++)
+              GestureDetector(
+                onTap: () => openPhotoViewer(context, photos, i),
+                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].storagePath)),
+              ),
+          ],
+        ),
+    ]);
+  }
+}
+
+class _PendingTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Shimmer.fromColors(
+      baseColor: c.isDark ? Palette.gray800 : Palette.gray200,
+      highlightColor: c.isDark ? Palette.gray700 : Palette.gray100,
+      child: Container(decoration: BoxDecoration(color: Palette.gray200, borderRadius: BorderRadius.circular(12))),
+    );
+  }
+}
+
+void openPhotoViewer(BuildContext context, List<Photo> photos, int index) {
+  Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
+    opaque: false,
+    barrierColor: Colors.black,
+    pageBuilder: (_, _, _) => PhotoViewer(photos: photos, initial: index),
+    transitionsBuilder: (_, a, _, child) => FadeTransition(opacity: a, child: child),
+  ));
+}
+
+class PhotoViewer extends ConsumerStatefulWidget {
+  const PhotoViewer({super.key, required this.photos, required this.initial});
+  final List<Photo> photos;
+  final int initial;
+  @override
+  ConsumerState<PhotoViewer> createState() => _PhotoViewerState();
+}
+
+class _PhotoViewerState extends ConsumerState<PhotoViewer> {
+  late final PageController _page = PageController(initialPage: widget.initial);
+  late final List<Photo> _photos = [...widget.photos];
+  late int _index = widget.initial;
+
+  @override
+  void dispose() {
+    _page.dispose();
+    super.dispose();
+  }
+
+  Future<void> _delete() async {
+    final photo = _photos[_index];
+    final ok = await confirmSheet(context,
+        title: 'Supprimer cette photo ?', message: 'Cette action est définitive.', confirmLabel: 'Supprimer');
+    if (!ok) return;
+    final done = await guard(() async {
+      await ref.read(apiProvider).deletePhoto(photo);
+      return true;
+    }, success: 'Photo supprimée');
+    if (done == null || !mounted) return;
+    refreshData(ref);
+    setState(() {
+      _photos.removeAt(_index);
+      if (_index >= _photos.length) _index = _photos.length - 1;
+    });
+    if (_photos.isEmpty) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final me = ref.watch(userIdProvider);
+    final mine = _photos.isNotEmpty && _photos[_index].userId == me;
+    Widget arrow(IconData icon, int delta) => IconButton(
+          onPressed: () => _page.animateToPage(_index + delta, duration: const Duration(milliseconds: 220), curve: Curves.easeOut),
+          icon: Icon(icon, color: Colors.white, size: 30),
+          style: IconButton.styleFrom(backgroundColor: Colors.white12),
+        );
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(children: [
+        PageView.builder(
+          controller: _page,
+          itemCount: _photos.length,
+          onPageChanged: (i) => setState(() => _index = i),
+          itemBuilder: (_, i) => InteractiveViewer(
+            child: Center(child: StorageImage(_photos[i].storagePath, fit: BoxFit.contain, placeholder: const SizedBox())),
+          ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Row(children: [
+              IconButton(
+                tooltip: 'Fermer',
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(LucideIcons.x, color: Colors.white, size: 28),
+              ),
+              Expanded(
+                child: Text('${_index + 1} / ${_photos.length}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
+              ),
+              if (mine)
+                IconButton(tooltip: 'Supprimer', onPressed: _delete, icon: const Icon(LucideIcons.trash2, color: Colors.white, size: 24))
+              else
+                const SizedBox(width: 48),
+            ]),
+          ),
+        ),
+        if (_index > 0) Align(alignment: Alignment.centerLeft, child: Padding(padding: const EdgeInsets.all(8), child: arrow(LucideIcons.chevronLeft, -1))),
+        if (_index < _photos.length - 1)
+          Align(alignment: Alignment.centerRight, child: Padding(padding: const EdgeInsets.all(8), child: arrow(LucideIcons.chevronRight, 1))),
+      ]),
+    );
+  }
+}
