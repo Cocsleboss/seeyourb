@@ -96,7 +96,7 @@ Never put the Supabase **secret / service_role** key or the Firebase service acc
 
 | Service | What it's used for | Status |
 | --- | --- | --- |
-| Supabase | Database, auth, storage, Edge Functions, cron | ✅ configured |
+| Supabase | Database, auth, storage, Edge Functions, cron | ✅ configured (incl. auth redirect URLs) |
 | Firebase | Push only (Cloud Messaging) | ✅ Android + iOS apps registered, service account set |
 | Apple Developer (free Personal Team) | Running on your iPhone (7-day signing) | ✅ |
 | Apple Developer Program (paid) | iOS push (APNs key), TestFlight, App Store | ❌ not yet |
@@ -105,8 +105,7 @@ Never put the Supabase **secret / service_role** key or the Firebase service acc
 
 ## 6. Still to do
 
-- [ ] Supabase → Authentication → URL Configuration: Site URL + Redirect URL `seeu://auth-callback`
-      (if not done yet).
+- [x] Supabase → Authentication → URL Configuration: Site URL + Redirect URL `seeu://auth-callback`.
 - [ ] Paid Apple account → Xcode: add **Push Notifications** capability; developer.apple.com → APNs key
       (`.p8`) → upload in Firebase → Project settings → Cloud Messaging (Key ID + Team ID).
 - [ ] Email provider: `EMAIL_FROM` + API key as function secrets; custom SMTP in Supabase Auth.
