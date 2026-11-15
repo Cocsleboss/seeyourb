@@ -2,10 +2,9 @@
 // "Day" values are DateTime at local midnight; timestamps are local DateTimes.
 import 'package:intl/intl.dart';
 
+import '../core/i18n.dart';
 import 'models.dart';
 import 'text.dart';
-
-const _locale = 'fr_FR';
 
 /// Overridable clock (tests).
 DateTime Function() clock = DateTime.now;
@@ -75,16 +74,16 @@ DueInfo dueInfo(HasDue c) {
   final due = effectiveDueDate(c);
   final days = daysFromToday(due);
   if (days < 0) {
-    return DueInfo(kind: DueKind.overdue, days: days, dueDate: due, label: 'En retard de ${humanizeDays(-days)}', short: '-${shortDays(-days)}');
+    return DueInfo(kind: DueKind.overdue, days: days, dueDate: due, label: tr.dueOverdue(humanizeDays(-days)), short: '-${shortDays(-days)}');
   }
   if (days == 0) {
-    return DueInfo(kind: DueKind.today, days: 0, dueDate: due, label: "À revoir aujourd'hui", short: 'Auj.');
+    return DueInfo(kind: DueKind.today, days: 0, dueDate: due, label: tr.dueToday, short: tr.dueTodayShort);
   }
   return DueInfo(
     kind: days <= 7 ? DueKind.soon : DueKind.ok,
     days: days,
     dueDate: due,
-    label: 'À revoir dans ${humanizeDays(days)}',
+    label: tr.dueIn(humanizeDays(days)),
     short: shortDays(days),
   );
 }
@@ -94,55 +93,46 @@ int _jsRound(double x) => (x + 0.5).floor();
 /// 3 → "3 jours", 15 → "2 semaines", 95 → "3 mois", 400 → "1 an", 550 → "1 an et demi"
 String humanizeDays(int n) {
   n = n.abs();
-  if (n < 14) return n <= 1 ? '$n jour' : '$n jours';
-  if (n < 60) {
-    final w = _jsRound(n / 7);
-    return '$w semaine${w > 1 ? 's' : ''}';
-  }
+  if (n < 14) return tr.nDays(n);
+  if (n < 60) return tr.nWeeks(_jsRound(n / 7));
   if (n < 350) {
     final m = _jsRound(n / 30.44);
-    return '${m < 2 ? 2 : m} mois';
+    return tr.nMonths(m < 2 ? 2 : m);
   }
   final years = (n / 365.25).floor();
   final rest = n - years * 365.25;
-  if (years >= 1 && rest >= 140 && rest < 230) return '$years an${years > 1 ? 's' : ''} et demi';
+  if (years >= 1 && rest >= 140 && rest < 230) return tr.nYearsHalf(years);
   var y = _jsRound(n / 365.25);
   if (y < 1) y = 1;
-  return '$y an${y > 1 ? 's' : ''}';
+  return tr.nYears(y);
 }
 
 String shortDays(int n) {
   n = n.abs();
-  if (n < 14) return '$n j';
-  if (n < 60) return '${_jsRound(n / 7)} sem.';
+  if (n < 14) return tr.shortDays(n);
+  if (n < 60) return tr.shortWeeks(_jsRound(n / 7));
   if (n < 350) {
     final m = _jsRound(n / 30.44);
-    return '${m < 2 ? 2 : m} mois';
+    return tr.shortMonths(m < 2 ? 2 : m);
   }
   var y = _jsRound(n / 365.25);
   if (y < 1) y = 1;
-  return '$y an${y > 1 ? 's' : ''}';
+  return tr.shortYears(y);
 }
 
 /// (2, months) → "tous les 2 mois" ; (1, weeks) → "toutes les semaines"
-String frequencyLabel(int value, FrequencyUnit unit) {
-  if (value == 1) {
-    return switch (unit) {
-      FrequencyUnit.days => 'tous les jours',
-      FrequencyUnit.weeks => 'toutes les semaines',
-      FrequencyUnit.months => 'tous les mois',
-      FrequencyUnit.years => 'tous les ans',
+String frequencyLabel(int value, FrequencyUnit unit) => switch (unit) {
+      FrequencyUnit.days => tr.everyDays(value),
+      FrequencyUnit.weeks => tr.everyWeeks(value),
+      FrequencyUnit.months => tr.everyMonths(value),
+      FrequencyUnit.years => tr.everyYears(value),
     };
-  }
-  const names = {FrequencyUnit.days: 'jours', FrequencyUnit.weeks: 'semaines', FrequencyUnit.months: 'mois', FrequencyUnit.years: 'ans'};
-  return '${unit == FrequencyUnit.weeks ? 'toutes' : 'tous'} les $value ${names[unit]}';
-}
 
 String unitLabel(FrequencyUnit unit, int value) => switch (unit) {
-      FrequencyUnit.days => value > 1 ? 'jours' : 'jour',
-      FrequencyUnit.weeks => value > 1 ? 'semaines' : 'semaine',
-      FrequencyUnit.months => 'mois',
-      FrequencyUnit.years => value > 1 ? 'ans' : 'an',
+      FrequencyUnit.days => tr.unitDays(value),
+      FrequencyUnit.weeks => tr.unitWeeks(value),
+      FrequencyUnit.months => tr.unitMonths(value),
+      FrequencyUnit.years => tr.unitYears(value),
     };
 
 /* ------------------------------------------------------------------ */
@@ -150,35 +140,35 @@ String unitLabel(FrequencyUnit unit, int value) => switch (unit) {
 /* ------------------------------------------------------------------ */
 
 /// 12 nov. 2026
-String formatDate(DateTime d) => DateFormat('d MMM y', _locale).format(d);
+String formatDate(DateTime d) => DateFormat.yMMMd().format(d);
 
 /// sam. 14 nov. 2026
-String formatDateMedium(DateTime d) => DateFormat('EEE d MMM y', _locale).format(d);
+String formatDateMedium(DateTime d) => DateFormat.yMMMEd().format(d);
 
 /// mercredi 12 novembre 2026
-String formatDateLong(DateTime d) => DateFormat('EEEE d MMMM y', _locale).format(d);
+String formatDateLong(DateTime d) => DateFormat.yMMMMEEEEd().format(d);
 
 /// Mercredi 12 novembre
-String formatDayMonth(DateTime d) => capitalize(DateFormat('EEEE d MMMM', _locale).format(d));
+String formatDayMonth(DateTime d) => capitalize(DateFormat.MMMMEEEEd().format(d));
 
 /// 18:30
-String formatTime(DateTime d) => DateFormat('HH:mm', _locale).format(d);
+String formatTime(DateTime d) => DateFormat.jm().format(d);
 
 /// Vendredi 4 décembre à 01:15
-String formatDayTime(DateTime d) => '${formatDayMonth(d)} à ${formatTime(d)}';
+String formatDayTime(DateTime d) => tr.dayAtTime(formatDayMonth(d), formatTime(d));
 
 /// NOV
-String monthShort(DateTime d) => DateFormat('MMM', _locale).format(d).replaceAll('.', '').toUpperCase();
+String monthShort(DateTime d) => DateFormat.MMM().format(d).replaceAll('.', '').toUpperCase();
 
 /// Novembre 2026
-String monthLabel(DateTime d) => capitalize(DateFormat('MMMM y', _locale).format(d));
+String monthLabel(DateTime d) => capitalize(DateFormat.yMMMM().format(d));
 
 /// "Aujourd'hui" / "Demain" / "Hier" / "Mercredi 18 novembre"
 String relativeDayLabel(DateTime d) {
   final diff = calendarDaysBetween(today(), d);
-  if (diff == 0) return "Aujourd'hui";
-  if (diff == 1) return 'Demain';
-  if (diff == -1) return 'Hier';
+  if (diff == 0) return tr.today;
+  if (diff == 1) return tr.tomorrow;
+  if (diff == -1) return tr.yesterday;
   return formatDayMonth(d);
 }
 
@@ -226,8 +216,8 @@ BirthdayInfo? nextBirthday(DateTime? birthday) {
 /// Greeting by hour: "Bonne nuit" <5h, "Bonjour" <12h, "Bon après-midi" <18h, else "Bonsoir".
 String greeting([DateTime? at]) {
   final h = (at ?? clock()).hour;
-  if (h < 5) return 'Bonne nuit';
-  if (h < 12) return 'Bonjour';
-  if (h < 18) return 'Bon après-midi';
-  return 'Bonsoir';
+  if (h < 5) return tr.greetingNight;
+  if (h < 12) return tr.greetingMorning;
+  if (h < 18) return tr.greetingAfternoon;
+  return tr.greetingEvening;
 }

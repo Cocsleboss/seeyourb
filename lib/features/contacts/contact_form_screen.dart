@@ -19,6 +19,7 @@ import '../../domain/selectors.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
+import '../../core/i18n.dart';
 
 /// Values to prefill a new contact (e.g. from a SeeU friend).
 class ContactPrefill {
@@ -38,11 +39,11 @@ class ContactFormScreen extends ConsumerWidget {
     if (editId == null) return _ContactForm(prefill: prefill);
     final value = ref.watch(contactProvider(editId!));
     if (value.hasValue && value.value == null) {
-      return const MissingItem(title: 'Contact introuvable', backLabel: 'Voir mes contacts', backPath: '/contacts');
+      return MissingItem(title: tr.contactNotFound, backLabel: tr.seeMyContacts, backPath: '/contacts');
     }
     if (!value.hasValue) {
       return AppScaffold(
-        title: 'Modifier le contact',
+        title: tr.editContact,
         back: true,
         body: Padding(
             padding: const EdgeInsets.all(16),
@@ -103,9 +104,9 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     super.dispose();
   }
 
-  String? get _nameError => _name.text.trim().isEmpty ? 'Le nom est obligatoire.' : null;
-  String? get _freqError => _freqValue < 1 ? 'La fréquence doit être d\'au moins 1.' : null;
-  String? get _emailError => _email.text.trim().isNotEmpty && !isValidEmail(_email.text) ? 'Adresse email invalide.' : null;
+  String? get _nameError => _name.text.trim().isEmpty ? tr.nameRequired : null;
+  String? get _freqError => _freqValue < 1 ? tr.frequencyMin : null;
+  String? get _emailError => _email.text.trim().isNotEmpty && !isValidEmail(_email.text) ? tr.errInvalidEmail : null;
 
   Future<void> _pickPhoto() async {
     final files = await pickPhotos(context, multiple: false);
@@ -141,7 +142,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
         contact = await api.setContactPhoto(contact, _removePhoto ? null : _newPhoto);
       }
       return contact;
-    }, success: existing == null ? 'Contact ajouté' : 'Contact mis à jour');
+    }, success: existing == null ? tr.contactAdded : tr.contactUpdated);
     if (!mounted) return;
     setState(() => _busy = false);
     if (saved == null) return;
@@ -161,10 +162,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final next = addFrequency(start, _freqValue < 1 ? 1 : _freqValue, _freqUnit);
 
     return AppScaffold(
-      title: widget.existing == null ? 'Nouveau contact' : 'Modifier le contact',
+      title: widget.existing == null ? tr.newContact : tr.editContact,
       back: true,
       bottom: BottomActionBar(
-        child: AppButton(widget.existing == null ? 'Ajouter le contact' : 'Enregistrer',
+        child: AppButton(widget.existing == null ? tr.addTheContact : tr.save,
             size: ButtonSize.lg, full: true, loading: _busy, onPressed: _save),
       ),
       body: GestureDetector(
@@ -186,11 +187,11 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
             ),
             const SizedBox(width: 14),
             if (!hasPhoto)
-              AppButton('Ajouter une photo', icon: LucideIcons.camera, variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: _pickPhoto)
+              AppButton(tr.photoAdd, icon: LucideIcons.camera, variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: _pickPhoto)
             else ...[
-              AppButton('Changer', variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: _pickPhoto),
+              AppButton(tr.change, variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: _pickPhoto),
               const SizedBox(width: 8),
-              AppButton('Retirer',
+              AppButton(tr.remove,
                   variant: ButtonVariant.ghost,
                   size: ButtonSize.sm,
                   onPressed: () => setState(() {
@@ -202,12 +203,12 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           const SizedBox(height: 20),
 
           LabeledField(
-            label: 'Nom',
+            label: tr.name,
             required: true,
             error: _submitted ? _nameError : null,
             child: AppTextField(
               controller: _name,
-              hint: 'Ex. Marie Dupont',
+              hint: tr.nameHintFull,
               maxLength: 120,
               textCapitalization: TextCapitalization.words,
               onChanged: (_) => setState(() {}),
@@ -215,8 +216,8 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           ),
 
           LabeledField(
-            label: 'Catégories',
-            hint: 'Facultatif · plusieurs choix possibles',
+            label: tr.categories,
+            hint: tr.categoriesHint,
             child: CategoryPicker(
               selected: _categories,
               known: usedCategories(ref.watch(contactsProvider).value ?? const []),
@@ -225,19 +226,19 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           ),
 
           LabeledField(
-            label: 'Dernière rencontre',
-            hint: _lastMeeting == null ? 'Facultatif. Sans date, la période démarre aujourd\'hui.' : null,
+            label: tr.lastMeeting,
+            hint: _lastMeeting == null ? tr.lastMeetingOptional : null,
             child: DateField(
               value: _lastMeeting,
               last: today(),
               clearable: true,
-              placeholder: 'Pas encore de rencontre notée',
+              placeholder: tr.noMeetingRecorded,
               onChanged: (d) => setState(() => _lastMeeting = d),
             ),
           ),
 
           LabeledField(
-            label: 'Fréquence',
+            label: tr.frequency,
             required: true,
             error: _submitted ? _freqError : null,
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -253,42 +254,42 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               InfoBox(
                 child: Text.rich(TextSpan(children: [
                   TextSpan(text: frequencyLabel(_freqValue < 1 ? 1 : _freqValue, _freqUnit), style: const TextStyle(fontWeight: FontWeight.w600)),
-                  TextSpan(text: ' · Prochaine échéance : ${formatDateLong(next)}'),
+                  TextSpan(text: ' · ${tr.nextDueInline(formatDateLong(next))}'),
                 ])),
               ),
             ]),
           ),
 
           LabeledField(
-            label: 'Téléphone',
+            label: tr.phone,
             child: AppTextField(
               controller: _phone,
-              hint: 'Ex. 06 12 34 56 78',
+              hint: tr.phoneHint,
               keyboardType: TextInputType.phone,
               maxLength: 40,
               autofillHints: const [AutofillHints.telephoneNumber],
             ),
           ),
           LabeledField(
-            label: 'Email',
+            label: tr.emailLabel,
             error: _submitted ? _emailError : null,
             child: AppTextField(
               controller: _email,
-              hint: 'Ex. marie@exemple.com',
+              hint: tr.emailExample,
               keyboardType: TextInputType.emailAddress,
               maxLength: 120,
               onChanged: (_) => setState(() {}),
             ),
           ),
           LabeledField(
-            label: 'Anniversaire',
+            label: tr.birthday,
             child: DateField(value: _birthday, last: today(), clearable: true, onChanged: (d) => setState(() => _birthday = d)),
           ),
           LabeledField(
-            label: 'Notes',
-            child: AppTextField(controller: _notes, hint: 'Centres d\'intérêt, enfants, dernier sujet abordé…', maxLines: 5),
+            label: tr.notes,
+            child: AppTextField(controller: _notes, hint: tr.notesHint, maxLines: 5),
           ),
-          Text('* champs obligatoires', style: TextStyle(color: c.textMuted, fontSize: 12.5)),
+          Text(tr.requiredFields, style: TextStyle(color: c.textMuted, fontSize: 12.5)),
         ]),
       ),
     );

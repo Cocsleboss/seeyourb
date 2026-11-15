@@ -19,6 +19,7 @@ import '../../ui/scaffold.dart';
 import '../friends/add_friend_sheet.dart';
 import '../friends/friend_sheets.dart';
 import '../friends/invite_card.dart';
+import '../../core/i18n.dart';
 
 enum _Sort { due, name }
 
@@ -68,7 +69,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final ok = await guard(() async {
       await ref.read(apiProvider).respondFriendRequest(f.friendshipId, accept);
       return true;
-    }, success: accept ? 'Vous êtes maintenant amis avec ${f.displayName}' : 'Demande refusée');
+    }, success: accept ? tr.nowFriendsWith(f.displayName) : tr.requestDeclined);
     if (!mounted) return;
     setState(() => _busy = null);
     if (ok == null) return;
@@ -81,7 +82,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final ok = await guard(() async {
       await ref.read(apiProvider).removeFriend(f.friendshipId);
       return true;
-    }, success: 'Demande annulée');
+    }, success: tr.requestCancelled);
     if (!mounted) return;
     setState(() => _busy = null);
     if (ok != null) refreshData(ref);
@@ -91,9 +92,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   Widget build(BuildContext context) {
     final contacts = ref.watch(contactsProvider);
     return AppScaffold(
-      title: 'Contacts',
+      title: tr.contactsTitle,
       actions: [
-        AppIconButton(icon: LucideIcons.bookUser, tooltip: 'Importer des contacts', onPressed: () => context.push('/contacts/import')),
+        AppIconButton(icon: LucideIcons.bookUser, tooltip: tr.importContacts, onPressed: () => context.push('/contacts/import')),
       ],
       body: AsyncBody(
         value: contacts,
@@ -124,11 +125,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final sections = <Widget>[];
     if (unlinkedShown.isNotEmpty) {
       sections
-        ..add(SectionTitle('Amis SeeU sans fiche', count: unlinkedShown.length, padding: const EdgeInsets.only(top: 18, bottom: 8)))
+        ..add(SectionTitle(tr.friendsWithoutCard, count: unlinkedShown.length, padding: const EdgeInsets.only(top: 18, bottom: 8)))
         ..add(RowsCard(children: [for (final f in unlinkedShown) _UnlinkedFriendRow(friend: f)]));
     }
     if (filtered.isEmpty && unlinkedShown.isEmpty && !nothingAtAll) {
-      sections.add(const EmptyState(icon: LucideIcons.searchX, title: 'Aucun résultat', message: 'Essayez une autre recherche.'));
+      sections.add(EmptyState(icon: LucideIcons.searchX, title: tr.noResults, message: tr.tryAnotherSearch));
     } else if (_sort == _Sort.name) {
       final sorted = [...filtered]..sort((a, b) => compareNames(a.name, b.name));
       if (sorted.isNotEmpty) {
@@ -138,7 +139,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       }
     } else {
       final g = groupByDue(filtered);
-      for (final (title, list) in [('En retard', g.overdue), ('Cette semaine', g.thisWeek), ('À jour', g.upToDate)]) {
+      for (final (title, list) in [(tr.groupOverdue, g.overdue), (tr.groupThisWeek, g.thisWeek), (tr.groupUpToDate, g.upToDate)]) {
         if (list.isEmpty) continue;
         sections
           ..add(SectionTitle(title, count: list.length, padding: const EdgeInsets.only(top: 18, bottom: 8)))
@@ -159,12 +160,12 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(children: [
               Expanded(
-                child: AppButton('Ami SeeU',
+                child: AppButton(tr.addSeeuFriend,
                     icon: LucideIcons.heartHandshake, variant: ButtonVariant.secondary, full: true, onPressed: () => showAddFriendSheet(context)),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: AppButton('Contact', icon: LucideIcons.userPlus, full: true, onPressed: () => context.push('/contacts/new')),
+                child: AppButton(tr.addContact, icon: LucideIcons.userPlus, full: true, onPressed: () => context.push('/contacts/new')),
               ),
             ]),
           ),
@@ -175,34 +176,34 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 if (invites.isNotEmpty) ...[
-                  const SectionTitle('Invitations à un rendez-vous'),
+                  SectionTitle(tr.rdvInvitations),
                   for (final i in invites) Padding(padding: const EdgeInsets.only(bottom: 10), child: InviteCard(invite: i)),
                 ],
                 if (received.isNotEmpty) ...[
-                  const SectionTitle("Demandes d'ami reçues"),
+                  SectionTitle(tr.friendRequestsReceived),
                   RowsCard(children: [
                     for (final f in received)
                       _PersonRow(
                         name: f.displayName,
-                        subtitle: '${handle(f.username)} · Vous a envoyé une demande',
+                        subtitle: '${handle(f.username)} · ${tr.sentYouARequest}',
                         trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                          AppButton('Refuser',
+                          AppButton(tr.rsvpDecline,
                               variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: _busy == null ? () => _respond(f, false) : null),
                           const SizedBox(width: 6),
-                          AppButton('Accepter',
+                          AppButton(tr.rsvpAccept,
                               size: ButtonSize.sm, loading: _busy == f.friendshipId, onPressed: _busy == null ? () => _respond(f, true) : null),
                         ]),
                       ),
                   ]),
                 ],
                 if (sent.isNotEmpty) ...[
-                  const SectionTitle("Demandes d'ami envoyées"),
+                  SectionTitle(tr.friendRequestsSent),
                   RowsCard(children: [
                     for (final f in sent)
                       _PersonRow(
                         name: f.displayName,
-                        subtitle: '${handle(f.username)} · En attente de sa réponse',
-                        trailing: AppButton('Annuler',
+                        subtitle: '${handle(f.username)} · ${tr.waitingForAnswer}',
+                        trailing: AppButton(tr.cancel,
                             variant: ButtonVariant.secondary,
                             size: ButtonSize.sm,
                             loading: _busy == f.friendshipId,
@@ -218,11 +219,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: EmptyState(
                 icon: LucideIcons.users,
-                title: "Aucun contact pour l'instant",
+                title: tr.noContactsTitle,
                 message:
-                    'Ajoutez les personnes que vous voulez revoir régulièrement. Celles qui sont sur SeeU peuvent devenir vos amis : rendez-vous et photos partagés.',
+                    tr.noContactsMessage,
                 actions: [
-                  AppButton('Importer depuis le téléphone',
+                  AppButton(tr.importFromPhone,
                       icon: LucideIcons.bookUser, variant: ButtonVariant.secondary, onPressed: () => context.push('/contacts/import')),
                 ],
               ),
@@ -231,12 +232,12 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SearchField(controller: _q, hint: 'Rechercher (nom, catégorie, notes, @ami)', onChanged: (_) => setState(() {})),
+              child: SearchField(controller: _q, hint: tr.contactsSearchHint, onChanged: (_) => setState(() {})),
             ),
             const SizedBox(height: 12),
             if (categories.isNotEmpty)
               ChipRow(children: [
-                AppChip('Tous', selected: _category == null, onTap: () => setState(() => _category = null)),
+                AppChip(tr.filterAll, selected: _category == null, onTap: () => setState(() => _category = null)),
                 for (final cat in categories)
                   AppChip(cat, selected: _category == cat, onTap: () => setState(() => _category = _category == cat ? null : cat)),
               ]),
@@ -246,11 +247,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                 Expanded(
                   child: Text.rich(
                     TextSpan(children: [
-                      TextSpan(text: plural(all.length, 'contact')),
-                      if (friendByUser.isNotEmpty) TextSpan(text: ' · ${plural(friendByUser.length, 'ami')}'),
+                      TextSpan(text: tr.nContacts(all.length)),
+                      if (friendByUser.isNotEmpty) TextSpan(text: ' · ${tr.nFriends(friendByUser.length)}'),
                       if (overdue > 0) ...[
                         const TextSpan(text: ' · '),
-                        TextSpan(text: '$overdue en retard', style: TextStyle(color: c.tone(Tone.red).text, fontWeight: FontWeight.w600)),
+                        TextSpan(text: tr.nOverdue(overdue), style: TextStyle(color: c.tone(Tone.red).text, fontWeight: FontWeight.w600)),
                       ],
                     ]),
                     style: TextStyle(color: c.textMuted, fontSize: 14.5),
@@ -259,7 +260,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                 SizedBox(
                   width: 170,
                   child: SegmentedControl<_Sort>(
-                    options: const [(_Sort.due, 'Échéance'), (_Sort.name, 'Nom')],
+                    options: [(_Sort.due, tr.sortDue), (_Sort.name, tr.sortName)],
                     value: _sort,
                     onChanged: (s) => setState(() => _sort = s),
                   ),
@@ -281,10 +282,10 @@ class _UnlinkedFriendRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return _PersonRow(
       name: friend.displayName,
-      subtitle: '${handle(friend.username)} · pas encore dans vos contacts',
+      subtitle: '${handle(friend.username)} · ${tr.notInContactsYet}',
       friendBadge: true,
       onTap: () => showFriendSheet(context, friend),
-      trailing: AppButton('Ajouter', icon: LucideIcons.link2, variant: ButtonVariant.secondary, size: ButtonSize.sm,
+      trailing: AppButton(tr.add, icon: LucideIcons.link2, variant: ButtonVariant.secondary, size: ButtonSize.sm,
           onPressed: () => showLinkSheet(context, friend)),
     );
   }

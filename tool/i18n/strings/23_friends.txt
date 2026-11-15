@@ -1,0 +1,39 @@
+# Friends
+shareHandleText | Ajoute-moi sur SeeU : @{username}\n{link} | Add me on SeeU: @{username}\n{link}
+shareAppText | Rejoins-moi sur SeeU, l'app pour ne plus perdre de vue les gens qu'on aime : {url} | Join me on SeeU, the app to never lose touch with the people you love: {url}
+linkFriendTitle | Associer {name} | Link {name}
+linkFriendSub | Quel contact correspond à cet ami ? C'est sa période qui sera remise à zéro quand vous validerez un rendez-vous ensemble. | Which contact is this friend? Their period resets when you confirm an event together.
+linkedFriendToContact | {friend} est associé au contact {contact} | {friend} is linked to the contact {contact}
+createNewContact | Créer un nouveau contact | Create a new contact
+searchMyContacts | Rechercher dans mes contacts… | Search my contacts…
+alreadyLinked | Déjà associé | Already linked
+suggested | Suggéré | Suggested
+contactUnlinked | Contact dissocié | Contact unlinked
+removeFriendTitle | Retirer {name} ? | Remove {name}?
+removeFriendMessage | Vos contacts et rendez-vous existants sont conservés, mais vous ne pourrez plus vous envoyer d'invitations. Les invitations en attente sont annulées. | Your existing contacts and events are kept, but you won't be able to invite each other anymore. Pending invitations are cancelled.
+friendRemoved | Ami retiré | Friend removed
+proposeRdv | Proposer un rendez-vous | Suggest an event
+seeContactName | Voir le contact {name} | See the contact {name}
+linkToOtherContact | Associer à un autre contact | Link to another contact
+unlinkContact | Dissocier du contact | Unlink from contact
+linkToContact | Associer à un contact | Link to a contact
+removeFromFriends | Retirer de mes amis | Remove from friends
+linkContactToFriendTitle | Associer {name} à un ami SeeU | Link {name} to a SeeU friend
+linkContactToFriendSub | Vous pourrez lui envoyer vos rendez-vous et partager les photos. Chaque ami ne peut être associé qu'à un seul contact. | You'll be able to send them your events and share photos. Each friend can only be linked to one contact.
+linkedContactToFriend | {contact} est associé à {friend} | {contact} is linked to {friend}
+noSeeuFriendsYet | Vous n'avez pas encore d'ami SeeU. | You don't have any SeeU friends yet.
+addSeeuFriendLong | Ajouter un ami SeeU | Add a SeeU friend
+linkedTo | Associé à {name} | Linked to {name}
+addFriendSub | Cherchez-le par son nom d'utilisateur. Entre amis SeeU, vous partagez rendez-vous et photos. | Search by username. SeeU friends share events and photos.
+searchFailed | Recherche impossible | Search failed
+requestSentTo | Demande envoyée à {name} | Request sent to {name}
+alreadyInvitedYou | {name} vous avait déjà invité : vous êtes maintenant amis ! | {name} had already invited you: you're now friends!
+requestAlreadySent | Demande déjà envoyée, en attente de sa réponse. | Request already sent, waiting for their answer.
+alreadyFriend | {name} fait déjà partie de vos amis. | {name} is already your friend.
+accountGone | Ce compte n'existe plus. | This account no longer exists.
+yourUsername | Votre nom d'utilisateur : | Your username:
+share | Partager | Share
+noAccountStartsWith | Aucun compte ne commence par {handle}. Vérifiez l'orthographe, ou invitez cette personne à créer son compte. | No account starts with {handle}. Check the spelling, or invite this person to create an account.
+sendAppLink | Envoyer le lien de l'app | Send the app link
+requestSent | Demande envoyée | Request sent
+alreadyInFriends | Déjà dans vos amis | Already your friend

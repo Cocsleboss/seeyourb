@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_actions/quick_actions.dart';
 
+import 'core/i18n.dart';
 import 'core/push.dart';
 import 'core/router.dart';
 import 'core/theme.dart';
@@ -26,7 +26,7 @@ class SeeUApp extends ConsumerStatefulWidget {
   ConsumerState<SeeUApp> createState() => _SeeUAppState();
 }
 
-class _SeeUAppState extends ConsumerState<SeeUApp> {
+class _SeeUAppState extends ConsumerState<SeeUApp> with WidgetsBindingObserver {
   final _subs = <StreamSubscription<dynamic>>[];
   late final AppLifecycleListener _lifecycle;
   String? _registeredFor;
@@ -34,17 +34,14 @@ class _SeeUAppState extends ConsumerState<SeeUApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final push = PushService.instance;
     _subs.add(push.onOpen.listen(_open));
     _subs.add(push.onReceived.listen((_) => _refresh()));
     _lifecycle = AppLifecycleListener(onResume: _refresh);
 
-    const QuickActions()
-      ..initialize((type) => _open(type == 'new_contact' ? '/contacts/new' : '/rdv/new'))
-      ..setShortcutItems(const [
-        ShortcutItem(type: 'new_rdv', localizedTitle: 'Nouveau rendez-vous'),
-        ShortcutItem(type: 'new_contact', localizedTitle: 'Nouveau contact'),
-      ]).catchError((_) {});
+    const QuickActions().initialize((type) => _open(type == 'new_contact' ? '/contacts/new' : '/rdv/new'));
+    _setShortcuts();
 
     final session = ref.read(sessionProvider);
     session.addListener(_onSession);
@@ -53,6 +50,19 @@ class _SeeUAppState extends ConsumerState<SeeUApp> {
       final initial = push.takeInitialPath();
       if (initial != null) _open(initial);
     });
+  }
+
+  void _setShortcuts() {
+    const QuickActions().setShortcutItems([
+      ShortcutItem(type: 'new_rdv', localizedTitle: tr.quickNewRdv),
+      ShortcutItem(type: 'new_contact', localizedTitle: tr.quickNewContact),
+    ]).catchError((_) {});
+  }
+
+  @override
+  void didChangeLocales(List<Locale>? locales) {
+    // System language changed while the app runs (only matters when following the system).
+    ref.invalidate(languageProvider);
   }
 
   /// Registers this device for push once signed in (if the user already allowed it).
@@ -84,12 +94,18 @@ class _SeeUAppState extends ConsumerState<SeeUApp> {
     }
     ref.read(sessionProvider).removeListener(_onSession);
     _lifecycle.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
+    final lang = ref.watch(languageProvider);
+    if (lang != currentLanguage) {
+      applyLanguage(lang);
+      _setShortcuts();
+    }
     final online = ref.watch(connectivityProvider).value ?? true;
     return MaterialApp.router(
       title: 'SeeU',
@@ -99,12 +115,14 @@ class _SeeUAppState extends ConsumerState<SeeUApp> {
       theme: buildTheme(AppColors.light),
       darkTheme: buildTheme(AppColors.dark),
       themeMode: ThemeMode.system,
-      locale: const Locale('fr', 'FR'),
-      supportedLocales: const [Locale('fr', 'FR')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      builder: (context, child) => online
-          ? child!
-          : OfflineScreen(onRetry: () => ref.invalidate(connectivityProvider)),
+      locale: Locale(lang),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      // Keyed by language so every screen rebuilds with the new strings.
+      builder: (context, child) => KeyedSubtree(
+        key: ValueKey(lang),
+        child: online ? child! : OfflineScreen(onRetry: () => ref.invalidate(connectivityProvider)),
+      ),
     );
   }
 }

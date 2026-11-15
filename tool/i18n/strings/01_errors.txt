@@ -1,0 +1,41 @@
+# Errors (client + server codes)
+errNetwork | Pas de connexion. Vérifiez votre réseau. | No connection. Check your network.
+errGeneric | Une erreur est survenue. | Something went wrong.
+errSessionExpired | Session expirée, reconnectez-vous. | Session expired, please sign in again.
+errForbidden | Action non autorisée. | Action not allowed.
+errUsernameTaken | Ce nom d'utilisateur est déjà pris. | This username is already taken.
+errUsernameInvalid | Nom d'utilisateur invalide. | Invalid username.
+errFriendAlreadyLinked | Cet ami est déjà associé à un autre contact. | This friend is already linked to another contact.
+errDuplicate | Cet élément existe déjà. | This already exists.
+errFileTooLarge | Fichier trop volumineux (10 Mo max). | File too large (10 MB max).
+errBadCredentials | Email ou mot de passe incorrect. | Wrong email or password.
+errEmailNotConfirmed | Confirmez d'abord votre adresse email (lien reçu par mail). | Please confirm your email address first (link sent by email).
+errEmailTaken | Un compte existe déjà avec cet email. | An account already exists with this email.
+errWeakPassword | Le mot de passe doit contenir au moins 6 caractères. | The password must be at least 6 characters long.
+errRateLimit | Trop de tentatives, réessayez dans quelques minutes. | Too many attempts, try again in a few minutes.
+errSignupsDisabled | Les inscriptions sont désactivées. | Sign-ups are disabled.
+errInvalidEmail | Adresse email invalide. | Invalid email address.
+errSamePassword | Choisissez un mot de passe différent de l'ancien. | Choose a password different from the old one.
+errLinkExpired | Lien invalide ou expiré. | Invalid or expired link.
+errNotFriends | Cette personne ne fait pas partie de vos amis SeeU. | This person is not one of your SeeU friends.
+errNoLongerFriends | Vous n'êtes plus amis sur SeeU. | You are no longer friends on SeeU.
+errRdvNotFound | Rendez-vous introuvable. | Event not found.
+errInviteNotFound | Invitation introuvable. | Invitation not found.
+errRdvGone | Ce rendez-vous n'existe plus. | This event no longer exists.
+errRdvCancelled | Ce rendez-vous est annulé. | This event is cancelled.
+errWaveAlready | Vous lui avez déjà fait signe aujourd'hui. | You already waved at them today.
+errAlreadyAnswered | Vous avez déjà répondu à cette invitation. | You already answered this invitation.
+errBadAnswer | Réponse invalide. | Invalid answer.
+errRequestNotFound | Demande introuvable. | Request not found.
+errNotOrganizer | Seul l'organisateur peut faire cela. | Only the organizer can do this.
+errPublicNotAllowed | Vous n'avez pas encore accès aux événements publics. | You don't have access to public events yet.
+errSlotsClosed | Le choix des créneaux est terminé. | Timeslot voting is closed.
+errSlotsNotAllowed | Les créneaux multiples ne sont pas disponibles pour un événement public. | Multiple timeslots aren't available for public events.
+errEventNotVisible | Cet événement n'est pas accessible. | This event isn't available.
+errBlocked | Action impossible avec cette personne. | This action isn't possible with this person.
+errChatReadOnly | Seul l'organisateur peut publier ici. | Only the organizer can post here.
+errPhotosOrganizerOnly | Seul l'organisateur peut ajouter des photos. | Only the organizer can add photos.
+errNotParticipant | Rejoignez l'événement pour participer. | Join the event to take part.
+errTooManySlots | 10 créneaux maximum. | 10 timeslots maximum.
+errContactsAddedBeforeError | {n, plural, =1{1 contact ajouté avant l'erreur : {error}} other{{n} contacts ajoutés avant l'erreur : {error}}} | {n, plural, =1{1 contact added before the error: {error}} other{{n} contacts added before the error: {error}}}
+errDeleteAccountFailed | Suppression impossible pour le moment. Réessayez plus tard. | Can't delete the account right now. Try again later.

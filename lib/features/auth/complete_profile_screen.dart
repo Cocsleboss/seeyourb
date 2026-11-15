@@ -11,6 +11,8 @@ import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../../ui/logo.dart';
 import 'username_field.dart';
+import '../../core/i18n.dart';
+import '../../ui/language.dart';
 
 class CompleteProfileScreen extends ConsumerStatefulWidget {
   const CompleteProfileScreen({super.key});
@@ -65,33 +67,34 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                const Align(alignment: Alignment.centerRight, child: LanguageButton()),
                 const Center(child: SeeULogo(size: 64)),
                 const SizedBox(height: 16),
-                Text('Complétez votre profil',
+                Text(tr.completeProfileTitle,
                     textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: c.text)),
                 const SizedBox(height: 6),
-                Text('Vos amis vous retrouveront grâce à votre nom d\'utilisateur.',
+                Text(tr.completeProfileSub,
                     textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: c.textMuted)),
                 const SizedBox(height: 24),
                 UsernameField(controller: _username, onStatus: (s) => setState(() => _status = s)),
                 LabeledField(
-                  label: 'Nom affiché',
-                  hint: 'C\'est ce que voient vos amis.',
-                  child: AppTextField(controller: _name, hint: 'Ex. Andrea', maxLength: 60, textCapitalization: TextCapitalization.words),
+                  label: tr.displayName,
+                  hint: tr.displayNameHint,
+                  child: AppTextField(controller: _name, hint: tr.nameExample, maxLength: 60, textCapitalization: TextCapitalization.words),
                 ),
                 LabeledField(
-                  label: 'Date de naissance',
-                  hint: 'Facultative. Visible par vos amis uniquement.',
+                  label: tr.birthDate,
+                  hint: tr.birthDateHint,
                   child: DateField(value: _birthday, last: today(), clearable: true, onChanged: (d) => setState(() => _birthday = d)),
                 ),
-                AppButton('Continuer',
+                AppButton(tr.continueLabel,
                     size: ButtonSize.lg, full: true, loading: _busy, onPressed: _status == UsernameStatus.available ? _submit : null),
                 const SizedBox(height: 24),
-                Text('Connecté avec ${session.session?.user.email ?? ''}',
+                Text(tr.signedInAs(session.session?.user.email ?? ''),
                     textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14)),
                 TextButton(
                   onPressed: () => ref.read(supabaseProvider).auth.signOut(),
-                  child: Text('Se déconnecter', style: TextStyle(color: c.brandText)),
+                  child: Text(tr.signOut, style: TextStyle(color: c.brandText)),
                 ),
               ]),
             ),

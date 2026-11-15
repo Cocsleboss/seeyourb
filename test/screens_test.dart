@@ -7,13 +7,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:seeu/core/i18n.dart';
 import 'package:seeu/core/theme.dart';
 import 'package:seeu/data/providers.dart';
 import 'package:seeu/domain/dates.dart';
@@ -161,17 +160,16 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra) {
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       theme: buildTheme(colors),
-      locale: const Locale('fr', 'FR'),
-      supportedLocales: const [Locale('fr', 'FR')],
-      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      locale: Locale(currentLanguage),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
     ),
   );
 }
 
 void main() {
   setUpAll(() async {
-    Intl.defaultLocale = 'fr_FR';
-    await initializeDateFormatting('fr_FR');
+    await initializeDateFormatting();
     PackageInfo.setMockInitialValues(
         appName: 'SeeU', packageName: 'com.seeuapp.mobile', version: '1.0.0', buildNumber: '1', buildSignature: '', installerStore: null);
     await loadFonts();
@@ -195,9 +193,11 @@ void main() {
     'login': '/login',
   };
 
-  for (final brightness in Brightness.values) {
+  // French in light + dark, English in light (catches longer strings overflowing).
+  for (final (lang, brightness) in [('fr', Brightness.light), ('fr', Brightness.dark), ('en', Brightness.light)]) {
     for (final MapEntry(key: name, value: location) in screens.entries) {
-      testWidgets('$name ${brightness.name}', (tester) async {
+      testWidgets('$name ${brightness.name} $lang', (tester) async {
+        applyLanguage(lang);
         tester.view.physicalSize = const Size(1170, 2532);
         tester.view.devicePixelRatio = 3;
         addTearDown(tester.view.reset);
@@ -206,7 +206,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
         expect(tester.takeException(), isNull);
         if (autoUpdateGoldenFiles) {
-          await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/${name}_${brightness.name}.png'));
+          await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/${name}_${brightness.name}${lang == 'fr' ? '' : '_$lang'}.png'));
         }
       });
     }

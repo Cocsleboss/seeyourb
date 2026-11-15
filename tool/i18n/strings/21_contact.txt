@@ -1,0 +1,59 @@
+# Contact detail & form
+ageSuffix | ({n} ans) | ({n} years old)
+birthdayToday | C'est son anniversaire aujourd'hui ! | It's their birthday today!
+birthdayTomorrow | Anniversaire demain | Birthday tomorrow
+birthdayInDays | Anniversaire dans {n} jours | Birthday in {n} days
+contactNotFound | Contact introuvable | Contact not found
+seeMyContacts | Voir mes contacts | See my contacts
+edit | Modifier | Edit
+removedFromSeeSoon | Retiré de la liste « à voir bientôt » | Removed from the “see soon” list
+addedToSeeSoonHome | Ajouté à la liste « à voir bientôt » de l'accueil | Added to the “see soon” list on Home
+deleteContactTitle | Supprimer ce contact ? | Delete this contact?
+deleteContactMessage | Ses rendez-vous et photos seront aussi supprimés. Cette action est définitive. | Their events and photos will be deleted too. This can't be undone.
+contactDeleted | Contact supprimé | Contact deleted
+friendPill | Ami SeeU · rendez-vous et photos partageables | SeeU friend · events and photos can be shared
+lastMeeting | Dernière rencontre | Last meetup
+notRecordedYet | Pas encore notée | Not recorded yet
+nextDue | Prochaine échéance | Next due date
+snoozedSuffix | (reportée) | (snoozed)
+frequency | Fréquence | Frequency
+planRdv | Planifier un rendez-vous | Plan an event
+seenToday | Vu aujourd'hui | Seen today
+inSeeSoonRemove | Dans « à voir bientôt » · retirer | In “see soon” · remove
+information | Informations | Details
+bornOn | Né(e) le {date} | Born on {date}
+rdvSection | Rendez-vous | Events
+noRdvWithContact | Aucun rendez-vous avec ce contact pour l'instant. | No events with this contact yet.
+upcoming | À venir | Upcoming
+past | Passés | Past
+gallery | Galerie | Gallery
+deleteContact | Supprimer le contact | Delete contact
+linkToFriend | Associer à un ami SeeU | Link to a SeeU friend
+linkedToAccount | Associé à un compte SeeU | Linked to a SeeU account
+friendCanShare | Vous pouvez lui envoyer vos rendez-vous et partager les photos. | You can send them your events and share photos.
+wantToMeet | Envie de se voir | Let's meet
+wantToMeetSent | {name} sait que vous aimeriez vous voir 👋 | {name} knows you'd like to meet 👋
+manage | Gérer | Manage
+editContact | Modifier le contact | Edit contact
+nameRequired | Le nom est obligatoire. | The name is required.
+frequencyMin | La fréquence doit être d'au moins 1. | The frequency must be at least 1.
+contactAdded | Contact ajouté | Contact added
+contactUpdated | Contact mis à jour | Contact updated
+newContact | Nouveau contact | New contact
+addTheContact | Ajouter le contact | Add contact
+change | Changer | Change
+remove | Retirer | Remove
+name | Nom | Name
+nameHintFull | Ex. Marie Dupont | E.g. Mary Smith
+categories | Catégories | Categories
+categoriesHint | Facultatif · plusieurs choix possibles | Optional · you can pick several
+lastMeetingOptional | Facultatif. Sans date, la période démarre aujourd'hui. | Optional. Without a date, the period starts today.
+noMeetingRecorded | Pas encore de rencontre notée | No meetup recorded yet
+nextDueInline | Prochaine échéance : {date} | Next due date: {date}
+phone | Téléphone | Phone
+phoneHint | Ex. 06 12 34 56 78 | E.g. +1 555 123 4567
+emailExample | Ex. marie@exemple.com | E.g. mary@example.com
+birthday | Anniversaire | Birthday
+notes | Notes | Notes
+notesHint | Centres d'intérêt, enfants, dernier sujet abordé… | Interests, kids, last topic you talked about…
+requiredFields | * champs obligatoires | * required fields

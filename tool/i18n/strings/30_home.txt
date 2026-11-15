@@ -1,0 +1,32 @@
+# Home
+greetingName | {greeting} {name} 👋 | {greeting} {name} 👋
+greetingAlone | {greeting} 👋 | {greeting} 👋
+settings | Réglages | Settings
+newRdv | Nouveau rendez-vous | New event
+invitationsReceived | {n, plural, =1{Invitation reçue} other{Invitations reçues}} | {n, plural, =1{Invitation} other{Invitations}}
+statContacts | {n, plural, =0{contact} =1{contact} other{contacts}} | {n, plural, =1{contact} other{contacts}}
+statOverdue | en retard | overdue
+statUpcoming | rdv à venir | upcoming
+didTheyHappen | Ont-ils eu lieu ? | Did they happen?
+toReconnect | À recontacter | Time to catch up
+seeAllN | Voir tout ({n}) | See all ({n})
+addSeeSoon | Ajouter quelqu'un à voir bientôt | Add someone to see soon
+allUpToDate | Tout est à jour 🎉 | All caught up 🎉
+allUpToDateMessage | Personne à recontacter pour l'instant. Envie de voir quelqu'un quand même ? Ajoutez-le avec le bouton +. | Nobody to catch up with right now. Want to see someone anyway? Add them with the + button.
+birthdaysThisWeek | Anniversaires cette semaine | Birthdays this week
+inNDays | {n, plural, =1{demain} other{dans {n} jours}} | {n, plural, =1{tomorrow} other{in {n} days}}
+nYearsOld | {n} ans | {n} years old
+nextRdvs | Prochains rendez-vous | Upcoming events
+noRdvPlanned | Aucun rendez-vous prévu | No events planned
+noRdvPlannedMessage | Planifiez un moment avec quelqu'un que vous voulez revoir. | Plan a moment with someone you want to see again.
+plan | Planifier | Plan
+moreRdvs | {n, plural, =1{+ 1 autre rendez-vous planifié} other{+ {n} autres rendez-vous planifiés}} | {n, plural, =1{+ 1 more planned event} other{+ {n} more planned events}}
+welcomeTitle | Bienvenue sur SeeU | Welcome to SeeU
+welcomeMessage | Ajoutez les personnes que vous voulez revoir régulièrement, choisissez une fréquence, et laissez l'app vous rappeler quand il est temps de les recontacter. | Add the people you want to see regularly, pick a frequency, and let the app remind you when it's time to catch up.
+addFirstContact | Ajouter mon premier contact | Add my first contact
+birthdayOf | 🎂 C'est l'anniversaire de {name} ! | 🎂 It's {name}'s birthday!
+turnsToday | {n} ans aujourd'hui · | Turns {n} today ·
+wishThem | Pensez à lui souhaiter. | Remember to wish them.
+sendMessage | Envoyer un message | Send a message
+seen | Vu | Seen
+removedFromList | {name} retiré(e) de la liste | {name} removed from the list

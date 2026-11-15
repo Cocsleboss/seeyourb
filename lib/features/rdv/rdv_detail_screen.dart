@@ -20,6 +20,7 @@ import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
 import 'status_actions.dart';
+import '../../core/i18n.dart';
 
 class RdvDetailScreen extends ConsumerWidget {
   const RdvDetailScreen({super.key, required this.id});
@@ -29,17 +30,17 @@ class RdvDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final value = ref.watch(rdvProvider(id));
     if (value.hasValue && value.value == null) {
-      return const MissingItem(title: 'Rendez-vous introuvable', backLabel: "Retour à l'accueil", backPath: '/');
+      return MissingItem(title: tr.errRdvNotFound, backLabel: tr.backToHome, backPath: '/');
     }
     final rdv = value.value;
     return AppScaffold(
-      title: rdv?.displayTitle ?? 'Rendez-vous',
+      title: rdv?.displayTitle ?? tr.rdvGeneric,
       back: true,
       actions: [
         if (rdv != null)
           AppIconButton(
             icon: LucideIcons.pencil,
-            tooltip: 'Modifier',
+            tooltip: tr.edit,
             color: context.colors.brandText,
             onPressed: () => context.push('/rdv/$id/edit'),
           ),
@@ -61,17 +62,17 @@ class _Body extends ConsumerWidget {
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final ok = await confirmSheet(
       context,
-      title: 'Supprimer ce rendez-vous ?',
+      title: tr.deleteRdvTitle,
       message: rdv.isShared
-          ? 'Il sera supprimé chez vous uniquement (vos amis gardent le leur), et vos photos disparaîtront de la galerie commune. Cette action est définitive.'
-          : 'Les photos associées seront supprimées. Cette action est définitive.',
-      confirmLabel: 'Supprimer',
+          ? tr.deleteRdvShared
+          : tr.deleteRdvPrivate,
+      confirmLabel: tr.delete,
     );
     if (!ok || !context.mounted) return;
     final done = await guard(() async {
       await ref.read(apiProvider).deleteRdv(rdv);
       return true;
-    }, success: 'Rendez-vous supprimé');
+    }, success: tr.rdvDeleted);
     if (done == null || !context.mounted) return;
     refreshData(ref);
     context.canPop() ? context.pop() : context.go('/');
@@ -82,7 +83,7 @@ class _Body extends ConsumerWidget {
     await Add2Calendar.addEvent2Cal(Event(
       title: rdv.displayTitle,
       description: [
-        if (names.isNotEmpty) 'Avec ${joinNames(names, max: 10)}',
+        if (names.isNotEmpty) tr.withNames(joinNames(names, max: 10)),
         ?rdv.notes,
       ].join('\n\n'),
       location: rdv.location,
@@ -128,7 +129,7 @@ class _Body extends ConsumerWidget {
                 Icon(LucideIcons.circleHelp, color: c.tone(Tone.amber).text),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text('Ce rendez-vous a-t-il eu lieu ?',
+                  child: Text(tr.didItHappen,
                       style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.tone(Tone.amber).fg)),
                 ),
               ]),
@@ -181,19 +182,19 @@ class _Body extends ConsumerWidget {
             ],
             if (rdv.isShared) ...[
               const SizedBox(height: 14),
-              const InfoBox(
+              InfoBox(
                 tone: Tone.brand,
-                child: Text('Rendez-vous partagé : date, lieu, titre et statut sont les mêmes pour tous. Vos notes restent privées.',
-                    style: TextStyle(fontSize: 13.5)),
+                child: Text(tr.sharedRdvInfo,
+                    style: const TextStyle(fontSize: 13.5)),
               ),
             ],
           ]),
         ),
 
         // 3. Participants
-        const SectionTitle('Participants'),
+        SectionTitle(tr.participants),
         if (rdv.contacts.isEmpty)
-          Text('Aucun participant.', style: TextStyle(color: c.textMuted))
+          Text(tr.noParticipants, style: TextStyle(color: c.textMuted))
         else
           RowsCard(children: [
             for (final p in rdv.contacts)
@@ -215,21 +216,21 @@ class _Body extends ConsumerWidget {
         if (!rdv.needsConfirmation()) RdvStatusActions(rdv: rdv),
         if (rdv.status == RdvStatus.planifie) ...[
           const SizedBox(height: 10),
-          AppButton('Ajouter au calendrier',
+          AppButton(tr.addToCalendar,
               icon: LucideIcons.calendarPlus, variant: ButtonVariant.secondary, full: true, onPressed: _addToCalendar),
         ],
 
         // 6. Photos
         PhotoSection(
-          title: rdv.isShared ? 'Photos partagées' : 'Photos',
+          title: rdv.isShared ? tr.sharedPhotos : tr.photos,
           photos: photos,
           rdvId: rdv.id,
-          emptyText: rdv.isShared ? 'Ajoutez des photos de ce moment : tous les participants les verront.' : 'Ajoutez des photos de ce moment.',
+          emptyText: rdv.isShared ? tr.photosEmptyShared : tr.photosEmptyPrivate,
         ),
 
         // 7. Delete
         const SizedBox(height: 28),
-        AppButton('Supprimer le rendez-vous',
+        AppButton(tr.deleteRdv,
             icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
       ],
     );
@@ -261,15 +262,15 @@ class _RsvpCardState extends ConsumerState<_RsvpCard> {
       borderColor: tone.bg,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(
-          from == null ? 'Invitation d\'un ami SeeU' : '${from.displayName} vous a proposé ce rendez-vous',
+          from == null ? tr.invitedByFriend : tr.proposedBy(from.displayName),
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: tone.fg),
         ),
         const SizedBox(height: 4),
         Text(
           switch (rdv.rsvp!) {
-            Rsvp.pending => 'À confirmer : il est dans votre agenda, mais votre ami ne sait pas encore si vous venez.',
-            Rsvp.accepted => 'Vous avez accepté. Une fois validé, votre période avec ce contact repart de zéro.',
-            Rsvp.declined => 'Vous avez refusé : il n\'apparaît plus dans vos listes.',
+            Rsvp.pending => tr.rsvpPendingHelp,
+            Rsvp.accepted => tr.rsvpAcceptedHelp,
+            Rsvp.declined => tr.rsvpDeclinedHelp,
           },
           style: TextStyle(fontSize: 14, color: tone.fg.withValues(alpha: 0.85), height: 1.35),
         ),
@@ -319,7 +320,7 @@ class _ShareSectionState extends ConsumerState<_ShareSection> {
     final rdv = widget.rdv;
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Partage'),
+      SectionTitle(tr.sharing),
       AsyncBody(
         value: invites,
         skeletonRows: 1,
@@ -331,7 +332,7 @@ class _ShareSectionState extends ConsumerState<_ShareSection> {
       Padding(
         padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
         child: Text(
-          'Si votre ami accepte, vous avez tous les deux le rendez-vous. Une fois validé, chacun voit sa période repartir de zéro, et les photos sont communes.',
+          tr.sharingHelp,
           style: TextStyle(color: c.textMuted, fontSize: 14, height: 1.4),
         ),
       ),
@@ -349,40 +350,40 @@ class _ShareSectionState extends ConsumerState<_ShareSection> {
     String text;
     Widget? action;
     if (received != null) {
-      text = 'Vous a proposé ce rendez-vous';
+      text = tr.proposedThisRdv;
     } else if (sent == null) {
-      text = 'Ami SeeU · pas encore invité';
+      text = tr.friendNotInvited;
       if (rdv.status != RdvStatus.annule) {
-        action = AppButton('Envoyer',
+        action = AppButton(tr.send,
             icon: LucideIcons.send,
             size: ButtonSize.sm,
             loading: _busy == f.id,
             onPressed: _busy == null
-                ? () => _run(f.id, () => ref.read(apiProvider).sendRdvInvite(rdv.id, f.linkedUserId!), 'Invitation envoyée à ${f.name}')
+                ? () => _run(f.id, () => ref.read(apiProvider).sendRdvInvite(rdv.id, f.linkedUserId!), tr.invitationSentTo(f.name))
                 : null);
       }
     } else {
       final invite = sent;
       switch (invite.status) {
         case InviteStatus.pending:
-          text = 'Invitation envoyée · en attente';
-          action = AppButton('Annuler',
+          text = tr.invitationPending;
+          action = AppButton(tr.cancel,
               variant: ButtonVariant.secondary,
               size: ButtonSize.sm,
               loading: _busy == f.id,
-              onPressed: _busy == null ? () => _run(f.id, () => ref.read(apiProvider).cancelRdvInvite(invite.id), 'Invitation annulée') : null);
+              onPressed: _busy == null ? () => _run(f.id, () => ref.read(apiProvider).cancelRdvInvite(invite.id), tr.invitationCancelled) : null);
         case InviteStatus.accepted:
-          text = 'A accepté · rendez-vous partagé';
+          text = tr.acceptedShared;
         case InviteStatus.declined:
-          text = "A décliné l'invitation";
+          text = tr.declinedInvitation;
           if (rdv.status != RdvStatus.annule) {
-            action = AppButton('Renvoyer',
+            action = AppButton(tr.resend,
                 icon: LucideIcons.send,
                 variant: ButtonVariant.secondary,
                 size: ButtonSize.sm,
                 loading: _busy == f.id,
                 onPressed: _busy == null
-                    ? () => _run(f.id, () => ref.read(apiProvider).sendRdvInvite(rdv.id, f.linkedUserId!), 'Invitation envoyée à ${f.name}')
+                    ? () => _run(f.id, () => ref.read(apiProvider).sendRdvInvite(rdv.id, f.linkedUserId!), tr.invitationSentTo(f.name))
                     : null);
           }
       }

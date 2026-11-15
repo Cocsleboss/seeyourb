@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/errors.dart';
+import '../core/i18n.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
 
@@ -26,7 +27,7 @@ class Api {
 
   String get uid {
     final id = sb.auth.currentUser?.id;
-    if (id == null) throw AppException('Session expirée, reconnectez-vous.');
+    if (id == null) throw AppException(tr.errSessionExpired);
     return id;
   }
 
@@ -93,7 +94,7 @@ class Api {
         await sb.from('contacts').insert(batch);
         created += batch.length;
       } catch (e) {
-        if (created > 0) throw AppException('$created contact(s) ajouté(s) avant l\'erreur : ${errorMessage(e)}');
+        if (created > 0) throw AppException(tr.errContactsAddedBeforeError(created, errorMessage(e)));
         rethrow;
       }
     }
@@ -223,7 +224,7 @@ class Api {
       }
     }
     final rdv = await getRdv(id);
-    if (rdv == null) throw AppException('Rendez-vous introuvable');
+    if (rdv == null) throw AppException(tr.errRdvNotFound);
     return rdv;
   }
 
@@ -400,7 +401,7 @@ class Api {
 
   Future<void> deleteAccount() async {
     final res = await sb.functions.invoke('delete-account', method: HttpMethod.post);
-    if (res.status != 200) throw AppException('Suppression impossible pour le moment. Réessayez plus tard.');
+    if (res.status != 200) throw AppException(tr.errDeleteAccountFailed);
     await sb.auth.signOut();
   }
 }

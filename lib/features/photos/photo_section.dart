@@ -10,17 +10,18 @@ import '../../data/providers.dart';
 import '../../domain/models.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import '../../core/i18n.dart';
 
 /// Picks images resized to 1600 px max (long side) at ~80 % JPEG quality.
 Future<List<XFile>> pickPhotos(BuildContext context, {bool multiple = true}) async {
   final source = await showAppSheet<ImageSource>(
     context,
-    title: 'Ajouter une photo',
+    title: tr.photoAdd,
     builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      AppButton('Prendre une photo',
+      AppButton(tr.photoTake,
           icon: LucideIcons.camera, variant: ButtonVariant.secondary, onPressed: () => Navigator.pop(ctx, ImageSource.camera)),
       const SizedBox(height: 10),
-      AppButton('Choisir dans la galerie',
+      AppButton(tr.photoGallery,
           icon: LucideIcons.images, variant: ButtonVariant.secondary, onPressed: () => Navigator.pop(ctx, ImageSource.gallery)),
     ]),
   );
@@ -33,7 +34,7 @@ Future<List<XFile>> pickPhotos(BuildContext context, {bool multiple = true}) asy
     final one = await picker.pickImage(source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
     return one == null ? [] : [one];
   } catch (e) {
-    showToast('Accès aux photos refusé. Autorisez-le dans les réglages du téléphone.', kind: ToastKind.error);
+    showToast(tr.photoAccessDenied, kind: ToastKind.error);
     return [];
   }
 }
@@ -72,13 +73,13 @@ class _PhotoSectionState extends ConsumerState<PhotoSection> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       SectionTitle(
         widget.title,
-        action: AppButton('Ajouter',
+        action: AppButton(tr.add,
             icon: LucideIcons.camera, variant: ButtonVariant.ghost, size: ButtonSize.sm, onPressed: _uploading > 0 ? null : _add),
       ),
       if (widget.photos.isLoading && !widget.photos.hasValue)
         const SkeletonList(rows: 1)
       else if (photos.isEmpty && _uploading == 0)
-        Text(widget.emptyText ?? 'Ajoutez des photos de vos moments partagés.', style: TextStyle(color: c.textMuted, fontSize: 14.5))
+        Text(widget.emptyText ?? tr.photoEmpty, style: TextStyle(color: c.textMuted, fontSize: 14.5))
       else
         GridView.count(
           crossAxisCount: 3,
@@ -142,12 +143,12 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
   Future<void> _delete() async {
     final photo = _photos[_index];
     final ok = await confirmSheet(context,
-        title: 'Supprimer cette photo ?', message: 'Cette action est définitive.', confirmLabel: 'Supprimer');
+        title: tr.photoDeleteTitle, message: tr.irreversible, confirmLabel: tr.delete);
     if (!ok) return;
     final done = await guard(() async {
       await ref.read(apiProvider).deletePhoto(photo);
       return true;
-    }, success: 'Photo supprimée');
+    }, success: tr.photoDeleted);
     if (done == null || !mounted) return;
     refreshData(ref);
     setState(() {
@@ -182,7 +183,7 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
             padding: const EdgeInsets.all(8),
             child: Row(children: [
               IconButton(
-                tooltip: 'Fermer',
+                tooltip: tr.close,
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(LucideIcons.x, color: Colors.white, size: 28),
               ),
@@ -190,7 +191,7 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
                 child: Text('${_index + 1} / ${_photos.length}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
               ),
               if (mine)
-                IconButton(tooltip: 'Supprimer', onPressed: _delete, icon: const Icon(LucideIcons.trash2, color: Colors.white, size: 24))
+                IconButton(tooltip: tr.delete, onPressed: _delete, icon: const Icon(LucideIcons.trash2, color: Colors.white, size: 24))
               else
                 const SizedBox(width: 48),
             ]),

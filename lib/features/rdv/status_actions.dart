@@ -8,14 +8,15 @@ import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import '../../core/i18n.dart';
 
 Future<bool> changeRdvStatus(BuildContext context, WidgetRef ref, Rendezvous rdv, RdvStatus status) async {
   if (status == RdvStatus.valide && rdv.appointmentAt.isAfter(DateTime.now())) {
     final ok = await confirmSheet(
       context,
-      title: 'Ce rendez-vous est prévu plus tard',
-      message: 'Il est planifié le ${formatDayTime(rdv.appointmentAt)}. Le marquer quand même comme ayant eu lieu ?',
-      confirmLabel: 'Oui, il a eu lieu',
+      title: tr.statusFutureTitle,
+      message: tr.statusFutureMessage(formatDayTime(rdv.appointmentAt)),
+      confirmLabel: tr.statusFutureConfirm,
       danger: false,
     );
     if (!ok) return false;
@@ -23,9 +24,9 @@ Future<bool> changeRdvStatus(BuildContext context, WidgetRef ref, Rendezvous rdv
   final res = await guard(
     () => ref.read(apiProvider).setRdvStatus(rdv.id, status),
     success: switch (status) {
-      RdvStatus.valide => rdv.contacts.isEmpty ? 'Rendez-vous validé' : 'Rendez-vous validé : date de dernière rencontre mise à jour',
-      RdvStatus.annule => 'Rendez-vous annulé',
-      RdvStatus.planifie => 'Rendez-vous remis en planifié',
+      RdvStatus.valide => rdv.contacts.isEmpty ? tr.statusToastDone : tr.statusToastDoneReset,
+      RdvStatus.annule => tr.statusToastCancelled,
+      RdvStatus.planifie => tr.statusToastPlanned,
     },
   );
   if (res != null) refreshData(ref);
@@ -53,7 +54,7 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
     if (widget.rdv.status != RdvStatus.planifie) {
       return Align(
         alignment: Alignment.centerLeft,
-        child: AppButton('Remettre en planifié',
+        child: AppButton(tr.statusSetPlanned,
             icon: LucideIcons.rotateCcw,
             variant: ButtonVariant.ghost,
             loading: _busy == RdvStatus.planifie,
@@ -62,7 +63,7 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
     }
     return Row(children: [
       Expanded(
-        child: AppButton('A eu lieu',
+        child: AppButton(tr.statusSetDone,
             icon: LucideIcons.check,
             variant: ButtonVariant.success,
             full: true,
@@ -71,7 +72,7 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
       ),
       const SizedBox(width: 10),
       Expanded(
-        child: AppButton('Annulé',
+        child: AppButton(tr.statusSetCancelled,
             icon: LucideIcons.x,
             variant: ButtonVariant.outline,
             full: true,

@@ -13,6 +13,8 @@ import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../../ui/logo.dart';
 import 'username_field.dart';
+import '../../core/i18n.dart';
+import '../../ui/language.dart';
 
 enum _Mode { login, signup, magic, forgot }
 
@@ -75,26 +77,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             email: email,
             password: _password.text,
             emailRedirectTo: Config.authRedirect,
-            data: {'username': _username.text, if (_name.text.trim().isNotEmpty) 'display_name': _name.text.trim()},
+            data: {'username': _username.text, 'locale': currentLanguage, if (_name.text.trim().isNotEmpty) 'display_name': _name.text.trim()},
           );
           // Supabase returns a user without identities when the email is already registered.
           if (res.user != null && (res.user!.identities?.isEmpty ?? false)) {
-            throw AppException('Un compte existe déjà avec cet email. Connectez-vous ou utilisez « Mot de passe oublié ».');
+            throw AppException(tr.errAccountExists);
           }
           if (res.session == null) {
             _sent = (
-              title: 'Vérifiez votre boîte mail',
-              text: 'Un lien de confirmation a été envoyé à $email. Ouvrez-le pour activer votre compte (pensez aux spams).',
+              title: tr.checkMailboxTitle,
+              text: tr.checkMailboxText(email),
             );
           }
         case _Mode.magic:
           await auth.signInWithOtp(email: email, emailRedirectTo: Config.authRedirect);
-          _sent = (title: 'Lien envoyé', text: 'Ouvrez le lien reçu à $email pour vous connecter (pensez aux spams).');
+          _sent = (title: tr.magicSentTitle, text: tr.magicSentText(email));
         case _Mode.forgot:
           await auth.resetPasswordForEmail(email, redirectTo: Config.authRedirect);
           _sent = (
-            title: 'Email envoyé',
-            text: 'Si un compte existe pour $email, vous recevrez un lien pour choisir un nouveau mot de passe.',
+            title: tr.resetSentTitle,
+            text: tr.resetSentText(email),
           );
       }
     } on AuthException catch (e) {
@@ -120,12 +122,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const Align(alignment: Alignment.centerRight, child: LanguageButton()),
                   const Center(child: SeeULogo(size: 76)),
                   const SizedBox(height: 14),
                   Text('SeeU', textAlign: TextAlign.center, style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: c.text)),
                   const SizedBox(height: 6),
                   Text(
-                    "Ne plus oublier les personnes qu'on aimerait revoir.",
+                    tr.tagline,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16, color: c.textMuted),
                   ),
@@ -141,8 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _configMissing(AppColors c) => ErrorCard(
-        error: AppException(
-            'Configuration manquante : lancez l\'app avec --dart-define-from-file=config/env.json (SUPABASE_URL et SUPABASE_PUBLISHABLE_KEY).'),
+        error: AppException(tr.configMissing),
       );
 
   Widget _sentCard(AppColors c) => AppCard(
@@ -153,7 +155,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           const SizedBox(height: 8),
           Text(_sent!.text, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 15, height: 1.4)),
           const SizedBox(height: 18),
-          AppButton('Retour', variant: ButtonVariant.secondary, icon: LucideIcons.arrowLeft, onPressed: () => _setMode(_Mode.login)),
+          AppButton(tr.back, variant: ButtonVariant.secondary, icon: LucideIcons.arrowLeft, onPressed: () => _setMode(_Mode.login)),
         ]),
       );
 
@@ -167,7 +169,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 20),
               child: SegmentedControl<_Mode>(
-                options: const [(_Mode.login, 'Connexion'), (_Mode.signup, 'Inscription')],
+                options: [(_Mode.login, tr.loginTab), (_Mode.signup, tr.signupTab)],
                 value: _mode,
                 onChanged: _setMode,
               ),
@@ -180,25 +182,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   IconButton(
                     onPressed: () => _setMode(_Mode.login),
                     icon: Icon(LucideIcons.chevronLeft, color: c.brandText),
-                    tooltip: 'Retour',
+                    tooltip: tr.back,
                   ),
-                  Text(_mode == _Mode.magic ? 'Lien magique' : 'Mot de passe oublié',
+                  Text(_mode == _Mode.magic ? tr.magicLink : tr.forgotPassword,
                       style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: c.text)),
                 ]),
                 Text(
                   _mode == _Mode.magic
-                      ? 'Recevez un lien de connexion par email, sans mot de passe.'
-                      : 'Indiquez votre email : vous recevrez un lien pour choisir un nouveau mot de passe.',
+                      ? tr.magicLinkHelp
+                      : tr.forgotHelp,
                   style: TextStyle(color: c.textMuted, fontSize: 15, height: 1.4),
                 ),
               ]),
             ),
           if (_mode == _Mode.signup) ...[
             LabeledField(
-              label: 'Prénom (nom affiché)',
+              label: tr.firstNameLabel,
               child: AppTextField(
                 controller: _name,
-                hint: 'Ex. Andrea',
+                hint: tr.nameExample,
                 maxLength: 60,
                 textCapitalization: TextCapitalization.words,
                 autofillHints: const [AutofillHints.givenName],
@@ -207,11 +209,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             UsernameField(controller: _username, onStatus: (s) => setState(() => _usernameStatus = s)),
           ],
           LabeledField(
-            label: 'Email',
+            label: tr.emailLabel,
             required: true,
             child: AppTextField(
               controller: _email,
-              hint: 'vous@exemple.com',
+              hint: tr.emailHint,
               keyboardType: TextInputType.emailAddress,
               autofillHints: const [AutofillHints.email],
               onChanged: (_) => setState(() {}),
@@ -221,9 +223,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           if (!isAlt)
             LabeledField(
-              label: 'Mot de passe',
+              label: tr.passwordLabel,
               required: true,
-              hint: _mode == _Mode.signup ? '6 caractères minimum' : null,
+              hint: _mode == _Mode.signup ? tr.passwordMin : null,
               child: AppTextField(
                 controller: _password,
                 obscure: !_showPassword,
@@ -232,7 +234,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _submit(),
                 suffix: IconButton(
-                  tooltip: _showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
+                  tooltip: _showPassword ? tr.hidePassword : tr.showPassword,
                   icon: Icon(_showPassword ? LucideIcons.eyeOff : LucideIcons.eye, size: 20, color: c.textMuted),
                   onPressed: () => setState(() => _showPassword = !_showPassword),
                 ),
@@ -241,10 +243,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           const SizedBox(height: 4),
           AppButton(
             switch (_mode) {
-              _Mode.login => 'Se connecter',
-              _Mode.signup => 'Créer mon compte',
-              _Mode.magic => 'Recevoir le lien',
-              _Mode.forgot => 'Envoyer le lien',
+              _Mode.login => tr.signIn,
+              _Mode.signup => tr.createAccount,
+              _Mode.magic => tr.getLink,
+              _Mode.forgot => tr.sendLink,
             },
             size: ButtonSize.lg,
             full: true,
@@ -257,10 +259,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ],
           if (_mode == _Mode.login) ...[
             const SizedBox(height: 18),
-            TextButton(onPressed: () => _setMode(_Mode.forgot), child: Text('Mot de passe oublié ?', style: TextStyle(color: c.brandText))),
+            TextButton(onPressed: () => _setMode(_Mode.forgot), child: Text(tr.forgotPasswordQ, style: TextStyle(color: c.brandText))),
             TextButton(
               onPressed: () => _setMode(_Mode.magic),
-              child: Text('Recevoir un lien magique par email', style: TextStyle(color: c.brandText)),
+              child: Text(tr.getMagicLink, style: TextStyle(color: c.brandText)),
             ),
           ],
         ],

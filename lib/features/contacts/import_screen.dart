@@ -17,6 +17,7 @@ import '../../domain/selectors.dart';
 import '../../ui/kit.dart';
 import '../../ui/pickers.dart';
 import '../../ui/scaffold.dart';
+import '../../core/i18n.dart';
 
 enum _Step { source, review, confirm }
 
@@ -105,7 +106,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       list.sort((a, b) => compareNames(a.name, b.name));
       setState(() => _phoneBook = list);
     } catch (e) {
-      showToast('Impossible de lire vos contacts sur cet appareil.', kind: ToastKind.error);
+      showToast(tr.importReadFailed, kind: ToastKind.error);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -124,7 +125,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       _decisions.clear();
       _step = res.fresh.isEmpty ? _Step.source : _Step.review;
     });
-    if (res.fresh.isEmpty) showToast('Tous ces contacts sont déjà dans SeeU.', kind: ToastKind.info);
+    if (res.fresh.isEmpty) showToast(tr.importAllThere, kind: ToastKind.info);
   }
 
   /* ------------------------------ step 2 ------------------------------ */
@@ -160,14 +161,16 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final remaining = _queue.length - _index;
     final choice = await showAppSheet<bool>(
       context,
-      title: 'Les $remaining restants d\'un coup',
-      subtitle: 'Fréquence ${frequencyLabel(_current.value, _current.unit)}'
-          '${_current.categories.isNotEmpty ? ', catégories ${_current.categories.join(', ')}' : ''}'
-          '${_current.lastMeeting != null ? ', dernière rencontre le ${formatDate(_current.lastMeeting!)}' : ''}.',
+      title: tr.importRestTitle(remaining),
+      subtitle: '${[
+        tr.importRestFreq(frequencyLabel(_current.value, _current.unit)),
+        if (_current.categories.isNotEmpty) tr.importRestCats(_current.categories.join(', ')),
+        if (_current.lastMeeting != null) tr.importRestLast(formatDate(_current.lastMeeting!)),
+      ].join(', ')}.',
       builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        AppButton('Tout ajouter', icon: LucideIcons.userPlus, full: true, onPressed: () => Navigator.pop(ctx, true)),
+        AppButton(tr.addAll, icon: LucideIcons.userPlus, full: true, onPressed: () => Navigator.pop(ctx, true)),
         const SizedBox(height: 10),
-        AppButton('Tout ignorer et terminer', variant: ButtonVariant.secondary, full: true, onPressed: () => Navigator.pop(ctx, false)),
+        AppButton(tr.ignoreAllFinish, variant: ButtonVariant.secondary, full: true, onPressed: () => Navigator.pop(ctx, false)),
       ]),
     );
     if (choice == null) return;
@@ -202,7 +205,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     if (!mounted) return;
     setState(() => _saving = false);
     if (n == null) return;
-    showToast(n > 1 ? '$n contacts importés' : '$n contact importé');
+    showToast(tr.nImported(n));
     refreshData(ref);
     context.go('/contacts');
   }
@@ -218,8 +221,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         if (!didPop) _back();
       },
       child: AppScaffold(
-        title: 'Importer des contacts',
-        subtitle: 'Étape $stepNo sur 3',
+        title: tr.importContacts,
+        subtitle: tr.stepOf(stepNo),
         back: true,
         onBack: _back,
         bottom: _bottom(),
@@ -237,16 +240,16 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       case _Step.source:
         if (_phoneBook == null) return null;
         return BottomActionBar(
-          child: AppButton(_picked.isEmpty ? 'Choisissez des contacts' : 'Continuer (${_picked.length})',
+          child: AppButton(_picked.isEmpty ? tr.chooseContacts : tr.continueN(_picked.length),
               size: ButtonSize.lg, full: true, onPressed: _picked.isEmpty ? null : _startReview),
         );
       case _Step.review:
         return BottomActionBar(
           child: Row(children: [
-            Expanded(child: AppButton('Ignorer', variant: ButtonVariant.secondary, size: ButtonSize.lg, full: true, onPressed: () => _decide(false))),
+            Expanded(child: AppButton(tr.ignore, variant: ButtonVariant.secondary, size: ButtonSize.lg, full: true, onPressed: () => _decide(false))),
             const SizedBox(width: 10),
             Expanded(
-              child: AppButton('Ajouter',
+              child: AppButton(tr.add,
                   icon: LucideIcons.check, size: ButtonSize.lg, full: true, onPressed: _current.value < 1 ? null : () => _decide(true)),
             ),
           ]),
@@ -255,10 +258,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         final n = _kept.length;
         return BottomActionBar(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            AppButton(n > 1 ? 'Importer $n contacts' : 'Importer $n contact',
+            AppButton(tr.importN(n),
                 size: ButtonSize.lg, full: true, loading: _saving, onPressed: n == 0 ? null : _import),
             const SizedBox(height: 6),
-            AppButton('Revoir la sélection',
+            AppButton(tr.reviewSelection,
                 variant: ButtonVariant.ghost,
                 full: true,
                 onPressed: () => setState(() {
@@ -277,20 +280,20 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         const SizedBox(height: 12),
         EmptyState(
           icon: LucideIcons.bookUser,
-          title: 'Depuis votre carnet d\'adresses',
+          title: tr.fromAddressBook,
           message:
-              'Choisissez les personnes à suivre dans SeeU. Vous réglerez ensuite la fréquence de chacune. Rien n\'est enregistré avant la confirmation finale.',
+              tr.fromAddressBookHelp,
           actions: [
-            AppButton('Accéder à mes contacts', icon: LucideIcons.bookUser, size: ButtonSize.lg, loading: _loading, onPressed: _loadPhoneBook),
+            AppButton(tr.accessMyContacts, icon: LucideIcons.bookUser, size: ButtonSize.lg, loading: _loading, onPressed: _loadPhoneBook),
           ],
         ),
         if (_denied)
           InfoBox(
             tone: Tone.amber,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('SeeU n\'a pas accès à vos contacts. Autorisez-le dans les réglages du téléphone, puis réessayez.'),
+              Text(tr.contactsAccessDenied),
               const SizedBox(height: 8),
-              AppButton('Ouvrir les réglages',
+              AppButton(tr.openPhoneSettings,
                   size: ButtonSize.sm, variant: ButtonVariant.outline, onPressed: () => fc.FlutterContacts.permissions.openSettings()),
             ]),
           ),
@@ -301,16 +304,16 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     return Column(children: [
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-        child: SearchField(controller: _q, hint: 'Rechercher…', onChanged: (_) => setState(() {})),
+        child: SearchField(controller: _q, hint: tr.searchEllipsis, onChanged: (_) => setState(() {})),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(children: [
-          Expanded(child: Text('${plural(_phoneBook!.length, 'contact')} · ${_picked.length} choisi${_picked.length > 1 ? 's' : ''}',
+          Expanded(child: Text('${tr.nContacts(_phoneBook!.length)} · ${tr.nChosen(_picked.length)}',
               style: TextStyle(color: c.textMuted))),
           TextButton(
             onPressed: () => setState(() => allPicked ? _picked.removeAll(list.map((x) => x.key)) : _picked.addAll(list.map((x) => x.key))),
-            child: Text(allPicked ? 'Tout désélectionner' : 'Tout sélectionner', style: TextStyle(color: c.brandText)),
+            child: Text(allPicked ? tr.deselectAll : tr.selectAll, style: TextStyle(color: c.brandText)),
           ),
         ]),
       ),
@@ -351,10 +354,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       ),
       const SizedBox(height: 8),
       Row(children: [
-        Text('Contact ${_index + 1} sur ${_queue.length}', style: TextStyle(color: c.textMuted)),
+        Text(tr.contactNofM(_index + 1, _queue.length), style: TextStyle(color: c.textMuted)),
         const Spacer(),
         if (_dedupe != null && (_dedupe!.alreadyThere + _dedupe!.duplicates) > 0)
-          Text('${_dedupe!.alreadyThere + _dedupe!.duplicates} déjà présent(s) écarté(s)', style: TextStyle(color: c.textSubtle, fontSize: 12.5)),
+          Text(tr.duplicatesSkipped(_dedupe!.alreadyThere + _dedupe!.duplicates), style: TextStyle(color: c.textSubtle, fontSize: 12.5)),
       ]),
       const SizedBox(height: 14),
       AppCard(
@@ -364,7 +367,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(person.name, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: c.text)),
-              for (final line in [person.phone, person.email, if (person.birthday != null) 'Né(e) le ${formatDate(person.birthday!)}'])
+              for (final line in [person.phone, person.email, if (person.birthday != null) tr.bornOn(formatDate(person.birthday!))])
                 if (line != null) Text(line, style: TextStyle(color: c.textMuted, fontSize: 14)),
             ]),
           ),
@@ -372,8 +375,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       ),
       const SizedBox(height: 18),
       LabeledField(
-        label: 'Fréquence',
-        error: _current.value < 1 ? "La fréquence doit être d'au moins 1." : null,
+        label: tr.frequency,
+        error: _current.value < 1 ? tr.frequencyMin : null,
         child: FrequencyPicker(
           key: ValueKey('freq-${person.key}'),
           value: _current.value,
@@ -385,7 +388,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         ),
       ),
       LabeledField(
-        label: 'Catégories',
+        label: tr.categories,
         child: CategoryPicker(
           selected: _current.categories,
           known: usedCategories(ref.watch(contactsProvider).value ?? const []),
@@ -393,13 +396,13 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         ),
       ),
       LabeledField(
-        label: 'Dernière rencontre',
-        hint: 'Facultatif',
+        label: tr.lastMeeting,
+        hint: tr.optional,
         child: DateField(
           value: _current.lastMeeting,
           last: today(),
           clearable: true,
-          placeholder: 'Pas encore de rencontre notée',
+          placeholder: tr.noMeetingRecorded,
           onChanged: (d) => setState(() => _current.lastMeeting = d),
         ),
       ),
@@ -407,7 +410,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         Center(
           child: TextButton(
             onPressed: _bulk,
-            child: Text('Les ${remaining - 1} restants d\'un coup…', style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
+            child: Text(tr.restAtOnce(remaining - 1), style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
           ),
         ),
     ]);
@@ -420,7 +423,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     return PageList(children: [
       const SizedBox(height: 8),
       Text(
-        kept.isEmpty ? 'Aucun contact retenu.' : '${plural(kept.length, 'contact retenu', 'contacts retenus')}${ignored > 0 ? ' · ${plural(ignored, 'ignoré')}' : ''}',
+        kept.isEmpty ? tr.noneKept : '${tr.nKept(kept.length)}${ignored > 0 ? ' · ${tr.nIgnored(ignored)}' : ''}',
         style: TextStyle(fontSize: 16, color: c.text, fontWeight: FontWeight.w600),
       ),
       const SizedBox(height: 12),
@@ -435,7 +438,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                 style: TextStyle(color: c.textMuted, fontSize: 13),
               ),
               trailing: IconButton(
-                tooltip: 'Retirer ${x.name}',
+                tooltip: tr.removeName(x.name),
                 icon: Icon(LucideIcons.x, color: c.textMuted),
                 onPressed: () => setState(() => _decisions[x.key] = null),
               ),

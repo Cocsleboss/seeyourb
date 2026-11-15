@@ -1,0 +1,22 @@
+# Shared widgets
+tabHome | Accueil | Home
+tabContacts | Contacts | Contacts
+tabHistory | Historique | History
+tabSettings | Réglages | Settings
+back | Retour | Back
+retry | Réessayer | Retry
+cancel | Annuler | Cancel
+clear | Effacer | Clear
+add | Ajouter | Add
+pickDate | Choisir une date | Pick a date
+notSeenYet | Pas encore vu | Not seen yet
+seenOn | Vu le {date} | Seen on {date}
+soonPill | ★ Bientôt | ★ Soon
+seeuFriend | Ami SeeU | SeeU friend
+freqCustom | Personnalisée | Custom
+categoryOther | Autre… | Other…
+categoryHint | Ex. Voisins, Sport… | E.g. Neighbours, Sport…
+pushChannelName | Rappels SeeU | SeeU reminders
+pushChannelDesc | Rappels, rendez-vous et activité de vos amis | Reminders, events and your friends' activity
+quickNewRdv | Nouveau rendez-vous | New event
+quickNewContact | Nouveau contact | New contact

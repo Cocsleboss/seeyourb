@@ -1,0 +1,45 @@
+# RSVP, status actions, invitations, fallbacks, photos, push banner
+rsvpToastAccepted | Rendez-vous accepté | Invitation accepted
+rsvpToastDeclined | Invitation refusée | Invitation declined
+rsvpToastPending | Marqué « à confirmer » | Marked as “maybe”
+rsvpDecline | Refuser | Decline
+rsvpAccept | Accepter | Accept
+rsvpMaybe | À confirmer | Maybe
+statusFutureTitle | Ce rendez-vous est prévu plus tard | This event is planned for later
+statusFutureMessage | Il est planifié le {when}. Le marquer quand même comme ayant eu lieu ? | It is planned for {when}. Mark it as happened anyway?
+statusFutureConfirm | Oui, il a eu lieu | Yes, it happened
+statusToastDone | Rendez-vous validé | Event confirmed
+statusToastDoneReset | Rendez-vous validé : date de dernière rencontre mise à jour | Event confirmed: last meetup date updated
+statusToastCancelled | Rendez-vous annulé | Event cancelled
+statusToastPlanned | Rendez-vous remis en planifié | Event set back to planned
+statusSetPlanned | Remettre en planifié | Set back to planned
+statusSetDone | A eu lieu | Happened
+statusSetCancelled | Annulé | Cancelled
+inviteSharesMeetup | {name} partage une rencontre avec vous | {name} shared a meetup with you
+inviteProposes | {name} vous propose un rendez-vous | {name} invites you to an event
+inviteTentativeHint | Il est déjà dans votre agenda, « à confirmer ». Votre ami n'est prévenu que si vous acceptez ou refusez. | It's already in your agenda as “maybe”. Your friend is only notified if you accept or decline.
+signOut | Se déconnecter | Sign out
+offlineTitle | Vous êtes hors ligne | You're offline
+offlineMessage | SeeU a besoin d'une connexion internet pour fonctionner. Vérifiez votre réseau puis réessayez. | SeeU needs an internet connection. Check your network and try again.
+pageNotFound | Page introuvable | Page not found
+pageNotFoundMessage | Cette page n'existe pas ou plus. | This page doesn't exist (anymore).
+backHome | Retour à l'accueil | Back to home
+maybeDeleted | Il a peut-être été supprimé. | It may have been deleted.
+photoAdd | Ajouter une photo | Add a photo
+photoTake | Prendre une photo | Take a photo
+photoGallery | Choisir dans la galerie | Choose from gallery
+photoAccessDenied | Accès aux photos refusé. Autorisez-le dans les réglages du téléphone. | Photo access denied. Allow it in your phone settings.
+photoEmpty | Ajoutez des photos de vos moments partagés. | Add photos of your shared moments.
+photoDeleteTitle | Supprimer cette photo ? | Delete this photo?
+irreversible | Cette action est définitive. | This can't be undone.
+delete | Supprimer | Delete
+photoDeleted | Photo supprimée | Photo deleted
+close | Fermer | Close
+pushEnabledToast | Notifications activées 🎉 | Notifications enabled 🎉
+pushBlockedTitle | Notifications bloquées | Notifications blocked
+pushEnableTitle | Activer les rappels | Turn on reminders
+pushBlockedMessage | Autorisez-les dans les réglages de votre téléphone (Notifications → SeeU), ou activez les rappels par email dans les Réglages de l'app. | Allow them in your phone settings (Notifications → SeeU), or turn on email reminders in the app Settings.
+pushEnableMessage | Recevez une notification quand un contact est à recontacter et avant chaque rendez-vous. | Get notified when it's time to catch up with someone and before each event.
+openPhoneSettings | Ouvrir les réglages | Open settings
+seeuSettings | Réglages SeeU | SeeU settings
+enable | Activer | Turn on

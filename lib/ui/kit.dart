@@ -11,6 +11,7 @@ import '../data/providers.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
 import '../domain/text.dart';
+import '../core/i18n.dart';
 
 /* ------------------------------------------------------------------ */
 /*  Pressable: shrinks slightly on touch                               */
@@ -566,7 +567,7 @@ class ErrorCard extends StatelessWidget {
           Icon(LucideIcons.circleAlert, color: t.fg),
           const SizedBox(width: 12),
           Expanded(child: Text(errorMessage(error), style: TextStyle(color: t.fg, fontSize: 15))),
-          if (onRetry != null) AppButton('Réessayer', size: ButtonSize.sm, variant: ButtonVariant.outline, onPressed: onRetry),
+          if (onRetry != null) AppButton(tr.retry, size: ButtonSize.sm, variant: ButtonVariant.outline, onPressed: onRetry),
         ],
       ),
     );

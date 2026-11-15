@@ -15,6 +15,7 @@ import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
+import '../../core/i18n.dart';
 
 class RdvFormScreen extends ConsumerWidget {
   const RdvFormScreen({super.key, this.editId, this.preselectContactId});
@@ -26,12 +27,12 @@ class RdvFormScreen extends ConsumerWidget {
     final contacts = ref.watch(contactsProvider);
     final rdv = editId == null ? null : ref.watch(rdvProvider(editId!));
     if (rdv != null && rdv.hasValue && rdv.value == null) {
-      return const MissingItem(title: 'Rendez-vous introuvable', backLabel: "Retour à l'accueil", backPath: '/');
+      return MissingItem(title: tr.errRdvNotFound, backLabel: tr.backToHome, backPath: '/');
     }
     final ready = contacts.hasValue && (rdv == null || rdv.hasValue);
     if (!ready) {
       return AppScaffold(
-        title: editId == null ? 'Nouveau rendez-vous' : 'Modifier le rendez-vous',
+        title: editId == null ? tr.newRdv : tr.editRdv,
         back: true,
         body: Padding(
           padding: const EdgeInsets.all(16),
@@ -108,7 +109,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   List<Contact> get _friendParticipants => _selectedContacts.where((c) => c.linkedUserId != null).toList();
 
   Future<void> _save() async {
-    if (_selected.isEmpty) return setState(() => _error = 'Choisissez au moins un contact.');
+    if (_selected.isEmpty) return setState(() => _error = tr.chooseOneContact);
     setState(() {
       _error = null;
       _busy = true;
@@ -124,7 +125,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     final saved = await guard(() async {
       if (_editing) return api.updateRdv(widget.existing!.id, input.toJson(), contactIds: _selected.toList());
       return api.createRdv(input, _selected.toList());
-    }, success: _editing ? 'Rendez-vous mis à jour' : (_done ? 'Rencontre enregistrée' : 'Rendez-vous planifié'));
+    }, success: _editing ? tr.rdvUpdated : (_done ? tr.meetingRecorded : tr.rdvPlanned));
 
     if (saved != null && !_editing && _share) {
       final friends = _friendParticipants;
@@ -136,9 +137,9 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
         } catch (_) {}
       }
       if (sent < friends.length) {
-        showToast("Une invitation n'a pas pu être envoyée : réessayez depuis le rendez-vous.", kind: ToastKind.error);
+        showToast(tr.inviteSendFailed, kind: ToastKind.error);
       } else if (sent > 0) {
-        showToast(sent == 1 ? 'Invitation envoyée à ${friends.first.name}' : 'Invitations envoyées à $sent amis');
+        showToast(sent == 1 ? tr.invitationSentTo(friends.first.name) : tr.invitationsSentN(sent));
       }
     }
     if (!mounted) return;
@@ -158,14 +159,14 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     final selected = _selectedContacts;
     final friends = _friendParticipants;
     final shown = (widget.contacts.where((x) => contactMatches(x, _search.text)).toList()..sort((a, b) => compareNames(a.name, b.name)));
-    final placeholderTitle = selected.isEmpty ? 'Ex. Déjeuner, café, visio…' : rdvTitle(null, selected.map((s) => s.name).toList());
+    final placeholderTitle = selected.isEmpty ? tr.titleExample : rdvTitle(null, selected.map((s) => s.name).toList());
 
     return AppScaffold(
-      title: _editing ? 'Modifier le rendez-vous' : 'Nouveau rendez-vous',
+      title: _editing ? tr.editRdv : tr.newRdv,
       back: true,
       bottom: BottomActionBar(
         child: AppButton(
-          _editing ? 'Enregistrer les modifications' : (_done ? 'Enregistrer la rencontre' : 'Planifier le rendez-vous'),
+          _editing ? tr.saveChanges : (_done ? tr.saveMeeting : tr.planTheRdv),
           size: ButtonSize.lg,
           full: true,
           loading: _busy,
@@ -177,16 +178,16 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
         child: PageList(children: [
           // 1. Participants
           LabeledField(
-            label: 'Participants',
+            label: tr.participants,
             required: true,
             error: _error,
             child: widget.contacts.isEmpty
                 ? AppCard(
                     child: Column(children: [
-                      Text("Créez d'abord un contact pour pouvoir planifier un rendez-vous.",
+                      Text(tr.createContactFirst,
                           textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
                       const SizedBox(height: 12),
-                      AppButton('Créer un contact', icon: LucideIcons.userPlus, onPressed: () => context.push('/contacts/new')),
+                      AppButton(tr.createAContact, icon: LucideIcons.userPlus, onPressed: () => context.push('/contacts/new')),
                     ]),
                   )
                 : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -201,13 +202,13 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                             side: BorderSide.none,
                             shape: const StadiumBorder(),
                             deleteIcon: Icon(LucideIcons.x, size: 16, color: c.tone(Tone.brand).fg),
-                            deleteButtonTooltipMessage: 'Retirer ${s.name}',
+                            deleteButtonTooltipMessage: tr.removeName(s.name),
                             onDeleted: () => setState(() => _selected.remove(s.id)),
                           ),
                       ]),
                       const SizedBox(height: 10),
                     ],
-                    SearchField(controller: _search, hint: 'Rechercher un contact…', onChanged: (_) => setState(() {})),
+                    SearchField(controller: _search, hint: tr.searchContact, onChanged: (_) => setState(() {})),
                     const SizedBox(height: 8),
                     AppCard(
                       padding: EdgeInsets.zero,
@@ -216,7 +217,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                         child: shown.isEmpty
                             ? Padding(
                                 padding: const EdgeInsets.all(20),
-                                child: Text('Aucun contact ne correspond.', textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+                                child: Text(tr.noMatchingContact, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
                               )
                             : ListView.builder(
                                 shrinkWrap: true,
@@ -246,7 +247,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             Expanded(
               flex: 3,
               child: LabeledField(
-                label: 'Date',
+                label: tr.date,
                 required: true,
                 child: DateField(
                   compact: true,
@@ -262,7 +263,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             Expanded(
               flex: 2,
               child: LabeledField(
-                label: 'Heure',
+                label: tr.time,
                 required: true,
                 child: TimeField(
                   value: _time,
@@ -276,24 +277,24 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
           ]),
 
           // 3–4. Title, location, notes
-          LabeledField(label: 'Titre (facultatif)', child: AppTextField(controller: _title, hint: placeholderTitle, maxLength: 120)),
-          LabeledField(label: 'Lieu (facultatif)', child: AppTextField(controller: _location, hint: 'Café, adresse, visio…', maxLength: 200)),
+          LabeledField(label: tr.titleOptional, child: AppTextField(controller: _title, hint: placeholderTitle, maxLength: 120)),
+          LabeledField(label: tr.placeOptional, child: AppTextField(controller: _location, hint: tr.placeHint, maxLength: 200)),
           LabeledField(
-            label: 'Notes (facultatif)',
-            hint: 'Toujours privées, même si le rendez-vous est partagé.',
-            child: AppTextField(controller: _notes, hint: 'Idées de sujets, à ne pas oublier…', maxLines: 4),
+            label: tr.notesOptional,
+            hint: tr.notesPrivateHint,
+            child: AppTextField(controller: _notes, hint: tr.notesRdvHint, maxLines: 4),
           ),
 
           if (_editing)
             LabeledField(
-              label: 'Statut',
+              label: tr.status,
               hint: switch (_status) {
-                RdvStatus.valide => 'La date de dernière rencontre des participants sera mise à jour.',
-                RdvStatus.annule => "Il reste dans l'historique comme annulé.",
-                _ => 'Vous recevrez un rappel avant, puis pourrez le valider.',
+                RdvStatus.valide => tr.statusHintDone,
+                RdvStatus.annule => tr.statusHintCancelled,
+                _ => tr.statusHintPlanned,
               },
               child: SegmentedControl<RdvStatus>(
-                options: const [(RdvStatus.planifie, 'Planifié'), (RdvStatus.valide, 'A eu lieu'), (RdvStatus.annule, 'Annulé')],
+                options: [for (final s in RdvStatus.values) (s, s.label)],
                 value: _status ?? RdvStatus.planifie,
                 onChanged: (v) => setState(() => _status = v),
               ),
@@ -308,9 +309,9 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                 activeColor: Palette.brand600,
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
-                title: Text('Ce rendez-vous a déjà eu lieu', style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+                title: Text(tr.alreadyHappened, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
                 subtitle: Text(
-                  'Cochez pour noter une rencontre passée : elle va directement dans l\'historique et remet le compteur des participants à zéro.',
+                  tr.alreadyHappenedHelp,
                   style: TextStyle(fontSize: 13, color: c.textMuted, height: 1.35),
                 ),
                 onChanged: (v) => setState(() {
@@ -326,19 +327,19 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                 color: c.brandSoft,
                 borderColor: c.isDark ? Palette.brand900 : Palette.brand200,
                 child: ToggleRow(
-                  title: 'Envoyer à ${joinNames(friends.map((f) => f.name).toList())}',
+                  title: tr.sendTo(joinNames(friends.map((f) => f.name).toList())),
                   subtitle: !_share
-                      ? "Le rendez-vous reste uniquement chez vous. Vous pourrez l'envoyer plus tard depuis sa fiche."
+                      ? tr.shareOffHelp
                       : _done
-                          ? "Votre ami recevra cette rencontre : s'il l'accepte, sa période est remise à zéro et vous partagez les photos."
-                          : "Votre ami reçoit une invitation : s'il accepte, vous avez tous les deux le rendez-vous et une galerie de photos commune. Vos notes restent privées.",
+                          ? tr.shareDoneHelp
+                          : tr.sharePlannedHelp,
                   value: _share,
                   onChanged: (v) => setState(() => _share = v),
                 ),
               ),
             ],
             const SizedBox(height: 12),
-            Text('Vous pourrez ajouter des photos une fois le rendez-vous enregistré.',
+            Text(tr.photosAfterSave,
                 style: TextStyle(color: c.textMuted, fontSize: 13)),
           ],
         ]),

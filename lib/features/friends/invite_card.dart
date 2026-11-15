@@ -9,6 +9,7 @@ import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../ui/kit.dart';
 import '../rdv/rsvp.dart';
+import '../../core/i18n.dart';
 
 class InviteCard extends ConsumerStatefulWidget {
   const InviteCard({super.key, required this.invite});
@@ -43,7 +44,7 @@ class _InviteCardState extends ConsumerState<InviteCard> {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
-                past ? '${i.fromName} partage une rencontre avec vous' : '${i.fromName} vous propose un rendez-vous',
+                past ? tr.inviteSharesMeetup(i.fromName) : tr.inviteProposes(i.fromName),
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: c.text, height: 1.3),
               ),
               if (i.title != null) ...[
@@ -67,7 +68,7 @@ class _InviteCardState extends ConsumerState<InviteCard> {
         RsvpSelector(value: Rsvp.pending, busy: _busy, onChanged: _answer),
         const SizedBox(height: 8),
         Text(
-          'Il est déjà dans votre agenda, « à confirmer ». Votre ami n\'est prévenu que si vous acceptez ou refusez.',
+          tr.inviteTentativeHint,
           style: TextStyle(fontSize: 12.5, color: c.textMuted),
         ),
       ]),

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:seeu/core/i18n.dart';
 import 'package:seeu/domain/contact_import.dart';
 import 'package:seeu/domain/dates.dart';
 import 'package:seeu/domain/models.dart';
@@ -20,7 +21,10 @@ Contact contact(String name, {required DateTime due, DateTime? snooze, bool seeS
     );
 
 void main() {
-  setUpAll(() => initializeDateFormatting('fr_FR'));
+  setUpAll(() async {
+    await initializeDateFormatting();
+    applyLanguage('fr');
+  });
   setUp(() => clock = () => DateTime(2026, 11, 14, 20, 15));
   tearDown(() => clock = DateTime.now);
 

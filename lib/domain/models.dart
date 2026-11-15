@@ -1,4 +1,5 @@
 // Data models — mirror of the Postgres schema (supabase/migrations).
+import '../core/i18n.dart';
 import 'dates.dart';
 import 'text.dart';
 
@@ -13,12 +14,15 @@ enum FrequencyUnit {
 }
 
 enum RdvStatus {
-  planifie('Planifié'),
-  valide('A eu lieu'),
-  annule('Annulé');
+  planifie,
+  valide,
+  annule;
 
-  const RdvStatus(this.label);
-  final String label;
+  String get label => switch (this) {
+        planifie => tr.statusPlanned,
+        valide => tr.statusDone,
+        annule => tr.statusCancelled,
+      };
 
   static RdvStatus parse(String? s) => RdvStatus.values.firstWhere((v) => v.name == s, orElse: () => RdvStatus.planifie);
 }
@@ -335,12 +339,15 @@ class Rendezvous {
 
 /// Answer to an invitation, stored on the invitee's copy.
 enum Rsvp {
-  pending('À confirmer'),
-  accepted('Accepté'),
-  declined('Refusé');
+  pending,
+  accepted,
+  declined;
 
-  const Rsvp(this.label);
-  final String label;
+  String get label => switch (this) {
+        pending => tr.rsvpPending,
+        accepted => tr.rsvpAccepted,
+        declined => tr.rsvpDeclined,
+      };
 
   static Rsvp? parse(String? s) => s == null ? null : Rsvp.values.where((v) => v.name == s).firstOrNull;
 }
@@ -349,8 +356,8 @@ String rdvTitle(String? title, List<String> names) {
   final t = _str(title);
   if (t != null) return t;
   if (names.isEmpty) return 'Rendez-vous';
-  if (names.length <= 3) return 'Avec ${names.join(', ')}';
-  return 'Avec ${names.take(2).join(', ')} et ${names.length - 2} autres';
+  if (names.length <= 3) return tr.withNames(names.join(', '));
+  return tr.withNamesMore(names.take(2).join(', '), names.length - 2);
 }
 
 class RdvInput {
@@ -533,7 +540,7 @@ class IncomingInvite {
         rdvId: j['rdv_id'] as String,
         toRdvId: j['to_rdv_id'] as String?,
         fromUser: j['from_user'] as String,
-        fromName: (j['from_name'] as String?) ?? 'Un ami',
+        fromName: (j['from_name'] as String?) ?? tr.aFriend,
         title: _str(j['title']),
         location: _str(j['location']),
         appointmentAt: DateTime.parse(j['appointment_at'] as String).toLocal(),
@@ -541,21 +548,28 @@ class IncomingInvite {
       );
 }
 
-const categorySuggestions = ['Famille', 'Amis', 'Pro', 'Autre'];
+List<String> get categorySuggestions => [tr.catFamily, tr.catFriends, tr.catWork, tr.catOther];
 
 class FrequencyPreset {
-  const FrequencyPreset(this.label, this.value, this.unit);
-  final String label;
+  const FrequencyPreset(this.value, this.unit);
   final int value;
   final FrequencyUnit unit;
+
+  /// "1 semaine", "3 mois", "1 an"
+  String get label => switch (unit) {
+        FrequencyUnit.days => tr.nDays(value),
+        FrequencyUnit.weeks => tr.nWeeks(value),
+        FrequencyUnit.months => tr.nMonths(value),
+        FrequencyUnit.years => tr.nYears(value),
+      };
 }
 
 const frequencyPresets = [
-  FrequencyPreset('1 semaine', 1, FrequencyUnit.weeks),
-  FrequencyPreset('2 semaines', 2, FrequencyUnit.weeks),
-  FrequencyPreset('1 mois', 1, FrequencyUnit.months),
-  FrequencyPreset('2 mois', 2, FrequencyUnit.months),
-  FrequencyPreset('3 mois', 3, FrequencyUnit.months),
-  FrequencyPreset('6 mois', 6, FrequencyUnit.months),
-  FrequencyPreset('1 an', 1, FrequencyUnit.years),
+  FrequencyPreset(1, FrequencyUnit.weeks),
+  FrequencyPreset(2, FrequencyUnit.weeks),
+  FrequencyPreset(1, FrequencyUnit.months),
+  FrequencyPreset(2, FrequencyUnit.months),
+  FrequencyPreset(3, FrequencyUnit.months),
+  FrequencyPreset(6, FrequencyUnit.months),
+  FrequencyPreset(1, FrequencyUnit.years),
 ];

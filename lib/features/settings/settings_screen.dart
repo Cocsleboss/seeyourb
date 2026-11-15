@@ -25,20 +25,23 @@ import '../../ui/scaffold.dart';
 import '../auth/username_field.dart';
 import '../friends/friend_sheets.dart';
 import '../home/push_banner.dart';
+import '../../core/i18n.dart';
+import '../../ui/language.dart';
 
-const kindLabels = {
-  'due_digest': 'Contacts à recontacter',
-  'birthday': 'Anniversaire',
-  'rdv_reminder': 'Rappel de rendez-vous',
-  'rdv_followup': 'Suivi de rendez-vous',
-  'friend_request': "Demande d'ami",
-  'friend_accept': 'Ami accepté',
-  'rdv_invite': 'Invitation à un rendez-vous',
-  'rdv_response': 'Réponse à une invitation',
-  'rdv_change': 'Rendez-vous partagé modifié',
-  'wave': 'Envie de se voir',
-  'test': 'Test',
-};
+String kindLabel(String kind) => switch (kind) {
+      'due_digest' => tr.kindDueDigest,
+      'birthday' => tr.kindBirthday,
+      'rdv_reminder' => tr.kindRdvReminder,
+      'rdv_followup' => tr.kindRdvFollowup,
+      'friend_request' => tr.kindFriendRequest,
+      'friend_accept' => tr.kindFriendAccept,
+      'rdv_invite' => tr.kindRdvInvite,
+      'rdv_response' => tr.kindRdvResponse,
+      'rdv_change' => tr.kindRdvChange,
+      'wave' => tr.kindWave,
+      'test' => tr.kindTest,
+      _ => kind,
+    };
 
 final _packageInfoProvider = FutureProvider((ref) => PackageInfo.fromPlatform());
 
@@ -49,7 +52,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileProvider);
     return AppScaffold(
-      title: 'Réglages',
+      title: tr.settings,
       body: profile == null
           ? const Padding(padding: EdgeInsets.all(16), child: SkeletonList())
           : PageList(
@@ -61,12 +64,13 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 _ProfileSection(profile: profile, key: ValueKey(profile.id)),
                 _NotificationSection(profile: profile),
+                const _LanguageSection(),
                 const _AppSection(),
                 const _DataSection(),
                 const _AccountSection(),
                 const SizedBox(height: 20),
                 Text(
-                  'SeeU · Vos données restent privées : seuls les rendez-vous que vous envoyez à un ami sont partagés avec lui.',
+                  tr.privacyFooter,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: context.colors.textMuted, fontSize: 13),
                 ),
@@ -114,7 +118,7 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
         'username': _username.text,
         'birthday': _birthday == null ? null : dayIso(_birthday!),
       }),
-      success: 'Profil mis à jour',
+      success: tr.profileUpdated,
     );
     if (!mounted) return;
     setState(() => _busy = false);
@@ -125,13 +129,13 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
   Widget build(BuildContext context) {
     final p = widget.profile;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Profil'),
+      SectionTitle(tr.profile),
       AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           LabeledField(
-            label: 'Nom affiché',
+            label: tr.displayName,
             required: true,
-            child: AppTextField(controller: _name, hint: 'Votre prénom', maxLength: 60, onChanged: (_) => setState(() {})),
+            child: AppTextField(controller: _name, hint: tr.yourFirstName, maxLength: 60, onChanged: (_) => setState(() {})),
           ),
           UsernameField(
             controller: _username,
@@ -139,19 +143,19 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
             onStatus: (s) => setState(() => _status = s),
           ),
           LabeledField(
-            label: 'Date de naissance',
-            hint: 'Visible par vos amis SeeU uniquement : leur fiche à votre nom se remplit toute seule.',
+            label: tr.birthDate,
+            hint: tr.birthDateFriendsHint,
             child: DateField(value: _birthday, last: today(), clearable: true, onChanged: (d) => setState(() => _birthday = d)),
           ),
-          AppButton('Enregistrer', full: true, loading: _busy, onPressed: _changed && _valid ? _save : null),
+          AppButton(tr.save, full: true, loading: _busy, onPressed: _changed && _valid ? _save : null),
           if (p.username != null) ...[
             const SizedBox(height: 10),
-            AppButton('Partager mon @',
+            AppButton(tr.shareMyHandle,
                 icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareMyHandle(p.username!)),
           ],
           const SizedBox(height: 16),
-          _ReadOnly(label: 'Email', value: p.email ?? '—', hint: "Jamais affiché aux autres utilisateurs avant qu'ils soient vos amis"),
-          _ReadOnly(label: 'Fuseau horaire', value: p.timezone, hint: "Détecté automatiquement, utilisé pour l'heure des rappels"),
+          _ReadOnly(label: tr.emailLabel, value: p.email ?? '—', hint: tr.emailNeverShown),
+          _ReadOnly(label: tr.timezone, value: p.timezone, hint: tr.timezoneHint),
         ]),
       ),
     ]);
@@ -204,15 +208,15 @@ class _NotificationSectionState extends ConsumerState<_NotificationSection> {
     final api = ref.read(apiProvider);
     if (perm == PushPermission.granted && push.registered) {
       await push.unregister(api);
-      showToast('Notifications désactivées sur cet appareil', kind: ToastKind.info);
+      showToast(tr.pushDisabledDevice, kind: ToastKind.info);
     } else if (perm == PushPermission.denied) {
       await AppSettings.openAppSettings(type: AppSettingsType.notification);
     } else {
       final res = await push.enable(api);
       if (res == PushPermission.granted) {
-        showToast('Notifications activées sur cet appareil');
+        showToast(tr.pushEnabledDevice);
       } else if (res == PushPermission.denied) {
-        showToast("Permission refusée : autorisez les notifications dans les réglages de l'appareil.", kind: ToastKind.error);
+        showToast(tr.pushPermissionDenied, kind: ToastKind.error);
       }
     }
     ref.invalidate(pushPermissionProvider);
@@ -224,7 +228,7 @@ class _NotificationSectionState extends ConsumerState<_NotificationSection> {
     await guard(() async {
       await ref.read(apiProvider).sendTestNotification();
       return true;
-    }, success: 'Notification de test envoyée');
+    }, success: tr.testSent);
     await Future<void>.delayed(const Duration(seconds: 3));
     ref.invalidate(notificationLogProvider);
     if (mounted) setState(() => _testing = false);
@@ -238,14 +242,14 @@ class _NotificationSectionState extends ConsumerState<_NotificationSection> {
     final log = ref.watch(notificationLogProvider);
     final on = perm == PushPermission.granted && PushService.instance.registered;
     final (String status, String? action) = switch (perm) {
-      PushPermission.unsupported => ('Notifications push indisponibles sur cette version ; les rappels partiront par email.', null),
-      PushPermission.denied => ('Notifications bloquées : autorisez-les dans les réglages du téléphone.', 'Ouvrir les réglages'),
-      PushPermission.granted when on => ('Activées sur cet appareil', 'Désactiver'),
-      _ => ('Non activées sur cet appareil', 'Activer'),
+      PushPermission.unsupported => (tr.pushUnsupported, null),
+      PushPermission.denied => (tr.pushBlockedSettings, tr.openPhoneSettings),
+      PushPermission.granted when on => (tr.pushOnDevice, tr.disable),
+      _ => (tr.pushOffDevice, tr.enable),
     };
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Notifications'),
+      SectionTitle(tr.notifications),
       AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
@@ -263,60 +267,60 @@ class _NotificationSectionState extends ConsumerState<_NotificationSection> {
           ]),
           const Divider(height: 28),
           ToggleRow(
-            title: 'Rappels push',
-            subtitle: 'Sur tous les appareils où vous les avez activées',
+            title: tr.pushReminders,
+            subtitle: tr.pushRemindersSub,
             value: p.notifyPush,
             onChanged: (v) => _set('notify_push', v),
           ),
           ToggleRow(
-            title: 'Rappels par email',
-            subtitle: "Utilisés si aucun appareil n'a les notifications push activées",
+            title: tr.emailReminders,
+            subtitle: tr.emailRemindersSub,
             value: p.notifyEmail,
             onChanged: (v) => _set('notify_email', v),
           ),
           const SizedBox(height: 12),
           LabeledField(
-            label: 'Heure du rappel quotidien',
-            hint: 'Un seul récapitulatif par jour des contacts à recontacter',
+            label: tr.dailyHour,
+            hint: tr.dailyHourHint,
             child: AppDropdown<int>(
               value: p.dailyHour,
-              items: [for (var h = 0; h < 24; h++) (h, '${h.toString().padLeft(2, '0')}:00')],
+              items: [for (var h = 0; h < 24; h++) (h, formatTime(DateTime(2000, 1, 1, h)))],
               onChanged: (v) => _set('daily_hour', v),
             ),
           ),
           LabeledField(
-            label: 'Prévenir',
+            label: tr.notifyLead,
             child: AppDropdown<int>(
               value: [0, 1, 3, 7, 14].contains(p.dueLeadDays) ? p.dueLeadDays : 0,
-              items: const [(0, "Le jour de l'échéance"), (1, '1 jour avant'), (3, '3 jours avant'), (7, '1 semaine avant'), (14, '2 semaines avant')],
+              items: [(0, tr.leadSameDay), (1, tr.leadDays(1)), (3, tr.leadDays(3)), (7, tr.leadWeeks(1)), (14, tr.leadWeeks(2))],
               onChanged: (v) => _set('due_lead_days', v),
             ),
           ),
           LabeledField(
-            label: 'Rappel avant un rendez-vous',
+            label: tr.rdvReminderLead,
             child: AppDropdown<int>(
               value: [15, 30, 60, 120, 1440].contains(p.rdvReminderMinutes) ? p.rdvReminderMinutes : 30,
-              items: const [
-                (15, '15 minutes avant'),
-                (30, '30 minutes avant'),
-                (60, '1 heure avant'),
-                (120, '2 heures avant'),
-                (1440, 'La veille (24 h avant)'),
+              items: [
+                (15, tr.leadMinutes(15)),
+                (30, tr.leadMinutes(30)),
+                (60, tr.leadHours(1)),
+                (120, tr.leadHours(2)),
+                (1440, tr.leadEve),
               ],
               onChanged: (v) => _set('rdv_reminder_minutes', v),
             ),
           ),
-          AppButton('Envoyer une notification de test',
+          AppButton(tr.sendTestNotification,
               icon: LucideIcons.send, variant: ButtonVariant.secondary, full: true, loading: _testing, onPressed: _test),
           const SizedBox(height: 18),
-          Text('Dernières notifications', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5, color: c.text)),
+          Text(tr.lastNotifications, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5, color: c.text)),
           const SizedBox(height: 6),
           AsyncBody(
             value: log,
             skeletonRows: 2,
             onRetry: () => ref.invalidate(notificationLogProvider),
             builder: (list) => list.isEmpty
-                ? Text("Aucune notification envoyée pour l'instant.", style: TextStyle(color: c.textMuted, fontSize: 14))
+                ? Text(tr.noNotificationsYet, style: TextStyle(color: c.textMuted, fontSize: 14))
                 : Column(children: [for (final n in list) _LogRow(n)]),
           ),
         ]),
@@ -334,7 +338,7 @@ class _LogRow extends StatelessWidget {
     final (String channel, Tone tone) = switch (n.channel) {
       'push' => ('push', Tone.green),
       'email' => ('email', Tone.brand),
-      _ => ('aucun', Tone.gray),
+      _ => (tr.channelNone, Tone.gray),
     };
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -345,7 +349,7 @@ class _LogRow extends StatelessWidget {
             if (n.body != null && n.body!.isNotEmpty)
               Text(n.body!, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.textMuted, fontSize: 13.5)),
             const SizedBox(height: 2),
-            Text('${kindLabels[n.kind] ?? n.kind} · ${formatDate(n.createdAt)} ${formatTime(n.createdAt)}',
+            Text('${kindLabel(n.kind)} · ${formatDate(n.createdAt)} ${formatTime(n.createdAt)}',
                 style: TextStyle(color: c.textSubtle, fontSize: 12.5)),
           ]),
         ),
@@ -358,14 +362,37 @@ class _LogRow extends StatelessWidget {
 
 /* --------------------------------- App -------------------------------- */
 
+class _LanguageSection extends ConsumerWidget {
+  const _LanguageSection();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final choice = ref.watch(languageChoiceProvider);
+    final lang = ref.watch(languageProvider);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SectionTitle(tr.languageTitle),
+      RowsCard(children: [
+        ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          leading: Icon(LucideIcons.globe, color: c.brandText),
+          title: Text(appLanguages[lang] ?? lang, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+          subtitle: choice == null ? Text(tr.languageSystem, style: TextStyle(color: c.textMuted, fontSize: 13.5)) : null,
+          trailing: Icon(LucideIcons.chevronRight, color: c.textMuted),
+          onTap: () => pickLanguage(context, ref),
+        ),
+      ]),
+    ]);
+  }
+}
+
 class _AppSection extends ConsumerWidget {
   const _AppSection();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final info = ref.watch(_packageInfoProvider).value;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Application'),
-      AppCard(child: _ReadOnly(label: 'Version', value: info == null ? '…' : '${info.version} (${info.buildNumber})')),
+      SectionTitle(tr.application),
+      AppCard(child: _ReadOnly(label: tr.version, value: info == null ? '…' : '${info.version} (${info.buildNumber})')),
     ]);
   }
 }
@@ -388,7 +415,7 @@ class _DataSectionState extends ConsumerState<_DataSection> {
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/seeu-export-${dayIso(DateTime.now())}.json');
       await file.writeAsString(const JsonEncoder.withIndent('  ').convert(data));
-      await SharePlus.instance.share(ShareParams(files: [XFile(file.path, mimeType: 'application/json')], subject: 'Export SeeU'));
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path, mimeType: 'application/json')], subject: tr.exportSubject));
     } catch (e) {
       showError(e);
     } finally {
@@ -410,11 +437,11 @@ class _DataSectionState extends ConsumerState<_DataSection> {
           onTap: loading ? null : onTap,
         );
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Données'),
+      SectionTitle(tr.data),
       RowsCard(children: [
-        row(LucideIcons.bookUser, 'Importer des contacts du téléphone', 'Depuis le carnet d\'adresses, avec revue contact par contact.',
+        row(LucideIcons.bookUser, tr.importFromPhoneLong, tr.importFromPhoneSub,
             () => context.push('/contacts/import')),
-        row(LucideIcons.download, 'Exporter mes données', 'Profil, contacts, rendez-vous et liste des photos.', _export, loading: _exporting),
+        row(LucideIcons.download, tr.exportData, tr.exportDataSub, _export, loading: _exporting),
       ]),
     ]);
   }
@@ -434,9 +461,9 @@ class _AccountSection extends ConsumerWidget {
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final ok = await confirmSheet(
       context,
-      title: 'Supprimer définitivement votre compte ?',
-      message: 'Tous vos contacts, rendez-vous et photos seront effacés. Cette action est irréversible.',
-      confirmLabel: 'Supprimer mon compte',
+      title: tr.deleteAccountTitle,
+      message: tr.deleteAccountMessage,
+      confirmLabel: tr.deleteMyAccount,
     );
     if (!ok) return;
     final api = ref.read(apiProvider);
@@ -444,25 +471,25 @@ class _AccountSection extends ConsumerWidget {
     await guard(() async {
       await api.deleteAccount();
       return true;
-    }, success: 'Compte supprimé');
+    }, success: tr.accountDeleted);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Compte'),
-      AppButton('Changer le mot de passe',
+      SectionTitle(tr.account),
+      AppButton(tr.changePassword,
           icon: LucideIcons.keyRound, variant: ButtonVariant.secondary, full: true, onPressed: () => _changePassword(context)),
       const SizedBox(height: 10),
-      AppButton('Se déconnecter', icon: LucideIcons.logOut, variant: ButtonVariant.outline, full: true, onPressed: () => _signOut(ref)),
+      AppButton(tr.signOut, icon: LucideIcons.logOut, variant: ButtonVariant.outline, full: true, onPressed: () => _signOut(ref)),
       const SizedBox(height: 10),
-      AppButton('Supprimer mon compte',
+      AppButton(tr.deleteMyAccount,
           icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
     ]);
   }
 
   void _changePassword(BuildContext context) =>
-      showAppSheet(context, title: 'Changer le mot de passe', builder: (_) => const _PasswordSheet());
+      showAppSheet(context, title: tr.changePassword, builder: (_) => const _PasswordSheet());
 }
 
 class _PasswordSheet extends ConsumerStatefulWidget {
@@ -485,15 +512,15 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
   }
 
   Future<void> _save() async {
-    if (_p1.text.length < 6) return setState(() => _error = 'Le mot de passe doit contenir au moins 6 caractères.');
-    if (_p1.text != _p2.text) return setState(() => _error = 'Les deux mots de passe ne correspondent pas.');
+    if (_p1.text.length < 6) return setState(() => _error = tr.errWeakPassword);
+    if (_p1.text != _p2.text) return setState(() => _error = tr.passwordsNoMatch);
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
       await ref.read(supabaseProvider).auth.updateUser(UserAttributes(password: _p1.text));
-      showToast('Mot de passe mis à jour');
+      showToast(tr.passwordUpdated);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _error = errorMessage(e));
@@ -505,9 +532,9 @@ class _PasswordSheetState extends ConsumerState<_PasswordSheet> {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      LabeledField(label: 'Nouveau mot de passe', hint: '6 caractères minimum', child: AppTextField(controller: _p1, obscure: true)),
-      LabeledField(label: 'Confirmer', error: _error, child: AppTextField(controller: _p2, obscure: true)),
-      AppButton('Enregistrer', size: ButtonSize.lg, full: true, loading: _busy, onPressed: _save),
+      LabeledField(label: tr.newPassword, hint: tr.passwordMin, child: AppTextField(controller: _p1, obscure: true)),
+      LabeledField(label: tr.confirm, error: _error, child: AppTextField(controller: _p2, obscure: true)),
+      AppButton(tr.save, size: ButtonSize.lg, full: true, loading: _busy, onPressed: _save),
     ]);
   }
 }

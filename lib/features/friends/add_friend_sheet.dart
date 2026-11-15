@@ -13,13 +13,14 @@ import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import 'friend_sheets.dart';
+import '../../core/i18n.dart';
 
 /// Returns the user id of a person who became a friend right away (they had invited me).
 Future<void> showAddFriendSheet(BuildContext context, {String? initialQuery}) async {
   final becameFriend = await showAppSheet<String>(
     context,
-    title: 'Ajouter un ami SeeU',
-    subtitle: "Cherchez-le par son nom d'utilisateur. Entre amis SeeU, vous partagez rendez-vous et photos.",
+    title: tr.addSeeuFriendLong,
+    subtitle: tr.addFriendSub,
     builder: (_) => _AddFriend(initialQuery: initialQuery),
   );
   if (becameFriend != null && context.mounted) await offerLinkAfterAccept(context, becameFriend);
@@ -74,7 +75,7 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
         final r = await ref.read(apiProvider).searchUsers(q);
         if (mounted && seq == _seq) setState(() => _results = r);
       } catch (_) {
-        if (mounted && seq == _seq) showToast('Recherche impossible', kind: ToastKind.error);
+        if (mounted && seq == _seq) showToast(tr.searchFailed, kind: ToastKind.error);
       } finally {
         if (mounted && seq == _seq) setState(() => _searching = false);
       }
@@ -90,15 +91,15 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
     final who = u.displayName;
     switch (res.status) {
       case FriendRequestStatus.sent:
-        showToast('Demande envoyée à $who');
+        showToast(tr.requestSentTo(who));
       case FriendRequestStatus.accepted:
-        showToast('$who vous avait déjà invité : vous êtes maintenant amis !');
+        showToast(tr.alreadyInvitedYou(who));
       case FriendRequestStatus.alreadySent:
-        showToast('Demande déjà envoyée, en attente de sa réponse.', kind: ToastKind.info);
+        showToast(tr.requestAlreadySent, kind: ToastKind.info);
       case FriendRequestStatus.alreadyFriends:
-        showToast('$who fait déjà partie de vos amis.', kind: ToastKind.info);
+        showToast(tr.alreadyFriend(who), kind: ToastKind.info);
       case FriendRequestStatus.notFound || FriendRequestStatus.self:
-        showToast("Ce compte n'existe plus.", kind: ToastKind.error);
+        showToast(tr.accountGone, kind: ToastKind.error);
     }
     refreshData(ref);
     if (res.status == FriendRequestStatus.accepted) {
@@ -115,7 +116,7 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       AppTextField(
         controller: _q,
-        hint: 'nom.utilisateur',
+        hint: tr.usernamePlaceholder,
         autofocus: widget.initialQuery == null,
         onChanged: _onQuery,
         prefix: Padding(
@@ -135,11 +136,11 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
           child: Row(children: [
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text("Votre nom d'utilisateur :", style: TextStyle(color: c.textMuted, fontSize: 14.5)),
+                Text(tr.yourUsername, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
                 Text(handle(profile!.username), style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.text)),
               ]),
             ),
-            AppButton('Partager',
+            AppButton(tr.share,
                 icon: LucideIcons.share2, variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: () => shareMyHandle(profile.username!)),
           ]),
         ),
@@ -152,15 +153,18 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
       return [
         const SizedBox(height: 12),
         Text.rich(
-          TextSpan(children: [
-            const TextSpan(text: 'Aucun compte ne commence par '),
-            TextSpan(text: handle(normalizeUsername(_q.text)), style: const TextStyle(fontWeight: FontWeight.w700)),
-            const TextSpan(text: ". Vérifiez l'orthographe, ou invitez cette personne à créer son compte."),
-          ]),
+          TextSpan(children: () {
+            final parts = tr.noAccountStartsWith('\u0000').split('\u0000');
+            return [
+              TextSpan(text: parts.first),
+              TextSpan(text: handle(normalizeUsername(_q.text)), style: const TextStyle(fontWeight: FontWeight.w700)),
+              if (parts.length > 1) TextSpan(text: parts.last),
+            ];
+          }()),
           style: TextStyle(color: c.textMuted, fontSize: 14.5, height: 1.35),
         ),
         const SizedBox(height: 10),
-        AppButton("Envoyer le lien de l'app", icon: LucideIcons.share2, variant: ButtonVariant.secondary, onPressed: shareAppLink),
+        AppButton(tr.sendAppLink, icon: LucideIcons.share2, variant: ButtonVariant.secondary, onPressed: shareAppLink),
       ];
     }
     return [
@@ -178,12 +182,12 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
               ]),
             ),
             switch (u.relation) {
-              UserRelation.none => AppButton('Ajouter',
+              UserRelation.none => AppButton(tr.add,
                   icon: LucideIcons.userPlus, size: ButtonSize.sm, loading: _busy == u.userId, onPressed: _busy == null ? () => _add(u) : null),
-              UserRelation.received => AppButton('Accepter',
+              UserRelation.received => AppButton(tr.rsvpAccept,
                   icon: LucideIcons.check, size: ButtonSize.sm, loading: _busy == u.userId, onPressed: _busy == null ? () => _add(u) : null),
-              UserRelation.sent => Text('Demande envoyée', style: TextStyle(color: c.textMuted, fontSize: 13.5)),
-              UserRelation.friends => Text('Déjà dans vos amis', style: TextStyle(color: c.textMuted, fontSize: 13.5)),
+              UserRelation.sent => Text(tr.requestSent, style: TextStyle(color: c.textMuted, fontSize: 13.5)),
+              UserRelation.friends => Text(tr.alreadyInFriends, style: TextStyle(color: c.textMuted, fontSize: 13.5)),
             },
           ]),
         ),

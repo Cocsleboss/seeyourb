@@ -14,6 +14,7 @@ import '../../ui/kit.dart';
 import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import 'calendar.dart';
+import '../../core/i18n.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
@@ -37,12 +38,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final c = context.colors;
     final history = ref.watch(historyProvider);
     return AppScaffold(
-      title: 'Historique',
+      title: tr.historyTitle,
       actions: [
         SizedBox(
           width: 104,
           child: SegmentedControl<bool>(
-            options: const [(false, 'Liste'), (true, 'Mois')],
+            options: [(false, tr.historyList), (true, tr.historyMonth)],
             value: _calendar,
             onChanged: (v) => setState(() => _calendar = v),
           ),
@@ -59,11 +60,11 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               builder: (all) {
                 if (all.isEmpty) {
                   return PageList(
-                    children: const [
+                    children: [
                       EmptyState(
                         icon: LucideIcons.clock,
-                        title: 'Aucune rencontre pour l\'instant',
-                        message: 'Les rendez-vous validés ou annulés apparaîtront ici.',
+                        title: tr.historyEmptyTitle,
+                        message: tr.historyEmptyMessage,
                       ),
                     ],
                   );
@@ -94,10 +95,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   children: [
                     const SizedBox(height: 12),
                     SegmentedControl<RdvStatus?>(
-                      options: const [
-                        (null, 'Tous'),
-                        (RdvStatus.valide, 'A eu lieu'),
-                        (RdvStatus.annule, 'Annulés'),
+                      options: [
+                        (null, tr.filterAll),
+                        (RdvStatus.valide, tr.filterDone),
+                        (RdvStatus.annule, tr.filterCancelled),
                       ],
                       value: _filter,
                       onChanged: (v) => setState(() => _filter = v),
@@ -105,18 +106,18 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     const SizedBox(height: 12),
                     SearchField(
                       controller: _q,
-                      hint: 'Rechercher (contact, titre, lieu)',
+                      hint: tr.historySearchHint,
                       onChanged: (_) => setState(() {}),
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      '${plural(done, 'rencontre')} · ${plural(cancelled, 'annulé')}',
+                      tr.historyCounts(done, cancelled),
                       style: TextStyle(color: c.textMuted, fontSize: 15),
                     ),
                     if (filtered.isEmpty)
-                      const EmptyState(
+                      EmptyState(
                         icon: LucideIcons.searchX,
-                        title: 'Aucun résultat',
+                        title: tr.noResults,
                       )
                     else
                       for (final (month, list) in months) ...[

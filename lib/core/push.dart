@@ -15,13 +15,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../data/api.dart';
+import 'i18n.dart';
 
 enum PushPermission { unsupported, notDetermined, granted, denied }
 
-const _channel = AndroidNotificationChannel(
+AndroidNotificationChannel get _channel => AndroidNotificationChannel(
   'seeu_default',
-  'Rappels SeeU',
-  description: 'Rappels, rendez-vous et activité de vos amis',
+  tr.pushChannelName,
+  description: tr.pushChannelDesc,
   importance: Importance.high,
 );
 

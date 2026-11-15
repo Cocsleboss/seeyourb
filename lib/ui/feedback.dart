@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../core/errors.dart';
 import '../core/theme.dart';
 import 'kit.dart';
+import '../core/i18n.dart';
 
 enum ToastKind { success, error, info }
 
@@ -112,7 +113,7 @@ Future<bool> confirmSheet(
         AppButton(confirmLabel,
             variant: danger ? ButtonVariant.danger : ButtonVariant.primary, full: true, onPressed: () => Navigator.pop(ctx, true)),
         const SizedBox(height: 10),
-        AppButton('Annuler', variant: ButtonVariant.secondary, full: true, onPressed: () => Navigator.pop(ctx, false)),
+        AppButton(tr.cancel, variant: ButtonVariant.secondary, full: true, onPressed: () => Navigator.pop(ctx, false)),
       ],
     ),
   );

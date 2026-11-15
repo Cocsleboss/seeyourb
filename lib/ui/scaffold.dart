@@ -6,19 +6,21 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../core/theme.dart';
+import '../core/i18n.dart';
 
 class TabItem {
-  const TabItem(this.path, this.label, this.icon);
+  const TabItem(this.path, this._label, this.icon);
   final String path;
-  final String label;
+  final String Function() _label;
   final IconData icon;
+  String get label => _label();
 }
 
-const appTabs = [
-  TabItem('/', 'Accueil', LucideIcons.house),
-  TabItem('/contacts', 'Contacts', LucideIcons.users),
-  TabItem('/history', 'Historique', LucideIcons.clock),
-  TabItem('/settings', 'Réglages', LucideIcons.settings),
+final appTabs = [
+  TabItem('/', () => tr.tabHome, LucideIcons.house),
+  TabItem('/contacts', () => tr.tabContacts, LucideIcons.users),
+  TabItem('/history', () => tr.tabHistory, LucideIcons.clock),
+  TabItem('/settings', () => tr.tabSettings, LucideIcons.settings),
 ];
 
 /// Tab highlighted for a location ("/contacts/123" → Contacts, "/rdv/…" → none).
@@ -130,7 +132,7 @@ class AppScaffold extends StatelessWidget {
               titleSpacing: back ? 0 : 20,
               leading: back
                   ? IconButton(
-                      tooltip: 'Retour',
+                      tooltip: tr.back,
                       icon: Icon(LucideIcons.chevronLeft, color: c.brandText, size: 28),
                       onPressed: onBack ?? () => context.canPop() ? context.pop() : context.go('/'),
                     )

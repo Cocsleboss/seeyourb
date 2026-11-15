@@ -1,0 +1,7 @@
+/* Permission prompts (French). Keep in sync with en.lproj/InfoPlist.strings. */
+"NSContactsUsageDescription" = "SeeU lit les contacts que vous choisissez d'importer (nom, téléphone, email, anniversaire, notes). Rien n'est envoyé sans votre confirmation.";
+"NSCameraUsageDescription" = "Prenez une photo pour la fiche d'un contact ou la galerie d'un rendez-vous.";
+"NSPhotoLibraryUsageDescription" = "Choisissez des photos pour la fiche d'un contact ou la galerie d'un rendez-vous.";
+"NSCalendarsUsageDescription" = "Ajoutez vos rendez-vous SeeU à votre calendrier.";
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Ajoutez vos rendez-vous SeeU à votre calendrier.";
+"NSCalendarsFullAccessUsageDescription" = "Ajoutez vos rendez-vous SeeU à votre calendrier.";

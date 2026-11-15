@@ -10,6 +10,7 @@ import '../../data/providers.dart';
 import '../../ui/kit.dart';
 import '../../ui/logo.dart';
 import '../../ui/scaffold.dart';
+import '../../core/i18n.dart';
 
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
@@ -27,10 +28,10 @@ class SplashScreen extends ConsumerWidget {
             if (session.profileError != null) ...[
               Text(errorMessage(session.profileError!), textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 15)),
               const SizedBox(height: 16),
-              AppButton('Réessayer', icon: LucideIcons.rotateCw, onPressed: session.reloadProfile),
+              AppButton(tr.retry, icon: LucideIcons.rotateCw, onPressed: session.reloadProfile),
               TextButton(
                 onPressed: () => ref.read(supabaseProvider).auth.signOut(),
-                child: Text('Se déconnecter', style: TextStyle(color: c.brandText)),
+                child: Text(tr.signOut, style: TextStyle(color: c.brandText)),
               ),
             ] else
               const SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 2.5)),
@@ -51,9 +52,9 @@ class OfflineScreen extends StatelessWidget {
         child: Center(
           child: EmptyState(
             icon: LucideIcons.wifiOff,
-            title: 'Vous êtes hors ligne',
-            message: 'SeeU a besoin d\'une connexion internet pour fonctionner. Vérifiez votre réseau puis réessayez.',
-            actions: [AppButton('Réessayer', icon: LucideIcons.rotateCw, onPressed: onRetry)],
+            title: tr.offlineTitle,
+            message: tr.offlineMessage,
+            actions: [AppButton(tr.retry, icon: LucideIcons.rotateCw, onPressed: onRetry)],
           ),
         ),
       ),
@@ -66,13 +67,13 @@ class NotFoundScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      title: 'Page introuvable',
+      title: tr.pageNotFound,
       back: true,
       body: EmptyState(
         icon: LucideIcons.compass,
-        title: 'Page introuvable',
-        message: 'Cette page n\'existe pas ou plus.',
-        actions: [AppButton('Retour à l\'accueil', onPressed: () => context.go('/'))],
+        title: tr.pageNotFound,
+        message: tr.pageNotFoundMessage,
+        actions: [AppButton(tr.backHome, onPressed: () => context.go('/'))],
       ),
     );
   }
@@ -92,7 +93,7 @@ class MissingItem extends StatelessWidget {
       body: EmptyState(
         icon: LucideIcons.searchX,
         title: title,
-        message: 'Il a peut-être été supprimé.',
+        message: tr.maybeDeleted,
         actions: [AppButton(backLabel, onPressed: () => context.go(backPath))],
       ),
     );

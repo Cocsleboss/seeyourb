@@ -11,6 +11,7 @@ import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import '../../core/i18n.dart';
 
 const _dismissKey = 'seeu.push-banner-dismissed';
 
@@ -50,7 +51,7 @@ class _PushBannerState extends ConsumerState<PushBanner> {
     if (!mounted) return;
     setState(() => _busy = false);
     ref.invalidate(pushPermissionProvider);
-    if (res == PushPermission.granted) showToast('Notifications activées 🎉');
+    if (res == PushPermission.granted) showToast(tr.pushEnabledToast);
   }
 
   @override
@@ -79,24 +80,24 @@ class _PushBannerState extends ConsumerState<PushBanner> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 24),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(blocked ? 'Notifications bloquées' : 'Activer les rappels',
+                  Text(blocked ? tr.pushBlockedTitle : tr.pushEnableTitle,
                       style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.text)),
                   const SizedBox(height: 4),
                   Text(
                     blocked
-                        ? 'Autorisez-les dans les réglages de votre téléphone (Notifications → SeeU), ou activez les rappels par email dans les Réglages de l\'app.'
-                        : 'Recevez une notification quand un contact est à recontacter et avant chaque rendez-vous.',
+                        ? tr.pushBlockedMessage
+                        : tr.pushEnableMessage,
                     style: TextStyle(fontSize: 14, color: c.textMuted, height: 1.35),
                   ),
                   const SizedBox(height: 12),
                   if (blocked)
                     Wrap(spacing: 8, runSpacing: 8, children: [
-                      AppButton('Ouvrir les réglages',
+                      AppButton(tr.openPhoneSettings,
                           size: ButtonSize.sm, onPressed: () => AppSettings.openAppSettings(type: AppSettingsType.notification)),
-                      AppButton('Réglages SeeU', size: ButtonSize.sm, variant: ButtonVariant.ghost, onPressed: () => context.go('/settings')),
+                      AppButton(tr.seeuSettings, size: ButtonSize.sm, variant: ButtonVariant.ghost, onPressed: () => context.go('/settings')),
                     ])
                   else
-                    AppButton('Activer', icon: LucideIcons.bell, size: ButtonSize.sm, loading: _busy, onPressed: _enable),
+                    AppButton(tr.enable, icon: LucideIcons.bell, size: ButtonSize.sm, loading: _busy, onPressed: _enable),
                 ]),
               ),
             ),
@@ -105,7 +106,7 @@ class _PushBannerState extends ConsumerState<PushBanner> {
             right: -8,
             top: -8,
             child: IconButton(
-              tooltip: 'Fermer',
+              tooltip: tr.close,
               onPressed: _dismiss,
               icon: Icon(LucideIcons.x, size: 18, color: c.textMuted),
             ),

@@ -18,6 +18,7 @@ import '../contacts/quick_sheets.dart';
 import '../friends/invite_card.dart';
 import '../rdv/status_actions.dart';
 import 'push_banner.dart';
+import '../../core/i18n.dart';
 
 const _maxDue = 8;
 const _maxUpcoming = 10;
@@ -45,20 +46,20 @@ class HomeScreen extends ConsumerWidget {
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('${greeting(now)}${profile == null ? '' : ' ${profile.firstName}'} 👋',
+            Text(profile == null ? tr.greetingAlone(greeting(now)) : tr.greetingName(greeting(now), profile.firstName),
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: c.text, height: 1.15)),
             const SizedBox(height: 4),
             Text(formatDayMonth(now), style: TextStyle(fontSize: 17, color: c.textMuted)),
           ]),
         ),
-        AppIconButton(icon: LucideIcons.settings, tooltip: 'Réglages', onPressed: () => context.go('/settings')),
+        AppIconButton(icon: LucideIcons.settings, tooltip: tr.settings, onPressed: () => context.go('/settings')),
       ]),
     );
 
     return AppScaffold(
       fab: FloatingActionButton(
         onPressed: () => context.push('/rdv/new'),
-        tooltip: 'Nouveau rendez-vous',
+        tooltip: tr.newRdv,
         backgroundColor: Palette.brand600,
         foregroundColor: Colors.white,
         shape: const CircleBorder(),
@@ -74,7 +75,7 @@ class HomeScreen extends ConsumerWidget {
             header,
             const PushBanner(),
             if (invites.isNotEmpty) ...[
-              SectionTitle(invites.length > 1 ? 'Invitations reçues' : 'Invitation reçue'),
+              SectionTitle(tr.invitationsReceived(invites.length)),
               for (final i in invites) Padding(padding: const EdgeInsets.only(bottom: 10), child: InviteCard(invite: i)),
             ],
             if (contacts.hasError && !contacts.hasValue)
@@ -112,31 +113,31 @@ class HomeScreen extends ConsumerWidget {
       // 5. Counters
       const SizedBox(height: 20),
       Row(children: [
-        Expanded(child: _Stat(value: contacts.length, label: contacts.length > 1 ? 'contacts' : 'contact', onTap: () => context.go('/contacts'))),
+        Expanded(child: _Stat(value: contacts.length, label: tr.statContacts(contacts.length), onTap: () => context.go('/contacts'))),
         const SizedBox(width: 10),
-        Expanded(child: _Stat(value: overdue, label: 'en retard', danger: overdue > 0, onTap: () => context.go('/contacts'))),
+        Expanded(child: _Stat(value: overdue, label: tr.statOverdue, danger: overdue > 0, onTap: () => context.go('/contacts'))),
         const SizedBox(width: 10),
-        Expanded(child: _Stat(value: upcoming.length, label: 'rdv à venir')),
+        Expanded(child: _Stat(value: upcoming.length, label: tr.statUpcoming)),
       ]),
 
       // 6. To confirm
       if (toConfirm.isNotEmpty) ...[
-        const SectionTitle('Ont-ils eu lieu ?'),
+        SectionTitle(tr.didTheyHappen),
         RowsCard(children: [for (final r in toConfirm) RdvRow(rdv: r, showStatus: false, footer: RdvStatusActions(rdv: r))]),
       ],
 
       // 7. To recontact
       SectionTitle(
-        'À recontacter',
+        tr.toReconnect,
         action: Row(mainAxisSize: MainAxisSize.min, children: [
           if (due.length > _maxDue)
             TextButton(
               onPressed: () => context.go('/contacts'),
-              child: Text('Voir tout (${due.length})', style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
+              child: Text(tr.seeAllN(due.length), style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
             ),
           AppIconButton(
             icon: LucideIcons.plus,
-            tooltip: "Ajouter quelqu'un à voir bientôt",
+            tooltip: tr.addSeeSoon,
             color: c.brandText,
             onPressed: () => showSeeSoonSheet(context, excludeIds: due.map((x) => x.id).toSet()),
           ),
@@ -147,10 +148,10 @@ class HomeScreen extends ConsumerWidget {
           color: c.tone(Tone.green).bg,
           borderColor: c.tone(Tone.green).bg,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Tout est à jour 🎉', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: c.tone(Tone.green).fg)),
+            Text(tr.allUpToDate, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: c.tone(Tone.green).fg)),
             const SizedBox(height: 4),
             Text(
-              "Personne à recontacter pour l'instant. Envie de voir quelqu'un quand même ? Ajoutez-le avec le bouton +.",
+              tr.allUpToDateMessage,
               style: TextStyle(color: c.tone(Tone.green).fg.withValues(alpha: 0.85), fontSize: 14.5, height: 1.35),
             ),
           ]),
@@ -160,7 +161,7 @@ class HomeScreen extends ConsumerWidget {
 
       // 8. Birthdays this week
       if (bdaysWeek.isNotEmpty) ...[
-        const SectionTitle('Anniversaires cette semaine'),
+        SectionTitle(tr.birthdaysThisWeek),
         RowsCard(children: [
           for (final (x, b) in bdaysWeek)
             ContactRow(
@@ -169,7 +170,7 @@ class HomeScreen extends ConsumerWidget {
                 Icon(LucideIcons.cake, size: 16, color: c.tone(Tone.pink).text),
                 const SizedBox(width: 4),
                 Text(
-                  '${b.days == 1 ? 'demain' : 'dans ${b.days} jours'}${b.showAge ? ' · ${b.age} ans' : ''}',
+                  '${tr.inNDays(b.days)}${b.showAge ? ' · ${tr.nYearsOld(b.age)}' : ''}',
                   style: TextStyle(color: c.tone(Tone.pink).text, fontWeight: FontWeight.w600, fontSize: 13.5),
                 ),
               ]),
@@ -178,7 +179,7 @@ class HomeScreen extends ConsumerWidget {
       ],
 
       // 9. Next rendezvous
-      const SectionTitle('Prochains rendez-vous'),
+      SectionTitle(tr.nextRdvs),
       if (planned.hasError && !planned.hasValue)
         ErrorCard(error: planned.error!, onRetry: () => ref.invalidate(plannedRdvProvider))
       else if (!planned.hasValue)
@@ -186,12 +187,12 @@ class HomeScreen extends ConsumerWidget {
       else if (upcoming.isEmpty)
         AppCard(
           child: Column(children: [
-            Text('Aucun rendez-vous prévu', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.text)),
+            Text(tr.noRdvPlanned, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.text)),
             const SizedBox(height: 4),
-            Text("Planifiez un moment avec quelqu'un que vous voulez revoir.",
+            Text(tr.noRdvPlannedMessage,
                 textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
             const SizedBox(height: 12),
-            AppButton('Planifier', icon: LucideIcons.calendarPlus, variant: ButtonVariant.secondary, onPressed: () => context.push('/rdv/new')),
+            AppButton(tr.plan, icon: LucideIcons.calendarPlus, variant: ButtonVariant.secondary, onPressed: () => context.push('/rdv/new')),
           ]),
         )
       else ...[
@@ -204,7 +205,7 @@ class HomeScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              '+ ${upcoming.length - _maxUpcoming} autre${upcoming.length - _maxUpcoming > 1 ? 's' : ''} rendez-vous planifié${upcoming.length - _maxUpcoming > 1 ? 's' : ''}',
+              tr.moreRdvs(upcoming.length - _maxUpcoming),
               textAlign: TextAlign.center,
               style: TextStyle(color: c.textMuted, fontSize: 14),
             ),
@@ -222,11 +223,11 @@ class _Welcome extends StatelessWidget {
         child: AppCard(
           child: EmptyState(
             icon: LucideIcons.heartHandshake,
-            title: 'Bienvenue sur SeeU',
+            title: tr.welcomeTitle,
             message:
-                "Ajoutez les personnes que vous voulez revoir régulièrement, choisissez une fréquence, et laissez l'app vous rappeler quand il est temps de les recontacter.",
+                tr.welcomeMessage,
             actions: [
-              AppButton('Ajouter mon premier contact',
+              AppButton(tr.addFirstContact,
                   icon: LucideIcons.userPlus, size: ButtonSize.lg, onPressed: () => context.push('/contacts/new')),
             ],
           ),
@@ -280,10 +281,10 @@ class _BirthdayCard extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text("🎂 C'est l'anniversaire de ${contact.name} !",
+                Text(tr.birthdayOf(contact.name),
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: pink.fg)),
                 const SizedBox(height: 2),
-                Text('${b.showAge ? "${b.age} ans aujourd'hui · " : ''}Pensez à lui souhaiter.',
+                Text('${b.showAge ? '${tr.turnsToday(b.age)} ' : ''}${tr.wishThem}',
                     style: TextStyle(color: pink.fg.withValues(alpha: 0.85), fontSize: 14)),
               ]),
             ),
@@ -293,7 +294,7 @@ class _BirthdayCard extends StatelessWidget {
         Row(children: [
           if (contact.phone != null) ...[
             Expanded(
-              child: AppButton('Envoyer un message',
+              child: AppButton(tr.sendMessage,
                   icon: LucideIcons.messageCircle,
                   size: ButtonSize.sm,
                   variant: ButtonVariant.secondary,
@@ -303,7 +304,7 @@ class _BirthdayCard extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           Expanded(
-            child: AppButton('Planifier',
+            child: AppButton(tr.plan,
                 icon: LucideIcons.calendarPlus,
                 size: ButtonSize.sm,
                 variant: ButtonVariant.secondary,
@@ -330,12 +331,12 @@ class _DueRow extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
         child: Row(children: [
           Expanded(
-            child: AppButton('Planifier',
+            child: AppButton(tr.plan,
                 icon: LucideIcons.calendarPlus, size: ButtonSize.sm, full: true, onPressed: () => context.push('/rdv/new?contact=${contact.id}')),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: AppButton('Vu',
+            child: AppButton(tr.seen,
                 icon: LucideIcons.check,
                 size: ButtonSize.sm,
                 variant: ButtonVariant.secondary,
@@ -345,13 +346,13 @@ class _DueRow extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(
             child: marked
-                ? AppButton('Retirer', icon: LucideIcons.starOff, size: ButtonSize.sm, variant: ButtonVariant.secondary, full: true,
+                ? AppButton(tr.remove, icon: LucideIcons.starOff, size: ButtonSize.sm, variant: ButtonVariant.secondary, full: true,
                     onPressed: () async {
                     final ok = await guard(() => ref.read(apiProvider).setSeeSoon(contact.id, false),
-                        success: '${contact.name} retiré(e) de la liste');
+                        success: tr.removedFromList(contact.name));
                     if (ok != null) refreshData(ref);
                   })
-                : AppButton('Reporter',
+                : AppButton(tr.snooze,
                     icon: LucideIcons.clock,
                     size: ButtonSize.sm,
                     variant: ButtonVariant.secondary,

@@ -1,0 +1,46 @@
+# Contacts list & quick sheets
+nowFriendsWith | Vous êtes maintenant amis avec {name} | You're now friends with {name}
+requestDeclined | Demande refusée | Request declined
+requestCancelled | Demande annulée | Request cancelled
+contactsTitle | Contacts | Contacts
+importContacts | Importer des contacts | Import contacts
+friendsWithoutCard | Amis SeeU sans fiche | SeeU friends without a contact card
+tryAnotherSearch | Essayez une autre recherche. | Try another search.
+groupOverdue | En retard | Overdue
+groupThisWeek | Cette semaine | This week
+groupUpToDate | À jour | Up to date
+addSeeuFriend | Ami SeeU | SeeU friend
+addContact | Contact | Contact
+rdvInvitations | Invitations à un rendez-vous | Event invitations
+friendRequestsReceived | Demandes d'ami reçues | Friend requests received
+sentYouARequest | Vous a envoyé une demande | Sent you a request
+friendRequestsSent | Demandes d'ami envoyées | Friend requests sent
+waitingForAnswer | En attente de sa réponse | Waiting for their answer
+noContactsTitle | Aucun contact pour l'instant | No contacts yet
+noContactsMessage | Ajoutez les personnes que vous voulez revoir régulièrement. Celles qui sont sur SeeU peuvent devenir vos amis : rendez-vous et photos partagés. | Add the people you want to see regularly. Those on SeeU can become your friends: shared events and photos.
+importFromPhone | Importer depuis le téléphone | Import from phone
+contactsSearchHint | Rechercher (nom, catégorie, notes, @ami) | Search (name, category, notes, @friend)
+nContacts | {n, plural, =0{0 contact} =1{1 contact} other{{n} contacts}} | {n, plural, =1{1 contact} other{{n} contacts}}
+nFriends | {n, plural, =0{0 ami} =1{1 ami} other{{n} amis}} | {n, plural, =1{1 friend} other{{n} friends}}
+nOverdue | {n} en retard | {n} overdue
+sortDue | Échéance | Due date
+sortName | Nom | Name
+notInContactsYet | pas encore dans vos contacts | not in your contacts yet
+markSeenTitle | Vu {name} | Saw {name}
+snoozeTitle | Reporter {name} | Snooze {name}
+seeSoonTitle | À voir bientôt | See soon
+seeSoonSub | Choisissez quelqu'un à revoir sans attendre la fin de sa période. Il restera en tête de liste jusqu'à votre prochaine rencontre. | Pick someone to see without waiting for the end of their period. They'll stay at the top of the list until you meet.
+meetingSaved | Rencontre avec {name} enregistrée | Meetup with {name} saved
+whenDidYouSee | Quand l'avez-vous vu(e) ? | When did you see them?
+noteOptional | Une note (facultatif) | A note (optional)
+noteHint | Un souvenir, un détail à retenir… | A memory, a detail to remember…
+markSeenHelp | La date de dernière rencontre et la prochaine échéance seront mises à jour automatiquement. La rencontre apparaîtra dans l'historique. | The last meetup date and the next due date will update automatically. The meetup will show up in the history.
+saveMeeting | Enregistrer la rencontre | Save the meetup
+snoozedUntil | Rappel reporté au {date} | Reminder snoozed until {date}
+remindMeIn | Me le rappeler plus tard, dans : | Remind me later, in:
+orOnDate | Ou à une date précise | Or on a specific date
+snooze | Reporter | Snooze
+addedToSeeSoon | {name} ajouté(e) à la liste « à voir bientôt » | {name} added to the “see soon” list
+searchContact | Rechercher un contact… | Search a contact…
+allAlreadyInList | Tous vos contacts sont déjà dans la liste. | All your contacts are already in the list.
+noMatchingContact | Aucun contact ne correspond. | No matching contact.

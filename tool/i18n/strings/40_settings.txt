@@ -1,0 +1,65 @@
+# Settings
+kindDueDigest | Contacts à recontacter | Contacts to catch up with
+kindBirthday | Anniversaire | Birthday
+kindRdvReminder | Rappel de rendez-vous | Event reminder
+kindRdvFollowup | Suivi de rendez-vous | Event follow-up
+kindFriendRequest | Demande d'ami | Friend request
+kindFriendAccept | Ami accepté | Friend accepted
+kindRdvInvite | Invitation à un rendez-vous | Event invitation
+kindRdvResponse | Réponse à une invitation | Invitation answer
+kindRdvChange | Rendez-vous partagé modifié | Shared event changed
+kindWave | Envie de se voir | Let's meet
+kindTest | Test | Test
+privacyFooter | SeeU · Vos données restent privées : seuls les rendez-vous que vous envoyez à un ami sont partagés avec lui. | SeeU · Your data stays private: only the events you send to a friend are shared with them.
+profileUpdated | Profil mis à jour | Profile updated
+profile | Profil | Profile
+yourFirstName | Votre prénom | Your first name
+birthDateFriendsHint | Visible par vos amis SeeU uniquement : leur fiche à votre nom se remplit toute seule. | Only visible to your SeeU friends: their contact card for you fills itself in.
+shareMyHandle | Partager mon @ | Share my @
+emailNeverShown | Jamais affiché aux autres utilisateurs avant qu'ils soient vos amis | Never shown to other users before they're your friends
+timezone | Fuseau horaire | Time zone
+timezoneHint | Détecté automatiquement, utilisé pour l'heure des rappels | Detected automatically, used for reminder times
+pushDisabledDevice | Notifications désactivées sur cet appareil | Notifications turned off on this device
+pushEnabledDevice | Notifications activées sur cet appareil | Notifications turned on on this device
+pushPermissionDenied | Permission refusée : autorisez les notifications dans les réglages de l'appareil. | Permission denied: allow notifications in the device settings.
+testSent | Notification de test envoyée | Test notification sent
+pushUnsupported | Notifications push indisponibles sur cette version ; les rappels partiront par email. | Push notifications aren't available on this version; reminders will go by email.
+pushBlockedSettings | Notifications bloquées : autorisez-les dans les réglages du téléphone. | Notifications blocked: allow them in your phone settings.
+pushOnDevice | Activées sur cet appareil | On for this device
+disable | Désactiver | Turn off
+pushOffDevice | Non activées sur cet appareil | Off on this device
+notifications | Notifications | Notifications
+pushReminders | Rappels push | Push reminders
+pushRemindersSub | Sur tous les appareils où vous les avez activées | On every device where you turned them on
+emailReminders | Rappels par email | Email reminders
+emailRemindersSub | Utilisés si aucun appareil n'a les notifications push activées | Used when no device has push notifications on
+dailyHour | Heure du rappel quotidien | Daily reminder time
+dailyHourHint | Un seul récapitulatif par jour des contacts à recontacter | A single daily summary of contacts to catch up with
+notifyLead | Prévenir | Notify
+leadSameDay | Le jour de l'échéance | On the due date
+leadDays | {n, plural, =1{1 jour avant} other{{n} jours avant}} | {n, plural, =1{1 day before} other{{n} days before}}
+leadWeeks | {n, plural, =1{1 semaine avant} other{{n} semaines avant}} | {n, plural, =1{1 week before} other{{n} weeks before}}
+rdvReminderLead | Rappel avant un rendez-vous | Reminder before an event
+leadMinutes | {n} minutes avant | {n} minutes before
+leadHours | {n, plural, =1{1 heure avant} other{{n} heures avant}} | {n, plural, =1{1 hour before} other{{n} hours before}}
+leadEve | La veille (24 h avant) | The day before (24 h)
+sendTestNotification | Envoyer une notification de test | Send a test notification
+lastNotifications | Dernières notifications | Latest notifications
+noNotificationsYet | Aucune notification envoyée pour l'instant. | No notifications sent yet.
+channelNone | aucun | none
+application | Application | App
+version | Version | Version
+exportSubject | Export SeeU | SeeU export
+data | Données | Data
+importFromPhoneLong | Importer des contacts du téléphone | Import contacts from the phone
+importFromPhoneSub | Depuis le carnet d'adresses, avec revue contact par contact. | From your address book, reviewing each contact.
+exportData | Exporter mes données | Export my data
+exportDataSub | Profil, contacts, rendez-vous et liste des photos. | Profile, contacts, events and the list of photos.
+deleteAccountTitle | Supprimer définitivement votre compte ? | Permanently delete your account?
+deleteAccountMessage | Tous vos contacts, rendez-vous et photos seront effacés. Cette action est irréversible. | All your contacts, events and photos will be erased. This can't be undone.
+deleteMyAccount | Supprimer mon compte | Delete my account
+accountDeleted | Compte supprimé | Account deleted
+account | Compte | Account
+changePassword | Changer le mot de passe | Change password
+passwordsNoMatch | Les deux mots de passe ne correspondent pas. | The passwords don't match.
+confirm | Confirmer | Confirm

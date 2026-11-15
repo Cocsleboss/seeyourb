@@ -1,0 +1,32 @@
+# Contact import
+importReadFailed | Impossible de lire vos contacts sur cet appareil. | Can't read your contacts on this device.
+importAllThere | Tous ces contacts sont déjà dans SeeU. | All these contacts are already in SeeU.
+importRestTitle | {n, plural, =1{Le dernier restant d'un coup} other{Les {n} restants d'un coup}} | {n, plural, =1{The last one at once} other{The remaining {n} at once}}
+importRestFreq | Fréquence {freq} | Frequency {freq}
+importRestCats | catégories {cats} | categories {cats}
+importRestLast | dernière rencontre le {date} | last meetup on {date}
+addAll | Tout ajouter | Add all
+ignoreAllFinish | Tout ignorer et terminer | Skip all and finish
+nImported | {n, plural, =1{1 contact importé} other{{n} contacts importés}} | {n, plural, =1{1 contact imported} other{{n} contacts imported}}
+stepOf | Étape {n} sur 3 | Step {n} of 3
+chooseContacts | Choisissez des contacts | Choose contacts
+continueN | Continuer ({n}) | Continue ({n})
+ignore | Ignorer | Skip
+importN | {n, plural, =1{Importer 1 contact} other{Importer {n} contacts}} | {n, plural, =1{Import 1 contact} other{Import {n} contacts}}
+reviewSelection | Revoir la sélection | Review the selection
+fromAddressBook | Depuis votre carnet d'adresses | From your address book
+fromAddressBookHelp | Choisissez les personnes à suivre dans SeeU. Vous réglerez ensuite la fréquence de chacune. Rien n'est enregistré avant la confirmation finale. | Choose the people to follow in SeeU. You'll then set how often for each. Nothing is saved before the final confirmation.
+accessMyContacts | Accéder à mes contacts | Access my contacts
+contactsAccessDenied | SeeU n'a pas accès à vos contacts. Autorisez-le dans les réglages du téléphone, puis réessayez. | SeeU can't access your contacts. Allow it in your phone settings, then try again.
+searchEllipsis | Rechercher… | Search…
+nChosen | {n, plural, =0{0 choisi} =1{1 choisi} other{{n} choisis}} | {n} selected
+deselectAll | Tout désélectionner | Deselect all
+selectAll | Tout sélectionner | Select all
+contactNofM | Contact {n} sur {nTotal} | Contact {n} of {nTotal}
+duplicatesSkipped | {n, plural, =1{1 déjà présent écarté} other{{n} déjà présents écartés}} | {n, plural, =1{1 already there, skipped} other{{n} already there, skipped}}
+optional | Facultatif | Optional
+restAtOnce | {n, plural, =1{Le dernier restant d'un coup…} other{Les {n} restants d'un coup…}} | {n, plural, =1{The last one at once…} other{The remaining {n} at once…}}
+noneKept | Aucun contact retenu. | No contact kept.
+nKept | {n, plural, =1{1 contact retenu} other{{n} contacts retenus}} | {n, plural, =1{1 contact kept} other{{n} contacts kept}}
+nIgnored | {n, plural, =1{1 ignoré} other{{n} ignorés}} | {n} skipped
+removeName | Retirer {name} | Remove {name}

@@ -7,6 +7,7 @@ import '../domain/models.dart';
 import '../domain/text.dart';
 import 'forms.dart';
 import 'kit.dart';
+import '../core/i18n.dart';
 
 /// 7 presets + "Personnalisée" (a number and a unit).
 class FrequencyPicker extends StatefulWidget {
@@ -51,7 +52,7 @@ class _FrequencyPickerState extends State<FrequencyPicker> {
             _number.text = '${f.value}';
             widget.onChanged(f.value, f.unit);
           }),
-        AppChip('Personnalisée', selected: _custom, onTap: () => setState(() => _custom = true)),
+        AppChip(tr.freqCustom, selected: _custom, onTap: () => setState(() => _custom = true)),
       ]),
       if (_custom) ...[
         const SizedBox(height: 10),
@@ -128,7 +129,7 @@ class _CategoryPickerState extends State<CategoryPicker> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       ChipWrap(children: [
         for (final c in options) AppChip(c, selected: _has(c), onTap: () => _toggle(c)),
-        AppChip('Autre…', icon: LucideIcons.plus, selected: _adding, onTap: () => setState(() => _adding = !_adding)),
+        AppChip(tr.categoryOther, icon: LucideIcons.plus, selected: _adding, onTap: () => setState(() => _adding = !_adding)),
       ]),
       if (_adding) ...[
         const SizedBox(height: 10),
@@ -136,7 +137,7 @@ class _CategoryPickerState extends State<CategoryPicker> {
           Expanded(
             child: AppTextField(
               controller: _custom,
-              hint: 'Ex. Voisins, Sport…',
+              hint: tr.categoryHint,
               maxLength: 40,
               autofocus: true,
               textInputAction: TextInputAction.done,
@@ -144,7 +145,7 @@ class _CategoryPickerState extends State<CategoryPicker> {
             ),
           ),
           const SizedBox(width: 8),
-          AppButton('Ajouter', size: ButtonSize.sm, onPressed: _addCustom),
+          AppButton(tr.add, size: ButtonSize.sm, onPressed: _addCustom),
         ]),
       ],
     ]);

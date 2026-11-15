@@ -1,0 +1,64 @@
+# Event detail & form
+backToHome | Retour à l'accueil | Back to home
+rdvGeneric | Rendez-vous | Event
+deleteRdvTitle | Supprimer ce rendez-vous ? | Delete this event?
+deleteRdvShared | Il sera supprimé chez vous uniquement (vos amis gardent le leur), et vos photos disparaîtront de la galerie commune. Cette action est définitive. | It will only be deleted for you (your friends keep theirs), and your photos will disappear from the shared gallery. This can't be undone.
+deleteRdvPrivate | Les photos associées seront supprimées. Cette action est définitive. | Its photos will be deleted. This can't be undone.
+rdvDeleted | Rendez-vous supprimé | Event deleted
+didItHappen | Ce rendez-vous a-t-il eu lieu ? | Did this event happen?
+sharedRdvInfo | Rendez-vous partagé : date, lieu, titre et statut sont les mêmes pour tous. Vos notes restent privées. | Shared event: date, place, title and status are the same for everyone. Your notes stay private.
+participants | Participants | Participants
+noParticipants | Aucun participant. | No participants.
+addToCalendar | Ajouter au calendrier | Add to calendar
+sharedPhotos | Photos partagées | Shared photos
+photos | Photos | Photos
+photosEmptyShared | Ajoutez des photos de ce moment : tous les participants les verront. | Add photos of this moment: every participant will see them.
+photosEmptyPrivate | Ajoutez des photos de ce moment. | Add photos of this moment.
+deleteRdv | Supprimer le rendez-vous | Delete event
+invitedByFriend | Invitation d'un ami SeeU | Invitation from a SeeU friend
+proposedBy | {name} vous a proposé ce rendez-vous | {name} invited you to this event
+rsvpPendingHelp | À confirmer : il est dans votre agenda, mais votre ami ne sait pas encore si vous venez. | Maybe: it's in your agenda, but your friend doesn't know yet whether you're coming.
+rsvpAcceptedHelp | Vous avez accepté. Une fois validé, votre période avec ce contact repart de zéro. | You accepted. Once confirmed, your period with this contact starts over.
+rsvpDeclinedHelp | Vous avez refusé : il n'apparaît plus dans vos listes. | You declined: it no longer shows in your lists.
+sharing | Partage | Sharing
+sharingHelp | Si votre ami accepte, vous avez tous les deux le rendez-vous. Une fois validé, chacun voit sa période repartir de zéro, et les photos sont communes. | If your friend accepts, you both have the event. Once confirmed, each of your periods starts over, and photos are shared.
+proposedThisRdv | Vous a proposé ce rendez-vous | Invited you to this event
+friendNotInvited | Ami SeeU · pas encore invité | SeeU friend · not invited yet
+send | Envoyer | Send
+invitationSentTo | Invitation envoyée à {name} | Invitation sent to {name}
+invitationPending | Invitation envoyée · en attente | Invitation sent · pending
+invitationCancelled | Invitation annulée | Invitation cancelled
+acceptedShared | A accepté · rendez-vous partagé | Accepted · shared event
+declinedInvitation | A décliné l'invitation | Declined the invitation
+resend | Renvoyer | Resend
+editRdv | Modifier le rendez-vous | Edit event
+chooseOneContact | Choisissez au moins un contact. | Choose at least one contact.
+rdvUpdated | Rendez-vous mis à jour | Event updated
+meetingRecorded | Rencontre enregistrée | Meetup saved
+rdvPlanned | Rendez-vous planifié | Event planned
+inviteSendFailed | Une invitation n'a pas pu être envoyée : réessayez depuis le rendez-vous. | An invitation couldn't be sent: try again from the event.
+invitationsSentN | Invitations envoyées à {n} amis | Invitations sent to {n} friends
+titleExample | Ex. Déjeuner, café, visio… | E.g. Lunch, coffee, video call…
+saveChanges | Enregistrer les modifications | Save changes
+planTheRdv | Planifier le rendez-vous | Plan the event
+createContactFirst | Créez d'abord un contact pour pouvoir planifier un rendez-vous. | Create a contact first to plan an event.
+createAContact | Créer un contact | Create a contact
+date | Date | Date
+time | Heure | Time
+titleOptional | Titre (facultatif) | Title (optional)
+placeOptional | Lieu (facultatif) | Place (optional)
+placeHint | Café, adresse, visio… | Café, address, video call…
+notesOptional | Notes (facultatif) | Notes (optional)
+notesPrivateHint | Toujours privées, même si le rendez-vous est partagé. | Always private, even if the event is shared.
+notesRdvHint | Idées de sujets, à ne pas oublier… | Topics, things not to forget…
+status | Statut | Status
+statusHintDone | La date de dernière rencontre des participants sera mise à jour. | The participants' last meetup date will be updated.
+statusHintCancelled | Il reste dans l'historique comme annulé. | It stays in the history as cancelled.
+statusHintPlanned | Vous recevrez un rappel avant, puis pourrez le valider. | You'll get a reminder before, then you can confirm it.
+alreadyHappened | Ce rendez-vous a déjà eu lieu | This event already happened
+alreadyHappenedHelp | Cochez pour noter une rencontre passée : elle va directement dans l'historique et remet le compteur des participants à zéro. | Check to record a past meetup: it goes straight to the history and resets the participants' counter.
+sendTo | Envoyer à {names} | Send to {names}
+shareOffHelp | Le rendez-vous reste uniquement chez vous. Vous pourrez l'envoyer plus tard depuis sa fiche. | The event stays with you only. You can send it later from its page.
+shareDoneHelp | Votre ami recevra cette rencontre : s'il l'accepte, sa période est remise à zéro et vous partagez les photos. | Your friend will receive this meetup: if they accept, their period resets and you share photos.
+sharePlannedHelp | Votre ami reçoit une invitation : s'il accepte, vous avez tous les deux le rendez-vous et une galerie de photos commune. Vos notes restent privées. | Your friend gets an invitation: if they accept, you both have the event and a shared photo gallery. Your notes stay private.
+photosAfterSave | Vous pourrez ajouter des photos une fois le rendez-vous enregistré. | You can add photos once the event is saved.

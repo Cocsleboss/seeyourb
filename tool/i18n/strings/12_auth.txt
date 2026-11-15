@@ -1,0 +1,50 @@
+# Auth & language
+languageTitle | Langue | Language
+languageSystem | Langue du téléphone | Phone language
+tagline | Ne plus oublier les personnes qu'on aimerait revoir. | Never lose touch with the people you want to see again.
+configMissing | Configuration manquante : lancez l'app avec --dart-define-from-file=config/env.json (SUPABASE_URL et SUPABASE_PUBLISHABLE_KEY). | Missing configuration: run the app with --dart-define-from-file=config/env.json (SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY).
+errAccountExists | Un compte existe déjà avec cet email. Connectez-vous ou utilisez « Mot de passe oublié ». | An account already exists with this email. Sign in or use “Forgot password”.
+checkMailboxTitle | Vérifiez votre boîte mail | Check your inbox
+checkMailboxText | Un lien de confirmation a été envoyé à {email}. Ouvrez-le pour activer votre compte (pensez aux spams). | A confirmation link was sent to {email}. Open it to activate your account (check your spam folder).
+magicSentTitle | Lien envoyé | Link sent
+magicSentText | Ouvrez le lien reçu à {email} pour vous connecter (pensez aux spams). | Open the link sent to {email} to sign in (check your spam folder).
+resetSentTitle | Email envoyé | Email sent
+resetSentText | Si un compte existe pour {email}, vous recevrez un lien pour choisir un nouveau mot de passe. | If an account exists for {email}, you'll receive a link to choose a new password.
+loginTab | Connexion | Sign in
+signupTab | Inscription | Sign up
+magicLink | Lien magique | Magic link
+forgotPassword | Mot de passe oublié | Forgot password
+magicLinkHelp | Recevez un lien de connexion par email, sans mot de passe. | Get a sign-in link by email, no password needed.
+forgotHelp | Indiquez votre email : vous recevrez un lien pour choisir un nouveau mot de passe. | Enter your email: you'll receive a link to choose a new password.
+firstNameLabel | Prénom (nom affiché) | First name (display name)
+nameExample | Ex. Andrea | E.g. Andrea
+emailLabel | Email | Email
+emailHint | vous@exemple.com | you@example.com
+passwordLabel | Mot de passe | Password
+passwordMin | 6 caractères minimum | At least 6 characters
+hidePassword | Masquer le mot de passe | Hide password
+showPassword | Afficher le mot de passe | Show password
+signIn | Se connecter | Sign in
+createAccount | Créer mon compte | Create my account
+getLink | Recevoir le lien | Get the link
+sendLink | Envoyer le lien | Send the link
+forgotPasswordQ | Mot de passe oublié ? | Forgot password?
+getMagicLink | Recevoir un lien magique par email | Get a magic link by email
+completeProfileTitle | Complétez votre profil | Complete your profile
+completeProfileSub | Vos amis vous retrouveront grâce à votre nom d'utilisateur. | Your friends will find you with your username.
+displayName | Nom affiché | Display name
+displayNameHint | C'est ce que voient vos amis. | This is what your friends see.
+birthDate | Date de naissance | Date of birth
+birthDateHint | Facultative. Visible par vos amis uniquement. | Optional. Only visible to your friends.
+continueLabel | Continuer | Continue
+signedInAs | Connecté avec {email} | Signed in as {email}
+passwordUpdated | Mot de passe mis à jour | Password updated
+newPassword | Nouveau mot de passe | New password
+backToLogin | Retour à la connexion | Back to sign in
+confirmPassword | Confirmez le mot de passe | Confirm the password
+passwordsDiffer | Les deux mots de passe sont différents. | The passwords don't match.
+save | Enregistrer | Save
+usernameLabel | Nom d'utilisateur | Username
+usernameAvailable | @{username} est disponible | @{username} is available
+usernameCheckFailed | Vérification impossible pour le moment. | Can't check right now.
+usernamePlaceholder | nom.utilisateur | user.name

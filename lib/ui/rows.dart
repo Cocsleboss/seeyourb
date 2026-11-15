@@ -6,9 +6,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../core/theme.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
-import '../domain/text.dart';
 import 'kit.dart';
 import '../features/rdv/rsvp.dart';
+import '../core/i18n.dart';
 
 class ContactRow extends StatelessWidget {
   const ContactRow({super.key, required this.contact, this.onTap, this.trailing, this.showBadge = true, this.friend});
@@ -38,7 +38,7 @@ class ContactRow extends StatelessWidget {
               Text(
                 [
                   if (friend?.username != null) '@${friend!.username}',
-                  contact.lastMeetingDate == null ? 'Pas encore vu' : 'Vu le ${formatDate(contact.lastMeetingDate!)}',
+                  contact.lastMeetingDate == null ? tr.notSeenYet : tr.seenOn(formatDate(contact.lastMeetingDate!)),
                   frequencyLabel(contact.frequencyValue, contact.frequencyUnit),
                 ].join(' · '),
                 maxLines: 1,
@@ -51,7 +51,7 @@ class ContactRow extends StatelessWidget {
           if (trailing != null)
             trailing!
           else if (showBadge)
-            contact.seeSoon ? const Pill('★ Bientôt', tone: Tone.violet) : DueBadge(contact, short: true),
+            contact.seeSoon ? Pill(tr.soonPill, tone: Tone.violet) : DueBadge(contact, short: true),
         ]),
       ),
     );
@@ -73,7 +73,7 @@ class FriendAvatar extends StatelessWidget {
     final c = context.colors;
     final badge = size * 0.42;
     return Tooltip(
-      message: 'Ami SeeU',
+      message: tr.seeuFriend,
       child: SizedBox(
         width: size,
         height: size,
@@ -189,4 +189,3 @@ class InfoLine extends StatelessWidget {
   }
 }
 
-String countLabel(int n, String singular, [String? pluralForm]) => plural(n, singular, pluralForm);

@@ -9,6 +9,7 @@ import '../../data/providers.dart';
 import '../../domain/models.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import '../../core/i18n.dart';
 
 Tone rsvpTone(Rsvp r) => switch (r) {
       Rsvp.pending => Tone.orange,
@@ -21,9 +22,9 @@ Future<String?> answerInvitation(WidgetRef ref, String inviteId, Rsvp answer) as
   final id = await guard(
     () => ref.read(apiProvider).respondRdvInvite(inviteId, answer),
     success: switch (answer) {
-      Rsvp.accepted => 'Rendez-vous accepté',
-      Rsvp.declined => 'Invitation refusée',
-      Rsvp.pending => 'Marqué « à confirmer »',
+      Rsvp.accepted => tr.rsvpToastAccepted,
+      Rsvp.declined => tr.rsvpToastDeclined,
+      Rsvp.pending => tr.rsvpToastPending,
     },
   );
   refreshData(ref);
@@ -70,7 +71,7 @@ class RsvpSelector extends StatelessWidget {
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
-                      r == Rsvp.declined ? 'Refuser' : (r == Rsvp.accepted ? 'Accepter' : 'À confirmer'),
+                      r == Rsvp.declined ? tr.rsvpDecline : (r == Rsvp.accepted ? tr.rsvpAccept : tr.rsvpMaybe),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

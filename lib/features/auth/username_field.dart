@@ -11,17 +11,18 @@ import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../domain/text.dart';
 import '../../ui/forms.dart';
+import '../../core/i18n.dart';
 
 enum UsernameStatus { idle, invalid, checking, available, taken, error }
 
 class UsernameField extends ConsumerStatefulWidget {
-  const UsernameField({super.key, required this.controller, required this.onStatus, this.current, this.label = "Nom d'utilisateur"});
+  const UsernameField({super.key, required this.controller, required this.onStatus, this.current, this.label});
   final TextEditingController controller;
   final ValueChanged<UsernameStatus> onStatus;
 
   /// The user's own current username (always "available").
   final String? current;
-  final String label;
+  final String? label;
 
   @override
   ConsumerState<UsernameField> createState() => _UsernameFieldState();
@@ -82,17 +83,17 @@ class _UsernameFieldState extends ConsumerState<UsernameField> {
         suffix = const Padding(padding: EdgeInsets.all(14), child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)));
       case UsernameStatus.available:
         suffix = Icon(LucideIcons.circleCheck, color: c.tone(Tone.green).text);
-        hint = value == widget.current ? usernameHint : '@$value est disponible';
+        hint = value == widget.current ? usernameHint : tr.usernameAvailable(value);
       case UsernameStatus.taken:
         suffix = Icon(LucideIcons.circleX, color: c.tone(Tone.red).text);
-        error = "Ce nom d'utilisateur est déjà pris.";
+        error = tr.errUsernameTaken;
       case UsernameStatus.error:
-        hint = 'Vérification impossible pour le moment.';
+        hint = tr.usernameCheckFailed;
       default:
         break;
     }
     return LabeledField(
-      label: widget.label,
+      label: widget.label ?? tr.usernameLabel,
       required: true,
       hint: hint,
       error: error,
@@ -105,7 +106,7 @@ class _UsernameFieldState extends ConsumerState<UsernameField> {
         onChanged: _check,
         style: TextStyle(fontSize: 16, color: c.text),
         decoration: InputDecoration(
-          hintText: 'nom.utilisateur',
+          hintText: tr.usernamePlaceholder,
           prefixIcon: Padding(
             padding: const EdgeInsets.only(left: 14, right: 4),
             child: Text('@', style: TextStyle(fontSize: 16, color: c.textMuted, fontWeight: FontWeight.w600)),

@@ -18,12 +18,13 @@ import '../../domain/text.dart';
 import '../friends/friend_sheets.dart';
 import '../photos/photo_section.dart';
 import 'quick_sheets.dart';
+import '../../core/i18n.dart';
 
 String birthdayLabel(BirthdayInfo b) {
-  final age = b.showAge ? ' (${b.age} ans)' : '';
-  if (b.days == 0) return "C'est son anniversaire aujourd'hui !$age";
-  if (b.days == 1) return 'Anniversaire demain$age';
-  return 'Anniversaire dans ${b.days} jours$age';
+  final age = b.showAge ? ' ${tr.ageSuffix(b.age)}' : '';
+  if (b.days == 0) return '${tr.birthdayToday}$age';
+  if (b.days == 1) return '${tr.birthdayTomorrow}$age';
+  return '${tr.birthdayInDays(b.days)}$age';
 }
 
 class ContactDetailScreen extends ConsumerWidget {
@@ -34,7 +35,7 @@ class ContactDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final value = ref.watch(contactProvider(id));
     if (value.hasValue && value.value == null) {
-      return const MissingItem(title: 'Contact introuvable', backLabel: 'Voir mes contacts', backPath: '/contacts');
+      return MissingItem(title: tr.contactNotFound, backLabel: tr.seeMyContacts, backPath: '/contacts');
     }
     final contact = value.value;
     return AppScaffold(
@@ -44,7 +45,7 @@ class ContactDetailScreen extends ConsumerWidget {
         if (contact != null)
           AppIconButton(
             icon: LucideIcons.pencil,
-            tooltip: 'Modifier',
+            tooltip: tr.edit,
             color: context.colors.brandText,
             onPressed: () => context.push('/contacts/$id/edit'),
           ),
@@ -66,7 +67,7 @@ class _Body extends ConsumerWidget {
   Future<void> _toggleSeeSoon(WidgetRef ref) async {
     final ok = await guard(
       () => ref.read(apiProvider).setSeeSoon(contact.id, !contact.seeSoon),
-      success: contact.seeSoon ? 'Retiré de la liste « à voir bientôt »' : "Ajouté à la liste « à voir bientôt » de l'accueil",
+      success: contact.seeSoon ? tr.removedFromSeeSoon : tr.addedToSeeSoonHome,
     );
     if (ok != null) refreshData(ref);
   }
@@ -74,15 +75,15 @@ class _Body extends ConsumerWidget {
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final ok = await confirmSheet(
       context,
-      title: 'Supprimer ce contact ?',
-      message: 'Ses rendez-vous et photos seront aussi supprimés. Cette action est définitive.',
-      confirmLabel: 'Supprimer',
+      title: tr.deleteContactTitle,
+      message: tr.deleteContactMessage,
+      confirmLabel: tr.delete,
     );
     if (!ok || !context.mounted) return;
     final done = await guard(() async {
       await ref.read(apiProvider).deleteContact(contact);
       return true;
-    }, success: 'Contact supprimé');
+    }, success: tr.contactDeleted);
     if (done == null || !context.mounted) return;
     refreshData(ref);
     context.go('/contacts');
@@ -118,7 +119,7 @@ class _Body extends ConsumerWidget {
         ],
         if (contact.linkedUserId != null) ...[
           const SizedBox(height: 8),
-          const Center(child: Pill('Ami SeeU · rendez-vous et photos partageables', tone: Tone.brand, icon: LucideIcons.users)),
+          Center(child: Pill(tr.friendPill, tone: Tone.brand, icon: LucideIcons.users)),
         ],
         if (bday != null && bday.days <= 30) ...[
           const SizedBox(height: 10),
@@ -135,33 +136,33 @@ class _Body extends ConsumerWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             DueBadge(contact, large: true),
             const SizedBox(height: 12),
-            InfoLine('Dernière rencontre', contact.lastMeetingDate == null ? 'Pas encore notée' : formatDateLong(contact.lastMeetingDate!)),
-            InfoLine('Prochaine échéance', '${formatDateLong(effectiveDueDate(contact))}${snoozed ? ' (reportée)' : ''}'),
-            InfoLine('Fréquence', frequencyLabel(contact.frequencyValue, contact.frequencyUnit)),
+            InfoLine(tr.lastMeeting, contact.lastMeetingDate == null ? tr.notRecordedYet : formatDateLong(contact.lastMeetingDate!)),
+            InfoLine(tr.nextDue, '${formatDateLong(effectiveDueDate(contact))}${snoozed ? ' ${tr.snoozedSuffix}' : ''}'),
+            InfoLine(tr.frequency, frequencyLabel(contact.frequencyValue, contact.frequencyUnit)),
           ]),
         ),
         const SizedBox(height: 16),
 
         // 3. Actions
-        AppButton('Planifier un rendez-vous',
+        AppButton(tr.planRdv,
             icon: LucideIcons.calendarPlus, size: ButtonSize.lg, full: true, onPressed: () => context.push('/rdv/new?contact=${contact.id}')),
         const SizedBox(height: 10),
         Row(children: [
           Expanded(
-            child: AppButton("Vu aujourd'hui",
+            child: AppButton(tr.seenToday,
                 icon: LucideIcons.check, variant: ButtonVariant.secondary, size: ButtonSize.lg, full: true,
                 onPressed: () => showMarkSeenSheet(context, contact)),
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: AppButton('Reporter',
+            child: AppButton(tr.snooze,
                 icon: LucideIcons.clock, variant: ButtonVariant.secondary, size: ButtonSize.lg, full: true,
                 onPressed: () => showSnoozeSheet(context, contact)),
           ),
         ]),
         const SizedBox(height: 10),
         AppButton(
-          contact.seeSoon ? 'Dans « à voir bientôt » · retirer' : 'À voir bientôt',
+          contact.seeSoon ? tr.inSeeSoonRemove : tr.seeSoonTitle,
           icon: contact.seeSoon ? Icons.star_rounded : LucideIcons.star,
           variant: contact.seeSoon ? ButtonVariant.outline : ButtonVariant.secondary,
           size: ButtonSize.lg,
@@ -174,7 +175,7 @@ class _Body extends ConsumerWidget {
 
         // 4. Information
         if (contact.phone != null || contact.email != null || contact.notes != null || contact.birthday != null) ...[
-          const SectionTitle('Informations'),
+          SectionTitle(tr.information),
           AppCard(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (contact.phone != null)
@@ -185,21 +186,21 @@ class _Body extends ConsumerWidget {
                 ),
               if (contact.email != null)
                 _InfoAction(icon: LucideIcons.mail, text: contact.email!, onTap: () => launchUrl(Uri(scheme: 'mailto', path: contact.email))),
-              if (contact.birthday != null) _InfoAction(icon: LucideIcons.cake, text: 'Né(e) le ${formatDateLong(contact.birthday!)}'),
+              if (contact.birthday != null) _InfoAction(icon: LucideIcons.cake, text: tr.bornOn(formatDateLong(contact.birthday!))),
               if (contact.notes != null) _InfoAction(icon: LucideIcons.stickyNote, text: contact.notes!),
             ]),
           ),
         ],
 
         // 5. Rendezvous
-        const SectionTitle('Rendez-vous'),
+        SectionTitle(tr.rdvSection),
         AsyncBody(
           value: rdvs,
           skeletonRows: 2,
           onRetry: () => ref.invalidate(contactRdvsProvider(contact.id)),
           builder: (list) {
             if (list.isEmpty) {
-              return Text("Aucun rendez-vous avec ce contact pour l'instant.", style: TextStyle(color: c.textMuted, fontSize: 14.5));
+              return Text(tr.noRdvWithContact, style: TextStyle(color: c.textMuted, fontSize: 14.5));
             }
             final now = DateTime.now();
             final upcoming = list.where((r) => r.status == RdvStatus.planifie && !r.appointmentAt.isBefore(now)).toList()
@@ -208,12 +209,12 @@ class _Body extends ConsumerWidget {
             final past = list.where((r) => !ids.contains(r.id)).toList();
             return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               if (upcoming.isNotEmpty) ...[
-                const Overline('À venir'),
+                Overline(tr.upcoming),
                 RowsCard(children: [for (final r in upcoming) RdvRow(rdv: r, showStatus: false)]),
                 const SizedBox(height: 12),
               ],
               if (past.isNotEmpty) ...[
-                const Overline('Passés'),
+                Overline(tr.past),
                 RowsCard(children: [for (final r in past) RdvRow(rdv: r)]),
               ],
             ]);
@@ -221,11 +222,11 @@ class _Body extends ConsumerWidget {
         ),
 
         // 6. Gallery
-        PhotoSection(title: 'Galerie', photos: photos, contactId: contact.id),
+        PhotoSection(title: tr.gallery, photos: photos, contactId: contact.id),
 
         // 7. Delete
         const SizedBox(height: 28),
-        AppButton('Supprimer le contact',
+        AppButton(tr.deleteContact,
             icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
       ],
     );
@@ -249,7 +250,7 @@ class _FriendSectionState extends ConsumerState<_FriendSection> {
     if (contact.linkedUserId == null) {
       return Padding(
         padding: const EdgeInsets.only(top: 10),
-        child: AppButton('Associer à un ami SeeU',
+        child: AppButton(tr.linkToFriend,
             icon: LucideIcons.link2,
             variant: ButtonVariant.ghost,
             full: true,
@@ -260,7 +261,7 @@ class _FriendSectionState extends ConsumerState<_FriendSection> {
         .where((f) => f.accepted && f.userId == contact.linkedUserId)
         .firstOrNull;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SectionTitle('Ami SeeU'),
+      SectionTitle(tr.seeuFriend),
       AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
@@ -268,18 +269,18 @@ class _FriendSectionState extends ConsumerState<_FriendSection> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                friend == null ? 'Associé à un compte SeeU' : '${friend.displayName} · ${handle(friend.username)}',
+                friend == null ? tr.linkedToAccount : '${friend.displayName} · ${handle(friend.username)}',
                 style: TextStyle(fontWeight: FontWeight.w600, color: c.text, fontSize: 15.5),
               ),
             ),
           ]),
           const SizedBox(height: 4),
-          Text('Vous pouvez lui envoyer vos rendez-vous et partager les photos.',
+          Text(tr.friendCanShare,
               style: TextStyle(color: c.textMuted, fontSize: 13.5)),
           const SizedBox(height: 12),
           Row(children: [
             Expanded(
-              child: AppButton('Envie de se voir',
+              child: AppButton(tr.wantToMeet,
                   icon: LucideIcons.hand,
                   variant: ButtonVariant.secondary,
                   size: ButtonSize.sm,
@@ -290,13 +291,13 @@ class _FriendSectionState extends ConsumerState<_FriendSection> {
                     await guard(() async {
                       await ref.read(apiProvider).sendWave(contact.linkedUserId!);
                       return true;
-                    }, success: '${contact.name} sait que vous aimeriez vous voir 👋');
+                    }, success: tr.wantToMeetSent(contact.name));
                     if (mounted) setState(() => _waving = false);
                   }),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: AppButton('Gérer',
+              child: AppButton(tr.manage,
                   icon: LucideIcons.settings2,
                   variant: ButtonVariant.secondary,
                   size: ButtonSize.sm,

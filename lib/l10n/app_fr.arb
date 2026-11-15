@@ -1,0 +1,1271 @@
+{
+  "@@locale": "fr",
+  "languageName": "Français",
+  "and": "et",
+  "andOthers": "{n, plural, =1{et 1 autre} other{et {n} autres}}",
+  "@andOthers": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "today": "Aujourd'hui",
+  "tomorrow": "Demain",
+  "yesterday": "Hier",
+  "dayAtTime": "{day} à {time}",
+  "@dayAtTime": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingNight": "Bonne nuit",
+  "greetingMorning": "Bonjour",
+  "greetingAfternoon": "Bon après-midi",
+  "greetingEvening": "Bonsoir",
+  "nDays": "{n, plural, =0{0 jour} =1{1 jour} other{{n} jours}}",
+  "@nDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nWeeks": "{n, plural, =1{1 semaine} other{{n} semaines}}",
+  "@nWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nMonths": "{n, plural, =1{1 mois} other{{n} mois}}",
+  "@nMonths": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nYears": "{n, plural, =1{1 an} other{{n} ans}}",
+  "@nYears": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nYearsHalf": "{n, plural, =1{1 an et demi} other{{n} ans et demi}}",
+  "@nYearsHalf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "shortDays": "{n} j",
+  "@shortDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "shortWeeks": "{n} sem.",
+  "@shortWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "shortMonths": "{n} mois",
+  "@shortMonths": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "shortYears": "{n, plural, =1{1 an} other{{n} ans}}",
+  "@shortYears": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dueOverdue": "En retard de {duration}",
+  "@dueOverdue": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "dueToday": "À revoir aujourd'hui",
+  "dueTodayShort": "Auj.",
+  "dueIn": "À revoir dans {duration}",
+  "@dueIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "everyDays": "{n, plural, =1{tous les jours} other{tous les {n} jours}}",
+  "@everyDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "everyWeeks": "{n, plural, =1{toutes les semaines} other{toutes les {n} semaines}}",
+  "@everyWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "everyMonths": "{n, plural, =1{tous les mois} other{tous les {n} mois}}",
+  "@everyMonths": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "everyYears": "{n, plural, =1{tous les ans} other{tous les {n} ans}}",
+  "@everyYears": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "unitDays": "{n, plural, =1{jour} other{jours}}",
+  "@unitDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "unitWeeks": "{n, plural, =1{semaine} other{semaines}}",
+  "@unitWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "unitMonths": "{n, plural, =1{mois} other{mois}}",
+  "@unitMonths": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "unitYears": "{n, plural, =1{an} other{ans}}",
+  "@unitYears": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "statusPlanned": "Planifié",
+  "statusDone": "A eu lieu",
+  "statusCancelled": "Annulé",
+  "rsvpPending": "À confirmer",
+  "rsvpAccepted": "Accepté",
+  "rsvpDeclined": "Refusé",
+  "withNames": "Avec {names}",
+  "@withNames": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "withNamesMore": "Avec {names} et {n} autres",
+  "@withNamesMore": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "aFriend": "Un ami",
+  "catFamily": "Famille",
+  "catFriends": "Amis",
+  "catWork": "Pro",
+  "catOther": "Autre",
+  "usernameHint": "3 à 20 caractères : lettres minuscules, chiffres, point et tiret bas.",
+  "usernameTooShort": "Au moins {n} caractères.",
+  "@usernameTooShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "usernameBadStart": "Doit commencer par une lettre ou un chiffre.",
+  "errNetwork": "Pas de connexion. Vérifiez votre réseau.",
+  "errGeneric": "Une erreur est survenue.",
+  "errSessionExpired": "Session expirée, reconnectez-vous.",
+  "errForbidden": "Action non autorisée.",
+  "errUsernameTaken": "Ce nom d'utilisateur est déjà pris.",
+  "errUsernameInvalid": "Nom d'utilisateur invalide.",
+  "errFriendAlreadyLinked": "Cet ami est déjà associé à un autre contact.",
+  "errDuplicate": "Cet élément existe déjà.",
+  "errFileTooLarge": "Fichier trop volumineux (10 Mo max).",
+  "errBadCredentials": "Email ou mot de passe incorrect.",
+  "errEmailNotConfirmed": "Confirmez d'abord votre adresse email (lien reçu par mail).",
+  "errEmailTaken": "Un compte existe déjà avec cet email.",
+  "errWeakPassword": "Le mot de passe doit contenir au moins 6 caractères.",
+  "errRateLimit": "Trop de tentatives, réessayez dans quelques minutes.",
+  "errSignupsDisabled": "Les inscriptions sont désactivées.",
+  "errInvalidEmail": "Adresse email invalide.",
+  "errSamePassword": "Choisissez un mot de passe différent de l'ancien.",
+  "errLinkExpired": "Lien invalide ou expiré.",
+  "errNotFriends": "Cette personne ne fait pas partie de vos amis SeeU.",
+  "errNoLongerFriends": "Vous n'êtes plus amis sur SeeU.",
+  "errRdvNotFound": "Rendez-vous introuvable.",
+  "errInviteNotFound": "Invitation introuvable.",
+  "errRdvGone": "Ce rendez-vous n'existe plus.",
+  "errRdvCancelled": "Ce rendez-vous est annulé.",
+  "errWaveAlready": "Vous lui avez déjà fait signe aujourd'hui.",
+  "errAlreadyAnswered": "Vous avez déjà répondu à cette invitation.",
+  "errBadAnswer": "Réponse invalide.",
+  "errRequestNotFound": "Demande introuvable.",
+  "errNotOrganizer": "Seul l'organisateur peut faire cela.",
+  "errPublicNotAllowed": "Vous n'avez pas encore accès aux événements publics.",
+  "errSlotsClosed": "Le choix des créneaux est terminé.",
+  "errSlotsNotAllowed": "Les créneaux multiples ne sont pas disponibles pour un événement public.",
+  "errEventNotVisible": "Cet événement n'est pas accessible.",
+  "errBlocked": "Action impossible avec cette personne.",
+  "errChatReadOnly": "Seul l'organisateur peut publier ici.",
+  "errPhotosOrganizerOnly": "Seul l'organisateur peut ajouter des photos.",
+  "errNotParticipant": "Rejoignez l'événement pour participer.",
+  "errTooManySlots": "10 créneaux maximum.",
+  "errContactsAddedBeforeError": "{n, plural, =1{1 contact ajouté avant l'erreur : {error}} other{{n} contacts ajoutés avant l'erreur : {error}}}",
+  "@errContactsAddedBeforeError": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "errDeleteAccountFailed": "Suppression impossible pour le moment. Réessayez plus tard.",
+  "tabHome": "Accueil",
+  "tabContacts": "Contacts",
+  "tabHistory": "Historique",
+  "tabSettings": "Réglages",
+  "back": "Retour",
+  "retry": "Réessayer",
+  "cancel": "Annuler",
+  "clear": "Effacer",
+  "add": "Ajouter",
+  "pickDate": "Choisir une date",
+  "notSeenYet": "Pas encore vu",
+  "seenOn": "Vu le {date}",
+  "@seenOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "soonPill": "★ Bientôt",
+  "seeuFriend": "Ami SeeU",
+  "freqCustom": "Personnalisée",
+  "categoryOther": "Autre…",
+  "categoryHint": "Ex. Voisins, Sport…",
+  "pushChannelName": "Rappels SeeU",
+  "pushChannelDesc": "Rappels, rendez-vous et activité de vos amis",
+  "quickNewRdv": "Nouveau rendez-vous",
+  "quickNewContact": "Nouveau contact",
+  "historyTitle": "Historique",
+  "historyList": "Liste",
+  "historyMonth": "Mois",
+  "historyEmptyTitle": "Aucune rencontre pour l'instant",
+  "historyEmptyMessage": "Les rendez-vous validés ou annulés apparaîtront ici.",
+  "filterAll": "Tous",
+  "filterDone": "A eu lieu",
+  "filterCancelled": "Annulés",
+  "historySearchHint": "Rechercher (contact, titre, lieu)",
+  "noResults": "Aucun résultat",
+  "historyCounts": "{nMet, plural, =0{0 rencontre} =1{1 rencontre} other{{nMet} rencontres}} · {nCancelled, plural, =0{0 annulé} =1{1 annulé} other{{nCancelled} annulés}}",
+  "@historyCounts": {
+    "placeholders": {
+      "nMet": {
+        "type": "int"
+      },
+      "nCancelled": {
+        "type": "int"
+      }
+    }
+  },
+  "prevMonth": "Mois précédent",
+  "nextMonth": "Mois suivant",
+  "loading": "Chargement…",
+  "calendarNoneThisMonth": "Aucune rencontre ce mois-ci.",
+  "calendarMetInMonth": "{n, plural, =1{1 rencontre en {month}} other{{n} rencontres en {month}}}",
+  "@calendarMetInMonth": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarDayEvents": "{n, plural, =1{1 rendez-vous} other{{n} rendez-vous}}",
+  "@calendarDayEvents": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "dayNoEvents": "Aucun rendez-vous ce jour-là",
+  "dayMetCount": "{n, plural, =0{Aucune rencontre ce jour-là} =1{1 rencontre ce jour-là} other{{n} rencontres ce jour-là}}",
+  "@dayMetCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "rsvpToastAccepted": "Rendez-vous accepté",
+  "rsvpToastDeclined": "Invitation refusée",
+  "rsvpToastPending": "Marqué « à confirmer »",
+  "rsvpDecline": "Refuser",
+  "rsvpAccept": "Accepter",
+  "rsvpMaybe": "À confirmer",
+  "statusFutureTitle": "Ce rendez-vous est prévu plus tard",
+  "statusFutureMessage": "Il est planifié le {when}. Le marquer quand même comme ayant eu lieu ?",
+  "@statusFutureMessage": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "statusFutureConfirm": "Oui, il a eu lieu",
+  "statusToastDone": "Rendez-vous validé",
+  "statusToastDoneReset": "Rendez-vous validé : date de dernière rencontre mise à jour",
+  "statusToastCancelled": "Rendez-vous annulé",
+  "statusToastPlanned": "Rendez-vous remis en planifié",
+  "statusSetPlanned": "Remettre en planifié",
+  "statusSetDone": "A eu lieu",
+  "statusSetCancelled": "Annulé",
+  "inviteSharesMeetup": "{name} partage une rencontre avec vous",
+  "@inviteSharesMeetup": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteProposes": "{name} vous propose un rendez-vous",
+  "@inviteProposes": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteTentativeHint": "Il est déjà dans votre agenda, « à confirmer ». Votre ami n'est prévenu que si vous acceptez ou refusez.",
+  "signOut": "Se déconnecter",
+  "offlineTitle": "Vous êtes hors ligne",
+  "offlineMessage": "SeeU a besoin d'une connexion internet pour fonctionner. Vérifiez votre réseau puis réessayez.",
+  "pageNotFound": "Page introuvable",
+  "pageNotFoundMessage": "Cette page n'existe pas ou plus.",
+  "backHome": "Retour à l'accueil",
+  "maybeDeleted": "Il a peut-être été supprimé.",
+  "photoAdd": "Ajouter une photo",
+  "photoTake": "Prendre une photo",
+  "photoGallery": "Choisir dans la galerie",
+  "photoAccessDenied": "Accès aux photos refusé. Autorisez-le dans les réglages du téléphone.",
+  "photoEmpty": "Ajoutez des photos de vos moments partagés.",
+  "photoDeleteTitle": "Supprimer cette photo ?",
+  "irreversible": "Cette action est définitive.",
+  "delete": "Supprimer",
+  "photoDeleted": "Photo supprimée",
+  "close": "Fermer",
+  "pushEnabledToast": "Notifications activées 🎉",
+  "pushBlockedTitle": "Notifications bloquées",
+  "pushEnableTitle": "Activer les rappels",
+  "pushBlockedMessage": "Autorisez-les dans les réglages de votre téléphone (Notifications → SeeU), ou activez les rappels par email dans les Réglages de l'app.",
+  "pushEnableMessage": "Recevez une notification quand un contact est à recontacter et avant chaque rendez-vous.",
+  "openPhoneSettings": "Ouvrir les réglages",
+  "seeuSettings": "Réglages SeeU",
+  "enable": "Activer",
+  "languageTitle": "Langue",
+  "languageSystem": "Langue du téléphone",
+  "tagline": "Ne plus oublier les personnes qu'on aimerait revoir.",
+  "configMissing": "Configuration manquante : lancez l'app avec --dart-define-from-file=config/env.json (SUPABASE_URL et SUPABASE_PUBLISHABLE_KEY).",
+  "errAccountExists": "Un compte existe déjà avec cet email. Connectez-vous ou utilisez « Mot de passe oublié ».",
+  "checkMailboxTitle": "Vérifiez votre boîte mail",
+  "checkMailboxText": "Un lien de confirmation a été envoyé à {email}. Ouvrez-le pour activer votre compte (pensez aux spams).",
+  "@checkMailboxText": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "magicSentTitle": "Lien envoyé",
+  "magicSentText": "Ouvrez le lien reçu à {email} pour vous connecter (pensez aux spams).",
+  "@magicSentText": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "resetSentTitle": "Email envoyé",
+  "resetSentText": "Si un compte existe pour {email}, vous recevrez un lien pour choisir un nouveau mot de passe.",
+  "@resetSentText": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "loginTab": "Connexion",
+  "signupTab": "Inscription",
+  "magicLink": "Lien magique",
+  "forgotPassword": "Mot de passe oublié",
+  "magicLinkHelp": "Recevez un lien de connexion par email, sans mot de passe.",
+  "forgotHelp": "Indiquez votre email : vous recevrez un lien pour choisir un nouveau mot de passe.",
+  "firstNameLabel": "Prénom (nom affiché)",
+  "nameExample": "Ex. Andrea",
+  "emailLabel": "Email",
+  "emailHint": "vous@exemple.com",
+  "passwordLabel": "Mot de passe",
+  "passwordMin": "6 caractères minimum",
+  "hidePassword": "Masquer le mot de passe",
+  "showPassword": "Afficher le mot de passe",
+  "signIn": "Se connecter",
+  "createAccount": "Créer mon compte",
+  "getLink": "Recevoir le lien",
+  "sendLink": "Envoyer le lien",
+  "forgotPasswordQ": "Mot de passe oublié ?",
+  "getMagicLink": "Recevoir un lien magique par email",
+  "completeProfileTitle": "Complétez votre profil",
+  "completeProfileSub": "Vos amis vous retrouveront grâce à votre nom d'utilisateur.",
+  "displayName": "Nom affiché",
+  "displayNameHint": "C'est ce que voient vos amis.",
+  "birthDate": "Date de naissance",
+  "birthDateHint": "Facultative. Visible par vos amis uniquement.",
+  "continueLabel": "Continuer",
+  "signedInAs": "Connecté avec {email}",
+  "@signedInAs": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordUpdated": "Mot de passe mis à jour",
+  "newPassword": "Nouveau mot de passe",
+  "backToLogin": "Retour à la connexion",
+  "confirmPassword": "Confirmez le mot de passe",
+  "passwordsDiffer": "Les deux mots de passe sont différents.",
+  "save": "Enregistrer",
+  "usernameLabel": "Nom d'utilisateur",
+  "usernameAvailable": "@{username} est disponible",
+  "@usernameAvailable": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "usernameCheckFailed": "Vérification impossible pour le moment.",
+  "usernamePlaceholder": "nom.utilisateur",
+  "nowFriendsWith": "Vous êtes maintenant amis avec {name}",
+  "@nowFriendsWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "requestDeclined": "Demande refusée",
+  "requestCancelled": "Demande annulée",
+  "contactsTitle": "Contacts",
+  "importContacts": "Importer des contacts",
+  "friendsWithoutCard": "Amis SeeU sans fiche",
+  "tryAnotherSearch": "Essayez une autre recherche.",
+  "groupOverdue": "En retard",
+  "groupThisWeek": "Cette semaine",
+  "groupUpToDate": "À jour",
+  "addSeeuFriend": "Ami SeeU",
+  "addContact": "Contact",
+  "rdvInvitations": "Invitations à un rendez-vous",
+  "friendRequestsReceived": "Demandes d'ami reçues",
+  "sentYouARequest": "Vous a envoyé une demande",
+  "friendRequestsSent": "Demandes d'ami envoyées",
+  "waitingForAnswer": "En attente de sa réponse",
+  "noContactsTitle": "Aucun contact pour l'instant",
+  "noContactsMessage": "Ajoutez les personnes que vous voulez revoir régulièrement. Celles qui sont sur SeeU peuvent devenir vos amis : rendez-vous et photos partagés.",
+  "importFromPhone": "Importer depuis le téléphone",
+  "contactsSearchHint": "Rechercher (nom, catégorie, notes, @ami)",
+  "nContacts": "{n, plural, =0{0 contact} =1{1 contact} other{{n} contacts}}",
+  "@nContacts": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nFriends": "{n, plural, =0{0 ami} =1{1 ami} other{{n} amis}}",
+  "@nFriends": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nOverdue": "{n} en retard",
+  "@nOverdue": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sortDue": "Échéance",
+  "sortName": "Nom",
+  "notInContactsYet": "pas encore dans vos contacts",
+  "markSeenTitle": "Vu {name}",
+  "@markSeenTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "snoozeTitle": "Reporter {name}",
+  "@snoozeTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "seeSoonTitle": "À voir bientôt",
+  "seeSoonSub": "Choisissez quelqu'un à revoir sans attendre la fin de sa période. Il restera en tête de liste jusqu'à votre prochaine rencontre.",
+  "meetingSaved": "Rencontre avec {name} enregistrée",
+  "@meetingSaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "whenDidYouSee": "Quand l'avez-vous vu(e) ?",
+  "noteOptional": "Une note (facultatif)",
+  "noteHint": "Un souvenir, un détail à retenir…",
+  "markSeenHelp": "La date de dernière rencontre et la prochaine échéance seront mises à jour automatiquement. La rencontre apparaîtra dans l'historique.",
+  "saveMeeting": "Enregistrer la rencontre",
+  "snoozedUntil": "Rappel reporté au {date}",
+  "@snoozedUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "remindMeIn": "Me le rappeler plus tard, dans :",
+  "orOnDate": "Ou à une date précise",
+  "snooze": "Reporter",
+  "addedToSeeSoon": "{name} ajouté(e) à la liste « à voir bientôt »",
+  "@addedToSeeSoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "searchContact": "Rechercher un contact…",
+  "allAlreadyInList": "Tous vos contacts sont déjà dans la liste.",
+  "noMatchingContact": "Aucun contact ne correspond.",
+  "ageSuffix": "({n} ans)",
+  "@ageSuffix": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "birthdayToday": "C'est son anniversaire aujourd'hui !",
+  "birthdayTomorrow": "Anniversaire demain",
+  "birthdayInDays": "Anniversaire dans {n} jours",
+  "@birthdayInDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "contactNotFound": "Contact introuvable",
+  "seeMyContacts": "Voir mes contacts",
+  "edit": "Modifier",
+  "removedFromSeeSoon": "Retiré de la liste « à voir bientôt »",
+  "addedToSeeSoonHome": "Ajouté à la liste « à voir bientôt » de l'accueil",
+  "deleteContactTitle": "Supprimer ce contact ?",
+  "deleteContactMessage": "Ses rendez-vous et photos seront aussi supprimés. Cette action est définitive.",
+  "contactDeleted": "Contact supprimé",
+  "friendPill": "Ami SeeU · rendez-vous et photos partageables",
+  "lastMeeting": "Dernière rencontre",
+  "notRecordedYet": "Pas encore notée",
+  "nextDue": "Prochaine échéance",
+  "snoozedSuffix": "(reportée)",
+  "frequency": "Fréquence",
+  "planRdv": "Planifier un rendez-vous",
+  "seenToday": "Vu aujourd'hui",
+  "inSeeSoonRemove": "Dans « à voir bientôt » · retirer",
+  "information": "Informations",
+  "bornOn": "Né(e) le {date}",
+  "@bornOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rdvSection": "Rendez-vous",
+  "noRdvWithContact": "Aucun rendez-vous avec ce contact pour l'instant.",
+  "upcoming": "À venir",
+  "past": "Passés",
+  "gallery": "Galerie",
+  "deleteContact": "Supprimer le contact",
+  "linkToFriend": "Associer à un ami SeeU",
+  "linkedToAccount": "Associé à un compte SeeU",
+  "friendCanShare": "Vous pouvez lui envoyer vos rendez-vous et partager les photos.",
+  "wantToMeet": "Envie de se voir",
+  "wantToMeetSent": "{name} sait que vous aimeriez vous voir 👋",
+  "@wantToMeetSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "manage": "Gérer",
+  "editContact": "Modifier le contact",
+  "nameRequired": "Le nom est obligatoire.",
+  "frequencyMin": "La fréquence doit être d'au moins 1.",
+  "contactAdded": "Contact ajouté",
+  "contactUpdated": "Contact mis à jour",
+  "newContact": "Nouveau contact",
+  "addTheContact": "Ajouter le contact",
+  "change": "Changer",
+  "remove": "Retirer",
+  "name": "Nom",
+  "nameHintFull": "Ex. Marie Dupont",
+  "categories": "Catégories",
+  "categoriesHint": "Facultatif · plusieurs choix possibles",
+  "lastMeetingOptional": "Facultatif. Sans date, la période démarre aujourd'hui.",
+  "noMeetingRecorded": "Pas encore de rencontre notée",
+  "nextDueInline": "Prochaine échéance : {date}",
+  "@nextDueInline": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "phone": "Téléphone",
+  "phoneHint": "Ex. 06 12 34 56 78",
+  "emailExample": "Ex. marie@exemple.com",
+  "birthday": "Anniversaire",
+  "notes": "Notes",
+  "notesHint": "Centres d'intérêt, enfants, dernier sujet abordé…",
+  "requiredFields": "* champs obligatoires",
+  "importReadFailed": "Impossible de lire vos contacts sur cet appareil.",
+  "importAllThere": "Tous ces contacts sont déjà dans SeeU.",
+  "importRestTitle": "{n, plural, =1{Le dernier restant d'un coup} other{Les {n} restants d'un coup}}",
+  "@importRestTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "importRestFreq": "Fréquence {freq}",
+  "@importRestFreq": {
+    "placeholders": {
+      "freq": {
+        "type": "String"
+      }
+    }
+  },
+  "importRestCats": "catégories {cats}",
+  "@importRestCats": {
+    "placeholders": {
+      "cats": {
+        "type": "String"
+      }
+    }
+  },
+  "importRestLast": "dernière rencontre le {date}",
+  "@importRestLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "addAll": "Tout ajouter",
+  "ignoreAllFinish": "Tout ignorer et terminer",
+  "nImported": "{n, plural, =1{1 contact importé} other{{n} contacts importés}}",
+  "@nImported": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "stepOf": "Étape {n} sur 3",
+  "@stepOf": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "chooseContacts": "Choisissez des contacts",
+  "continueN": "Continuer ({n})",
+  "@continueN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ignore": "Ignorer",
+  "importN": "{n, plural, =1{Importer 1 contact} other{Importer {n} contacts}}",
+  "@importN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewSelection": "Revoir la sélection",
+  "fromAddressBook": "Depuis votre carnet d'adresses",
+  "fromAddressBookHelp": "Choisissez les personnes à suivre dans SeeU. Vous réglerez ensuite la fréquence de chacune. Rien n'est enregistré avant la confirmation finale.",
+  "accessMyContacts": "Accéder à mes contacts",
+  "contactsAccessDenied": "SeeU n'a pas accès à vos contacts. Autorisez-le dans les réglages du téléphone, puis réessayez.",
+  "searchEllipsis": "Rechercher…",
+  "nChosen": "{n, plural, =0{0 choisi} =1{1 choisi} other{{n} choisis}}",
+  "@nChosen": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deselectAll": "Tout désélectionner",
+  "selectAll": "Tout sélectionner",
+  "contactNofM": "Contact {n} sur {nTotal}",
+  "@contactNofM": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nTotal": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicatesSkipped": "{n, plural, =1{1 déjà présent écarté} other{{n} déjà présents écartés}}",
+  "@duplicatesSkipped": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "optional": "Facultatif",
+  "restAtOnce": "{n, plural, =1{Le dernier restant d'un coup…} other{Les {n} restants d'un coup…}}",
+  "@restAtOnce": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "noneKept": "Aucun contact retenu.",
+  "nKept": "{n, plural, =1{1 contact retenu} other{{n} contacts retenus}}",
+  "@nKept": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nIgnored": "{n, plural, =1{1 ignoré} other{{n} ignorés}}",
+  "@nIgnored": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "removeName": "Retirer {name}",
+  "@removeName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shareHandleText": "Ajoute-moi sur SeeU : @{username}\n{link}",
+  "@shareHandleText": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "shareAppText": "Rejoins-moi sur SeeU, l'app pour ne plus perdre de vue les gens qu'on aime : {url}",
+  "@shareAppText": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "linkFriendTitle": "Associer {name}",
+  "@linkFriendTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkFriendSub": "Quel contact correspond à cet ami ? C'est sa période qui sera remise à zéro quand vous validerez un rendez-vous ensemble.",
+  "linkedFriendToContact": "{friend} est associé au contact {contact}",
+  "@linkedFriendToContact": {
+    "placeholders": {
+      "friend": {
+        "type": "String"
+      },
+      "contact": {
+        "type": "String"
+      }
+    }
+  },
+  "createNewContact": "Créer un nouveau contact",
+  "searchMyContacts": "Rechercher dans mes contacts…",
+  "alreadyLinked": "Déjà associé",
+  "suggested": "Suggéré",
+  "contactUnlinked": "Contact dissocié",
+  "removeFriendTitle": "Retirer {name} ?",
+  "@removeFriendTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFriendMessage": "Vos contacts et rendez-vous existants sont conservés, mais vous ne pourrez plus vous envoyer d'invitations. Les invitations en attente sont annulées.",
+  "friendRemoved": "Ami retiré",
+  "proposeRdv": "Proposer un rendez-vous",
+  "seeContactName": "Voir le contact {name}",
+  "@seeContactName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkToOtherContact": "Associer à un autre contact",
+  "unlinkContact": "Dissocier du contact",
+  "linkToContact": "Associer à un contact",
+  "removeFromFriends": "Retirer de mes amis",
+  "linkContactToFriendTitle": "Associer {name} à un ami SeeU",
+  "@linkContactToFriendTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkContactToFriendSub": "Vous pourrez lui envoyer vos rendez-vous et partager les photos. Chaque ami ne peut être associé qu'à un seul contact.",
+  "linkedContactToFriend": "{contact} est associé à {friend}",
+  "@linkedContactToFriend": {
+    "placeholders": {
+      "contact": {
+        "type": "String"
+      },
+      "friend": {
+        "type": "String"
+      }
+    }
+  },
+  "noSeeuFriendsYet": "Vous n'avez pas encore d'ami SeeU.",
+  "addSeeuFriendLong": "Ajouter un ami SeeU",
+  "linkedTo": "Associé à {name}",
+  "@linkedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addFriendSub": "Cherchez-le par son nom d'utilisateur. Entre amis SeeU, vous partagez rendez-vous et photos.",
+  "searchFailed": "Recherche impossible",
+  "requestSentTo": "Demande envoyée à {name}",
+  "@requestSentTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyInvitedYou": "{name} vous avait déjà invité : vous êtes maintenant amis !",
+  "@alreadyInvitedYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "requestAlreadySent": "Demande déjà envoyée, en attente de sa réponse.",
+  "alreadyFriend": "{name} fait déjà partie de vos amis.",
+  "@alreadyFriend": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accountGone": "Ce compte n'existe plus.",
+  "yourUsername": "Votre nom d'utilisateur :",
+  "share": "Partager",
+  "noAccountStartsWith": "Aucun compte ne commence par {handle}. Vérifiez l'orthographe, ou invitez cette personne à créer son compte.",
+  "@noAccountStartsWith": {
+    "placeholders": {
+      "handle": {
+        "type": "String"
+      }
+    }
+  },
+  "sendAppLink": "Envoyer le lien de l'app",
+  "requestSent": "Demande envoyée",
+  "alreadyInFriends": "Déjà dans vos amis",
+  "greetingName": "{greeting} {name} 👋",
+  "@greetingName": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingAlone": "{greeting} 👋",
+  "@greetingAlone": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      }
+    }
+  },
+  "settings": "Réglages",
+  "newRdv": "Nouveau rendez-vous",
+  "invitationsReceived": "{n, plural, =1{Invitation reçue} other{Invitations reçues}}",
+  "@invitationsReceived": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "statContacts": "{n, plural, =0{contact} =1{contact} other{contacts}}",
+  "@statContacts": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "statOverdue": "en retard",
+  "statUpcoming": "rdv à venir",
+  "didTheyHappen": "Ont-ils eu lieu ?",
+  "toReconnect": "À recontacter",
+  "seeAllN": "Voir tout ({n})",
+  "@seeAllN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "addSeeSoon": "Ajouter quelqu'un à voir bientôt",
+  "allUpToDate": "Tout est à jour 🎉",
+  "allUpToDateMessage": "Personne à recontacter pour l'instant. Envie de voir quelqu'un quand même ? Ajoutez-le avec le bouton +.",
+  "birthdaysThisWeek": "Anniversaires cette semaine",
+  "inNDays": "{n, plural, =1{demain} other{dans {n} jours}}",
+  "@inNDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nYearsOld": "{n} ans",
+  "@nYearsOld": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "nextRdvs": "Prochains rendez-vous",
+  "noRdvPlanned": "Aucun rendez-vous prévu",
+  "noRdvPlannedMessage": "Planifiez un moment avec quelqu'un que vous voulez revoir.",
+  "plan": "Planifier",
+  "moreRdvs": "{n, plural, =1{+ 1 autre rendez-vous planifié} other{+ {n} autres rendez-vous planifiés}}",
+  "@moreRdvs": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeTitle": "Bienvenue sur SeeU",
+  "welcomeMessage": "Ajoutez les personnes que vous voulez revoir régulièrement, choisissez une fréquence, et laissez l'app vous rappeler quand il est temps de les recontacter.",
+  "addFirstContact": "Ajouter mon premier contact",
+  "birthdayOf": "🎂 C'est l'anniversaire de {name} !",
+  "@birthdayOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "turnsToday": "{n} ans aujourd'hui ·",
+  "@turnsToday": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "wishThem": "Pensez à lui souhaiter.",
+  "sendMessage": "Envoyer un message",
+  "seen": "Vu",
+  "removedFromList": "{name} retiré(e) de la liste",
+  "@removedFromList": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "backToHome": "Retour à l'accueil",
+  "rdvGeneric": "Rendez-vous",
+  "deleteRdvTitle": "Supprimer ce rendez-vous ?",
+  "deleteRdvShared": "Il sera supprimé chez vous uniquement (vos amis gardent le leur), et vos photos disparaîtront de la galerie commune. Cette action est définitive.",
+  "deleteRdvPrivate": "Les photos associées seront supprimées. Cette action est définitive.",
+  "rdvDeleted": "Rendez-vous supprimé",
+  "didItHappen": "Ce rendez-vous a-t-il eu lieu ?",
+  "sharedRdvInfo": "Rendez-vous partagé : date, lieu, titre et statut sont les mêmes pour tous. Vos notes restent privées.",
+  "participants": "Participants",
+  "noParticipants": "Aucun participant.",
+  "addToCalendar": "Ajouter au calendrier",
+  "sharedPhotos": "Photos partagées",
+  "photos": "Photos",
+  "photosEmptyShared": "Ajoutez des photos de ce moment : tous les participants les verront.",
+  "photosEmptyPrivate": "Ajoutez des photos de ce moment.",
+  "deleteRdv": "Supprimer le rendez-vous",
+  "invitedByFriend": "Invitation d'un ami SeeU",
+  "proposedBy": "{name} vous a proposé ce rendez-vous",
+  "@proposedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rsvpPendingHelp": "À confirmer : il est dans votre agenda, mais votre ami ne sait pas encore si vous venez.",
+  "rsvpAcceptedHelp": "Vous avez accepté. Une fois validé, votre période avec ce contact repart de zéro.",
+  "rsvpDeclinedHelp": "Vous avez refusé : il n'apparaît plus dans vos listes.",
+  "sharing": "Partage",
+  "sharingHelp": "Si votre ami accepte, vous avez tous les deux le rendez-vous. Une fois validé, chacun voit sa période repartir de zéro, et les photos sont communes.",
+  "proposedThisRdv": "Vous a proposé ce rendez-vous",
+  "friendNotInvited": "Ami SeeU · pas encore invité",
+  "send": "Envoyer",
+  "invitationSentTo": "Invitation envoyée à {name}",
+  "@invitationSentTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "invitationPending": "Invitation envoyée · en attente",
+  "invitationCancelled": "Invitation annulée",
+  "acceptedShared": "A accepté · rendez-vous partagé",
+  "declinedInvitation": "A décliné l'invitation",
+  "resend": "Renvoyer",
+  "editRdv": "Modifier le rendez-vous",
+  "chooseOneContact": "Choisissez au moins un contact.",
+  "rdvUpdated": "Rendez-vous mis à jour",
+  "meetingRecorded": "Rencontre enregistrée",
+  "rdvPlanned": "Rendez-vous planifié",
+  "inviteSendFailed": "Une invitation n'a pas pu être envoyée : réessayez depuis le rendez-vous.",
+  "invitationsSentN": "Invitations envoyées à {n} amis",
+  "@invitationsSentN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "titleExample": "Ex. Déjeuner, café, visio…",
+  "saveChanges": "Enregistrer les modifications",
+  "planTheRdv": "Planifier le rendez-vous",
+  "createContactFirst": "Créez d'abord un contact pour pouvoir planifier un rendez-vous.",
+  "createAContact": "Créer un contact",
+  "date": "Date",
+  "time": "Heure",
+  "titleOptional": "Titre (facultatif)",
+  "placeOptional": "Lieu (facultatif)",
+  "placeHint": "Café, adresse, visio…",
+  "notesOptional": "Notes (facultatif)",
+  "notesPrivateHint": "Toujours privées, même si le rendez-vous est partagé.",
+  "notesRdvHint": "Idées de sujets, à ne pas oublier…",
+  "status": "Statut",
+  "statusHintDone": "La date de dernière rencontre des participants sera mise à jour.",
+  "statusHintCancelled": "Il reste dans l'historique comme annulé.",
+  "statusHintPlanned": "Vous recevrez un rappel avant, puis pourrez le valider.",
+  "alreadyHappened": "Ce rendez-vous a déjà eu lieu",
+  "alreadyHappenedHelp": "Cochez pour noter une rencontre passée : elle va directement dans l'historique et remet le compteur des participants à zéro.",
+  "sendTo": "Envoyer à {names}",
+  "@sendTo": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "shareOffHelp": "Le rendez-vous reste uniquement chez vous. Vous pourrez l'envoyer plus tard depuis sa fiche.",
+  "shareDoneHelp": "Votre ami recevra cette rencontre : s'il l'accepte, sa période est remise à zéro et vous partagez les photos.",
+  "sharePlannedHelp": "Votre ami reçoit une invitation : s'il accepte, vous avez tous les deux le rendez-vous et une galerie de photos commune. Vos notes restent privées.",
+  "photosAfterSave": "Vous pourrez ajouter des photos une fois le rendez-vous enregistré.",
+  "kindDueDigest": "Contacts à recontacter",
+  "kindBirthday": "Anniversaire",
+  "kindRdvReminder": "Rappel de rendez-vous",
+  "kindRdvFollowup": "Suivi de rendez-vous",
+  "kindFriendRequest": "Demande d'ami",
+  "kindFriendAccept": "Ami accepté",
+  "kindRdvInvite": "Invitation à un rendez-vous",
+  "kindRdvResponse": "Réponse à une invitation",
+  "kindRdvChange": "Rendez-vous partagé modifié",
+  "kindWave": "Envie de se voir",
+  "kindTest": "Test",
+  "privacyFooter": "SeeU · Vos données restent privées : seuls les rendez-vous que vous envoyez à un ami sont partagés avec lui.",
+  "profileUpdated": "Profil mis à jour",
+  "profile": "Profil",
+  "yourFirstName": "Votre prénom",
+  "birthDateFriendsHint": "Visible par vos amis SeeU uniquement : leur fiche à votre nom se remplit toute seule.",
+  "shareMyHandle": "Partager mon @",
+  "emailNeverShown": "Jamais affiché aux autres utilisateurs avant qu'ils soient vos amis",
+  "timezone": "Fuseau horaire",
+  "timezoneHint": "Détecté automatiquement, utilisé pour l'heure des rappels",
+  "pushDisabledDevice": "Notifications désactivées sur cet appareil",
+  "pushEnabledDevice": "Notifications activées sur cet appareil",
+  "pushPermissionDenied": "Permission refusée : autorisez les notifications dans les réglages de l'appareil.",
+  "testSent": "Notification de test envoyée",
+  "pushUnsupported": "Notifications push indisponibles sur cette version ; les rappels partiront par email.",
+  "pushBlockedSettings": "Notifications bloquées : autorisez-les dans les réglages du téléphone.",
+  "pushOnDevice": "Activées sur cet appareil",
+  "disable": "Désactiver",
+  "pushOffDevice": "Non activées sur cet appareil",
+  "notifications": "Notifications",
+  "pushReminders": "Rappels push",
+  "pushRemindersSub": "Sur tous les appareils où vous les avez activées",
+  "emailReminders": "Rappels par email",
+  "emailRemindersSub": "Utilisés si aucun appareil n'a les notifications push activées",
+  "dailyHour": "Heure du rappel quotidien",
+  "dailyHourHint": "Un seul récapitulatif par jour des contacts à recontacter",
+  "notifyLead": "Prévenir",
+  "leadSameDay": "Le jour de l'échéance",
+  "leadDays": "{n, plural, =1{1 jour avant} other{{n} jours avant}}",
+  "@leadDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "leadWeeks": "{n, plural, =1{1 semaine avant} other{{n} semaines avant}}",
+  "@leadWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "rdvReminderLead": "Rappel avant un rendez-vous",
+  "leadMinutes": "{n} minutes avant",
+  "@leadMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "leadHours": "{n, plural, =1{1 heure avant} other{{n} heures avant}}",
+  "@leadHours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "leadEve": "La veille (24 h avant)",
+  "sendTestNotification": "Envoyer une notification de test",
+  "lastNotifications": "Dernières notifications",
+  "noNotificationsYet": "Aucune notification envoyée pour l'instant.",
+  "channelNone": "aucun",
+  "application": "Application",
+  "version": "Version",
+  "exportSubject": "Export SeeU",
+  "data": "Données",
+  "importFromPhoneLong": "Importer des contacts du téléphone",
+  "importFromPhoneSub": "Depuis le carnet d'adresses, avec revue contact par contact.",
+  "exportData": "Exporter mes données",
+  "exportDataSub": "Profil, contacts, rendez-vous et liste des photos.",
+  "deleteAccountTitle": "Supprimer définitivement votre compte ?",
+  "deleteAccountMessage": "Tous vos contacts, rendez-vous et photos seront effacés. Cette action est irréversible.",
+  "deleteMyAccount": "Supprimer mon compte",
+  "accountDeleted": "Compte supprimé",
+  "account": "Compte",
+  "changePassword": "Changer le mot de passe",
+  "passwordsNoMatch": "Les deux mots de passe ne correspondent pas.",
+  "confirm": "Confirmer"
+}

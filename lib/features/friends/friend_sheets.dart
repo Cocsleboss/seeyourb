@@ -15,15 +15,16 @@ import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../contacts/contact_form_screen.dart';
 import 'add_friend_sheet.dart';
+import '../../core/i18n.dart';
 
 /// "Ajoute-moi sur SeeU : @andrea" + a link opening the Friends tab, search prefilled.
 Future<void> shareMyHandle(String username) {
   final link = '${Config.shareLinkBase}/friends?q=${Uri.encodeComponent(username)}';
-  return SharePlus.instance.share(ShareParams(text: 'Ajoute-moi sur SeeU : @$username\n$link'));
+  return SharePlus.instance.share(ShareParams(text: tr.shareHandleText(username, link)));
 }
 
 Future<void> shareAppLink() => SharePlus.instance.share(ShareParams(
-      text: "Rejoins-moi sur SeeU, l'app pour ne plus perdre de vue les gens qu'on aime : ${Config.appDownloadUrl}",
+      text: tr.shareAppText(Config.appDownloadUrl),
     ));
 
 Contact? linkedContactOf(List<Contact> contacts, String friendUserId) {
@@ -39,8 +40,8 @@ Contact? linkedContactOf(List<Contact> contacts, String friendUserId) {
 
 Future<void> showLinkSheet(BuildContext context, Friend friend) => showAppSheet(
       context,
-      title: 'Associer ${friend.displayName}',
-      subtitle: "Quel contact correspond à cet ami ? C'est sa période qui sera remise à zéro quand vous validerez un rendez-vous ensemble.",
+      title: tr.linkFriendTitle(friend.displayName),
+      subtitle: tr.linkFriendSub,
       builder: (_) => _LinkSheet(friend),
     );
 
@@ -73,7 +74,7 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
     final ok = await guard(() async {
       await ref.read(apiProvider).linkFriendToContact(widget.friend.userId, c.id);
       return true;
-    }, success: '${widget.friend.displayName} est associé au contact ${c.name}');
+    }, success: tr.linkedFriendToContact(widget.friend.displayName, c.name));
     if (!mounted) return;
     setState(() => _busy = null);
     if (ok != null) {
@@ -95,18 +96,18 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
         return s != 0 ? s : compareNames(a.name, b.name);
       });
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      AppButton('Créer un nouveau contact', icon: LucideIcons.userPlus, full: true, onPressed: () {
+      AppButton(tr.createNewContact, icon: LucideIcons.userPlus, full: true, onPressed: () {
         final router = GoRouter.of(context);
         Navigator.pop(context);
         router.push('/contacts/new', extra: ContactPrefill(name: f.displayName, email: f.email, linkedUserId: f.userId));
       }),
       const SizedBox(height: 14),
-      SearchField(controller: _q, hint: 'Rechercher dans mes contacts…', onChanged: (_) => setState(() {})),
+      SearchField(controller: _q, hint: tr.searchMyContacts, onChanged: (_) => setState(() {})),
       const SizedBox(height: 6),
       if (shown.isEmpty)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Text('Aucun contact ne correspond.', textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+          child: Text(tr.noMatchingContact, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
         )
       else
         for (final x in shown)
@@ -116,11 +117,11 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
             leading: Avatar(name: x.name, path: x.photoPath, size: 40),
             title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
             subtitle: x.linkedUserId == f.userId
-                ? Text('Déjà associé', style: TextStyle(color: c.textMuted, fontSize: 13))
+                ? Text(tr.alreadyLinked, style: TextStyle(color: c.textMuted, fontSize: 13))
                 : (x.categoryLabel == null ? null : Text(x.categoryLabel!, style: TextStyle(color: c.textMuted, fontSize: 13))),
             trailing: _busy == x.id
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : (_suggested(x) ? const Pill('Suggéré', tone: Tone.brand) : null),
+                : (_suggested(x) ? Pill(tr.suggested, tone: Tone.brand) : null),
             onTap: () => _link(x),
           ),
     ]);
@@ -153,7 +154,7 @@ class _FriendSheetState extends ConsumerState<_FriendSheet> {
     await guard(() async {
       await ref.read(apiProvider).sendWave(widget.friend.userId);
       return true;
-    }, success: '${widget.friend.displayName} sait que vous aimeriez vous voir 👋');
+    }, success: tr.wantToMeetSent(widget.friend.displayName));
     if (mounted) setState(() => _busy = null);
   }
 
@@ -162,7 +163,7 @@ class _FriendSheetState extends ConsumerState<_FriendSheet> {
     final ok = await guard(() async {
       await ref.read(apiProvider).unlinkFriend(widget.friend.userId);
       return true;
-    }, success: 'Contact dissocié');
+    }, success: tr.contactUnlinked);
     if (!mounted) return;
     setState(() => _busy = null);
     if (ok != null) {
@@ -175,16 +176,15 @@ class _FriendSheetState extends ConsumerState<_FriendSheet> {
     final f = widget.friend;
     final ok = await confirmSheet(
       context,
-      title: 'Retirer ${f.displayName} ?',
-      message:
-          "Vos contacts et rendez-vous existants sont conservés, mais vous ne pourrez plus vous envoyer d'invitations. Les invitations en attente sont annulées.",
-      confirmLabel: 'Retirer',
+      title: tr.removeFriendTitle(f.displayName),
+      message: tr.removeFriendMessage,
+      confirmLabel: tr.remove,
     );
     if (!ok || !mounted) return;
     final done = await guard(() async {
       await ref.read(apiProvider).removeFriend(f.friendshipId);
       return true;
-    }, success: 'Ami retiré');
+    }, success: tr.friendRemoved);
     if (!mounted) return;
     if (done != null) {
       refreshData(ref);
@@ -209,23 +209,23 @@ class _FriendSheetState extends ConsumerState<_FriendSheet> {
     }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      AppButton('Envie de se voir', icon: LucideIcons.hand, size: ButtonSize.lg, full: true, loading: _busy == 'wave', onPressed: _wave),
+      AppButton(tr.wantToMeet, icon: LucideIcons.hand, size: ButtonSize.lg, full: true, loading: _busy == 'wave', onPressed: _wave),
       const SizedBox(height: 10),
       if (contact != null) ...[
-        AppButton('Proposer un rendez-vous',
+        AppButton(tr.proposeRdv,
             icon: LucideIcons.calendarPlus, variant: ButtonVariant.secondary, full: true, onPressed: () => go('/rdv/new?contact=${contact.id}')),
         const SizedBox(height: 10),
-        AppButton('Voir le contact ${contact.name}',
+        AppButton(tr.seeContactName(contact.name),
             icon: LucideIcons.user, variant: ButtonVariant.secondary, full: true, onPressed: () => go('/contacts/${contact.id}')),
         const SizedBox(height: 10),
-        AppButton('Associer à un autre contact', icon: LucideIcons.link2, variant: ButtonVariant.secondary, full: true, onPressed: relink),
+        AppButton(tr.linkToOtherContact, icon: LucideIcons.link2, variant: ButtonVariant.secondary, full: true, onPressed: relink),
         const SizedBox(height: 10),
-        AppButton('Dissocier du contact',
+        AppButton(tr.unlinkContact,
             icon: LucideIcons.link2Off, variant: ButtonVariant.secondary, full: true, loading: _busy == 'unlink', onPressed: _unlink),
       ] else
-        AppButton('Associer à un contact', icon: LucideIcons.link2, variant: ButtonVariant.secondary, full: true, onPressed: relink),
+        AppButton(tr.linkToContact, icon: LucideIcons.link2, variant: ButtonVariant.secondary, full: true, onPressed: relink),
       const SizedBox(height: 22),
-      AppButton('Retirer de mes amis', icon: LucideIcons.userMinus, variant: ButtonVariant.danger, full: true, onPressed: _remove),
+      AppButton(tr.removeFromFriends, icon: LucideIcons.userMinus, variant: ButtonVariant.danger, full: true, onPressed: _remove),
     ]);
   }
 }
@@ -250,8 +250,8 @@ Future<void> offerLinkAfterAccept(BuildContext context, String userId) async {
 
 Future<void> showLinkContactToFriendSheet(BuildContext context, Contact contact) => showAppSheet(
       context,
-      title: 'Associer ${contact.name} à un ami SeeU',
-      subtitle: 'Vous pourrez lui envoyer vos rendez-vous et partager les photos. Chaque ami ne peut être associé qu\'à un seul contact.',
+      title: tr.linkContactToFriendTitle(contact.name),
+      subtitle: tr.linkContactToFriendSub,
       builder: (_) => _LinkContactToFriend(contact),
     );
 
@@ -277,7 +277,7 @@ class _LinkContactToFriendState extends ConsumerState<_LinkContactToFriend> {
     final ok = await guard(() async {
       await ref.read(apiProvider).linkFriendToContact(f.userId, widget.contact.id);
       return true;
-    }, success: '${widget.contact.name} est associé à ${f.displayName}');
+    }, success: tr.linkedContactToFriend(widget.contact.name, f.displayName));
     if (!mounted) return;
     setState(() => _busy = null);
     if (ok != null) {
@@ -297,9 +297,9 @@ class _LinkContactToFriendState extends ConsumerState<_LinkContactToFriend> {
       });
     if (friends.isEmpty) {
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text("Vous n'avez pas encore d'ami SeeU.", style: TextStyle(color: c.textMuted, fontSize: 15)),
+        Text(tr.noSeeuFriendsYet, style: TextStyle(color: c.textMuted, fontSize: 15)),
         const SizedBox(height: 14),
-        AppButton('Ajouter un ami SeeU', icon: LucideIcons.heartHandshake, full: true, onPressed: () {
+        AppButton(tr.addSeeuFriendLong, icon: LucideIcons.heartHandshake, full: true, onPressed: () {
           final nav = Navigator.of(context);
           nav.pop();
           showAddFriendSheet(nav.context);
@@ -316,12 +316,12 @@ class _LinkContactToFriendState extends ConsumerState<_LinkContactToFriend> {
             leading: Avatar(name: f.displayName, path: other?.photoPath, size: 40),
             title: Text(f.displayName, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
             subtitle: Text(
-              [handle(f.username), if (other != null) 'Associé à ${other.name}'].where((s) => s.isNotEmpty).join(' · '),
+              [handle(f.username), if (other != null) tr.linkedTo(other.name)].where((s) => s.isNotEmpty).join(' · '),
               style: TextStyle(color: c.textMuted, fontSize: 13),
             ),
             trailing: _busy == f.userId
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : (_suggested(f) ? const Pill('Suggéré', tone: Tone.brand) : null),
+                : (_suggested(f) ? Pill(tr.suggested, tone: Tone.brand) : null),
             onTap: () => _link(f),
           );
         }),

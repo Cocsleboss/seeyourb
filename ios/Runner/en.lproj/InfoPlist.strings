@@ -1,0 +1,7 @@
+/* Permission prompts (English). */
+"NSContactsUsageDescription" = "SeeU reads the contacts you choose to import (name, phone, email, birthday, notes). Nothing is sent without your confirmation.";
+"NSCameraUsageDescription" = "Take a photo for a contact's card or an event's gallery.";
+"NSPhotoLibraryUsageDescription" = "Choose photos for a contact's card or an event's gallery.";
+"NSCalendarsUsageDescription" = "Add your SeeU events to your calendar.";
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Add your SeeU events to your calendar.";
+"NSCalendarsFullAccessUsageDescription" = "Add your SeeU events to your calendar.";

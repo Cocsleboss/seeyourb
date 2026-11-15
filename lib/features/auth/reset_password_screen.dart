@@ -11,6 +11,7 @@ import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../../ui/logo.dart';
+import '../../core/i18n.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -40,7 +41,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     });
     try {
       await ref.read(supabaseProvider).auth.updateUser(UserAttributes(password: _p1.text));
-      showToast('Mot de passe mis à jour');
+      showToast(tr.passwordUpdated);
       ref.read(sessionProvider).endPasswordRecovery();
       if (mounted) context.go('/');
     } catch (e) {
@@ -64,25 +65,25 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 const Center(child: SeeULogo(size: 64)),
                 const SizedBox(height: 16),
-                Text('Nouveau mot de passe',
+                Text(tr.newPassword,
                     textAlign: TextAlign.center, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: c.text)),
                 const SizedBox(height: 24),
                 if (!session.signedIn) ...[
-                  const InfoBox(tone: Tone.red, child: Text('Lien invalide ou expiré.')),
+                  InfoBox(tone: Tone.red, child: Text(tr.errLinkExpired)),
                   const SizedBox(height: 16),
-                  AppButton('Retour à la connexion', variant: ButtonVariant.secondary, onPressed: () => context.go('/login')),
+                  AppButton(tr.backToLogin, variant: ButtonVariant.secondary, onPressed: () => context.go('/login')),
                 ] else ...[
                   LabeledField(
-                    label: 'Nouveau mot de passe',
-                    hint: '6 caractères minimum',
+                    label: tr.newPassword,
+                    hint: tr.passwordMin,
                     child: AppTextField(controller: _p1, obscure: true, onChanged: (_) => setState(() {})),
                   ),
                   LabeledField(
-                    label: 'Confirmez le mot de passe',
-                    error: _p2.text.isNotEmpty && _p1.text != _p2.text ? 'Les deux mots de passe sont différents.' : null,
+                    label: tr.confirmPassword,
+                    error: _p2.text.isNotEmpty && _p1.text != _p2.text ? tr.passwordsDiffer : null,
                     child: AppTextField(controller: _p2, obscure: true, onChanged: (_) => setState(() {})),
                   ),
-                  AppButton('Enregistrer', size: ButtonSize.lg, full: true, loading: _busy, onPressed: _valid ? _submit : null),
+                  AppButton(tr.save, size: ButtonSize.lg, full: true, loading: _busy, onPressed: _valid ? _submit : null),
                   if (_error != null) ...[const SizedBox(height: 14), InfoBox(tone: Tone.red, child: Text(_error!))],
                 ],
               ]),

@@ -1,0 +1,20 @@
+# History
+historyTitle | Historique | History
+historyList | Liste | List
+historyMonth | Mois | Month
+historyEmptyTitle | Aucune rencontre pour l'instant | No meetups yet
+historyEmptyMessage | Les rendez-vous validés ou annulés apparaîtront ici. | Events that happened or were cancelled will show up here.
+filterAll | Tous | All
+filterDone | A eu lieu | Happened
+filterCancelled | Annulés | Cancelled
+historySearchHint | Rechercher (contact, titre, lieu) | Search (contact, title, place)
+noResults | Aucun résultat | No results
+historyCounts | {nMet, plural, =0{0 rencontre} =1{1 rencontre} other{{nMet} rencontres}} · {nCancelled, plural, =0{0 annulé} =1{1 annulé} other{{nCancelled} annulés}} | {nMet, plural, =1{1 meetup} other{{nMet} meetups}} · {nCancelled} cancelled
+prevMonth | Mois précédent | Previous month
+nextMonth | Mois suivant | Next month
+loading | Chargement… | Loading…
+calendarNoneThisMonth | Aucune rencontre ce mois-ci. | No meetups this month.
+calendarMetInMonth | {n, plural, =1{1 rencontre en {month}} other{{n} rencontres en {month}}} | {n, plural, =1{1 meetup in {month}} other{{n} meetups in {month}}}
+calendarDayEvents | {n, plural, =1{1 rendez-vous} other{{n} rendez-vous}} | {n, plural, =1{1 event} other{{n} events}}
+dayNoEvents | Aucun rendez-vous ce jour-là | No events that day
+dayMetCount | {n, plural, =0{Aucune rencontre ce jour-là} =1{1 rencontre ce jour-là} other{{n} rencontres ce jour-là}} | {n, plural, =0{No meetups that day} =1{1 meetup that day} other{{n} meetups that day}}

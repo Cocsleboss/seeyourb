@@ -1,0 +1,49 @@
+# Common words, dates, durations
+languageName | Français | English
+and | et | and
+andOthers | {n, plural, =1{et 1 autre} other{et {n} autres}} | {n, plural, =1{and 1 other} other{and {n} others}}
+today | Aujourd'hui | Today
+tomorrow | Demain | Tomorrow
+yesterday | Hier | Yesterday
+dayAtTime | {day} à {time} | {day} at {time}
+greetingNight | Bonne nuit | Good night
+greetingMorning | Bonjour | Good morning
+greetingAfternoon | Bon après-midi | Good afternoon
+greetingEvening | Bonsoir | Good evening
+nDays | {n, plural, =0{0 jour} =1{1 jour} other{{n} jours}} | {n, plural, =1{1 day} other{{n} days}}
+nWeeks | {n, plural, =1{1 semaine} other{{n} semaines}} | {n, plural, =1{1 week} other{{n} weeks}}
+nMonths | {n, plural, =1{1 mois} other{{n} mois}} | {n, plural, =1{1 month} other{{n} months}}
+nYears | {n, plural, =1{1 an} other{{n} ans}} | {n, plural, =1{1 year} other{{n} years}}
+nYearsHalf | {n, plural, =1{1 an et demi} other{{n} ans et demi}} | {n, plural, =1{a year and a half} other{{n} and a half years}}
+shortDays | {n} j | {n}d
+shortWeeks | {n} sem. | {n}w
+shortMonths | {n} mois | {n}mo
+shortYears | {n, plural, =1{1 an} other{{n} ans}} | {n}y
+dueOverdue | En retard de {duration} | Overdue by {duration}
+dueToday | À revoir aujourd'hui | Catch up today
+dueTodayShort | Auj. | Today
+dueIn | À revoir dans {duration} | Catch up in {duration}
+everyDays | {n, plural, =1{tous les jours} other{tous les {n} jours}} | {n, plural, =1{every day} other{every {n} days}}
+everyWeeks | {n, plural, =1{toutes les semaines} other{toutes les {n} semaines}} | {n, plural, =1{every week} other{every {n} weeks}}
+everyMonths | {n, plural, =1{tous les mois} other{tous les {n} mois}} | {n, plural, =1{every month} other{every {n} months}}
+everyYears | {n, plural, =1{tous les ans} other{tous les {n} ans}} | {n, plural, =1{every year} other{every {n} years}}
+unitDays | {n, plural, =1{jour} other{jours}} | {n, plural, =1{day} other{days}}
+unitWeeks | {n, plural, =1{semaine} other{semaines}} | {n, plural, =1{week} other{weeks}}
+unitMonths | {n, plural, =1{mois} other{mois}} | {n, plural, =1{month} other{months}}
+unitYears | {n, plural, =1{an} other{ans}} | {n, plural, =1{year} other{years}}
+statusPlanned | Planifié | Planned
+statusDone | A eu lieu | Happened
+statusCancelled | Annulé | Cancelled
+rsvpPending | À confirmer | Maybe
+rsvpAccepted | Accepté | Going
+rsvpDeclined | Refusé | Declined
+withNames | Avec {names} | With {names}
+withNamesMore | Avec {names} et {n} autres | With {names} and {n} others
+aFriend | Un ami | A friend
+catFamily | Famille | Family
+catFriends | Amis | Friends
+catWork | Pro | Work
+catOther | Autre | Other
+usernameHint | 3 à 20 caractères : lettres minuscules, chiffres, point et tiret bas. | 3 to 20 characters: lowercase letters, digits, dot and underscore.
+usernameTooShort | Au moins {n} caractères. | At least {n} characters.
+usernameBadStart | Doit commencer par une lettre ou un chiffre. | Must start with a letter or a digit.

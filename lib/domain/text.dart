@@ -1,4 +1,5 @@
-// Text helpers: accent/case-insensitive search (§5.9), plurals, usernames.
+// Text helpers: accent/case-insensitive search (§5.9), name lists, usernames.
+import '../core/i18n.dart';
 
 const _accents = {
   'à': 'a', 'á': 'a', 'â': 'a', 'ã': 'a', 'ä': 'a', 'å': 'a', 'ā': 'a', 'ă': 'a', 'ą': 'a',
@@ -42,9 +43,6 @@ int compareNames(String a, String b) {
   return c != 0 ? c : a.compareTo(b);
 }
 
-/// plural(3, 'contact') → "3 contacts"
-String plural(int n, String singular, [String? pluralForm]) => '$n ${n > 1 ? (pluralForm ?? '${singular}s') : singular}';
-
 String capitalize(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 
 /// "Marie Dupont" → "MD", "Marie" → "MA"
@@ -72,9 +70,8 @@ String joinNames(List<String> names, {int max = 3}) {
   final list = names.where((n) => n.isNotEmpty).toList();
   if (list.isEmpty) return '';
   if (list.length == 1) return list.first;
-  if (list.length <= max) return '${list.sublist(0, list.length - 1).join(', ')} et ${list.last}';
-  final rest = list.length - max;
-  return '${list.take(max).join(', ')} et $rest autre${rest > 1 ? 's' : ''}';
+  if (list.length <= max) return '${list.sublist(0, list.length - 1).join(', ')} ${tr.and} ${list.last}';
+  return '${list.take(max).join(', ')} ${tr.andOthers(list.length - max)}';
 }
 
 final _emailRe = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
@@ -87,7 +84,7 @@ bool isValidEmail(String s) => _emailRe.hasMatch(s.trim());
 const usernameMin = 3;
 const usernameMax = 20;
 final usernameRe = RegExp(r'^[a-z0-9][a-z0-9_.]{2,19}$');
-const usernameHint = '3 à 20 caractères : lettres minuscules, chiffres, point et tiret bas.';
+String get usernameHint => tr.usernameHint;
 
 /// Cleans input while typing: no "@", accents, spaces or forbidden characters.
 String normalizeUsername(String raw) {
@@ -97,8 +94,8 @@ String normalizeUsername(String raw) {
 
 /// Error message if the format is invalid, else null.
 String? usernameFormatError(String value) {
-  if (value.length < usernameMin) return 'Au moins $usernameMin caractères.';
-  if (!RegExp(r'^[a-z0-9]').hasMatch(value)) return 'Doit commencer par une lettre ou un chiffre.';
+  if (value.length < usernameMin) return tr.usernameTooShort(usernameMin);
+  if (!RegExp(r'^[a-z0-9]').hasMatch(value)) return tr.usernameBadStart;
   if (!usernameRe.hasMatch(value)) return usernameHint;
   return null;
 }

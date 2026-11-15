@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../core/theme.dart';
 import '../domain/dates.dart';
 import 'kit.dart';
+import '../core/i18n.dart';
 
 class LabeledField extends StatelessWidget {
   const LabeledField({super.key, this.label, required this.child, this.hint, this.error, this.required = false});
@@ -189,7 +190,7 @@ class DateField extends StatelessWidget {
     required this.onChanged,
     this.first,
     this.last,
-    this.placeholder = 'Choisir une date',
+    this.placeholder,
     this.clearable = false,
     this.compact = false,
   });
@@ -197,7 +198,7 @@ class DateField extends StatelessWidget {
   final ValueChanged<DateTime?> onChanged;
   final DateTime? first;
   final DateTime? last;
-  final String placeholder;
+  final String? placeholder;
   final bool clearable;
 
   /// "sam. 14 nov. 2026" instead of "samedi 14 novembre 2026" (narrow fields).
@@ -206,7 +207,7 @@ class DateField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final field = PickerField(
-      text: value == null ? placeholder : (compact ? formatDateMedium(value!) : formatDateLong(value!)),
+      text: value == null ? (placeholder ?? tr.pickDate) : (compact ? formatDateMedium(value!) : formatDateLong(value!)),
       placeholder: value == null,
       icon: LucideIcons.calendar,
       onTap: () async {
@@ -220,7 +221,6 @@ class DateField extends StatelessWidget {
           initialDate: initial,
           firstDate: firstDate,
           lastDate: lastDate,
-          locale: const Locale('fr', 'FR'),
         );
         if (d != null) onChanged(dayOf(d));
       },
@@ -228,7 +228,7 @@ class DateField extends StatelessWidget {
     if (!clearable || value == null) return field;
     return Row(children: [
       Expanded(child: field),
-      IconButton(tooltip: 'Effacer', onPressed: () => onChanged(null), icon: Icon(LucideIcons.x, color: context.colors.textMuted)),
+      IconButton(tooltip: tr.clear, onPressed: () => onChanged(null), icon: Icon(LucideIcons.x, color: context.colors.textMuted)),
     ]);
   }
 }

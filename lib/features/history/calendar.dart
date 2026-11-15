@@ -14,6 +14,7 @@ import '../../ui/kit.dart';
 import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import '../photos/photo_section.dart';
+import '../../core/i18n.dart';
 
 class HistoryCalendar extends ConsumerStatefulWidget {
   const HistoryCalendar({super.key});
@@ -44,17 +45,17 @@ class _HistoryCalendarState extends ConsumerState<HistoryCalendar> {
     final days = DateTime(_month.year, _month.month + 1, 0).day;
     final cells = lead + days;
     final rows = (cells / 7).ceil();
-    final weekdays = [for (var i = 0; i < 7; i++) DateFormat('EEEEE', 'fr_FR').format(DateTime(2024, 1, 1 + i)).toUpperCase()];
+    final weekdays = [for (var i = 0; i < 7; i++) DateFormat('EEEEE').format(DateTime(2024, 1, 1 + i)).toUpperCase()];
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Row(children: [
-        IconButton(tooltip: 'Mois précédent', onPressed: () => _shift(-1), icon: Icon(LucideIcons.chevronLeft, color: c.brandText)),
+        IconButton(tooltip: tr.prevMonth, onPressed: () => _shift(-1), icon: Icon(LucideIcons.chevronLeft, color: c.brandText)),
         Expanded(
           child: Text(monthLabel(_month),
               textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: c.text)),
         ),
         IconButton(
-          tooltip: 'Mois suivant',
+          tooltip: tr.nextMonth,
           onPressed: isCurrentMonth ? null : () => _shift(1),
           icon: Icon(LucideIcons.chevronRight, color: isCurrentMonth ? c.textSubtle : c.brandText),
         ),
@@ -92,10 +93,10 @@ class _HistoryCalendarState extends ConsumerState<HistoryCalendar> {
       else
         Text(
           value.isLoading && !value.hasValue
-              ? 'Chargement…'
+              ? tr.loading
               : met == 0
-                  ? 'Aucune rencontre ce mois-ci.'
-                  : '${plural(met, 'rencontre')} en ${DateFormat('MMMM', 'fr_FR').format(_month)}',
+                  ? tr.calendarNoneThisMonth
+                  : tr.calendarMetInMonth(met, DateFormat.MMMM().format(_month)),
           textAlign: TextAlign.center,
           style: TextStyle(color: c.textMuted, fontSize: 14),
         ),
@@ -158,7 +159,7 @@ class _DayCell extends StatelessWidget {
 
     return Semantics(
       button: hasEvents,
-      label: '${formatDayMonth(day)}${hasEvents ? ', ${plural(rdvs.length, 'rendez-vous', 'rendez-vous')}' : ''}',
+      label: '${formatDayMonth(day)}${hasEvents ? ', ${tr.calendarDayEvents(rdvs.length)}' : ''}',
       child: GestureDetector(
         onTap: hasEvents ? () => context.push('/history/day/${dayIso(day)}') : null,
         child: Container(
@@ -190,14 +191,14 @@ class DayReviewScreen extends ConsumerWidget {
         onRetry: () => ref.invalidate(historyDayProvider(day)),
         builder: (rdvs) {
           if (rdvs.isEmpty) {
-            return PageList(children: const [EmptyState(icon: LucideIcons.calendarX, title: 'Aucun rendez-vous ce jour-là')]);
+            return PageList(children: [EmptyState(icon: LucideIcons.calendarX, title: tr.dayNoEvents)]);
           }
           return PageList(
             onRefresh: () => ref.refresh(historyDayProvider(day).future),
             children: [
               const SizedBox(height: 4),
               Text(
-                '${plural(rdvs.where((r) => r.status == RdvStatus.valide).length, 'rencontre')} ce jour-là',
+                tr.dayMetCount(rdvs.where((r) => r.status == RdvStatus.valide).length),
                 style: TextStyle(color: c.textMuted, fontSize: 15),
               ),
               for (final r in rdvs) _DayEvent(rdv: r),
