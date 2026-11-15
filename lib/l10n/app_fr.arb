@@ -1496,5 +1496,6 @@
   "kindEventNew": "Nouvel événement entre amis",
   "kindEventJoin": "Participant à votre événement",
   "kindEventMessage": "Message dans un événement",
-  "kindEventAnnouncement": "Annonce d'un événement"
+  "kindEventAnnouncement": "Annonce d'un événement",
+  "deleteRdvOrganizerPlanned": "Vous êtes l'organisateur : l'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda."
 }

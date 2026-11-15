@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/i18n.dart';
 import '../../core/theme.dart';
+import '../../data/api.dart';
 import '../../data/providers.dart';
 import '../../domain/dates.dart';
 import '../../domain/models.dart';
@@ -104,6 +105,7 @@ class _ChatState extends ConsumerState<_Chat> {
   final _text = TextEditingController();
   final _messages = <ChatMessage>[];
   RealtimeChannel? _channel;
+  late final Api _api;
   bool _loading = true;
   bool _sending = false;
   bool _hasOlder = true;
@@ -114,18 +116,18 @@ class _ChatState extends ConsumerState<_Chat> {
   @override
   void initState() {
     super.initState();
+    _api = ref.read(apiProvider);
     _load();
-    final api = ref.read(apiProvider);
-    _channel = api.watchMessages(_eventId, _onInsert, (id) {
+    _channel = _api.watchMessages(_eventId, _onInsert, (id) {
       if (mounted) setState(() => _messages.removeWhere((m) => m.id == id));
     });
-    api.markChatRead(widget.rdv.id).catchError((_) {});
+    _api.markChatRead(widget.rdv.id).catchError((_) {});
   }
 
   @override
   void dispose() {
     _channel?.unsubscribe();
-    ref.read(apiProvider).markChatRead(widget.rdv.id).catchError((_) {});
+    _api.markChatRead(widget.rdv.id).catchError((_) {});
     _text.dispose();
     super.dispose();
   }

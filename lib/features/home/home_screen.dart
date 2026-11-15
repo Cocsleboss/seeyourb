@@ -191,7 +191,8 @@ class _Agenda extends ConsumerWidget {
     final now = DateTime.now();
     final plannedList = planned.value ?? const <Rendezvous>[];
     final toConfirm = plannedList.where((r) => r.needsConfirmation(now)).toList();
-    final upcoming = plannedList.where((r) => !r.appointmentAt.isBefore(now)).toList();
+    // Events still choosing their date stay here even once their earliest slot has passed.
+    final upcoming = plannedList.where((r) => r.slotsOpen || !r.appointmentAt.isBefore(now)).toList();
     final due = toRecontact(contacts);
     final bdaysToday = birthdaysToday(contacts);
     final bdaysWeek = birthdaysThisWeek(contacts);

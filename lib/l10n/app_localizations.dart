@@ -4129,6 +4129,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Annonce d\'un événement'**
   String get kindEventAnnouncement;
+
+  /// No description provided for @deleteRdvOrganizerPlanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes l\'organisateur : l\'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda.'**
+  String get deleteRdvOrganizerPlanned;
 }
 
 class _AppLocalizationsDelegate

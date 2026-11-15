@@ -82,9 +82,11 @@ class _Body extends ConsumerWidget {
       title: rdv.isOrganizer ? tr.deleteRdvTitle : tr.leaveEventTitle,
       message: !rdv.isOrganizer
           ? tr.leaveEventMessage
-          : rdv.isShared
-              ? tr.deleteRdvShared
-              : tr.deleteRdvPrivate,
+          : rdv.isShared && rdv.status == RdvStatus.planifie
+              ? tr.deleteRdvOrganizerPlanned
+              : rdv.isShared
+                  ? tr.deleteRdvShared
+                  : tr.deleteRdvPrivate,
       confirmLabel: rdv.isOrganizer ? tr.delete : tr.remove,
     );
     if (!ok || !context.mounted) return;

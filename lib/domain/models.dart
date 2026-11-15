@@ -326,6 +326,7 @@ class Rendezvous {
   /// Planned and its time passed more than 30 minutes ago → "à confirmer".
   bool needsConfirmation([DateTime? now]) =>
       status == RdvStatus.planifie &&
+      !slotsOpen &&
       (rsvp == null || rsvp == Rsvp.accepted) &&
       appointmentAt.isBefore((now ?? DateTime.now()).subtract(const Duration(minutes: 30)));
 

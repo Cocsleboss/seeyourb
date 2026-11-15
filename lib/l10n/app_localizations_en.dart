@@ -2550,4 +2550,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kindEventAnnouncement => 'Event announcement';
+
+  @override
+  String get deleteRdvOrganizerPlanned =>
+      'You\'re the organizer: the event will be cancelled for every participant (they\'ll be notified), then removed from your agenda.';
 }

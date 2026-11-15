@@ -218,4 +218,25 @@ void main() {
       expect(birthdaysThisWeek(cs).map((e) => e.$1.name), ['in3']);
     });
   });
+
+  test('events still choosing a date never ask "did it happen?"', () {
+    Rendezvous rdv({required bool slots}) => Rendezvous(
+          id: 'x',
+          userId: 'me',
+          appointmentAt: DateTime(2026, 11, 13, 12),
+          status: RdvStatus.planifie,
+          eventId: 'e',
+          event: EventInfo(id: 'e', organizerId: 'me', slotsOpen: slots),
+        );
+    final now = DateTime(2026, 11, 14, 20);
+    expect(rdv(slots: false).needsConfirmation(now), isTrue);
+    expect(rdv(slots: true).needsConfirmation(now), isFalse);
+  });
+
+  test('best timeslots: most available, maybe counts half, ties kept', () {
+    EventSlot s(String id, int yes, int maybe) => EventSlot(id: id, startsAt: DateTime(2026, 12, 1), yes: yes, maybe: maybe);
+    expect(bestSlots([s('a', 2, 1), s('b', 3, 0), s('c', 1, 2)]).map((x) => x.id), ['b']);
+    expect(bestSlots([s('a', 2, 2), s('b', 3, 0)]).map((x) => x.id), ['a', 'b']);
+    expect(bestSlots([s('a', 0, 0)]), isEmpty);
+  });
 }

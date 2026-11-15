@@ -343,7 +343,12 @@ class Api {
     return rows.map((r) => BlockedUser.fromJson(r as Map<String, dynamic>)).toList();
   }
 
+  /// Deletes my copy. The organizer of a shared event that is still planned cancels it
+  /// for everyone first (otherwise it would keep running without anyone to manage it).
   Future<void> deleteRdv(Rendezvous rdv) async {
+    if (rdv.isOrganizer && rdv.isShared && rdv.status == RdvStatus.planifie) {
+      await sb.from('rendezvous').update({'status': RdvStatus.annule.name}).eq('id', rdv.id);
+    }
     await sb.from('rendezvous').delete().eq('id', rdv.id);
     await _removeFiles(rdv.photos.expand((p) => p.allPaths).toList());
   }

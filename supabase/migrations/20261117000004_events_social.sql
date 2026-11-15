@@ -1066,6 +1066,23 @@ begin
 end;
 $$;
 
+-- Cancelling a pending invitation removes the invitee's tentative copy, but not when the
+-- invitation disappears because the organizer deleted their own copy (the event was
+-- cancelled for everyone first): invitees keep the cancelled event in their agenda.
+create or replace function public.rdv_invitations_after_delete()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if old.to_rdv_id is not null and exists (select 1 from public.rendezvous where id = old.rdv_id) then
+    delete from public.rendezvous where id = old.to_rdv_id and rsvp in ('pending', 'declined');
+  end if;
+  return old;
+end;
+$$;
+
 -- My contact for a friend, created if missing (used when accepting / joining).
 create or replace function public.ensure_friend_contact(p_user uuid, p_friend uuid)
 returns uuid
@@ -1185,7 +1202,7 @@ as $$
   left join public.rendezvous mine on mine.event_id = e.id and mine.user_id = me.uid
   where me.uid is not null
     and e.status = 'planifie'
-    and e.appointment_at > now() - interval '3 hours'
+    and (e.slots_open or e.appointment_at > now() - interval '3 hours')
     and (
       (p_scope = 'public' and e.visibility = 'public')
       or (p_scope = 'contacts' and e.visibility = 'contacts' and e.organizer_id <> me.uid

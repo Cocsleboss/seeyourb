@@ -671,5 +671,6 @@
   "kindEventNew": "New friends event",
   "kindEventJoin": "Someone joined your event",
   "kindEventMessage": "Event message",
-  "kindEventAnnouncement": "Event announcement"
+  "kindEventAnnouncement": "Event announcement",
+  "deleteRdvOrganizerPlanned": "You're the organizer: the event will be cancelled for every participant (they'll be notified), then removed from your agenda."
 }

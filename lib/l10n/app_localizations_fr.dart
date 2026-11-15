@@ -2612,4 +2612,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get kindEventAnnouncement => 'Annonce d\'un événement';
+
+  @override
+  String get deleteRdvOrganizerPlanned =>
+      'Vous êtes l\'organisateur : l\'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda.';
 }

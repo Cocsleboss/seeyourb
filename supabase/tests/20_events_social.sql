@@ -124,3 +124,14 @@ select pg_temp.as_user('');
 select 'reminders' as k, run_reminders();
 select 'pending_params' as k, kind, params from notifications where status='pending' order by created_at limit 3;
 select 'counts' as k, string_agg(title || ':' || member_count || '/' || going_count, ',' order by title) from events;
+-- ===== a poll whose earliest slot is past stays in the feed
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+select save_event(jsonb_build_object('visibility','contacts','title','Apéro',
+   'slots', jsonb_build_array(now() - interval '1 day', now() + interval '2 days'))) is not null as apero;
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000b');
+select 'past_slot_feed' as k, count(*) from list_feed_events('contacts') where title = 'Apéro';
+-- ===== organizer cancels then deletes their copy: members see it cancelled
+select pg_temp.as_user('00000000-0000-0000-0000-00000000000a');
+update rendezvous set status='annule' where title='Ciné' and user_id='00000000-0000-0000-0000-00000000000a';
+delete from rendezvous where title='Ciné' and user_id='00000000-0000-0000-0000-00000000000a';
+select 'org_deleted' as k, string_agg(status::text, ',') from rendezvous where title='Ciné';

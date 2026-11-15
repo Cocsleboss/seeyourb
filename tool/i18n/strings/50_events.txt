@@ -120,3 +120,4 @@ kindEventNew | Nouvel événement entre amis | New friends event
 kindEventJoin | Participant à votre événement | Someone joined your event
 kindEventMessage | Message dans un événement | Event message
 kindEventAnnouncement | Annonce d'un événement | Event announcement
+deleteRdvOrganizerPlanned | Vous êtes l'organisateur : l'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda. | You're the organizer: the event will be cancelled for every participant (they'll be notified), then removed from your agenda.
