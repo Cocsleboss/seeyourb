@@ -92,6 +92,49 @@ Never put the Supabase **secret / service_role** key or the Firebase service acc
   `device_tokens`; `dispatch` deletes tokens FCM reports as invalid.
 - **Scheduled jobs** (pg_cron): `seeu-reminders` (`*/10 * * * *`) and `seeu-dispatch` (`* * * * *`).
 
+### Events, visibility and who may publish public events
+
+- `events` holds the shared part of a rendezvous (organizer, visibility, date, place,
+  timeslot poll); every participant keeps their own `rendezvous` row (`event_id`).
+- **Visibility**: `private` (invited friends only), `contacts` (all the organizer's
+  SeeU friends see it in Home → Entre amis and can join; they get a notification),
+  `public` (everyone, Home → Explorer; only the organizer posts announcements and photos).
+- **Public event creators** are listed in `public.public_event_creators` (no app access).
+  To allow someone, run in the SQL editor:
+
+  ```sql
+  insert into public.public_event_creators (user_id, note)
+  select id, 'why / who approved' from public.profiles where username = 'their_username';
+  ```
+
+  To remove: `delete from public.public_event_creators where user_id = (select id from public.profiles where username = 'their_username');`
+  The app shows the "Public" choice to that person at the next refresh.
+- **Chat**: `event_messages`, live through Supabase Realtime (the migration adds the table
+  to the `supabase_realtime` publication).
+- **Mutes / blocks**: `user_mutes` (a person or one event) and `user_blocks`; both are
+  applied centrally in `enqueue_notification` and in the feeds. Users manage them in
+  Réglages → Masqués et bloqués.
+
+### Languages
+
+- App strings: `tool/i18n/strings/*.txt` (one line per string: `key | Français | English`),
+  then `python3 tool/i18n/build_arb.py && flutter gen-l10n`.
+- Notifications are stored as `kind` + `params` and rendered by `dispatch`
+  (`supabase/functions/dispatch/templates.ts`) in the recipient's `profiles.locale`
+  and time zone.
+- **Adding a language**: a column in the strings files + `LANGS` in `build_arb.py`,
+  `appLanguages` in `lib/core/i18n.dart`, `CFBundleLocalizations` + an `xx.lproj/InfoPlist.strings`
+  on iOS, and a template block in `templates.ts`.
+- Auth emails (sign-up confirmation, reset) are configured in the Supabase dashboard and are
+  single-language. The sign-up sends `locale` in the user metadata, so the templates can switch
+  on it (`{{ if eq .Data.locale "en" }}…{{ else }}…{{ end }}`).
+
+### Photos
+
+Compressed on the phone before upload: 720 px on the short side, JPEG quality 70, metadata
+(EXIF, GPS) removed, plus a 256 px thumbnail (`photos.thumb_path`) used in grids and the
+calendar. Contact pictures are 384 px. Photos uploaded before this change keep their size.
+
 ## 5. Platform accounts
 
 | Service | What it's used for | Status |
@@ -111,3 +154,5 @@ Never put the Supabase **secret / service_role** key or the Firebase service acc
 - [ ] Email provider: `EMAIL_FROM` + API key as function secrets; custom SMTP in Supabase Auth.
 - [ ] Domain for share links / App Links / Universal Links.
 - [ ] Android release signing (replace the debug signing config in `android/app/build.gradle.kts`).
+- [ ] Ads: see `docs/ADS.md` (AdMob account, consent flow, AdsService implementation).
+- [ ] Auth email templates in French + English (see "Languages" above).

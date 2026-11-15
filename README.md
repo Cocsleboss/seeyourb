@@ -43,7 +43,10 @@ tool/                        launcher icon rendering
      rendezvous invitation/response, shared rendezvous moved/validated/cancelled);
    - **reminders** come from `run_reminders()`, run every 10 minutes by pg_cron
      (daily digest at the user's hour, birthdays, reminder before a rendezvous,
-     "did it happen?" follow-up). All texts are built in French, in the user's timezone.
+     "did it happen?" follow-up).
+   Rows only store a `kind` and `params`; the text is written by `dispatch` in the
+   user's language and time zone (`supabase/functions/dispatch/templates.ts`).
+   Mutes and blocks are applied in `enqueue_notification()`.
 2. Each insert pings the `dispatch` Edge Function (pg_net); a cron job also pings it
    every minute as a safety net.
 3. `dispatch` sends a push to every device of the user (FCM HTTP v1), falls back to
@@ -117,9 +120,11 @@ flutter test                                    # domain rules + every screen in
 flutter test test/screens_test.dart --update-goldens   # also writes screenshots to test/goldens/
 ```
 
-The SQL was validated against PostgreSQL 17 (social flow, shared rendezvous sync,
-reminders, digest, birthdays) with stubs for Supabase's `auth`, `storage`, `vault`,
-`pg_cron` and `pg_net`.
+The SQL is validated against a throw-away PostgreSQL 17 (social flow, events and
+visibility, timeslots, chat RLS, mutes/blocks, reminders): see `supabase/tests/README.md`.
+
+Translations: edit `tool/i18n/strings/*.txt`, then
+`python3 tool/i18n/build_arb.py && flutter gen-l10n`.
 
 ## Before the first store release
 
@@ -141,4 +146,7 @@ reminders, digest, birthdays) with stubs for Supabase's `auth`, `storage`, `vaul
 - `run_reminders()` scans the profiles due for their daily digest every 10 minutes. With a
   very large user base, store a precomputed `next_digest_at` (indexed) instead.
 - Lists are loaded per user and refreshed after each change, when the app resumes and when a
-  push arrives. Supabase Realtime can be added later for live updates.
+  push arrives. Only the event chat is live (Supabase Realtime).
+- Notifications to the members of a very large public event (chat announcements, date changes)
+  are queued in one transaction by a trigger. Past a few thousand participants, move that
+  fan-out to a background job.
