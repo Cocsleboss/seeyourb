@@ -14,8 +14,11 @@ import '../../ui/kit.dart';
 import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import 'calendar.dart';
+import 'history_map.dart';
 import '../../ads/ads.dart';
 import '../../core/i18n.dart';
+
+enum _View { list, month, map }
 
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
@@ -25,7 +28,7 @@ class HistoryScreen extends ConsumerStatefulWidget {
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   RdvStatus? _filter;
-  bool _calendar = false;
+  _View _view = _View.list;
   final _q = TextEditingController();
 
   @override
@@ -42,15 +45,17 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       title: tr.historyTitle,
       actions: [
         SizedBox(
-          width: 104,
-          child: SegmentedControl<bool>(
-            options: [(false, tr.historyList), (true, tr.historyMonth)],
-            value: _calendar,
-            onChanged: (v) => setState(() => _calendar = v),
+          width: 186,
+          child: SegmentedControl<_View>(
+            options: [(_View.list, tr.historyList), (_View.month, tr.historyMonth), (_View.map, tr.historyMap)],
+            value: _view,
+            onChanged: (v) => setState(() => _view = v),
           ),
         ),
       ],
-      body: _calendar
+      body: _view == _View.map
+          ? const HistoryMap()
+          : _view == _View.month
           ? PageList(
               onRefresh: () async => refreshData(ref),
               children: const [SizedBox(height: 8), HistoryCalendar()],

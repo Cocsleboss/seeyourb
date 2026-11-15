@@ -17,6 +17,7 @@ import '../../ui/kit.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../rdv/rsvp.dart';
+import '../../maps/maps.dart';
 import 'event_widgets.dart';
 import 'moderation.dart';
 
@@ -121,6 +122,10 @@ class _PreviewState extends ConsumerState<_Preview> {
                 const SizedBox(width: 8),
                 Expanded(child: Text(e.location!, style: TextStyle(fontSize: 16, color: c.text))),
               ]),
+            ],
+            if (e.lat != null && e.lng != null) ...[
+              const SizedBox(height: 12),
+              PlaceMapCard(lat: e.lat!, lng: e.lng!, label: e.location ?? e.displayTitle),
             ],
             if (e.link != null) ...[
               const SizedBox(height: 8),

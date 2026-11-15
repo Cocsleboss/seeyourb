@@ -2802,4 +2802,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkHint => 'Tickets, menu, event page…';
+
+  @override
+  String get placeSearchHint => 'Bar, restaurant, address… or free text';
+
+  @override
+  String get placeFreeTextHint => 'Not listed? Just keep your own text.';
+
+  @override
+  String get placeSearchFailed =>
+      'Place search unavailable: your text will be kept as is.';
+
+  @override
+  String get openInMaps => 'Directions';
+
+  @override
+  String get historyMap => 'Map';
+
+  @override
+  String get historyMapEmpty =>
+      'Events whose place was picked from the search will show up here.';
+
+  @override
+  String get openEvent => 'Open the event';
+
+  @override
+  String get welcomeFriendsTitle => 'Your SeeU friends';
+
+  @override
+  String get welcomeFriendsMessage =>
+      'Choose how often you want to see each of them: SeeU will remind you to keep in touch.';
+
+  @override
+  String get quickHowOften => 'How often?';
+
+  @override
+  String get quickCategory => 'Category';
+
+  @override
+  String get moreOptions => 'More options';
+
+  @override
+  String get associate => 'Add';
+
+  @override
+  String friendNowContact(String name) {
+    return '$name is now in your contacts';
+  }
+
+  @override
+  String get contactLinkHint =>
+      'Optional. Linked to their SeeU account, you can share events and photos.';
+
+  @override
+  String get contactLinkSheetSub =>
+      'One of your SeeU friends, or search their @username: the friend request is sent when you save.';
+
+  @override
+  String get orFindByUsername => 'Not friends yet? Search their @username';
+
+  @override
+  String get requestSentOnSave => 'request sent when you save';
 }

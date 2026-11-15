@@ -19,6 +19,7 @@ import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
+import '../../maps/place_field.dart';
 import '../events/event_widgets.dart';
 import '../misc/fallback_screens.dart';
 
@@ -391,7 +392,15 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                 },
               ),
             ),
-            LabeledField(label: tr.placeOptional, child: AppTextField(controller: _location, hint: tr.placeHint, maxLength: 200)),
+            LabeledField(
+              label: tr.placeOptional,
+              child: PlaceField(
+                controller: _location,
+                lat: _lat,
+                lng: _lng,
+                onPlace: (p) => setState(() => (_lat = p?.lat, _lng = p?.lng)),
+              ),
+            ),
             LabeledField(
               label: tr.linkLabel,
               error: _linkInvalid ? tr.errBadLink : null,

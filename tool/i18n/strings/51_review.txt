@@ -71,3 +71,21 @@ avatarRemoved | Photo de profil retirée | Profile picture removed
 errBadLink | Ce lien n'est pas valide (il doit commencer par https://). | This link isn't valid (it must start with https://).
 linkLabel | Lien | Link
 linkHint | Billetterie, menu, page de l'événement… | Tickets, menu, event page…
+placeSearchHint | Bar, restaurant, adresse… ou texte libre | Bar, restaurant, address… or free text
+placeFreeTextHint | Pas dans la liste ? Gardez simplement votre texte. | Not listed? Just keep your own text.
+placeSearchFailed | Recherche de lieux indisponible : votre texte sera gardé tel quel. | Place search unavailable: your text will be kept as is.
+openInMaps | Itinéraire | Directions
+historyMap | Carte | Map
+historyMapEmpty | Les rendez-vous dont le lieu a été choisi dans la recherche apparaîtront ici. | Events whose place was picked from the search will show up here.
+openEvent | Voir le rendez-vous | Open the event
+welcomeFriendsTitle | Vos amis SeeU | Your SeeU friends
+welcomeFriendsMessage | Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact. | Choose how often you want to see each of them: SeeU will remind you to keep in touch.
+quickHowOften | À quelle fréquence ? | How often?
+quickCategory | Catégorie | Category
+moreOptions | Plus d'options | More options
+associate | Associer | Add
+friendNowContact | {name} est maintenant dans vos contacts | {name} is now in your contacts
+contactLinkHint | Facultatif. Lié à son compte SeeU, vous pourrez partager rendez-vous et photos. | Optional. Linked to their SeeU account, you can share events and photos.
+contactLinkSheetSub | Un de vos amis SeeU, ou cherchez son @identifiant : la demande d'ami partira à l'enregistrement. | One of your SeeU friends, or search their @username: the friend request is sent when you save.
+orFindByUsername | Pas encore ami ? Cherchez son @identifiant | Not friends yet? Search their @username
+requestSentOnSave | demande envoyée à l'enregistrement | request sent when you save

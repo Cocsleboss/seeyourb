@@ -18,6 +18,7 @@ import 'package:seeu/data/api.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:seeu/core/theme.dart';
 import 'package:seeu/data/providers.dart';
+import 'package:seeu/maps/maps.dart';
 import 'package:seeu/domain/dates.dart';
 import 'package:seeu/domain/models.dart';
 import 'package:seeu/features/auth/login_screen.dart';
@@ -75,7 +76,7 @@ final planned = [
   Rendezvous(id: 'r1', userId: 'me', title: 'Petit matcha bebew', location: 'LLN', appointmentAt: d(0, 19, 30), status: RdvStatus.planifie, contacts: [lite('andrea')]),
   Rendezvous(id: 'r2', userId: 'me', appointmentAt: d(1, 18), status: RdvStatus.planifie, contacts: [lite('marie'), lite('paul')]),
   Rendezvous(id: 'r3', userId: 'me', title: 'Soirée poker', location: 'Bruxelles', appointmentAt: d(4, 21), status: RdvStatus.planifie, eventId: 's',
-      event: EventInfo(id: 's', organizerId: 'me', memberCount: 3, goingCount: 2), contacts: [lite('andrea'), lite('leo'), lite('zoe'), lite('paul')]),
+      event: EventInfo(id: 's', organizerId: 'me', memberCount: 3, goingCount: 2, lat: 50.8467, lng: 4.3525, link: 'https://www.poker-bruxelles.be/soiree'), contacts: [lite('andrea'), lite('leo'), lite('zoe'), lite('paul')]),
   Rendezvous(id: 'r4', userId: 'me', title: 'Brunch', appointmentAt: d(6, 11), status: RdvStatus.planifie, eventId: 't', rsvp: Rsvp.pending,
       event: EventInfo(id: 't', organizerId: 'u-andrea', visibility: EventVisibility.contacts, memberCount: 4, goingCount: 3), contacts: [lite('andrea')]),
   Rendezvous(id: 'r5', userId: 'me', title: 'Week-end au ski', location: 'Chamonix', appointmentAt: d(10, 9), status: RdvStatus.planifie, eventId: 'v',
@@ -274,6 +275,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
           ]),
       blockedProvider.overrideWith((ref) async => [BlockedUser(userId: 'u-y', name: 'Spammeur', username: 'spam42')]),
       avatarUrlProvider.overrideWith((ref, id) async => null),
+      mapsEnabledProvider.overrideWithValue(false),
       apiProvider.overrideWithValue(fakeApi),
       ...overrides,
     ],

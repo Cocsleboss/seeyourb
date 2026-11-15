@@ -19,6 +19,7 @@ import 'rsvp.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
+import '../../maps/maps.dart';
 import 'people_section.dart';
 import 'status_actions.dart';
 import '../events/chat.dart';
@@ -226,6 +227,10 @@ class _Body extends ConsumerWidget {
                   Expanded(child: Text(rdv.location!, style: TextStyle(fontSize: 16, color: c.brandText))),
                 ]),
               ),
+            ],
+            if (rdv.event?.lat != null && rdv.event?.lng != null) ...[
+              const SizedBox(height: 12),
+              PlaceMapCard(lat: rdv.event!.lat!, lng: rdv.event!.lng!, label: rdv.location ?? rdv.displayTitle),
             ],
             if (rdv.event?.link != null) ...[
               const SizedBox(height: 8),

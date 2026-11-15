@@ -79,14 +79,12 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
             onPressed: _busy == null ? () => _set(RdvStatus.valide) : null),
       ),
       const SizedBox(width: 10),
-      Expanded(
-        child: AppButton(tr.statusSetCancelled,
-            icon: LucideIcons.x,
-            variant: ButtonVariant.outline,
-            full: true,
-            loading: _busy == RdvStatus.annule,
-            onPressed: _busy == null ? () => _set(RdvStatus.annule) : null),
-      ),
+      // "Annuler" at its natural width: the main action gets the rest.
+      AppButton(tr.statusSetCancelled,
+          icon: LucideIcons.x,
+          variant: ButtonVariant.outline,
+          loading: _busy == RdvStatus.annule,
+          onPressed: _busy == null ? () => _set(RdvStatus.annule) : null),
     ]);
   }
 }

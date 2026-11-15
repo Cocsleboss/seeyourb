@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'link_friend_field.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme.dart';
@@ -23,10 +24,13 @@ import '../../core/i18n.dart';
 
 /// Values to prefill a new contact (e.g. from a SeeU friend).
 class ContactPrefill {
-  const ContactPrefill({this.name, this.email, this.linkedUserId});
+  const ContactPrefill({this.name, this.email, this.linkedUserId, this.frequencyValue, this.frequencyUnit, this.categories});
   final String? name;
   final String? email;
   final String? linkedUserId;
+  final int? frequencyValue;
+  final FrequencyUnit? frequencyUnit;
+  final List<String>? categories;
 }
 
 class ContactFormScreen extends ConsumerWidget {
@@ -89,10 +93,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _phone = TextEditingController(text: e?.phone ?? '');
     _email = TextEditingController(text: e?.email ?? p?.email ?? '');
     _notes = TextEditingController(text: e?.notes ?? '');
-    _categories = [...?e?.categories];
+    _categories = [...?(e?.categories ?? p?.categories)];
     _lastMeeting = e?.lastMeetingDate;
-    _freqValue = e?.frequencyValue ?? 1;
-    _freqUnit = e?.frequencyUnit ?? FrequencyUnit.months;
+    _freqValue = e?.frequencyValue ?? p?.frequencyValue ?? 1;
+    _freqUnit = e?.frequencyUnit ?? p?.frequencyUnit ?? FrequencyUnit.months;
     _birthday = e?.birthday;
   }
 
@@ -118,6 +122,9 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     });
   }
 
+  /// New contact: SeeU friend to link now, or someone to send a request to.
+  FriendLinkChoice? _link;
+
   Future<void> _save() async {
     setState(() => _submitted = true);
     if (_nameError != null || _freqError != null || _emailError != null) return;
@@ -133,14 +140,17 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       lastMeetingDate: _lastMeeting,
       frequencyValue: _freqValue,
       frequencyUnit: _freqUnit,
-      linkedUserId: widget.prefill?.linkedUserId,
+      linkedUserId: widget.prefill?.linkedUserId ?? (_link?.isFriend == true ? _link!.userId : null),
     );
+    final request = widget.existing == null && _link != null && !_link!.isFriend ? _link : null;
     final existing = widget.existing;
     final saved = await guard(() async {
       var contact = existing == null ? await api.createContact(input) : await api.updateContact(existing.id, input.toJson());
       if (_newPhoto != null || (_removePhoto && contact.photoPath != null)) {
         contact = await api.setContactPhoto(contact, _removePhoto ? null : _newPhoto);
       }
+      // Not friends yet: the request is tied to this new contact (linked on accept).
+      if (request?.username != null) await api.sendFriendRequest(request!.username!, contactId: contact.id);
       return contact;
     }, success: existing == null ? tr.contactAdded : tr.contactUpdated);
     if (!mounted) return;
@@ -215,6 +225,14 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               onChanged: (_) => setState(() {}),
             ),
           ),
+
+          // SeeU friend (new contact; existing ones are linked from their page)
+          if (widget.existing == null && widget.prefill?.linkedUserId == null)
+            LabeledField(
+              label: tr.seeuFriend,
+              hint: tr.contactLinkHint,
+              child: LinkFriendField(value: _link, onChanged: (v) => setState(() => _link = v)),
+            ),
 
           LabeledField(
             label: tr.categories,

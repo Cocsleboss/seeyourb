@@ -1643,5 +1643,30 @@
   "avatarRemoved": "Photo de profil retirée",
   "errBadLink": "Ce lien n'est pas valide (il doit commencer par https://).",
   "linkLabel": "Lien",
-  "linkHint": "Billetterie, menu, page de l'événement…"
+  "linkHint": "Billetterie, menu, page de l'événement…",
+  "placeSearchHint": "Bar, restaurant, adresse… ou texte libre",
+  "placeFreeTextHint": "Pas dans la liste ? Gardez simplement votre texte.",
+  "placeSearchFailed": "Recherche de lieux indisponible : votre texte sera gardé tel quel.",
+  "openInMaps": "Itinéraire",
+  "historyMap": "Carte",
+  "historyMapEmpty": "Les rendez-vous dont le lieu a été choisi dans la recherche apparaîtront ici.",
+  "openEvent": "Voir le rendez-vous",
+  "welcomeFriendsTitle": "Vos amis SeeU",
+  "welcomeFriendsMessage": "Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact.",
+  "quickHowOften": "À quelle fréquence ?",
+  "quickCategory": "Catégorie",
+  "moreOptions": "Plus d'options",
+  "associate": "Associer",
+  "friendNowContact": "{name} est maintenant dans vos contacts",
+  "@friendNowContact": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "contactLinkHint": "Facultatif. Lié à son compte SeeU, vous pourrez partager rendez-vous et photos.",
+  "contactLinkSheetSub": "Un de vos amis SeeU, ou cherchez son @identifiant : la demande d'ami partira à l'enregistrement.",
+  "orFindByUsername": "Pas encore ami ? Cherchez son @identifiant",
+  "requestSentOnSave": "demande envoyée à l'enregistrement"
 }

@@ -4549,6 +4549,114 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Billetterie, menu, page de l\'événement…'**
   String get linkHint;
+
+  /// No description provided for @placeSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bar, restaurant, adresse… ou texte libre'**
+  String get placeSearchHint;
+
+  /// No description provided for @placeFreeTextHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas dans la liste ? Gardez simplement votre texte.'**
+  String get placeFreeTextHint;
+
+  /// No description provided for @placeSearchFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche de lieux indisponible : votre texte sera gardé tel quel.'**
+  String get placeSearchFailed;
+
+  /// No description provided for @openInMaps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Itinéraire'**
+  String get openInMaps;
+
+  /// No description provided for @historyMap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte'**
+  String get historyMap;
+
+  /// No description provided for @historyMapEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les rendez-vous dont le lieu a été choisi dans la recherche apparaîtront ici.'**
+  String get historyMapEmpty;
+
+  /// No description provided for @openEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le rendez-vous'**
+  String get openEvent;
+
+  /// No description provided for @welcomeFriendsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos amis SeeU'**
+  String get welcomeFriendsTitle;
+
+  /// No description provided for @welcomeFriendsMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact.'**
+  String get welcomeFriendsMessage;
+
+  /// No description provided for @quickHowOften.
+  ///
+  /// In fr, this message translates to:
+  /// **'À quelle fréquence ?'**
+  String get quickHowOften;
+
+  /// No description provided for @quickCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie'**
+  String get quickCategory;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus d\'options'**
+  String get moreOptions;
+
+  /// No description provided for @associate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Associer'**
+  String get associate;
+
+  /// No description provided for @friendNowContact.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} est maintenant dans vos contacts'**
+  String friendNowContact(String name);
+
+  /// No description provided for @contactLinkHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Facultatif. Lié à son compte SeeU, vous pourrez partager rendez-vous et photos.'**
+  String get contactLinkHint;
+
+  /// No description provided for @contactLinkSheetSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un de vos amis SeeU, ou cherchez son @identifiant : la demande d\'ami partira à l\'enregistrement.'**
+  String get contactLinkSheetSub;
+
+  /// No description provided for @orFindByUsername.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore ami ? Cherchez son @identifiant'**
+  String get orFindByUsername;
+
+  /// No description provided for @requestSentOnSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'demande envoyée à l\'enregistrement'**
+  String get requestSentOnSave;
 }
 
 class _AppLocalizationsDelegate

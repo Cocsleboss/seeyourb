@@ -2879,4 +2879,66 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get linkHint => 'Billetterie, menu, page de l\'événement…';
+
+  @override
+  String get placeSearchHint => 'Bar, restaurant, adresse… ou texte libre';
+
+  @override
+  String get placeFreeTextHint =>
+      'Pas dans la liste ? Gardez simplement votre texte.';
+
+  @override
+  String get placeSearchFailed =>
+      'Recherche de lieux indisponible : votre texte sera gardé tel quel.';
+
+  @override
+  String get openInMaps => 'Itinéraire';
+
+  @override
+  String get historyMap => 'Carte';
+
+  @override
+  String get historyMapEmpty =>
+      'Les rendez-vous dont le lieu a été choisi dans la recherche apparaîtront ici.';
+
+  @override
+  String get openEvent => 'Voir le rendez-vous';
+
+  @override
+  String get welcomeFriendsTitle => 'Vos amis SeeU';
+
+  @override
+  String get welcomeFriendsMessage =>
+      'Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact.';
+
+  @override
+  String get quickHowOften => 'À quelle fréquence ?';
+
+  @override
+  String get quickCategory => 'Catégorie';
+
+  @override
+  String get moreOptions => 'Plus d\'options';
+
+  @override
+  String get associate => 'Associer';
+
+  @override
+  String friendNowContact(String name) {
+    return '$name est maintenant dans vos contacts';
+  }
+
+  @override
+  String get contactLinkHint =>
+      'Facultatif. Lié à son compte SeeU, vous pourrez partager rendez-vous et photos.';
+
+  @override
+  String get contactLinkSheetSub =>
+      'Un de vos amis SeeU, ou cherchez son @identifiant : la demande d\'ami partira à l\'enregistrement.';
+
+  @override
+  String get orFindByUsername => 'Pas encore ami ? Cherchez son @identifiant';
+
+  @override
+  String get requestSentOnSave => 'demande envoyée à l\'enregistrement';
 }

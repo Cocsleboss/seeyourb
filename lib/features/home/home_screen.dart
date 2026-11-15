@@ -18,6 +18,7 @@ import '../contacts/quick_sheets.dart';
 import '../friends/invite_card.dart';
 import '../rdv/status_actions.dart';
 import 'push_banner.dart';
+import '../friends/quick_contact_row.dart';
 import 'feed_section.dart';
 import '../../ads/ads.dart';
 import '../../core/i18n.dart';
@@ -349,10 +350,28 @@ class _Agenda extends ConsumerWidget {
   }
 }
 
-class _Welcome extends StatelessWidget {
+class _Welcome extends ConsumerWidget {
   const _Welcome();
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final friends = (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.accepted).toList();
+    // SeeU friends but no contacts yet: make them contacts right here.
+    if (friends.isNotEmpty) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        SectionTitle(tr.welcomeFriendsTitle, count: friends.length),
+        Text(tr.welcomeFriendsMessage, style: TextStyle(color: c.textMuted, fontSize: 14, height: 1.35)),
+        const SizedBox(height: 12),
+        RowsCard(children: [for (final f in friends) QuickFriendContactRow(key: ValueKey(f.userId), friend: f)]),
+        const SizedBox(height: 14),
+        AppButton(tr.addContact,
+            icon: LucideIcons.userPlus, variant: ButtonVariant.secondary, full: true, onPressed: () => context.push('/contacts/new')),
+      ]);
+    }
+    return _welcomeCard(context);
+  }
+
+  Widget _welcomeCard(BuildContext context) => Padding(
         padding: const EdgeInsets.only(top: 20),
         child: AppCard(
           child: EmptyState(
