@@ -131,7 +131,9 @@ reminders, digest, birthdays) with stubs for Supabase's `auth`, `storage`, `vaul
   (and `APP_DOWNLOAD_URL` for invitations to people without the app).
 - **Android signing**: replace the debug signing config in `android/app/build.gradle.kts`.
 - **Icons**: `flutter test tool/render_icon_test.dart && dart run flutter_launcher_icons`
-  regenerates the launcher icons from the logo drawn in `lib/ui/logo.dart`.
+  regenerates the launcher icons from the logo drawn in `lib/ui/logo.dart`. Afterwards check
+  `git diff ios/Runner.xcodeproj`: the tool rewrites `ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS`
+  to `AppIcon`, which makes Xcode 27 refuse to open the project. Set it back to `YES`.
 
 ## Notes for later
 
