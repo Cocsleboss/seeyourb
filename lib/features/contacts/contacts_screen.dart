@@ -158,13 +158,14 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           // Add people
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            // Stacked: "Ajouter un ami SeeU" is too long for half the width.
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              AppButton(tr.addContact, icon: LucideIcons.userPlus, full: true, onPressed: () => context.push('/contacts/new')),
-              const SizedBox(height: 8),
-              AppButton(tr.addSeeuFriend,
-                  icon: LucideIcons.userSearch, variant: ButtonVariant.secondary, full: true, onPressed: () => showAddFriendSheet(context)),
-            ]),
+            // Side by side; icon above the label so the full wording fits.
+            child: IntrinsicHeight(
+              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Expanded(child: _AddButton(icon: LucideIcons.userPlus, label: tr.addContact, primary: true, onTap: () => context.push('/contacts/new'))),
+                const SizedBox(width: 10),
+                Expanded(child: _AddButton(icon: LucideIcons.userSearch, label: tr.addSeeuFriend, onTap: () => showAddFriendSheet(context))),
+              ]),
+            ),
           ),
 
           // Social activity waiting for me
@@ -267,6 +268,39 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             Padding(padding: const EdgeInsets.fromLTRB(16, 4, 16, 0), child: Column(children: sections)),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _AddButton extends StatelessWidget {
+  const _AddButton({required this.icon, required this.label, required this.onTap, this.primary = false});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool primary;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final fg = primary ? Colors.white : c.text;
+    return Material(
+      color: primary ? Palette.brand600 : c.secondaryFill,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(icon, size: 22, color: fg),
+            const SizedBox(height: 6),
+            Text(label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700, color: fg, height: 1.2)),
+          ]),
+        ),
       ),
     );
   }
