@@ -39,9 +39,18 @@ class RdvDetailScreen extends ConsumerWidget {
     }
     final rdv = value.value;
     final event = rdv?.eventId == null ? null : ref.watch(eventProvider(rdv!.eventId!)).value;
-    return AppScaffold(
+    final guardSlots = rdv != null && rdv.slotsOpen && rdv.eventId != null;
+
+    // Unsent availability: ask before leaving (system back and the arrow).
+    Future<void> leave() async {
+      if (guardSlots && !await confirmLeaveAvailability(context, ref, rdv.eventId!, isOrganizer: rdv.isOrganizer)) return;
+      if (context.mounted) leavePage(context);
+    }
+
+    final scaffold = AppScaffold(
       title: rdv?.displayTitle ?? tr.rdvGeneric,
       back: true,
+      onBack: leave,
       actions: [
         if (rdv != null)
           AppIconButton(
@@ -58,7 +67,9 @@ class RdvDetailScreen extends ConsumerWidget {
               event.mutedEvent
                   ? ModerationAction(LucideIcons.bell, tr.unmuteEvent, () => setEventMuted(ref, event.id, false))
                   : ModerationAction(LucideIcons.bellOff, tr.muteEvent, () => setEventMuted(ref, event.id, true)),
-              if (!rdv.isOrganizer) ...personActions(context, ref, userId: event.organizerId, name: event.organizerName, muted: event.mutedOrganizer),
+              if (!rdv.isOrganizer)
+                ...personActions(context, ref,
+                    userId: event.organizerId, name: event.organizerName, muted: event.mutedOrganizer, onBlocked: () => leavePage(context)),
             ]),
           ),
       ],
@@ -69,6 +80,18 @@ class RdvDetailScreen extends ConsumerWidget {
             )
           : _Body(rdv),
     );
+    if (!guardSlots) return scaffold;
+    return Consumer(builder: (context, ref, _) {
+      ref.watch(availabilityDraftProvider(rdv.eventId!));
+      final unsent = hasUnsentAvailability(ref, rdv.eventId!);
+      return PopScope(
+        canPop: !unsent,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) leave();
+        },
+        child: scaffold,
+      );
+    });
   }
 }
 
@@ -91,7 +114,7 @@ class _Body extends ConsumerWidget {
     );
     if (!ok || !context.mounted) return;
     final done = await guard(() async {
-      await ref.read(apiProvider).deleteRdv(rdv);
+      await withProgress(() => ref.read(apiProvider).deleteRdv(rdv));
       return true;
     }, success: tr.rdvDeleted);
     if (done == null || !context.mounted) return;
@@ -140,7 +163,8 @@ class _Body extends ConsumerWidget {
       children: [
         const SizedBox(height: 8),
         // 0. Invitation from a friend: my answer (à confirmer / accepter / refuser)
-        if (rdv.rsvp != null) ...[_RsvpCard(rdv: rdv, event: event), const SizedBox(height: 16)],
+        // (events voting on timeslots: the answer comes from the availability, below)
+        if (rdv.rsvp != null && !rdv.slotsOpen) ...[_RsvpCard(rdv: rdv, event: event), const SizedBox(height: 16)],
 
         // 1. Amber "did it happen?" banner
         if (rdv.needsConfirmation() && !rdv.slotsOpen) ...[
@@ -237,7 +261,15 @@ class _Body extends ConsumerWidget {
 
         // 2b. Timeslot poll
         if (rdv.slotsOpen && rdv.eventId != null)
-          SlotPoll(eventId: rdv.eventId!, isOrganizer: rdv.isOrganizer, members: rdv.event?.memberCount ?? 1),
+          SlotPoll(eventId: rdv.eventId!, isOrganizer: rdv.isOrganizer, members: rdv.event?.memberCount ?? 1, currentRsvp: rdv.rsvp),
+
+        // 2c. Chat / announcements, right on the page
+        if (rdv.isShared && rdv.eventId != null && rdv.rsvp != Rsvp.declined)
+          EventChat(
+            key: ValueKey('chat-${rdv.eventId}'),
+            rdv: rdv,
+            canPost: event?.canPost ?? (rdv.visibility != EventVisibility.public || rdv.isOrganizer),
+          ),
 
         // 3. People taking part (shared events) and my contacts
         if (rdv.isShared && rdv.eventId != null) _PeopleSection(rdv: rdv),
@@ -258,10 +290,9 @@ class _Body extends ConsumerWidget {
           ]),
 
         // 4. Sharing
-        if (friendContacts.isNotEmpty && (!public || rdv.isOrganizer)) _ShareSection(rdv: rdv, friends: friendContacts),
-
-        // 4b. Chat / announcements
-        if (rdv.isShared && rdv.eventId != null && rdv.rsvp != Rsvp.declined) ChatPreview(rdv: rdv),
+        // (members invite their friends only when the organizer allows it)
+        if (friendContacts.isNotEmpty && (rdv.isOrganizer || (!public && (rdv.event?.guestsCanInvite ?? true))))
+          _ShareSection(rdv: rdv, friends: friendContacts),
 
         // 5. Status + calendar
         const SizedBox(height: 20),

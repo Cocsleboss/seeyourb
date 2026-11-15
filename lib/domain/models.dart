@@ -388,6 +388,7 @@ class EventInfo {
     this.description,
     this.memberCount = 1,
     this.goingCount = 1,
+    this.guestsCanInvite = true,
   });
   final String id;
   final String organizerId;
@@ -397,6 +398,9 @@ class EventInfo {
   final int memberCount;
   final int goingCount;
 
+  /// Participants may invite their own friends.
+  final bool guestsCanInvite;
+
   factory EventInfo.fromJson(Map<String, dynamic> j) => EventInfo(
         id: j['id'] as String,
         organizerId: j['organizer_id'] as String,
@@ -405,6 +409,7 @@ class EventInfo {
         description: _str(j['description']),
         memberCount: (j['member_count'] as int?) ?? 1,
         goingCount: (j['going_count'] as int?) ?? 1,
+        guestsCanInvite: (j['guests_can_invite'] as bool?) ?? true,
       );
 }
 
@@ -612,6 +617,7 @@ class EventInput {
     this.slots = const [],
     this.contactIds = const [],
     this.inviteUserIds = const [],
+    this.guestsCanInvite = true,
   });
   String? rdvId;
   EventVisibility visibility;
@@ -624,6 +630,7 @@ class EventInput {
   List<DateTime> slots;
   List<String> contactIds;
   List<String> inviteUserIds;
+  bool guestsCanInvite;
 
   Map<String, dynamic> toJson() => {
         'rdv_id': ?rdvId,
@@ -637,6 +644,7 @@ class EventInput {
         'slots': [for (final s in slots) s.toUtc().toIso8601String()],
         'contact_ids': contactIds.toSet().toList(),
         'invite_user_ids': inviteUserIds.toSet().toList(),
+        'guests_can_invite': guestsCanInvite,
       };
 }
 

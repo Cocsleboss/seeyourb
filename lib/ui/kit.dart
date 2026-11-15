@@ -60,11 +60,14 @@ enum ButtonVariant { primary, secondary, outline, ghost, success, danger }
 
 enum ButtonSize { sm, md, lg }
 
-class AppButton extends StatelessWidget {
+/// Button. For actions that take time, pass [onAsync]: the button shows a spinner
+/// and ignores taps until the future completes (no need to track `loading` by hand).
+class AppButton extends StatefulWidget {
   const AppButton(
     this.label, {
     super.key,
     this.onPressed,
+    this.onAsync,
     this.icon,
     this.variant = ButtonVariant.primary,
     this.size = ButtonSize.md,
@@ -74,6 +77,7 @@ class AppButton extends StatelessWidget {
 
   final String label;
   final VoidCallback? onPressed;
+  final Future<void> Function()? onAsync;
   final IconData? icon;
   final ButtonVariant variant;
   final ButtonSize size;
@@ -81,7 +85,30 @@ class AppButton extends StatelessWidget {
   final bool full;
 
   @override
+  State<AppButton> createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton> {
+  bool _running = false;
+
+  Future<void> _runAsync() async {
+    setState(() => _running = true);
+    try {
+      await widget.onAsync!();
+    } finally {
+      if (mounted) setState(() => _running = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final label = widget.label;
+    final icon = widget.icon;
+    final variant = widget.variant;
+    final size = widget.size;
+    final full = widget.full;
+    final loading = widget.loading || _running;
+    final VoidCallback? onPressed = widget.onAsync != null ? _runAsync : widget.onPressed;
     final c = context.colors;
     final (Color bg, Color fg, Color? border) = switch (variant) {
       ButtonVariant.primary => (Palette.brand600, Colors.white, null),

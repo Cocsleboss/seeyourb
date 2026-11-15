@@ -49,7 +49,8 @@ class EventPreviewScreen extends ConsumerWidget {
               e.mutedEvent
                   ? ModerationAction(LucideIcons.bell, tr.unmuteEvent, () => setEventMuted(ref, e.id, false))
                   : ModerationAction(LucideIcons.bellOff, tr.muteEvent, () => setEventMuted(ref, e.id, true)),
-              ...personActions(context, ref, userId: e.organizerId, name: e.organizerName, muted: e.mutedOrganizer),
+              ...personActions(context, ref,
+                  userId: e.organizerId, name: e.organizerName, muted: e.mutedOrganizer, onBlocked: () => leavePage(context)),
             ]),
           ),
       ],
@@ -145,7 +146,12 @@ class _PreviewState extends ConsumerState<_Preview> {
         else ...[
           Text(e.slotsOpen ? tr.joinToVote : tr.areYouComing, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.text)),
           const SizedBox(height: 10),
-          RsvpSelector(value: e.myRsvp, busy: _busy, onChanged: _answer),
+          // Several timeslots: no yes/no here, the answer comes from the availability.
+          if (e.slotsOpen)
+            AppButton(tr.giveAvailability,
+                icon: LucideIcons.calendarClock, full: true, size: ButtonSize.lg, loading: _busy != null, onPressed: () => _answer(Rsvp.pending))
+          else
+            RsvpSelector(value: e.myRsvp, busy: _busy, onChanged: _answer),
           const SizedBox(height: 8),
           Text(e.visibility == EventVisibility.public ? tr.joinPublicHint : tr.joinFriendsHint,
               style: TextStyle(fontSize: 13, color: c.textMuted, height: 1.35)),

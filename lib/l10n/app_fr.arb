@@ -1498,5 +1498,51 @@
   "kindEventJoin": "Participant à votre événement",
   "kindEventMessage": "Message dans un événement",
   "kindEventAnnouncement": "Annonce d'un événement",
-  "deleteRdvOrganizerPlanned": "Vous êtes l'organisateur : l'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda."
+  "deleteRdvOrganizerPlanned": "Vous êtes l'organisateur : l'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda.",
+  "availabilitySaved": "Disponibilités enregistrées",
+  "availabilitySentGoing": "Disponibilités envoyées : vous êtes noté comme participant",
+  "availabilitySentDeclined": "Vous avez décliné l'événement, l'organisateur est prévenu",
+  "confirmAvailabilityTitle": "Envoyer vos disponibilités ?",
+  "unansweredAsMaybe": "{n, plural, =1{1 créneau sans réponse sera compté « peut-être ».} other{{n} créneaux sans réponse seront comptés « peut-être ».}}",
+  "@unansweredAsMaybe": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmAndDecline": "Décliner l'événement",
+  "confirmAvailability": "Valider mes disponibilités",
+  "leaveWithoutSending": "Quitter sans envoyer",
+  "outcomeGoing": "Vous êtes disponible au moins une fois : vous serez noté comme participant et l'organisateur sera prévenu.",
+  "outcomeDeclined": "Aucun créneau ne vous convient : l'événement sera décliné et l'organisateur prévenu.",
+  "outcomeMaybe": "Rien de sûr pour l'instant : l'événement reste « à confirmer », sans prévenir l'organisateur.",
+  "yourAnswer": "Votre réponse :",
+  "availabilitySent": "Disponibilités envoyées",
+  "notSentYet": "non envoyé",
+  "severalSlotsProposed": "Plusieurs créneaux proposés",
+  "giveAvailability": "Indiquer mes disponibilités",
+  "slotsInviteHint": "Ouvrez l'événement pour répondre créneau par créneau.",
+  "guestsCanInvite": "Les invités peuvent inviter leurs amis",
+  "guestsCanInviteHelp": "Sinon, vous seul pouvez ajouter des participants.",
+  "blockContactDeleted": "Votre contact « {name} » sera aussi supprimé : plus de rappels pour le revoir.",
+  "@blockContactDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "blockedAndDeleted": "{name} est bloqué(e) et son contact supprimé",
+  "@blockedAndDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demoAds": "Publicités de démonstration",
+  "demoAdsHelp": "Affiche de fausses annonces pour juger de leur intégration (mode développement).",
+  "adCta": "En savoir plus",
+  "earlierMessages": "Messages précédents"
 }

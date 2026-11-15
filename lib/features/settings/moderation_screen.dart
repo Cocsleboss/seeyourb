@@ -30,13 +30,13 @@ class ModerationScreen extends ConsumerWidget {
     final mutes = ref.watch(mutesProvider);
     final blocked = ref.watch(blockedProvider);
 
-    Widget row({required Widget leading, required String title, String? subtitle, required String action, required VoidCallback onTap}) =>
+    Widget row({required Widget leading, required String title, String? subtitle, required String action, required Future<void> Function() onTap}) =>
         ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           leading: leading,
           title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
           subtitle: subtitle == null ? null : Text(subtitle, style: TextStyle(color: c.textMuted, fontSize: 13.5)),
-          trailing: AppButton(action, size: ButtonSize.sm, variant: ButtonVariant.secondary, onPressed: onTap),
+          trailing: AppButton(action, size: ButtonSize.sm, variant: ButtonVariant.secondary, onAsync: onTap),
         );
 
     return AppScaffold(

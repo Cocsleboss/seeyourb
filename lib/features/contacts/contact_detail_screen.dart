@@ -60,7 +60,8 @@ class ContactDetailScreen extends ConsumerWidget {
               final muted = mutes.any((m) => m.targetUser == contact!.linkedUserId);
               showModerationSheet(context,
                   title: contact!.name,
-                  actions: personActions(context, ref, userId: contact.linkedUserId!, name: contact.name, muted: muted));
+                  actions: personActions(context, ref,
+                      userId: contact.linkedUserId!, name: contact.name, muted: muted, onBlocked: () => leavePage(context)));
             },
           ),
       ],
@@ -95,7 +96,7 @@ class _Body extends ConsumerWidget {
     );
     if (!ok || !context.mounted) return;
     final done = await guard(() async {
-      await ref.read(apiProvider).deleteContact(contact);
+      await withProgress(() => ref.read(apiProvider).deleteContact(contact));
       return true;
     }, success: tr.contactDeleted);
     if (done == null || !context.mounted) return;

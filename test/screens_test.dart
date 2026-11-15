@@ -12,7 +12,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:seeu/ads/ads.dart';
 import 'package:seeu/core/i18n.dart';
+import 'package:seeu/data/api.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:seeu/core/theme.dart';
 import 'package:seeu/data/providers.dart';
 import 'package:seeu/domain/dates.dart';
@@ -140,6 +143,25 @@ final messages = [
   ChatMessage(id: 'm1', userId: 'u-andrea', authorName: 'Cocsi_bucci', body: 'Le 2e week-end me va parfaitement !', createdAt: d(0, 17, 31)),
 ];
 
+/// Server calls made by widgets themselves (the event chat), answered locally.
+class _FakeApi extends Api {
+  _FakeApi() : super(SupabaseClient('http://localhost', 'test-key', authOptions: const AuthClientOptions(autoRefreshToken: false)));
+  @override
+  Future<List<ChatMessage>> listMessages(String eventId, {DateTime? before, int limit = 50}) async => before == null ? messages : const [];
+  @override
+  void Function() watchMessages(String eventId, void Function(Map<String, dynamic> row) onInsert, void Function(String id) onDelete) => () {};
+  @override
+  Future<void> markChatRead(String rdvId) async {}
+}
+
+/// Created once outside the tests (the client starts timers).
+late final Api fakeApi;
+
+class _Ads extends AdsDemo {
+  @override
+  bool build() => true;
+}
+
 class _Section extends HomeSectionNotifier {
   _Section(this.initial);
   final HomeSection initial;
@@ -247,6 +269,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
             MuteEntry(id: 'mu2', eventId: 'p2', eventTitle: 'Marché de Noël solidaire', eventAt: d(20, 19)),
           ]),
       blockedProvider.overrideWith((ref) async => [BlockedUser(userId: 'u-y', name: 'Spammeur', username: 'spam42')]),
+      apiProvider.overrideWithValue(fakeApi),
       ...overrides,
     ],
     child: MaterialApp.router(
@@ -263,6 +286,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
 void main() {
   setUpAll(() async {
     await initializeDateFormatting();
+    fakeApi = _FakeApi();
     PackageInfo.setMockInitialValues(
         appName: 'SeeU', packageName: 'com.seeuapp.mobile', version: '1.0.0', buildNumber: '1', buildSignature: '', installerStore: null);
     await loadFonts();
@@ -275,6 +299,9 @@ void main() {
     'home': ('/', const []),
     'home_friends': ('/', section(HomeSection.friends)),
     'home_explore': ('/', section(HomeSection.explore)),
+    'home_explore_ads_tall': ('/', [...section(HomeSection.explore), adsDemoProvider.overrideWith(() => _Ads())]),
+    'home_ads': ('/', [adsDemoProvider.overrideWith(() => _Ads())]),
+    'event_preview_ads': ('/event/p2', [adsDemoProvider.overrideWith(() => _Ads())]),
     'contacts': ('/contacts', const []),
     'contact_detail': ('/contacts/andrea', const []),
     'contact_form': ('/contacts/new', const []),
@@ -283,6 +310,9 @@ void main() {
     'rdv_form_public': ('/rdv/new?vis=public', const []),
     'rdv_detail': ('/rdv/r3', const []),
     'rdv_slots': ('/rdv/r5', const []),
+    'rdv_slots_tall': ('/rdv/r5', const []),
+    'rdv_detail_tall': ('/rdv/r3', const []),
+    'home_ads_tall': ('/', [adsDemoProvider.overrideWith(() => _Ads())]),
     'rdv_public': ('/rdv/r6', const []),
     'event_preview': ('/event/e2', const []),
     'event_preview_public': ('/event/p2', const []),
@@ -301,7 +331,7 @@ void main() {
     for (final MapEntry(key: name, value: (location, overrides)) in screens.entries) {
       testWidgets('$name ${brightness.name} $lang', (tester) async {
         applyLanguage(lang);
-        tester.view.physicalSize = const Size(1170, 2532);
+        tester.view.physicalSize = Size(1170, name.endsWith('_tall') ? 7200 : 2532);
         tester.view.devicePixelRatio = 3;
         addTearDown(tester.view.reset);
         await tester.pumpWidget(app(location, brightness, const [], overrides: overrides));

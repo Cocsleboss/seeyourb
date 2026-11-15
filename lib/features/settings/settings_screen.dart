@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:app_settings/app_settings.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,7 @@ import '../auth/username_field.dart';
 import '../friends/friend_sheets.dart';
 import '../home/push_banner.dart';
 import '../../core/i18n.dart';
+import '../../ads/ads.dart';
 import '../../ui/language.dart';
 
 String kindLabel(String kind) => switch (kind) {
@@ -397,6 +399,17 @@ class _AppSection extends ConsumerWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       SectionTitle(tr.application),
       AppCard(child: _ReadOnly(label: tr.version, value: info == null ? '…' : '${info.version} (${info.buildNumber})')),
+      if (kDebugMode) ...[
+        const SizedBox(height: 10),
+        AppCard(
+          child: ToggleRow(
+            title: tr.demoAds,
+            subtitle: tr.demoAdsHelp,
+            value: ref.watch(adsDemoProvider),
+            onChanged: ref.read(adsDemoProvider.notifier).set,
+          ),
+        ),
+      ],
     ]);
   }
 }
@@ -474,7 +487,7 @@ class _AccountSection extends ConsumerWidget {
     final api = ref.read(apiProvider);
     await PushService.instance.unregister(api);
     await guard(() async {
-      await api.deleteAccount();
+      await withProgress(() => api.deleteAccount());
       return true;
     }, success: tr.accountDeleted);
   }
@@ -486,7 +499,7 @@ class _AccountSection extends ConsumerWidget {
       AppButton(tr.changePassword,
           icon: LucideIcons.keyRound, variant: ButtonVariant.secondary, full: true, onPressed: () => _changePassword(context)),
       const SizedBox(height: 10),
-      AppButton(tr.signOut, icon: LucideIcons.logOut, variant: ButtonVariant.outline, full: true, onPressed: () => _signOut(ref)),
+      AppButton(tr.signOut, icon: LucideIcons.logOut, variant: ButtonVariant.outline, full: true, onAsync: () => _signOut(ref)),
       const SizedBox(height: 10),
       AppButton(tr.deleteMyAccount,
           icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),

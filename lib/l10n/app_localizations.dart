@@ -4141,6 +4141,156 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vous êtes l\'organisateur : l\'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda.'**
   String get deleteRdvOrganizerPlanned;
+
+  /// No description provided for @availabilitySaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibilités enregistrées'**
+  String get availabilitySaved;
+
+  /// No description provided for @availabilitySentGoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibilités envoyées : vous êtes noté comme participant'**
+  String get availabilitySentGoing;
+
+  /// No description provided for @availabilitySentDeclined.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez décliné l\'événement, l\'organisateur est prévenu'**
+  String get availabilitySentDeclined;
+
+  /// No description provided for @confirmAvailabilityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer vos disponibilités ?'**
+  String get confirmAvailabilityTitle;
+
+  /// No description provided for @unansweredAsMaybe.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 créneau sans réponse sera compté « peut-être ».} other{{n} créneaux sans réponse seront comptés « peut-être ».}}'**
+  String unansweredAsMaybe(int n);
+
+  /// No description provided for @confirmAndDecline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décliner l\'événement'**
+  String get confirmAndDecline;
+
+  /// No description provided for @confirmAvailability.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider mes disponibilités'**
+  String get confirmAvailability;
+
+  /// No description provided for @leaveWithoutSending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans envoyer'**
+  String get leaveWithoutSending;
+
+  /// No description provided for @outcomeGoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes disponible au moins une fois : vous serez noté comme participant et l\'organisateur sera prévenu.'**
+  String get outcomeGoing;
+
+  /// No description provided for @outcomeDeclined.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun créneau ne vous convient : l\'événement sera décliné et l\'organisateur prévenu.'**
+  String get outcomeDeclined;
+
+  /// No description provided for @outcomeMaybe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien de sûr pour l\'instant : l\'événement reste « à confirmer », sans prévenir l\'organisateur.'**
+  String get outcomeMaybe;
+
+  /// No description provided for @yourAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre réponse :'**
+  String get yourAnswer;
+
+  /// No description provided for @availabilitySent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibilités envoyées'**
+  String get availabilitySent;
+
+  /// No description provided for @notSentYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'non envoyé'**
+  String get notSentYet;
+
+  /// No description provided for @severalSlotsProposed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs créneaux proposés'**
+  String get severalSlotsProposed;
+
+  /// No description provided for @giveAvailability.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquer mes disponibilités'**
+  String get giveAvailability;
+
+  /// No description provided for @slotsInviteHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrez l\'événement pour répondre créneau par créneau.'**
+  String get slotsInviteHint;
+
+  /// No description provided for @guestsCanInvite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les invités peuvent inviter leurs amis'**
+  String get guestsCanInvite;
+
+  /// No description provided for @guestsCanInviteHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sinon, vous seul pouvez ajouter des participants.'**
+  String get guestsCanInviteHelp;
+
+  /// No description provided for @blockContactDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre contact « {name} » sera aussi supprimé : plus de rappels pour le revoir.'**
+  String blockContactDeleted(String name);
+
+  /// No description provided for @blockedAndDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} est bloqué(e) et son contact supprimé'**
+  String blockedAndDeleted(String name);
+
+  /// No description provided for @demoAds.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publicités de démonstration'**
+  String get demoAds;
+
+  /// No description provided for @demoAdsHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affiche de fausses annonces pour juger de leur intégration (mode développement).'**
+  String get demoAdsHelp;
+
+  /// No description provided for @adCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'En savoir plus'**
+  String get adCta;
+
+  /// No description provided for @earlierMessages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Messages précédents'**
+  String get earlierMessages;
 }
 
 class _AppLocalizationsDelegate

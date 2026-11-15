@@ -84,6 +84,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   bool _doneTouched = false;
   RdvStatus? _status;
   bool _share = true;
+  late bool _guestsCanInvite;
   bool _busy = false;
   String? _error;
 
@@ -110,6 +111,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     _description = TextEditingController(text: e?.event?.description ?? '');
     _notes = TextEditingController(text: e?.notes ?? '');
     _multi = e?.slotsOpen ?? false;
+    _guestsCanInvite = e?.event?.guestsCanInvite ?? true;
     _slots = widget.existingSlots.isNotEmpty
         ? [for (final s in widget.existingSlots) s.startsAt]
         : [at, at.add(const Duration(days: 1))];
@@ -164,6 +166,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       slots: _multi ? slots : const [],
       contactIds: _selected.toList(),
       inviteUserIds: invite,
+      guestsCanInvite: _guestsCanInvite,
     );
     final id = await guard(
       () => api.saveEvent(input),
@@ -374,6 +377,19 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                 Text(e.slotsOpen ? tr.dateToChoose : formatDayTime(e.appointmentAt), style: TextStyle(color: c.textMuted)),
                 if (e.location != null) Text(e.location!, style: TextStyle(color: c.textMuted)),
               ]),
+            ),
+          ],
+
+          // 3b. May guests bring their own friends? (public events: anyone joins anyway)
+          if (_organizer && _visibility != EventVisibility.public) ...[
+            const SizedBox(height: 16),
+            AppCard(
+              child: ToggleRow(
+                title: tr.guestsCanInvite,
+                subtitle: _guestsCanInvite ? null : tr.guestsCanInviteHelp,
+                value: _guestsCanInvite,
+                onChanged: (v) => setState(() => _guestsCanInvite = v),
+              ),
             ),
           ],
 

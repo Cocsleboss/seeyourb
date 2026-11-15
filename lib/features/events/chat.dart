@@ -1,10 +1,9 @@
-// Event chat (private & friends events: everyone talks) / announcements (public
-// events: only the organizer posts). Live through Supabase Realtime.
+// Event chat, shown directly on the event page (private & friends events: everyone
+// talks; public events: announcements, only the organizer posts). Live through
+// Supabase Realtime.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/i18n.dart';
 import '../../core/theme.dart';
@@ -14,101 +13,32 @@ import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
-import '../../ui/scaffold.dart';
-import '../misc/fallback_screens.dart';
 import 'moderation.dart';
 
 String chatTitle(EventVisibility v) => v == EventVisibility.public ? tr.announcements : tr.chat;
 
-/// Last messages on the event page + button to open the chat.
-class ChatPreview extends ConsumerWidget {
-  const ChatPreview({super.key, required this.rdv});
+const _pageSize = 20;
+
+class EventChat extends ConsumerStatefulWidget {
+  const EventChat({super.key, required this.rdv, required this.canPost});
   final Rendezvous rdv;
+  final bool canPost;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.colors;
-    final value = ref.watch(chatPreviewProvider(rdv.eventId!));
-    final messages = value.value ?? const <ChatMessage>[];
-    final unread = messages.where((m) => m.userId != rdv.userId && (rdv.chatReadAt == null || m.createdAt.isAfter(rdv.chatReadAt!))).length;
-    final public = rdv.visibility == EventVisibility.public;
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      SectionTitle(chatTitle(rdv.visibility)),
-      AppCard(
-        padding: const EdgeInsets.all(14),
-        onTap: () => context.push('/rdv/${rdv.id}/chat'),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (messages.isEmpty)
-            Text(public ? (rdv.isOrganizer ? tr.announceEmptyOrganizer : tr.announceEmpty) : tr.chatEmpty,
-                style: TextStyle(color: c.textMuted, fontSize: 14.5))
-          else
-            for (final m in messages.reversed)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Text.rich(
-                  TextSpan(children: [
-                    TextSpan(text: '${m.authorName}  ', style: TextStyle(fontWeight: FontWeight.w700, color: c.text)),
-                    TextSpan(text: m.body),
-                  ]),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14.5, color: c.text),
-                ),
-              ),
-          const SizedBox(height: 6),
-          Row(children: [
-            Icon(public ? LucideIcons.megaphone : LucideIcons.messageCircle, size: 18, color: c.brandText),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(public && !rdv.isOrganizer ? tr.openAnnouncements : tr.openChat,
-                  style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
-            ),
-            if (unread > 0) Pill(tr.nNew(unread), tone: Tone.brand),
-          ]),
-        ]),
-      ),
-    ]);
-  }
+  ConsumerState<EventChat> createState() => _EventChatState();
 }
 
-class ChatScreen extends ConsumerWidget {
-  const ChatScreen({super.key, required this.rdvId});
-  final String rdvId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final rdv = ref.watch(rdvProvider(rdvId));
-    if (rdv.hasValue && (rdv.value == null || rdv.value!.eventId == null)) {
-      return MissingItem(title: tr.errRdvNotFound, backLabel: tr.backToHome, backPath: '/');
-    }
-    final r = rdv.value;
-    final event = r == null ? null : ref.watch(eventProvider(r.eventId!)).value;
-    return AppScaffold(
-      title: r == null ? tr.chat : '${chatTitle(r.visibility)} · ${r.displayTitle}',
-      back: true,
-      body: r == null || event == null
-          ? Padding(padding: const EdgeInsets.all(16), child: AsyncBody(value: rdv, builder: (_) => const SizedBox()))
-          : _Chat(rdv: r, event: event),
-    );
-  }
-}
-
-class _Chat extends ConsumerStatefulWidget {
-  const _Chat({required this.rdv, required this.event});
-  final Rendezvous rdv;
-  final FeedEvent event;
-  @override
-  ConsumerState<_Chat> createState() => _ChatState();
-}
-
-class _ChatState extends ConsumerState<_Chat> {
+class _EventChatState extends ConsumerState<EventChat> {
   final _text = TextEditingController();
+
+  /// Newest first.
   final _messages = <ChatMessage>[];
-  RealtimeChannel? _channel;
+  void Function()? _stopWatching;
   late final Api _api;
   bool _loading = true;
   bool _sending = false;
-  bool _hasOlder = true;
+  bool _hasOlder = false;
+  bool _loadingOlder = false;
   Object? _error;
 
   String get _eventId => widget.rdv.eventId!;
@@ -118,7 +48,7 @@ class _ChatState extends ConsumerState<_Chat> {
     super.initState();
     _api = ref.read(apiProvider);
     _load();
-    _channel = _api.watchMessages(_eventId, _onInsert, (id) {
+    _stopWatching = _api.watchMessages(_eventId, _onInsert, (id) {
       if (mounted) setState(() => _messages.removeWhere((m) => m.id == id));
     });
     _api.markChatRead(widget.rdv.id).catchError((_) {});
@@ -126,25 +56,29 @@ class _ChatState extends ConsumerState<_Chat> {
 
   @override
   void dispose() {
-    _channel?.unsubscribe();
+    _stopWatching?.call();
     _api.markChatRead(widget.rdv.id).catchError((_) {});
     _text.dispose();
     super.dispose();
   }
 
   Future<void> _load({bool older = false}) async {
+    if (older) setState(() => _loadingOlder = true);
     try {
-      final page = await ref.read(apiProvider).listMessages(_eventId, before: older && _messages.isNotEmpty ? _messages.last.createdAt : null);
+      final page = await _api.listMessages(_eventId,
+          before: older && _messages.isNotEmpty ? _messages.last.createdAt : null, limit: _pageSize);
       if (!mounted) return;
       setState(() {
         if (!older) _messages.clear();
         _messages.addAll(page.where((m) => !_messages.any((x) => x.id == m.id)));
-        _hasOlder = page.length >= 50;
+        if (!older || page.length < _pageSize) _hasOlder = page.length >= _pageSize;
         _loading = false;
         _error = null;
       });
     } catch (e) {
       if (mounted) setState(() => (_error = e, _loading = false));
+    } finally {
+      if (mounted && older) setState(() => _loadingOlder = false);
     }
   }
 
@@ -158,7 +92,7 @@ class _ChatState extends ConsumerState<_Chat> {
     final me = ref.read(profileProvider);
     final name = userId == me?.id ? me!.name : participants.where((p) => p.userId == userId).firstOrNull?.name;
     if (name == null) {
-      _load(); // unknown author (new participant / muted…): reload with names and filters applied
+      _load(); // unknown author: reload with names and filters applied
       return;
     }
     setState(() => _messages.insert(
@@ -170,10 +104,9 @@ class _ChatState extends ConsumerState<_Chat> {
     if (body.isEmpty || _sending) return;
     setState(() => _sending = true);
     try {
-      await ref.read(apiProvider).sendMessage(_eventId, body);
+      await _api.sendMessage(_eventId, body);
       _text.clear();
       await _load();
-      ref.invalidate(chatPreviewProvider(_eventId));
     } catch (e) {
       showError(e);
     } finally {
@@ -186,14 +119,16 @@ class _ChatState extends ConsumerState<_Chat> {
     await showModerationSheet(context, title: m.authorName, actions: [
       if (mine)
         ModerationAction(LucideIcons.trash2, tr.deleteMessage, () async {
-          final ok = await guard(() async {
-            await ref.read(apiProvider).deleteMessage(m.id);
-            return true;
-          });
+          final ok = await withProgress(() => guard(() async {
+                await _api.deleteMessage(m.id);
+                return true;
+              }));
           if (ok != null && mounted) setState(() => _messages.removeWhere((x) => x.id == m.id));
         }, danger: true)
       else
-        ...personActions(context, ref, userId: m.userId, name: m.authorName, muted: false),
+        ...personActions(context, ref, userId: m.userId, name: m.authorName, muted: false, onBlocked: () {
+          if (mounted) _load();
+        }),
     ]);
     if (!mine && mounted) _load();
   }
@@ -201,65 +136,57 @@ class _ChatState extends ConsumerState<_Chat> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final canPost = widget.event.canPost;
-    final public = widget.event.visibility == EventVisibility.public;
+    final public = widget.rdv.visibility == EventVisibility.public;
     final myId = widget.rdv.userId;
+    final shown = _messages.reversed.toList(); // oldest → newest
 
-    Widget list;
+    Widget body;
     if (_loading) {
-      list = const Padding(padding: EdgeInsets.all(16), child: SkeletonList(rows: 4));
+      body = const SkeletonList(rows: 2);
     } else if (_error != null && _messages.isEmpty) {
-      list = Padding(padding: const EdgeInsets.all(16), child: ErrorCard(error: _error!, onRetry: _load));
+      body = ErrorCard(error: _error!, onRetry: _load);
     } else if (_messages.isEmpty) {
-      list = EmptyState(
-        icon: public ? LucideIcons.megaphone : LucideIcons.messagesSquare,
-        title: public ? tr.announcements : tr.chat,
-        message: public ? (canPost ? tr.announceEmptyOrganizer : tr.announceEmpty) : tr.chatEmpty,
+      body = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Text(public ? (widget.canPost ? tr.announceEmptyOrganizer : tr.announceEmpty) : tr.chatEmpty,
+            style: TextStyle(color: c.textMuted, fontSize: 14.5)),
       );
     } else {
-      list = ListView.builder(
-        reverse: true,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        itemCount: _messages.length + (_hasOlder ? 1 : 0),
-        itemBuilder: (_, i) {
-          if (i == _messages.length) {
-            return Center(child: TextButton(onPressed: () => _load(older: true), child: Text(tr.loadMore)));
-          }
-          final m = _messages[i];
-          final mine = m.userId == myId;
-          final newer = i > 0 ? _messages[i - 1] : null;
-          final older = i + 1 < _messages.length ? _messages[i + 1] : null;
-          final showName = !mine && (older == null || older.userId != m.userId);
-          final showDay = older == null || dayOf(older.createdAt) != dayOf(m.createdAt);
-          return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            if (showDay)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Text(relativeDayLabel(dayOf(m.createdAt)),
-                    textAlign: TextAlign.center, style: TextStyle(color: c.textSubtle, fontSize: 12.5, fontWeight: FontWeight.w600)),
-              ),
-            _Bubble(
-              message: m,
-              mine: mine,
-              showName: showName,
-              tight: newer != null && newer.userId == m.userId,
-              announcement: public,
-              onLongPress: () => _onLongPress(m),
+      body = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        if (_hasOlder)
+          Center(
+            child: _loadingOlder
+                ? const Padding(padding: EdgeInsets.all(8), child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)))
+                : TextButton(onPressed: () => _load(older: true), child: Text(tr.earlierMessages)),
+          ),
+        for (var i = 0; i < shown.length; i++) ...[
+          if (i == 0 || dayOf(shown[i - 1].createdAt) != dayOf(shown[i].createdAt))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(relativeDayLabel(dayOf(shown[i].createdAt)),
+                  textAlign: TextAlign.center, style: TextStyle(color: c.textSubtle, fontSize: 12.5, fontWeight: FontWeight.w600)),
             ),
-          ]);
-        },
-      );
+          _Bubble(
+            message: shown[i],
+            mine: shown[i].userId == myId,
+            showName: shown[i].userId != myId && (i == 0 || shown[i - 1].userId != shown[i].userId),
+            tight: i > 0 && shown[i - 1].userId == shown[i].userId,
+            announcement: public,
+            onLongPress: () => _onLongPress(shown[i]),
+          ),
+        ],
+      ]);
     }
 
-    return Column(children: [
-      Expanded(child: list),
-      if (canPost)
-        SafeArea(
-          top: false,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-            decoration: BoxDecoration(color: c.card, border: Border(top: BorderSide(color: c.border))),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SectionTitle(chatTitle(widget.rdv.visibility)),
+      AppCard(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          body,
+          const SizedBox(height: 10),
+          if (widget.canPost)
+            Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Expanded(
                 child: TextField(
                   controller: _text,
@@ -287,18 +214,11 @@ class _ChatState extends ConsumerState<_Chat> {
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(LucideIcons.sendHorizontal, size: 20),
               ),
-            ]),
-          ),
-        )
-      else
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Text(public ? tr.announceReadOnly : tr.chatJoinToPost,
-                textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 13.5)),
-          ),
-        ),
+            ])
+          else
+            Text(public ? tr.announceReadOnly : tr.chatJoinToPost, style: TextStyle(color: c.textMuted, fontSize: 13)),
+        ]),
+      ),
     ]);
   }
 }
@@ -329,7 +249,7 @@ class _Bubble extends StatelessWidget {
       child: Align(
         alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.78),
+          constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.72),
           child: GestureDetector(
             onLongPress: onLongPress,
             child: Container(
@@ -343,8 +263,7 @@ class _Bubble extends StatelessWidget {
                   ),
                 Text(message.body, style: TextStyle(color: fg, fontSize: 15.5, height: 1.3)),
                 const SizedBox(height: 2),
-                Text(formatTime(message.createdAt),
-                    style: TextStyle(fontSize: 11, color: mine ? Colors.white70 : c.textSubtle)),
+                Text(formatTime(message.createdAt), style: TextStyle(fontSize: 11, color: mine ? Colors.white70 : c.textSubtle)),
               ]),
             ),
           ),

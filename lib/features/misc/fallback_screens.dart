@@ -28,7 +28,7 @@ class SplashScreen extends ConsumerWidget {
             if (session.profileError != null) ...[
               Text(errorMessage(session.profileError!), textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 15)),
               const SizedBox(height: 16),
-              AppButton(tr.retry, icon: LucideIcons.rotateCw, onPressed: session.reloadProfile),
+              AppButton(tr.retry, icon: LucideIcons.rotateCw, onAsync: session.reloadProfile),
               TextButton(
                 onPressed: () => ref.read(supabaseProvider).auth.signOut(),
                 child: Text(tr.signOut, style: TextStyle(color: c.brandText)),

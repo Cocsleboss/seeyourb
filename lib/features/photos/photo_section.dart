@@ -151,7 +151,7 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
         title: tr.photoDeleteTitle, message: tr.irreversible, confirmLabel: tr.delete);
     if (!ok) return;
     final done = await guard(() async {
-      await ref.read(apiProvider).deletePhoto(photo);
+      await withProgress(() => ref.read(apiProvider).deletePhoto(photo));
       return true;
     }, success: tr.photoDeleted);
     if (done == null || !mounted) return;

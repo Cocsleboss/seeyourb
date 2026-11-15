@@ -12,7 +12,7 @@ import '../domain/dates.dart';
 import '../domain/models.dart';
 
 const _rdvSelect = '*, contact_rendezvous(contacts(id, name, photo_path, categories, linked_user_id)), photos(*), '
-    'events(id, organizer_id, visibility, slots_open, description, member_count, going_count)';
+    'events(id, organizer_id, visibility, slots_open, description, member_count, going_count, guests_can_invite)';
 
 /// Hides invitations I declined (rsvp null = my own rendezvous).
 const _notDeclined = 'rsvp.is.null,rsvp.in.(pending,accepted)';
@@ -275,6 +275,16 @@ class Api {
   Future<void> voteSlot(String slotId, SlotAnswer? answer) =>
       sb.rpc('vote_slot', params: {'p_slot': slotId, 'p_answer': answer?.name});
 
+  /// Sends my answers for all timeslots (unanswered = maybe). Returns my resulting RSVP
+  /// (null for the organizer): ≥ 1 yes → going, all no → declined, otherwise maybe.
+  Future<Rsvp?> submitAvailability(String eventId, Map<String, SlotAnswer> answers) async {
+    final res = await sb.rpc('submit_availability', params: {
+      'p_event': eventId,
+      'p_votes': [for (final e in answers.entries) {'slot': e.key, 'answer': e.value.name}],
+    });
+    return Rsvp.parse(res as String?);
+  }
+
   Future<void> chooseSlot(String slotId) => sb.rpc('choose_event_slot', params: {'p_slot': slotId});
 
   /* -------------------------------- Chat ------------------------------- */
@@ -297,9 +307,9 @@ class Api {
   Future<void> markChatRead(String rdvId) =>
       sb.from('rendezvous').update({'chat_read_at': DateTime.now().toUtc().toIso8601String()}).eq('id', rdvId);
 
-  /// New messages of an event, live (Supabase Realtime). Cancel the returned channel to stop.
-  RealtimeChannel watchMessages(String eventId, void Function(Map<String, dynamic> row) onInsert, void Function(String id) onDelete) {
-    return sb
+  /// New messages of an event, live (Supabase Realtime). Call the returned function to stop.
+  void Function() watchMessages(String eventId, void Function(Map<String, dynamic> row) onInsert, void Function(String id) onDelete) {
+    final channel = sb
         .channel('event-chat:$eventId')
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
@@ -318,6 +328,7 @@ class Api {
           },
         )
         .subscribe();
+    return () => channel.unsubscribe();
   }
 
   /* ---------------------------- Mute & block --------------------------- */

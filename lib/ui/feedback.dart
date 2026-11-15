@@ -1,4 +1,6 @@
 // Toasts ("messages éclair"), bottom sheets ("panneaux bas") and confirmations.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -10,6 +12,9 @@ import '../core/i18n.dart';
 enum ToastKind { success, error, info }
 
 final rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+/// Root navigator (go_router), for dialogs opened outside a widget context.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 void showToast(String message, {ToastKind kind = ToastKind.success}) {
   final messenger = rootMessengerKey.currentState;
@@ -118,4 +123,24 @@ Future<bool> confirmSheet(
     ),
   );
   return ok ?? false;
+}
+
+/// Runs an action started from a menu or a sheet (no button left to show a spinner):
+/// a small blocking progress dialog stays up until it completes.
+Future<T> withProgress<T>(Future<T> Function() action) async {
+  final nav = rootNavigatorKey.currentState;
+  var shown = false;
+  if (nav != null) {
+    shown = true;
+    unawaited(showDialog<void>(
+      context: nav.context,
+      barrierDismissible: false,
+      builder: (_) => const PopScope(canPop: false, child: Center(child: CircularProgressIndicator())),
+    ));
+  }
+  try {
+    return await action();
+  } finally {
+    if (shown) nav!.pop();
+  }
 }

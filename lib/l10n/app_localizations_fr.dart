@@ -2620,4 +2620,99 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get deleteRdvOrganizerPlanned =>
       'Vous êtes l\'organisateur : l\'événement sera annulé pour tous les participants (ils seront prévenus), puis retiré de votre agenda.';
+
+  @override
+  String get availabilitySaved => 'Disponibilités enregistrées';
+
+  @override
+  String get availabilitySentGoing =>
+      'Disponibilités envoyées : vous êtes noté comme participant';
+
+  @override
+  String get availabilitySentDeclined =>
+      'Vous avez décliné l\'événement, l\'organisateur est prévenu';
+
+  @override
+  String get confirmAvailabilityTitle => 'Envoyer vos disponibilités ?';
+
+  @override
+  String unansweredAsMaybe(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n créneaux sans réponse seront comptés « peut-être ».',
+      one: '1 créneau sans réponse sera compté « peut-être ».',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get confirmAndDecline => 'Décliner l\'événement';
+
+  @override
+  String get confirmAvailability => 'Valider mes disponibilités';
+
+  @override
+  String get leaveWithoutSending => 'Quitter sans envoyer';
+
+  @override
+  String get outcomeGoing =>
+      'Vous êtes disponible au moins une fois : vous serez noté comme participant et l\'organisateur sera prévenu.';
+
+  @override
+  String get outcomeDeclined =>
+      'Aucun créneau ne vous convient : l\'événement sera décliné et l\'organisateur prévenu.';
+
+  @override
+  String get outcomeMaybe =>
+      'Rien de sûr pour l\'instant : l\'événement reste « à confirmer », sans prévenir l\'organisateur.';
+
+  @override
+  String get yourAnswer => 'Votre réponse :';
+
+  @override
+  String get availabilitySent => 'Disponibilités envoyées';
+
+  @override
+  String get notSentYet => 'non envoyé';
+
+  @override
+  String get severalSlotsProposed => 'Plusieurs créneaux proposés';
+
+  @override
+  String get giveAvailability => 'Indiquer mes disponibilités';
+
+  @override
+  String get slotsInviteHint =>
+      'Ouvrez l\'événement pour répondre créneau par créneau.';
+
+  @override
+  String get guestsCanInvite => 'Les invités peuvent inviter leurs amis';
+
+  @override
+  String get guestsCanInviteHelp =>
+      'Sinon, vous seul pouvez ajouter des participants.';
+
+  @override
+  String blockContactDeleted(String name) {
+    return 'Votre contact « $name » sera aussi supprimé : plus de rappels pour le revoir.';
+  }
+
+  @override
+  String blockedAndDeleted(String name) {
+    return '$name est bloqué(e) et son contact supprimé';
+  }
+
+  @override
+  String get demoAds => 'Publicités de démonstration';
+
+  @override
+  String get demoAdsHelp =>
+      'Affiche de fausses annonces pour juger de leur intégration (mode développement).';
+
+  @override
+  String get adCta => 'En savoir plus';
+
+  @override
+  String get earlierMessages => 'Messages précédents';
 }

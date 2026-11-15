@@ -43,34 +43,71 @@ class NoAdsService implements AdsService {
   Widget? nativeAd(BuildContext context, AdPlacement placement) => null;
 }
 
-/// --dart-define=ADS_DEMO=true: grey placeholders, to review placements in the UI.
+/// Fake native ads, to judge how they fit (Settings → Demo ads in debug builds,
+/// or --dart-define=ADS_DEMO=true). They look like what AdMob's "small native
+/// template" would render: visual, headline, body, advertiser, call to action.
 class DemoAdsService implements AdsService {
   const DemoAdsService();
+
+  static const _fr = [
+    ('Café Belga', 'Brunch du dimanche -20 %', 'Réservez une table pour 4 et profitez du brunch à prix doux.', LucideIcons.coffee, Color(0xFFF59E0B)),
+    ('Cinéma Galeries', 'Avant-premières du mois', 'Une séance offerte pour deux places achetées en ligne.', LucideIcons.clapperboard, Color(0xFFEF4444)),
+    ('Escape Bruxelles', 'Le jeu d\'évasion entre amis', '60 minutes pour sortir. Équipes de 3 à 6, dès 19 €/pers.', LucideIcons.keyRound, Color(0xFF8B5CF6)),
+    ('Villo!', 'Vos sorties à vélo', 'Abonnement annuel à 39 €. Des stations partout en ville.', LucideIcons.bike, Color(0xFF10B981)),
+  ];
+  static const _en = [
+    ('Café Belga', 'Sunday brunch -20%', 'Book a table for 4 and enjoy brunch at a sweet price.', LucideIcons.coffee, Color(0xFFF59E0B)),
+    ('Galeries Cinema', 'This month\'s previews', 'One free ticket for two bought online.', LucideIcons.clapperboard, Color(0xFFEF4444)),
+    ('Escape Brussels', 'The escape game for friends', '60 minutes to get out. Teams of 3 to 6, from €19 each.', LucideIcons.keyRound, Color(0xFF8B5CF6)),
+    ('Villo!', 'Get around by bike', 'Yearly pass for €39. Stations all over town.', LucideIcons.bike, Color(0xFF10B981)),
+  ];
+
   @override
   Widget? nativeAd(BuildContext context, AdPlacement placement) {
+    final ads = currentLanguage == 'fr' ? _fr : _en;
+    final (advertiser, headline, body, icon, color) = ads[placement.index % ads.length];
     final c = context.colors;
-    return Row(children: [
-      Container(
-        width: 64,
-        height: 64,
-        decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(12)),
-        child: Icon(LucideIcons.image, color: c.textSubtle),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Annonceur', style: TextStyle(fontWeight: FontWeight.w700, color: c.text)),
-          const SizedBox(height: 2),
-          Text(placement.name, style: TextStyle(color: c.textMuted, fontSize: 13.5)),
-        ]),
-      ),
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.6)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          ),
+          child: Icon(icon, color: Colors.white, size: 32),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(headline, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5, color: c.text)),
+            const SizedBox(height: 2),
+            Text(body, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.textMuted, fontSize: 13.5, height: 1.3)),
+          ]),
+        ),
+      ]),
+      const SizedBox(height: 10),
+      Row(children: [
+        Expanded(child: Text(advertiser, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: c.textSubtle))),
+        AppButton(tr.adCta, size: ButtonSize.sm, variant: ButtonVariant.secondary, onPressed: () {}),
+      ]),
     ]);
   }
 }
 
-const _demo = bool.fromEnvironment('ADS_DEMO');
+const _demoFromEnv = bool.fromEnvironment('ADS_DEMO');
 
-final adsServiceProvider = Provider<AdsService>((ref) => _demo ? const DemoAdsService() : const NoAdsService());
+/// Demo ads on/off (debug builds: Settings → Application).
+final adsDemoProvider = NotifierProvider<AdsDemo, bool>(AdsDemo.new);
+
+class AdsDemo extends Notifier<bool> {
+  @override
+  bool build() => _demoFromEnv;
+  void set(bool v) => state = v;
+}
+
+final adsServiceProvider = Provider<AdsService>((ref) => ref.watch(adsDemoProvider) ? const DemoAdsService() : const NoAdsService());
 
 /// Clean "Sponsorisé" card around a native ad; takes no space when there is no ad.
 class AdTile extends ConsumerWidget {

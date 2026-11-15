@@ -182,7 +182,7 @@ class _FriendSheetState extends ConsumerState<_FriendSheet> {
     );
     if (!ok || !mounted) return;
     final done = await guard(() async {
-      await ref.read(apiProvider).removeFriend(f.friendshipId);
+      await withProgress(() => ref.read(apiProvider).removeFriend(f.friendshipId));
       return true;
     }, success: tr.friendRemoved);
     if (!mounted) return;

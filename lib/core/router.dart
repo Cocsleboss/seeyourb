@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/providers.dart';
+import '../ui/feedback.dart';
 import '../features/auth/complete_profile_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/reset_password_screen.dart';
@@ -13,7 +14,6 @@ import '../features/contacts/contacts_screen.dart';
 import '../features/contacts/import_screen.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
-import '../features/events/chat.dart';
 import '../features/events/event_preview_screen.dart';
 import '../features/history/calendar.dart';
 import '../features/history/history_screen.dart';
@@ -24,7 +24,6 @@ import '../features/rdv/rdv_form_screen.dart';
 import '../features/settings/moderation_screen.dart';
 import '../features/settings/settings_screen.dart';
 
-final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 const _publicPaths = {'/login', '/reset-password'};
 
@@ -96,7 +95,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/rdv/:id', pageBuilder: (_, s) => page(s, RdvDetailScreen(id: s.pathParameters['id']!))),
       GoRoute(path: '/rdv/:id/edit', pageBuilder: (_, s) => page(s, RdvFormScreen(editId: s.pathParameters['id']))),
-      GoRoute(path: '/rdv/:id/chat', pageBuilder: (_, s) => page(s, ChatScreen(rdvId: s.pathParameters['id']!))),
+      // chat notifications: the chat is on the event page
+      GoRoute(path: '/rdv/:id/chat', pageBuilder: (_, s) => page(s, RdvDetailScreen(id: s.pathParameters['id']!))),
       GoRoute(path: '/event/:id', pageBuilder: (_, s) => page(s, EventPreviewScreen(id: s.pathParameters['id']!))),
       GoRoute(path: '/settings/moderation', pageBuilder: (_, s) => page(s, const ModerationScreen())),
     ],

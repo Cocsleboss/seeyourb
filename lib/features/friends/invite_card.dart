@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme.dart';
+import '../../data/providers.dart';
 import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../ui/kit.dart';
@@ -34,6 +35,9 @@ class _InviteCardState extends ConsumerState<InviteCard> {
     final c = context.colors;
     final i = widget.invite;
     final past = i.rdvStatus == RdvStatus.valide;
+    // My tentative copy tells whether the organizer proposed several timeslots.
+    final copy = (ref.watch(plannedRdvProvider).value ?? const <Rendezvous>[]).where((r) => r.id == i.toRdvId).firstOrNull;
+    final slots = copy?.slotsOpen ?? false;
     return AppCard(
       padding: const EdgeInsets.all(18),
       onTap: i.toRdvId == null ? null : () => context.push('/rdv/${i.toRdvId}'),
@@ -52,7 +56,13 @@ class _InviteCardState extends ConsumerState<InviteCard> {
                 Text(i.title!, style: TextStyle(fontSize: 15.5, color: c.text)),
               ],
               const SizedBox(height: 3),
-              Text(formatDayTime(i.appointmentAt), style: TextStyle(fontSize: 15, color: c.textMuted)),
+              Row(children: [
+                if (slots) ...[Icon(LucideIcons.calendarClock, size: 16, color: c.tone(Tone.amber).text), const SizedBox(width: 4)],
+                Expanded(
+                  child: Text(slots ? tr.severalSlotsProposed : formatDayTime(i.appointmentAt),
+                      style: TextStyle(fontSize: 15, color: slots ? c.tone(Tone.amber).text : c.textMuted, fontWeight: slots ? FontWeight.w600 : null)),
+                ),
+              ]),
               if (i.location != null) ...[
                 const SizedBox(height: 3),
                 Row(children: [
@@ -65,10 +75,14 @@ class _InviteCardState extends ConsumerState<InviteCard> {
           ),
         ]),
         const SizedBox(height: 16),
-        RsvpSelector(value: Rsvp.pending, busy: _busy, onChanged: _answer),
+        if (slots)
+          AppButton(tr.giveAvailability,
+              icon: LucideIcons.calendarClock, full: true, onPressed: i.toRdvId == null ? null : () => context.push('/rdv/${i.toRdvId}'))
+        else
+          RsvpSelector(value: Rsvp.pending, busy: _busy, onChanged: _answer),
         const SizedBox(height: 8),
         Text(
-          tr.inviteTentativeHint,
+          slots ? tr.slotsInviteHint : tr.inviteTentativeHint,
           style: TextStyle(fontSize: 12.5, color: c.textMuted),
         ),
       ]),

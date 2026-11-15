@@ -2558,4 +2558,97 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteRdvOrganizerPlanned =>
       'You\'re the organizer: the event will be cancelled for every participant (they\'ll be notified), then removed from your agenda.';
+
+  @override
+  String get availabilitySaved => 'Availability saved';
+
+  @override
+  String get availabilitySentGoing =>
+      'Availability sent: you\'re marked as going';
+
+  @override
+  String get availabilitySentDeclined =>
+      'You declined the event, the organizer has been notified';
+
+  @override
+  String get confirmAvailabilityTitle => 'Send your availability?';
+
+  @override
+  String unansweredAsMaybe(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n timeslots without an answer will count as “maybe”.',
+      one: '1 timeslot without an answer will count as “maybe”.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get confirmAndDecline => 'Decline the event';
+
+  @override
+  String get confirmAvailability => 'Confirm my availability';
+
+  @override
+  String get leaveWithoutSending => 'Leave without sending';
+
+  @override
+  String get outcomeGoing =>
+      'You\'re available at least once: you\'ll be marked as going and the organizer will be notified.';
+
+  @override
+  String get outcomeDeclined =>
+      'No timeslot works for you: the event will be declined and the organizer notified.';
+
+  @override
+  String get outcomeMaybe =>
+      'Nothing certain yet: the event stays “maybe”, without notifying the organizer.';
+
+  @override
+  String get yourAnswer => 'Your answer:';
+
+  @override
+  String get availabilitySent => 'Availability sent';
+
+  @override
+  String get notSentYet => 'not sent';
+
+  @override
+  String get severalSlotsProposed => 'Several timeslots suggested';
+
+  @override
+  String get giveAvailability => 'Share my availability';
+
+  @override
+  String get slotsInviteHint => 'Open the event to answer slot by slot.';
+
+  @override
+  String get guestsCanInvite => 'Guests can invite their friends';
+
+  @override
+  String get guestsCanInviteHelp => 'Otherwise only you can add participants.';
+
+  @override
+  String blockContactDeleted(String name) {
+    return 'Your contact “$name” will be deleted too: no more catch-up reminders.';
+  }
+
+  @override
+  String blockedAndDeleted(String name) {
+    return '$name is blocked and their contact deleted';
+  }
+
+  @override
+  String get demoAds => 'Demo ads';
+
+  @override
+  String get demoAdsHelp =>
+      'Shows fake ads to judge how they fit (development mode).';
+
+  @override
+  String get adCta => 'Learn more';
+
+  @override
+  String get earlierMessages => 'Earlier messages';
 }

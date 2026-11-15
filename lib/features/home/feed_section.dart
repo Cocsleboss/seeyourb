@@ -112,10 +112,10 @@ class _FeedSectionState extends ConsumerState<FeedSection> {
               title: _query.isNotEmpty ? tr.noResults : (_public ? tr.exploreEmptyTitle : tr.friendsFeedEmptyTitle),
               message: _query.isNotEmpty ? tr.tryAnotherSearch : (_public ? tr.exploreEmptyMessage : tr.friendsFeedEmptyMessage),
               actions: [
+                if (!_public) AppButton(tr.createFriendsEvent, icon: LucideIcons.calendarPlus, onPressed: () => context.push('/rdv/new?vis=contacts')),
                 if (!_public && !hasFriends)
-                  AppButton(tr.addSeeuFriendLong, icon: LucideIcons.userPlus, onPressed: () => showAddFriendSheet(context))
-                else if (!_public)
-                  AppButton(tr.createFriendsEvent, icon: LucideIcons.calendarPlus, onPressed: () => context.push('/rdv/new?vis=contacts')),
+                  AppButton(tr.addSeeuFriendLong,
+                      icon: LucideIcons.userPlus, variant: ButtonVariant.secondary, onPressed: () => showAddFriendSheet(context)),
               ],
             ),
           ),
