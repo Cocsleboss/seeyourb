@@ -1,4 +1,4 @@
-package app.seeu
+package com.seeuapp.seeu
 
 import io.flutter.embedding.android.FlutterActivity
 

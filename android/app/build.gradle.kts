@@ -10,7 +10,7 @@ if (file("google-services.json").exists()) {
 }
 
 android {
-    namespace = "app.seeu"
+    namespace = "com.seeuapp.seeu"
     compileSdk = maxOf(37, flutter.compileSdkVersion)
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         // Placeholder id: change it (and the iOS bundle id) before the first store release.
-        applicationId = "app.seeu"
+        applicationId = "com.seeuapp.seeu"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = maxOf(24, flutter.minSdkVersion)

@@ -164,7 +164,7 @@ void main() {
     Intl.defaultLocale = 'fr_FR';
     await initializeDateFormatting('fr_FR');
     PackageInfo.setMockInitialValues(
-        appName: 'SeeU', packageName: 'app.seeu', version: '1.0.0', buildNumber: '1', buildSignature: '', installerStore: null);
+        appName: 'SeeU', packageName: 'com.seeuapp.seeu', version: '1.0.0', buildNumber: '1', buildSignature: '', installerStore: null);
     await loadFonts();
   });
   setUp(() => clock = () => now);
