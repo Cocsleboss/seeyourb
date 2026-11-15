@@ -40,6 +40,10 @@ String kindLabel(String kind) => switch (kind) {
       'rdv_change' => tr.kindRdvChange,
       'wave' => tr.kindWave,
       'test' => tr.kindTest,
+      'event_new' => tr.kindEventNew,
+      'event_join' => tr.kindEventJoin,
+      'event_message' => tr.kindEventMessage,
+      'event_announcement' => tr.kindEventAnnouncement,
       _ => kind,
     };
 
@@ -442,6 +446,7 @@ class _DataSectionState extends ConsumerState<_DataSection> {
         row(LucideIcons.bookUser, tr.importFromPhoneLong, tr.importFromPhoneSub,
             () => context.push('/contacts/import')),
         row(LucideIcons.download, tr.exportData, tr.exportDataSub, _export, loading: _exporting),
+        row(LucideIcons.shieldBan, tr.mutedAndBlocked, tr.mutedAndBlockedSub, () => context.push('/settings/moderation')),
       ]),
     ]);
   }

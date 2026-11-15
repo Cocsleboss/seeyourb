@@ -128,7 +128,12 @@ class RdvRow extends StatelessWidget {
     final c = context.colors;
     final meta = TextStyle(fontSize: 13.5, color: c.textMuted);
     final parts = <InlineSpan>[
-      TextSpan(text: dayLabel ? '${relativeDayLabel(rdv.appointmentAt)} · ${formatTime(rdv.appointmentAt)}' : formatTime(rdv.appointmentAt)),
+      TextSpan(
+          text: rdv.slotsOpen
+              ? tr.dateToChoose
+              : dayLabel
+                  ? '${relativeDayLabel(rdv.appointmentAt)} · ${formatTime(rdv.appointmentAt)}'
+                  : formatTime(rdv.appointmentAt)),
       if (rdv.location != null) ...[
         const TextSpan(text: ' · '),
         WidgetSpan(alignment: PlaceholderAlignment.middle, child: Icon(LucideIcons.mapPin, size: 14, color: c.textMuted)),
@@ -146,12 +151,20 @@ class RdvRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(children: [
           Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            DateBlock(rdv.appointmentAt),
+            rdv.slotsOpen ? const _PendingDateBlock() : DateBlock(rdv.appointmentAt),
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(rdv.displayTitle,
-                    maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w600, color: c.text)),
+                Row(children: [
+                  if (rdv.visibility != EventVisibility.private) ...[
+                    Icon(rdv.visibility == EventVisibility.public ? LucideIcons.globe : LucideIcons.usersRound, size: 15, color: c.brandText),
+                    const SizedBox(width: 5),
+                  ],
+                  Expanded(
+                    child: Text(rdv.displayTitle,
+                        maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w600, color: c.text)),
+                  ),
+                ]),
                 const SizedBox(height: 3),
                 Text.rich(TextSpan(children: parts), maxLines: 1, overflow: TextOverflow.ellipsis, style: meta),
               ]),
@@ -166,6 +179,20 @@ class RdvRow extends StatelessWidget {
           if (footer != null) ...[const SizedBox(height: 12), footer!],
         ]),
       ),
+    );
+  }
+}
+
+class _PendingDateBlock extends StatelessWidget {
+  const _PendingDateBlock();
+  @override
+  Widget build(BuildContext context) {
+    final t = context.colors.tone(Tone.amber);
+    return Container(
+      width: 58,
+      height: 58,
+      decoration: BoxDecoration(color: t.bg, borderRadius: BorderRadius.circular(14)),
+      child: Icon(LucideIcons.calendarClock, color: t.fg, size: 26),
     );
   }
 }

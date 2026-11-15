@@ -3403,6 +3403,732 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Confirmer'**
   String get confirm;
+
+  /// No description provided for @visPrivate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Privé'**
+  String get visPrivate;
+
+  /// No description provided for @visContacts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre amis'**
+  String get visContacts;
+
+  /// No description provided for @visPublic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Public'**
+  String get visPublic;
+
+  /// No description provided for @eventBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement de {name}'**
+  String eventBy(String name);
+
+  /// No description provided for @sponsored.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sponsorisé'**
+  String get sponsored;
+
+  /// No description provided for @dateToChoose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date à choisir'**
+  String get dateToChoose;
+
+  /// No description provided for @byYou.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par vous'**
+  String get byYou;
+
+  /// No description provided for @nGoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =0{Personne pour l\'instant} =1{1 participant} other{{n} participants}}'**
+  String nGoing(int n);
+
+  /// No description provided for @youreGoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous y allez'**
+  String get youreGoing;
+
+  /// No description provided for @homeAgenda.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon agenda'**
+  String get homeAgenda;
+
+  /// No description provided for @homeFriends.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre amis'**
+  String get homeFriends;
+
+  /// No description provided for @homeExplore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer'**
+  String get homeExplore;
+
+  /// No description provided for @exploreIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les événements publics à venir : concerts, sorties, rencontres… Rejoignez ceux qui vous tentent.'**
+  String get exploreIntro;
+
+  /// No description provided for @friendsFeedIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les événements que vos amis ouvrent à tous leurs amis. Vous pouvez les rejoindre directement.'**
+  String get friendsFeedIntro;
+
+  /// No description provided for @exploreEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun événement public pour l\'instant'**
+  String get exploreEmptyTitle;
+
+  /// No description provided for @exploreEmptyMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenez bientôt : les événements ouverts à tous apparaîtront ici.'**
+  String get exploreEmptyMessage;
+
+  /// No description provided for @friendsFeedEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien de prévu entre amis'**
+  String get friendsFeedEmptyTitle;
+
+  /// No description provided for @friendsFeedEmptyMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand un ami crée un événement « Entre amis », il apparaît ici. Lancez le vôtre !'**
+  String get friendsFeedEmptyMessage;
+
+  /// No description provided for @createFriendsEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un événement entre amis'**
+  String get createFriendsEvent;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir plus'**
+  String get loadMore;
+
+  /// No description provided for @exploreSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher (titre, lieu, @organisateur)'**
+  String get exploreSearchHint;
+
+  /// No description provided for @slotsAtLeastTwo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposez au moins deux créneaux différents.'**
+  String get slotsAtLeastTwo;
+
+  /// No description provided for @proposeSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposer ces créneaux'**
+  String get proposeSlots;
+
+  /// No description provided for @whoCanSee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui peut le voir ?'**
+  String get whoCanSee;
+
+  /// No description provided for @memberEditHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous participez à cet événement : seul l\'organisateur peut changer la date, le lieu ou l\'annuler. Vos notes, vos contacts et le statut restent à vous.'**
+  String get memberEditHint;
+
+  /// No description provided for @withWhomOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec qui ? (facultatif)'**
+  String get withWhomOptional;
+
+  /// No description provided for @withWhomHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos contacts qui viennent : leur compteur repart de zéro une fois l\'événement passé.'**
+  String get withWhomHint;
+
+  /// No description provided for @oneDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une date'**
+  String get oneDate;
+
+  /// No description provided for @severalSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs créneaux'**
+  String get severalSlots;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// No description provided for @descriptionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visible par tous ceux qui voient l\'événement.'**
+  String get descriptionHint;
+
+  /// No description provided for @descriptionPlaceholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Programme, ce qu\'il faut apporter…'**
+  String get descriptionPlaceholder;
+
+  /// No description provided for @statusHintCancelledAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'événement est annulé pour tous les participants.'**
+  String get statusHintCancelledAll;
+
+  /// No description provided for @shareSlotsHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos amis reçoivent les créneaux et indiquent leurs disponibilités. Vous choisissez ensuite la date.'**
+  String get shareSlotsHelp;
+
+  /// No description provided for @contactsBroadcastHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous vos amis SeeU seront prévenus et pourront le rejoindre.'**
+  String get contactsBroadcastHint;
+
+  /// No description provided for @publicPhotosHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événement public : vous seul pourrez publier des annonces et des photos.'**
+  String get publicPhotosHint;
+
+  /// No description provided for @publicReserved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réservé aux organisateurs vérifiés pour l\'instant.'**
+  String get publicReserved;
+
+  /// No description provided for @visPrivateHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seulement les amis que vous invitez.'**
+  String get visPrivateHelp;
+
+  /// No description provided for @visContactsHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous vos amis SeeU le voient et peuvent le rejoindre.'**
+  String get visContactsHelp;
+
+  /// No description provided for @visPublicHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout le monde peut le voir et le rejoindre.'**
+  String get visPublicHelp;
+
+  /// No description provided for @slotsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créneaux proposés'**
+  String get slotsLabel;
+
+  /// No description provided for @slotsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque participant indique s\'il est disponible ; vous choisissez ensuite le meilleur créneau.'**
+  String get slotsHint;
+
+  /// No description provided for @addSlot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un créneau'**
+  String get addSlot;
+
+  /// No description provided for @slotsPollTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand êtes-vous disponible ?'**
+  String get slotsPollTitle;
+
+  /// No description provided for @slotsPollHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour chaque créneau : ✓ disponible, ? peut-être, ✗ pas disponible.'**
+  String get slotsPollHelp;
+
+  /// No description provided for @slotYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get slotYes;
+
+  /// No description provided for @slotMaybe.
+  ///
+  /// In fr, this message translates to:
+  /// **'Peut-être'**
+  String get slotMaybe;
+
+  /// No description provided for @slotNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas disponible'**
+  String get slotNo;
+
+  /// No description provided for @slotMaybeShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'peut-être'**
+  String get slotMaybeShort;
+
+  /// No description provided for @slotCounts.
+  ///
+  /// In fr, this message translates to:
+  /// **'{nYes, plural, =0{0 dispo} =1{1 dispo} other{{nYes} dispo}} · {nMaybe} peut-être'**
+  String slotCounts(int nYes, int nMaybe);
+
+  /// No description provided for @choose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir'**
+  String get choose;
+
+  /// No description provided for @chooseSlotTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixer la date au {when} ?'**
+  String chooseSlotTitle(String when);
+
+  /// No description provided for @chooseSlotMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le vote se termine et tous les participants sont prévenus de la date choisie.'**
+  String get chooseSlotMessage;
+
+  /// No description provided for @chooseThisSlot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir ce créneau'**
+  String get chooseThisSlot;
+
+  /// No description provided for @slotChosen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date choisie, les participants sont prévenus'**
+  String get slotChosen;
+
+  /// No description provided for @slotsNoVotes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de réponses'**
+  String get slotsNoVotes;
+
+  /// No description provided for @bestSlot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur créneau'**
+  String get bestSlot;
+
+  /// No description provided for @bestSlotsTie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleurs créneaux (ex æquo)'**
+  String get bestSlotsTie;
+
+  /// No description provided for @slotsWaitOrganizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos invités vont indiquer leurs disponibilités. Vous serez prévenu, puis vous choisirez la date.'**
+  String get slotsWaitOrganizer;
+
+  /// No description provided for @slotsWaitMember.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez vos disponibilités : l\'organisateur choisira ensuite la date.'**
+  String get slotsWaitMember;
+
+  /// No description provided for @slotsOrganizerDecides.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'organisateur choisira la date définitive.'**
+  String get slotsOrganizerDecides;
+
+  /// No description provided for @eventMuted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications de cet événement coupées'**
+  String get eventMuted;
+
+  /// No description provided for @eventUnmuted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications de cet événement réactivées'**
+  String get eventUnmuted;
+
+  /// No description provided for @personMuted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements et messages de {name} masqués'**
+  String personMuted(String name);
+
+  /// No description provided for @personUnmuted.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} n\'est plus masqué(e)'**
+  String personUnmuted(String name);
+
+  /// No description provided for @blockTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer {name} ?'**
+  String blockTitle(String name);
+
+  /// No description provided for @blockMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne serez plus amis, vous ne verrez plus ses événements ni ses messages, et vous ne pourrez plus vous trouver ni vous inviter. Vous pourrez le débloquer dans les Réglages.'**
+  String get blockMessage;
+
+  /// No description provided for @block.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer'**
+  String get block;
+
+  /// No description provided for @blocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} est bloqué(e)'**
+  String blocked(String name);
+
+  /// No description provided for @mutePerson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer les événements de {name}'**
+  String mutePerson(String name);
+
+  /// No description provided for @unmutePerson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne plus masquer {name}'**
+  String unmutePerson(String name);
+
+  /// No description provided for @blockName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer {name}'**
+  String blockName(String name);
+
+  /// No description provided for @announcements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonces'**
+  String get announcements;
+
+  /// No description provided for @chat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Discussion'**
+  String get chat;
+
+  /// No description provided for @announceEmptyOrganizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publiez des annonces : tous les participants confirmés seront prévenus.'**
+  String get announceEmptyOrganizer;
+
+  /// No description provided for @announceEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore d\'annonce de l\'organisateur.'**
+  String get announceEmpty;
+
+  /// No description provided for @chatEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de message. Lancez la discussion !'**
+  String get chatEmpty;
+
+  /// No description provided for @openAnnouncements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les annonces'**
+  String get openAnnouncements;
+
+  /// No description provided for @openChat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir la discussion'**
+  String get openChat;
+
+  /// No description provided for @nNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 nouveau} other{{n} nouveaux}}'**
+  String nNew(int n);
+
+  /// No description provided for @deleteMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le message'**
+  String get deleteMessage;
+
+  /// No description provided for @announceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une annonce pour les participants…'**
+  String get announceHint;
+
+  /// No description provided for @messageHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre message…'**
+  String get messageHint;
+
+  /// No description provided for @announceReadOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul l\'organisateur publie ici. Vous êtes prévenu à chaque annonce si vous venez.'**
+  String get announceReadOnly;
+
+  /// No description provided for @chatJoinToPost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoignez l\'événement pour écrire.'**
+  String get chatJoinToPost;
+
+  /// No description provided for @moreActions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus d\'actions'**
+  String get moreActions;
+
+  /// No description provided for @muteEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couper les notifications de cet événement'**
+  String get muteEvent;
+
+  /// No description provided for @unmuteEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réactiver les notifications de cet événement'**
+  String get unmuteEvent;
+
+  /// No description provided for @joinedToast.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est noté, vous y allez !'**
+  String get joinedToast;
+
+  /// No description provided for @notGoingToast.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est noté, vous n\'y allez pas'**
+  String get notGoingToast;
+
+  /// No description provided for @organizedBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisé par {name}'**
+  String organizedBy(String name);
+
+  /// No description provided for @eventCancelledInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet événement a été annulé par l\'organisateur.'**
+  String get eventCancelledInfo;
+
+  /// No description provided for @joinToVote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoignez-le pour indiquer vos disponibilités'**
+  String get joinToVote;
+
+  /// No description provided for @areYouComing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous venez ?'**
+  String get areYouComing;
+
+  /// No description provided for @joinPublicHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'« À confirmer » l\'ajoute à votre agenda sans engagement. Vous recevrez les annonces de l\'organisateur si vous venez.'**
+  String get joinPublicHint;
+
+  /// No description provided for @joinFriendsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'organisateur est prévenu quand vous venez. « À confirmer » l\'ajoute à votre agenda sans engagement.'**
+  String get joinFriendsHint;
+
+  /// No description provided for @moderationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masqués et bloqués'**
+  String get moderationTitle;
+
+  /// No description provided for @moderationIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer coupe les notifications et retire les événements des fils. Bloquer coupe tout contact avec la personne.'**
+  String get moderationIntro;
+
+  /// No description provided for @mutedPeopleAndEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnes et événements masqués'**
+  String get mutedPeopleAndEvents;
+
+  /// No description provided for @nothingMuted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien de masqué.'**
+  String get nothingMuted;
+
+  /// No description provided for @eventsMuted.
+  ///
+  /// In fr, this message translates to:
+  /// **'événements et messages masqués'**
+  String get eventsMuted;
+
+  /// No description provided for @unmute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réactiver'**
+  String get unmute;
+
+  /// No description provided for @blockedPeople.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnes bloquées'**
+  String get blockedPeople;
+
+  /// No description provided for @nobodyBlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personne n\'est bloqué.'**
+  String get nobodyBlocked;
+
+  /// No description provided for @unblock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer'**
+  String get unblock;
+
+  /// No description provided for @unblocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} est débloqué(e)'**
+  String unblocked(String name);
+
+  /// No description provided for @unblockHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer ne rétablit pas l\'amitié : il faudra renvoyer une demande.'**
+  String get unblockHint;
+
+  /// No description provided for @mutedAndBlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masqués et bloqués'**
+  String get mutedAndBlocked;
+
+  /// No description provided for @mutedAndBlockedSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnes et événements que vous avez masqués ou bloqués.'**
+  String get mutedAndBlockedSub;
+
+  /// No description provided for @leaveEventTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer cet événement de votre agenda ?'**
+  String get leaveEventTitle;
+
+  /// No description provided for @leaveEventMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne participerez plus et vos photos disparaîtront de la galerie commune. Vous pourrez le rejoindre à nouveau s\'il est encore visible.'**
+  String get leaveEventMessage;
+
+  /// No description provided for @removeFromAgenda.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de mon agenda'**
+  String get removeFromAgenda;
+
+  /// No description provided for @myContactsInEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes contacts'**
+  String get myContactsInEvent;
+
+  /// No description provided for @photosEmptyPublicMember.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'organisateur partagera ici les photos de l\'événement.'**
+  String get photosEmptyPublicMember;
+
+  /// No description provided for @you.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous'**
+  String get you;
+
+  /// No description provided for @organizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisateur'**
+  String get organizer;
+
+  /// No description provided for @andNMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'et {n} autres'**
+  String andNMore(int n);
+
+  /// No description provided for @kindEventNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel événement entre amis'**
+  String get kindEventNew;
+
+  /// No description provided for @kindEventJoin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participant à votre événement'**
+  String get kindEventJoin;
+
+  /// No description provided for @kindEventMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message dans un événement'**
+  String get kindEventMessage;
+
+  /// No description provided for @kindEventAnnouncement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonce d\'un événement'**
+  String get kindEventAnnouncement;
 }
 
 class _AppLocalizationsDelegate

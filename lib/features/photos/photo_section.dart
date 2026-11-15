@@ -40,12 +40,15 @@ Future<List<XFile>> pickPhotos(BuildContext context, {bool multiple = true}) asy
 }
 
 class PhotoSection extends ConsumerStatefulWidget {
-  const PhotoSection({super.key, required this.title, required this.photos, this.contactId, this.rdvId, this.emptyText});
+  const PhotoSection({super.key, required this.title, required this.photos, this.contactId, this.rdvId, this.emptyText, this.canAdd = true});
   final String title;
   final AsyncValue<List<Photo>> photos;
   final String? contactId;
   final String? rdvId;
   final String? emptyText;
+
+  /// False on public events for everyone but the organizer.
+  final bool canAdd;
 
   @override
   ConsumerState<PhotoSection> createState() => _PhotoSectionState();
@@ -73,8 +76,10 @@ class _PhotoSectionState extends ConsumerState<PhotoSection> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       SectionTitle(
         widget.title,
-        action: AppButton(tr.add,
-            icon: LucideIcons.camera, variant: ButtonVariant.ghost, size: ButtonSize.sm, onPressed: _uploading > 0 ? null : _add),
+        action: !widget.canAdd
+            ? null
+            : AppButton(tr.add,
+                icon: LucideIcons.camera, variant: ButtonVariant.ghost, size: ButtonSize.sm, onPressed: _uploading > 0 ? null : _add),
       ),
       if (widget.photos.isLoading && !widget.photos.hasValue)
         const SkeletonList(rows: 1)

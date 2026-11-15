@@ -188,6 +188,17 @@ final friendsProvider = FutureProvider<List<Friend>>((ref) => _api(ref).listFrie
 final incomingInvitesProvider = FutureProvider<List<IncomingInvite>>((ref) => _api(ref).listIncomingInvites());
 final notificationLogProvider = FutureProvider<List<NotificationEntry>>((ref) => _api(ref).listNotifications());
 
+/// Feeds of the home sections: 'contacts' and 'public' (first page; search in Explorer).
+final feedProvider = FutureProvider.family<List<FeedEvent>, ({String scope, String query})>(
+    (ref, k) => _api(ref).listFeed(k.scope, query: k.query));
+final eventProvider = FutureProvider.family<FeedEvent?, String>((ref, id) => _api(ref).getEvent(id));
+final participantsProvider = FutureProvider.family<List<Participant>, String>((ref, id) => _api(ref).listParticipants(id));
+final slotsProvider = FutureProvider.family<List<EventSlot>, String>((ref, id) => _api(ref).listSlots(id));
+final chatPreviewProvider = FutureProvider.family<List<ChatMessage>, String>((ref, id) => _api(ref).listMessages(id, limit: 3));
+final canCreatePublicProvider = FutureProvider<bool>((ref) => _api(ref).canCreatePublicEvents().catchError((_) => false));
+final mutesProvider = FutureProvider<List<MuteEntry>>((ref) => _api(ref).listMutes());
+final blockedProvider = FutureProvider<List<BlockedUser>>((ref) => _api(ref).listBlocked());
+
 /// Signed URL of a private photo (valid 1 h, cached ~50 min).
 final signedUrlProvider = FutureProvider.family<String, String>((ref, path) async {
   final link = ref.keepAlive();
@@ -210,6 +221,13 @@ void refreshData(WidgetRef ref) {
   ref.invalidate(rdvInvitesProvider);
   ref.invalidate(friendsProvider);
   ref.invalidate(incomingInvitesProvider);
+  ref.invalidate(feedProvider);
+  ref.invalidate(eventProvider);
+  ref.invalidate(participantsProvider);
+  ref.invalidate(slotsProvider);
+  ref.invalidate(chatPreviewProvider);
+  ref.invalidate(mutesProvider);
+  ref.invalidate(blockedProvider);
 }
 
 void refreshDataFromContainer(ProviderContainer c) {
@@ -226,4 +244,9 @@ void refreshDataFromContainer(ProviderContainer c) {
   c.invalidate(friendsProvider);
   c.invalidate(incomingInvitesProvider);
   c.invalidate(notificationLogProvider);
+  c.invalidate(feedProvider);
+  c.invalidate(eventProvider);
+  c.invalidate(participantsProvider);
+  c.invalidate(slotsProvider);
+  c.invalidate(chatPreviewProvider);
 }

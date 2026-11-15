@@ -11,7 +11,8 @@ import '../core/i18n.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
 
-const _rdvSelect = '*, contact_rendezvous(contacts(id, name, photo_path, categories, linked_user_id)), photos(*)';
+const _rdvSelect = '*, contact_rendezvous(contacts(id, name, photo_path, categories, linked_user_id)), photos(*), '
+    'events(id, organizer_id, visibility, slots_open, description, member_count, going_count)';
 
 /// Hides invitations I declined (rsvp null = my own rendezvous).
 const _notDeclined = 'rsvp.is.null,rsvp.in.(pending,accepted)';
@@ -233,6 +234,115 @@ class Api {
 
   Future<Rendezvous> setRdvStatus(String id, RdvStatus status) => updateRdv(id, {'status': status.name});
 
+  /* ------------------------------- Events ------------------------------ */
+
+  /// Creates or edits an event (+ my copy, contacts, timeslots, invitations). Returns my copy's id.
+  Future<String> saveEvent(EventInput input) async => await sb.rpc('save_event', params: {'p': input.toJson()}) as String;
+
+  /// Join / answer an event seen in a feed. Returns my copy's id (null when declining without one).
+  Future<String?> joinEvent(String eventId, Rsvp answer) async =>
+      await sb.rpc('join_event', params: {'p_event': eventId, 'p_status': answer.name}) as String?;
+
+  Future<bool> canCreatePublicEvents() async => (await sb.rpc('can_create_public_events')) as bool? ?? false;
+
+  /// scope: 'contacts' (friends' events) or 'public'.
+  Future<List<FeedEvent>> listFeed(String scope, {String? query, FeedEvent? after, int limit = 30}) async {
+    final rows = await sb.rpc('list_feed_events', params: {
+      'p_scope': scope,
+      'p_query': (query == null || query.trim().isEmpty) ? null : query.trim(),
+      'p_limit': limit,
+      'p_after_at': after?.appointmentAt.toUtc().toIso8601String(),
+      'p_after_id': after?.id,
+    }) as List;
+    return rows.map((r) => FeedEvent.fromJson(r as Map<String, dynamic>)).toList();
+  }
+
+  Future<FeedEvent?> getEvent(String eventId) async {
+    final rows = await sb.rpc('get_event', params: {'p_event': eventId}) as List;
+    return rows.isEmpty ? null : FeedEvent.fromJson(rows.first as Map<String, dynamic>);
+  }
+
+  Future<List<Participant>> listParticipants(String eventId) async {
+    final rows = await sb.rpc('list_event_participants', params: {'p_event': eventId}) as List;
+    return rows.map((r) => Participant.fromJson(r as Map<String, dynamic>)).toList();
+  }
+
+  Future<List<EventSlot>> listSlots(String eventId) async {
+    final rows = await sb.rpc('list_event_slots', params: {'p_event': eventId}) as List;
+    return rows.map((r) => EventSlot.fromJson(r as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> voteSlot(String slotId, SlotAnswer? answer) =>
+      sb.rpc('vote_slot', params: {'p_slot': slotId, 'p_answer': answer?.name});
+
+  Future<void> chooseSlot(String slotId) => sb.rpc('choose_event_slot', params: {'p_slot': slotId});
+
+  /* -------------------------------- Chat ------------------------------- */
+
+  /// Latest messages first.
+  Future<List<ChatMessage>> listMessages(String eventId, {DateTime? before, int limit = 50}) async {
+    final rows = await sb.rpc('list_event_messages', params: {
+      'p_event': eventId,
+      'p_before': before?.toUtc().toIso8601String(),
+      'p_limit': limit,
+    }) as List;
+    return rows.map((r) => ChatMessage.fromJson(r as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> sendMessage(String eventId, String body) =>
+      sb.from('event_messages').insert({'event_id': eventId, 'user_id': uid, 'body': body.trim()});
+
+  Future<void> deleteMessage(String id) => sb.from('event_messages').delete().eq('id', id);
+
+  Future<void> markChatRead(String rdvId) =>
+      sb.from('rendezvous').update({'chat_read_at': DateTime.now().toUtc().toIso8601String()}).eq('id', rdvId);
+
+  /// New messages of an event, live (Supabase Realtime). Cancel the returned channel to stop.
+  RealtimeChannel watchMessages(String eventId, void Function(Map<String, dynamic> row) onInsert, void Function(String id) onDelete) {
+    return sb
+        .channel('event-chat:$eventId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'event_messages',
+          filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: 'event_id', value: eventId),
+          callback: (p) => onInsert(p.newRecord),
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.delete,
+          schema: 'public',
+          table: 'event_messages',
+          callback: (p) {
+            final id = p.oldRecord['id'];
+            if (id is String) onDelete(id);
+          },
+        )
+        .subscribe();
+  }
+
+  /* ---------------------------- Mute & block --------------------------- */
+
+  Future<void> muteUser(String userId) =>
+      sb.from('user_mutes').upsert({'user_id': uid, 'target_user': userId}, onConflict: 'user_id,target_user', ignoreDuplicates: true);
+  Future<void> unmuteUser(String userId) => sb.from('user_mutes').delete().eq('user_id', uid).eq('target_user', userId);
+  Future<void> muteEvent(String eventId) =>
+      sb.from('user_mutes').upsert({'user_id': uid, 'event_id': eventId}, onConflict: 'user_id,event_id', ignoreDuplicates: true);
+  Future<void> unmuteEvent(String eventId) => sb.from('user_mutes').delete().eq('user_id', uid).eq('event_id', eventId);
+  Future<void> deleteMute(String id) => sb.from('user_mutes').delete().eq('id', id);
+
+  Future<List<MuteEntry>> listMutes() async {
+    final rows = await sb.rpc('list_mutes') as List;
+    return rows.map((r) => MuteEntry.fromJson(r as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> blockUser(String userId) => sb.rpc('block_user', params: {'p_user': userId});
+  Future<void> unblockUser(String userId) => sb.rpc('unblock_user', params: {'p_user': userId});
+
+  Future<List<BlockedUser>> listBlocked() async {
+    final rows = await sb.rpc('list_blocked_users') as List;
+    return rows.map((r) => BlockedUser.fromJson(r as Map<String, dynamic>)).toList();
+  }
+
   Future<void> deleteRdv(Rendezvous rdv) async {
     await sb.from('rendezvous').delete().eq('id', rdv.id);
     await _removeFiles(rdv.photos.expand((p) => p.allPaths).toList());
@@ -274,7 +384,7 @@ class Api {
       for (final p in viaRdv.map(Photo.fromJson)) {
         all[p.id] = p;
       }
-      final sharedRdv = await sb.from('rendezvous').select('id').inFilter('id', ids).not('share_id', 'is', null);
+      final sharedRdv = await sb.from('rendezvous').select('id').inFilter('id', ids).not('event_id', 'is', null);
       final shared = await Future.wait(sharedRdv.map((r) => listSharedPhotosForRdv(r['id'] as String).catchError((_) => <Photo>[])));
       for (final p in shared.expand((l) => l)) {
         all[p.id] = p;

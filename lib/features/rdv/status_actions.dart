@@ -61,6 +61,14 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
             onPressed: _busy == null ? () => _set(RdvStatus.planifie) : null),
       );
     }
+    final done = AppButton(tr.statusSetDone,
+        icon: LucideIcons.check,
+        variant: ButtonVariant.success,
+        full: true,
+        loading: _busy == RdvStatus.valide,
+        onPressed: _busy == null ? () => _set(RdvStatus.valide) : null);
+    // Only the organizer cancels a shared event (others decline it instead).
+    if (!widget.rdv.isOrganizer) return done;
     return Row(children: [
       Expanded(
         child: AppButton(tr.statusSetDone,

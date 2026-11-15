@@ -33,7 +33,9 @@ Future<String?> answerInvitation(WidgetRef ref, String inviteId, Rsvp answer) as
 
 class RsvpSelector extends StatelessWidget {
   const RsvpSelector({super.key, required this.value, required this.onChanged, this.busy});
-  final Rsvp value;
+
+  /// null = no answer yet.
+  final Rsvp? value;
   final ValueChanged<Rsvp>? onChanged;
 
   /// Option currently being sent (shows a spinner).

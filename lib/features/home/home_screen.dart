@@ -18,10 +18,23 @@ import '../contacts/quick_sheets.dart';
 import '../friends/invite_card.dart';
 import '../rdv/status_actions.dart';
 import 'push_banner.dart';
+import 'feed_section.dart';
+import '../../ads/ads.dart';
 import '../../core/i18n.dart';
 
 const _maxDue = 8;
 const _maxUpcoming = 10;
+
+/// Home sections: my agenda, friends' events, public events.
+enum HomeSection { agenda, friends, explore }
+
+final homeSectionProvider = NotifierProvider<HomeSectionNotifier, HomeSection>(HomeSectionNotifier.new);
+
+class HomeSectionNotifier extends Notifier<HomeSection> {
+  @override
+  HomeSection build() => HomeSection.agenda;
+  void set(HomeSection s) => state = s;
+}
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -30,16 +43,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final profile = ref.watch(profileProvider);
-    final contacts = ref.watch(contactsProvider);
-    final planned = ref.watch(plannedRdvProvider);
-    final invites = ref.watch(incomingInvitesProvider).value ?? const <IncomingInvite>[];
+    final section = ref.watch(homeSectionProvider);
     final now = clock();
-
-    Future<void> refresh() async {
-      refreshData(ref);
-      ref.invalidate(pushPermissionProvider);
-      await Future.wait([ref.read(contactsProvider.future), ref.read(plannedRdvProvider.future)]);
-    }
 
     final header = Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -56,9 +61,15 @@ class HomeScreen extends ConsumerWidget {
       ]),
     );
 
+    final top = [header, const SizedBox(height: 16), HomeSectionPicker(value: section, onChanged: ref.read(homeSectionProvider.notifier).set)];
+
     return AppScaffold(
       fab: FloatingActionButton(
-        onPressed: () => context.push('/rdv/new'),
+        onPressed: () => context.push(switch (section) {
+          HomeSection.agenda => '/rdv/new',
+          HomeSection.friends => '/rdv/new?vis=contacts',
+          HomeSection.explore => '/rdv/new?vis=public',
+        }),
         tooltip: tr.newRdv,
         backgroundColor: Palette.brand600,
         foregroundColor: Colors.white,
@@ -68,30 +79,110 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         bottom: false,
-        child: PageList(
-          onRefresh: refresh,
-          bottomPadding: 100,
-          children: [
-            header,
-            const PushBanner(),
-            if (invites.isNotEmpty) ...[
-              SectionTitle(tr.invitationsReceived(invites.length)),
-              for (final i in invites) Padding(padding: const EdgeInsets.only(bottom: 10), child: InviteCard(invite: i)),
-            ],
-            if (contacts.hasError && !contacts.hasValue)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: ErrorCard(error: contacts.error!, onRetry: () => ref.invalidate(contactsProvider)),
-              )
-            else if (!contacts.hasValue)
-              const Padding(padding: EdgeInsets.only(top: 16), child: SkeletonList(rows: 5))
-            else if (contacts.requireValue.isEmpty)
-              const _Welcome()
-            else
-              ..._dashboard(context, ref, contacts.requireValue, planned),
-          ],
-        ),
+        child: switch (section) {
+          HomeSection.agenda => _Agenda(top: top),
+          HomeSection.friends => FeedSection(scope: 'contacts', top: top),
+          HomeSection.explore => FeedSection(scope: 'public', top: top),
+        },
       ),
+    );
+  }
+}
+
+/// Three big tabs with icons at the top of Home.
+class HomeSectionPicker extends StatelessWidget {
+  const HomeSectionPicker({super.key, required this.value, required this.onChanged});
+  final HomeSection value;
+  final ValueChanged<HomeSection> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    Widget item(HomeSection s, IconData icon, String label, Tone tone) {
+      final selected = s == value;
+      final t = c.tone(tone);
+      return Expanded(
+        child: Semantics(
+          selected: selected,
+          button: true,
+          child: GestureDetector(
+            onTap: () => onChanged(s),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+              decoration: BoxDecoration(
+                color: selected ? t.solid : c.card,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: selected ? t.solid : c.border),
+                boxShadow: selected ? [BoxShadow(color: t.solid.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))] : null,
+              ),
+              child: Column(children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(color: selected ? Colors.white.withValues(alpha: 0.2) : t.bg, shape: BoxShape.circle),
+                  child: Icon(icon, size: 21, color: selected ? Colors.white : t.fg),
+                ),
+                const SizedBox(height: 6),
+                Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: selected ? Colors.white : c.text)),
+              ]),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(children: [
+      item(HomeSection.agenda, LucideIcons.calendarHeart, tr.homeAgenda, Tone.brand),
+      const SizedBox(width: 8),
+      item(HomeSection.friends, LucideIcons.partyPopper, tr.homeFriends, Tone.violet),
+      const SizedBox(width: 8),
+      item(HomeSection.explore, LucideIcons.compass, tr.homeExplore, Tone.green),
+    ]);
+  }
+}
+
+class _Agenda extends ConsumerWidget {
+  const _Agenda({required this.top});
+  final List<Widget> top;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final contacts = ref.watch(contactsProvider);
+    final planned = ref.watch(plannedRdvProvider);
+    final invites = ref.watch(incomingInvitesProvider).value ?? const <IncomingInvite>[];
+
+    Future<void> refresh() async {
+      refreshData(ref);
+      ref.invalidate(pushPermissionProvider);
+      await Future.wait([ref.read(contactsProvider.future), ref.read(plannedRdvProvider.future)]);
+    }
+
+    return PageList(
+      onRefresh: refresh,
+      bottomPadding: 100,
+      children: [
+        ...top,
+        const PushBanner(),
+        if (invites.isNotEmpty) ...[
+          SectionTitle(tr.invitationsReceived(invites.length)),
+          for (final i in invites) Padding(padding: const EdgeInsets.only(bottom: 10), child: InviteCard(invite: i)),
+        ],
+        if (contacts.hasError && !contacts.hasValue)
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: ErrorCard(error: contacts.error!, onRetry: () => ref.invalidate(contactsProvider)),
+          )
+        else if (!contacts.hasValue)
+          const Padding(padding: EdgeInsets.only(top: 16), child: SkeletonList(rows: 5))
+        else if (contacts.requireValue.isEmpty)
+          const _Welcome()
+        else
+          ..._dashboard(context, ref, contacts.requireValue, planned),
+      ],
     );
   }
 
@@ -211,6 +302,7 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
       ],
+      const AdTile(AdPlacement.homeAgenda),
     ];
   }
 }

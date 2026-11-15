@@ -15,11 +15,16 @@ import '../../domain/models.dart';
 import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import '../../ui/rows.dart';
 import 'rsvp.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
 import 'status_actions.dart';
+import '../events/chat.dart';
+import '../events/event_widgets.dart';
+import '../events/moderation.dart';
+import '../events/slot_poll.dart';
 import '../../core/i18n.dart';
 
 class RdvDetailScreen extends ConsumerWidget {
@@ -33,6 +38,7 @@ class RdvDetailScreen extends ConsumerWidget {
       return MissingItem(title: tr.errRdvNotFound, backLabel: tr.backToHome, backPath: '/');
     }
     final rdv = value.value;
+    final event = rdv?.eventId == null ? null : ref.watch(eventProvider(rdv!.eventId!)).value;
     return AppScaffold(
       title: rdv?.displayTitle ?? tr.rdvGeneric,
       back: true,
@@ -43,6 +49,17 @@ class RdvDetailScreen extends ConsumerWidget {
             tooltip: tr.edit,
             color: context.colors.brandText,
             onPressed: () => context.push('/rdv/$id/edit'),
+          ),
+        if (rdv != null && event != null && rdv.isShared)
+          AppIconButton(
+            icon: LucideIcons.ellipsis,
+            tooltip: tr.moreActions,
+            onPressed: () => showModerationSheet(context, title: rdv.displayTitle, actions: [
+              event.mutedEvent
+                  ? ModerationAction(LucideIcons.bell, tr.unmuteEvent, () => setEventMuted(ref, event.id, false))
+                  : ModerationAction(LucideIcons.bellOff, tr.muteEvent, () => setEventMuted(ref, event.id, true)),
+              if (!rdv.isOrganizer) ...personActions(context, ref, userId: event.organizerId, name: event.organizerName, muted: event.mutedOrganizer),
+            ]),
           ),
       ],
       body: rdv == null
@@ -62,11 +79,13 @@ class _Body extends ConsumerWidget {
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final ok = await confirmSheet(
       context,
-      title: tr.deleteRdvTitle,
-      message: rdv.isShared
-          ? tr.deleteRdvShared
-          : tr.deleteRdvPrivate,
-      confirmLabel: tr.delete,
+      title: rdv.isOrganizer ? tr.deleteRdvTitle : tr.leaveEventTitle,
+      message: !rdv.isOrganizer
+          ? tr.leaveEventMessage
+          : rdv.isShared
+              ? tr.deleteRdvShared
+              : tr.deleteRdvPrivate,
+      confirmLabel: rdv.isOrganizer ? tr.delete : tr.remove,
     );
     if (!ok || !context.mounted) return;
     final done = await guard(() async {
@@ -108,6 +127,8 @@ class _Body extends ConsumerWidget {
         ? AsyncValue.data(rdv.photos)
         : shared.whenData((others) => [...rdv.photos, ...others]..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
     final friendContacts = rdv.contacts.where((p) => p.linkedUserId != null).toList();
+    final event = rdv.eventId == null ? null : ref.watch(eventProvider(rdv.eventId!)).value;
+    final public = rdv.visibility == EventVisibility.public;
 
     return PageList(
       onRefresh: () async {
@@ -117,10 +138,10 @@ class _Body extends ConsumerWidget {
       children: [
         const SizedBox(height: 8),
         // 0. Invitation from a friend: my answer (à confirmer / accepter / refuser)
-        if (rdv.rsvp != null) ...[_RsvpCard(rdv: rdv), const SizedBox(height: 16)],
+        if (rdv.rsvp != null) ...[_RsvpCard(rdv: rdv, event: event), const SizedBox(height: 16)],
 
         // 1. Amber "did it happen?" banner
-        if (rdv.needsConfirmation()) ...[
+        if (rdv.needsConfirmation() && !rdv.slotsOpen) ...[
           AppCard(
             color: c.tone(Tone.amber).bg,
             borderColor: c.tone(Tone.amber).bg,
@@ -147,20 +168,29 @@ class _Body extends ConsumerWidget {
             Row(children: [
               StatusPill(rdv.status),
               if (rdv.isTentative) ...[const SizedBox(width: 6), const TentativePill()],
+              if (rdv.isShared) ...[const SizedBox(width: 6), VisibilityPill(rdv.visibility)],
               const Spacer(),
               // "Aujourd'hui" / "Demain" / "Hier" only (otherwise it repeats the date below)
-              if (calendarDaysBetween(today(), rdv.appointmentAt).abs() <= 1)
+              if (!rdv.slotsOpen && calendarDaysBetween(today(), rdv.appointmentAt).abs() <= 1)
                 Text(relativeDayLabel(rdv.appointmentAt), style: TextStyle(color: c.textMuted, fontSize: 15)),
             ]),
             const SizedBox(height: 14),
-            Text(capitalize(formatDateLong(rdv.appointmentAt)),
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: c.text, height: 1.2)),
-            const SizedBox(height: 8),
-            Row(children: [
-              Icon(LucideIcons.clock, size: 20, color: c.textMuted),
-              const SizedBox(width: 8),
-              Text(formatTime(rdv.appointmentAt), style: TextStyle(fontSize: 18, color: c.text)),
-            ]),
+            if (rdv.slotsOpen)
+              Row(children: [
+                Icon(LucideIcons.calendarClock, size: 26, color: c.tone(Tone.amber).text),
+                const SizedBox(width: 8),
+                Text(tr.dateToChoose, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: c.text, height: 1.2)),
+              ])
+            else ...[
+              Text(capitalize(formatDateLong(rdv.appointmentAt)),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: c.text, height: 1.2)),
+              const SizedBox(height: 8),
+              Row(children: [
+                Icon(LucideIcons.clock, size: 20, color: c.textMuted),
+                const SizedBox(width: 8),
+                Text(formatTime(rdv.appointmentAt), style: TextStyle(fontSize: 18, color: c.text)),
+              ]),
+            ],
             if (rdv.location != null) ...[
               const SizedBox(height: 8),
               InkWell(
@@ -172,6 +202,18 @@ class _Body extends ConsumerWidget {
                 ]),
               ),
             ],
+            if (event != null && !rdv.isOrganizer) ...[
+              const SizedBox(height: 10),
+              Row(children: [
+                Avatar(name: event.organizerName, size: 24),
+                const SizedBox(width: 8),
+                Expanded(child: Text(tr.organizedBy(event.organizerName), style: TextStyle(fontSize: 15, color: c.text))),
+              ]),
+            ],
+            if (rdv.event?.description != null) ...[
+              const SizedBox(height: 10),
+              Text(rdv.event!.description!, style: TextStyle(fontSize: 15, color: c.text, height: 1.45)),
+            ],
             if (rdv.notes != null) ...[
               const SizedBox(height: 10),
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -180,7 +222,7 @@ class _Body extends ConsumerWidget {
                 Expanded(child: Text(rdv.notes!, style: TextStyle(fontSize: 15, color: c.text, height: 1.4))),
               ]),
             ],
-            if (rdv.isShared) ...[
+            if (rdv.isShared && rdv.visibility == EventVisibility.private) ...[
               const SizedBox(height: 14),
               InfoBox(
                 tone: Tone.brand,
@@ -191,11 +233,16 @@ class _Body extends ConsumerWidget {
           ]),
         ),
 
-        // 3. Participants
-        SectionTitle(tr.participants),
-        if (rdv.contacts.isEmpty)
+        // 2b. Timeslot poll
+        if (rdv.slotsOpen && rdv.eventId != null)
+          SlotPoll(eventId: rdv.eventId!, isOrganizer: rdv.isOrganizer, members: rdv.event?.memberCount ?? 1),
+
+        // 3. People taking part (shared events) and my contacts
+        if (rdv.isShared && rdv.eventId != null) _PeopleSection(rdv: rdv),
+        if (!rdv.isShared || rdv.contacts.isNotEmpty) SectionTitle(rdv.isShared ? tr.myContactsInEvent : tr.participants),
+        if (!rdv.isShared && rdv.contacts.isEmpty)
           Text(tr.noParticipants, style: TextStyle(color: c.textMuted))
-        else
+        else if (rdv.contacts.isNotEmpty)
           RowsCard(children: [
             for (final p in rdv.contacts)
               ListTile(
@@ -209,12 +256,15 @@ class _Body extends ConsumerWidget {
           ]),
 
         // 4. Sharing
-        if (friendContacts.isNotEmpty) _ShareSection(rdv: rdv, friends: friendContacts),
+        if (friendContacts.isNotEmpty && (!public || rdv.isOrganizer)) _ShareSection(rdv: rdv, friends: friendContacts),
+
+        // 4b. Chat / announcements
+        if (rdv.isShared && rdv.eventId != null && rdv.rsvp != Rsvp.declined) ChatPreview(rdv: rdv),
 
         // 5. Status + calendar
         const SizedBox(height: 20),
-        if (!rdv.needsConfirmation()) RdvStatusActions(rdv: rdv),
-        if (rdv.status == RdvStatus.planifie) ...[
+        if (!rdv.needsConfirmation() && !rdv.slotsOpen) RdvStatusActions(rdv: rdv),
+        if (rdv.status == RdvStatus.planifie && !rdv.slotsOpen) ...[
           const SizedBox(height: 10),
           AppButton(tr.addToCalendar,
               icon: LucideIcons.calendarPlus, variant: ButtonVariant.secondary, full: true, onPressed: _addToCalendar),
@@ -225,12 +275,17 @@ class _Body extends ConsumerWidget {
           title: rdv.isShared ? tr.sharedPhotos : tr.photos,
           photos: photos,
           rdvId: rdv.id,
-          emptyText: rdv.isShared ? tr.photosEmptyShared : tr.photosEmptyPrivate,
+          emptyText: public && !rdv.isOrganizer
+              ? tr.photosEmptyPublicMember
+              : rdv.isShared
+                  ? tr.photosEmptyShared
+                  : tr.photosEmptyPrivate,
+          canAdd: !public || rdv.isOrganizer,
         ),
 
         // 7. Delete
         const SizedBox(height: 28),
-        AppButton(tr.deleteRdv,
+        AppButton(rdv.isOrganizer ? tr.deleteRdv : tr.removeFromAgenda,
             icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
       ],
     );
@@ -238,8 +293,9 @@ class _Body extends ConsumerWidget {
 }
 
 class _RsvpCard extends ConsumerStatefulWidget {
-  const _RsvpCard({required this.rdv});
+  const _RsvpCard({required this.rdv, this.event});
   final Rendezvous rdv;
+  final FeedEvent? event;
   @override
   ConsumerState<_RsvpCard> createState() => _RsvpCardState();
 }
@@ -262,7 +318,11 @@ class _RsvpCardState extends ConsumerState<_RsvpCard> {
       borderColor: tone.bg,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(
-          from == null ? tr.invitedByFriend : tr.proposedBy(from.displayName),
+          from != null
+              ? tr.proposedBy(from.displayName)
+              : widget.event != null
+                  ? tr.organizedBy(widget.event!.organizerName)
+                  : tr.invitedByFriend,
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: tone.fg),
         ),
         const SizedBox(height: 4),
@@ -278,11 +338,20 @@ class _RsvpCardState extends ConsumerState<_RsvpCard> {
         RsvpSelector(
           value: rdv.rsvp!,
           busy: _busy,
-          onChanged: invite == null
+          onChanged: invite == null && rdv.eventId == null
               ? null
               : (answer) async {
                   setState(() => _busy = answer);
-                  await answerInvitation(ref, invite.id, answer);
+                  if (invite != null) {
+                    await answerInvitation(ref, invite.id, answer);
+                  } else {
+                    await guard(() => ref.read(apiProvider).joinEvent(rdv.eventId!, answer), success: switch (answer) {
+                      Rsvp.accepted => tr.joinedToast,
+                      Rsvp.pending => tr.rsvpToastPending,
+                      Rsvp.declined => tr.notGoingToast,
+                    });
+                    refreshData(ref);
+                  }
                   if (mounted) setState(() => _busy = null);
                 },
         ),
@@ -403,5 +472,49 @@ class _ShareSectionState extends ConsumerState<_ShareSection> {
         if (action != null) ...[const SizedBox(width: 8), action],
       ]),
     );
+  }
+}
+
+/// Everyone taking part in a shared event (organizer, going, "à confirmer").
+class _PeopleSection extends ConsumerWidget {
+  const _PeopleSection({required this.rdv});
+  final Rendezvous rdv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final value = ref.watch(participantsProvider(rdv.eventId!));
+    final contactsByUser = {
+      for (final x in ref.watch(contactsProvider).value ?? const <Contact>[])
+        if (x.linkedUserId != null) x.linkedUserId!: x,
+    };
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SectionTitle(tr.participants, count: value.value?.length),
+      AsyncBody<List<Participant>>(
+        value: value,
+        skeletonRows: 2,
+        onRetry: () => ref.invalidate(participantsProvider(rdv.eventId!)),
+        builder: (people) => RowsCard(children: [
+          for (final p in people.take(50))
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              leading: FriendAvatar(name: p.name, size: 40, isFriend: p.isFriend),
+              title: Text(p.userId == rdv.userId ? tr.you : p.name, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+              subtitle: p.username == null ? null : Text(handle(p.username), style: TextStyle(color: c.textMuted, fontSize: 13)),
+              trailing: p.isOrganizer
+                  ? Pill(tr.organizer, tone: Tone.brand)
+                  : p.role == 'pending'
+                      ? const TentativePill()
+                      : Pill(tr.rsvpAccepted, tone: Tone.green),
+              onTap: contactsByUser[p.userId] == null ? null : () => context.push('/contacts/${contactsByUser[p.userId]!.id}'),
+            ),
+          if (people.length > 50)
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Text(tr.andNMore(people.length - 50), textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+            ),
+        ]),
+      ),
+    ]);
   }
 }

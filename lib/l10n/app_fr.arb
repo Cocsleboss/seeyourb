@@ -1267,5 +1267,234 @@
   "account": "Compte",
   "changePassword": "Changer le mot de passe",
   "passwordsNoMatch": "Les deux mots de passe ne correspondent pas.",
-  "confirm": "Confirmer"
+  "confirm": "Confirmer",
+  "visPrivate": "Privé",
+  "visContacts": "Entre amis",
+  "visPublic": "Public",
+  "eventBy": "Événement de {name}",
+  "@eventBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sponsored": "Sponsorisé",
+  "dateToChoose": "Date à choisir",
+  "byYou": "Par vous",
+  "nGoing": "{n, plural, =0{Personne pour l'instant} =1{1 participant} other{{n} participants}}",
+  "@nGoing": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "youreGoing": "Vous y allez",
+  "homeAgenda": "Mon agenda",
+  "homeFriends": "Entre amis",
+  "homeExplore": "Explorer",
+  "exploreIntro": "Les événements publics à venir : concerts, sorties, rencontres… Rejoignez ceux qui vous tentent.",
+  "friendsFeedIntro": "Les événements que vos amis ouvrent à tous leurs amis. Vous pouvez les rejoindre directement.",
+  "exploreEmptyTitle": "Aucun événement public pour l'instant",
+  "exploreEmptyMessage": "Revenez bientôt : les événements ouverts à tous apparaîtront ici.",
+  "friendsFeedEmptyTitle": "Rien de prévu entre amis",
+  "friendsFeedEmptyMessage": "Quand un ami crée un événement « Entre amis », il apparaît ici. Lancez le vôtre !",
+  "createFriendsEvent": "Créer un événement entre amis",
+  "loadMore": "Voir plus",
+  "exploreSearchHint": "Rechercher (titre, lieu, @organisateur)",
+  "slotsAtLeastTwo": "Proposez au moins deux créneaux différents.",
+  "proposeSlots": "Proposer ces créneaux",
+  "whoCanSee": "Qui peut le voir ?",
+  "memberEditHint": "Vous participez à cet événement : seul l'organisateur peut changer la date, le lieu ou l'annuler. Vos notes, vos contacts et le statut restent à vous.",
+  "withWhomOptional": "Avec qui ? (facultatif)",
+  "withWhomHint": "Vos contacts qui viennent : leur compteur repart de zéro une fois l'événement passé.",
+  "oneDate": "Une date",
+  "severalSlots": "Plusieurs créneaux",
+  "descriptionLabel": "Description",
+  "descriptionHint": "Visible par tous ceux qui voient l'événement.",
+  "descriptionPlaceholder": "Programme, ce qu'il faut apporter…",
+  "statusHintCancelledAll": "L'événement est annulé pour tous les participants.",
+  "shareSlotsHelp": "Vos amis reçoivent les créneaux et indiquent leurs disponibilités. Vous choisissez ensuite la date.",
+  "contactsBroadcastHint": "Tous vos amis SeeU seront prévenus et pourront le rejoindre.",
+  "publicPhotosHint": "Événement public : vous seul pourrez publier des annonces et des photos.",
+  "publicReserved": "Réservé aux organisateurs vérifiés pour l'instant.",
+  "visPrivateHelp": "Seulement les amis que vous invitez.",
+  "visContactsHelp": "Tous vos amis SeeU le voient et peuvent le rejoindre.",
+  "visPublicHelp": "Tout le monde peut le voir et le rejoindre.",
+  "slotsLabel": "Créneaux proposés",
+  "slotsHint": "Chaque participant indique s'il est disponible ; vous choisissez ensuite le meilleur créneau.",
+  "addSlot": "Ajouter un créneau",
+  "slotsPollTitle": "Quand êtes-vous disponible ?",
+  "slotsPollHelp": "Pour chaque créneau : ✓ disponible, ? peut-être, ✗ pas disponible.",
+  "slotYes": "Disponible",
+  "slotMaybe": "Peut-être",
+  "slotNo": "Pas disponible",
+  "slotMaybeShort": "peut-être",
+  "slotCounts": "{nYes, plural, =0{0 dispo} =1{1 dispo} other{{nYes} dispo}} · {nMaybe} peut-être",
+  "@slotCounts": {
+    "placeholders": {
+      "nYes": {
+        "type": "int"
+      },
+      "nMaybe": {
+        "type": "int"
+      }
+    }
+  },
+  "choose": "Choisir",
+  "chooseSlotTitle": "Fixer la date au {when} ?",
+  "@chooseSlotTitle": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseSlotMessage": "Le vote se termine et tous les participants sont prévenus de la date choisie.",
+  "chooseThisSlot": "Choisir ce créneau",
+  "slotChosen": "Date choisie, les participants sont prévenus",
+  "slotsNoVotes": "Pas encore de réponses",
+  "bestSlot": "Meilleur créneau",
+  "bestSlotsTie": "Meilleurs créneaux (ex æquo)",
+  "slotsWaitOrganizer": "Vos invités vont indiquer leurs disponibilités. Vous serez prévenu, puis vous choisirez la date.",
+  "slotsWaitMember": "Indiquez vos disponibilités : l'organisateur choisira ensuite la date.",
+  "slotsOrganizerDecides": "L'organisateur choisira la date définitive.",
+  "eventMuted": "Notifications de cet événement coupées",
+  "eventUnmuted": "Notifications de cet événement réactivées",
+  "personMuted": "Événements et messages de {name} masqués",
+  "@personMuted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "personUnmuted": "{name} n'est plus masqué(e)",
+  "@personUnmuted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "blockTitle": "Bloquer {name} ?",
+  "@blockTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "blockMessage": "Vous ne serez plus amis, vous ne verrez plus ses événements ni ses messages, et vous ne pourrez plus vous trouver ni vous inviter. Vous pourrez le débloquer dans les Réglages.",
+  "block": "Bloquer",
+  "blocked": "{name} est bloqué(e)",
+  "@blocked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mutePerson": "Masquer les événements de {name}",
+  "@mutePerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unmutePerson": "Ne plus masquer {name}",
+  "@unmutePerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "blockName": "Bloquer {name}",
+  "@blockName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "announcements": "Annonces",
+  "chat": "Discussion",
+  "announceEmptyOrganizer": "Publiez des annonces : tous les participants confirmés seront prévenus.",
+  "announceEmpty": "Pas encore d'annonce de l'organisateur.",
+  "chatEmpty": "Pas encore de message. Lancez la discussion !",
+  "openAnnouncements": "Voir les annonces",
+  "openChat": "Ouvrir la discussion",
+  "nNew": "{n, plural, =1{1 nouveau} other{{n} nouveaux}}",
+  "@nNew": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteMessage": "Supprimer le message",
+  "announceHint": "Une annonce pour les participants…",
+  "messageHint": "Votre message…",
+  "announceReadOnly": "Seul l'organisateur publie ici. Vous êtes prévenu à chaque annonce si vous venez.",
+  "chatJoinToPost": "Rejoignez l'événement pour écrire.",
+  "moreActions": "Plus d'actions",
+  "muteEvent": "Couper les notifications de cet événement",
+  "unmuteEvent": "Réactiver les notifications de cet événement",
+  "joinedToast": "C'est noté, vous y allez !",
+  "notGoingToast": "C'est noté, vous n'y allez pas",
+  "organizedBy": "Organisé par {name}",
+  "@organizedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "eventCancelledInfo": "Cet événement a été annulé par l'organisateur.",
+  "joinToVote": "Rejoignez-le pour indiquer vos disponibilités",
+  "areYouComing": "Vous venez ?",
+  "joinPublicHint": "« À confirmer » l'ajoute à votre agenda sans engagement. Vous recevrez les annonces de l'organisateur si vous venez.",
+  "joinFriendsHint": "L'organisateur est prévenu quand vous venez. « À confirmer » l'ajoute à votre agenda sans engagement.",
+  "moderationTitle": "Masqués et bloqués",
+  "moderationIntro": "Masquer coupe les notifications et retire les événements des fils. Bloquer coupe tout contact avec la personne.",
+  "mutedPeopleAndEvents": "Personnes et événements masqués",
+  "nothingMuted": "Rien de masqué.",
+  "eventsMuted": "événements et messages masqués",
+  "unmute": "Réactiver",
+  "blockedPeople": "Personnes bloquées",
+  "nobodyBlocked": "Personne n'est bloqué.",
+  "unblock": "Débloquer",
+  "unblocked": "{name} est débloqué(e)",
+  "@unblocked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unblockHint": "Débloquer ne rétablit pas l'amitié : il faudra renvoyer une demande.",
+  "mutedAndBlocked": "Masqués et bloqués",
+  "mutedAndBlockedSub": "Personnes et événements que vous avez masqués ou bloqués.",
+  "leaveEventTitle": "Retirer cet événement de votre agenda ?",
+  "leaveEventMessage": "Vous ne participerez plus et vos photos disparaîtront de la galerie commune. Vous pourrez le rejoindre à nouveau s'il est encore visible.",
+  "removeFromAgenda": "Retirer de mon agenda",
+  "myContactsInEvent": "Mes contacts",
+  "photosEmptyPublicMember": "L'organisateur partagera ici les photos de l'événement.",
+  "you": "Vous",
+  "organizer": "Organisateur",
+  "andNMore": "et {n} autres",
+  "@andNMore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "kindEventNew": "Nouvel événement entre amis",
+  "kindEventJoin": "Participant à votre événement",
+  "kindEventMessage": "Message dans un événement",
+  "kindEventAnnouncement": "Annonce d'un événement"
 }

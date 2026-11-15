@@ -14,6 +14,7 @@ import '../../ui/kit.dart';
 import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import 'calendar.dart';
+import '../../ads/ads.dart';
 import '../../core/i18n.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -120,11 +121,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         title: tr.noResults,
                       )
                     else
-                      for (final (month, list) in months) ...[
+                      for (final (i, (month, list)) in months.indexed) ...[
                         SectionTitle(monthLabel(month), count: list.length),
                         RowsCard(
                           children: [for (final r in list) RdvRow(rdv: r)],
                         ),
+                        if (i == 0 && months.length > 1) const AdTile(AdPlacement.history),
                       ],
                   ],
                 );

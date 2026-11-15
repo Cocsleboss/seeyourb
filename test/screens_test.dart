@@ -21,7 +21,9 @@ import 'package:seeu/features/auth/login_screen.dart';
 import 'package:seeu/features/contacts/contact_detail_screen.dart';
 import 'package:seeu/features/contacts/contact_form_screen.dart';
 import 'package:seeu/features/contacts/contacts_screen.dart';
+import 'package:seeu/features/events/event_preview_screen.dart';
 import 'package:seeu/features/history/calendar.dart';
+import 'package:seeu/features/settings/moderation_screen.dart';
 import 'package:seeu/ui/scaffold.dart';
 import 'package:seeu/features/history/history_screen.dart';
 import 'package:seeu/features/home/home_screen.dart';
@@ -69,9 +71,81 @@ ContactLite lite(String id) => contacts.firstWhere((c) => c.id == id).lite;
 final planned = [
   Rendezvous(id: 'r1', userId: 'me', title: 'Petit matcha bebew', location: 'LLN', appointmentAt: d(0, 19, 30), status: RdvStatus.planifie, contacts: [lite('andrea')]),
   Rendezvous(id: 'r2', userId: 'me', appointmentAt: d(1, 18), status: RdvStatus.planifie, contacts: [lite('marie'), lite('paul')]),
-  Rendezvous(id: 'r3', userId: 'me', title: 'Soirée poker', location: 'Bruxelles', appointmentAt: d(4, 21), status: RdvStatus.planifie, shareId: 's', contacts: [lite('andrea'), lite('leo'), lite('zoe'), lite('paul')]),
-  Rendezvous(id: 'r4', userId: 'me', title: 'Brunch', appointmentAt: d(6, 11), status: RdvStatus.planifie, shareId: 't', rsvp: Rsvp.pending, contacts: [lite('andrea')]),
+  Rendezvous(id: 'r3', userId: 'me', title: 'Soirée poker', location: 'Bruxelles', appointmentAt: d(4, 21), status: RdvStatus.planifie, eventId: 's',
+      event: EventInfo(id: 's', organizerId: 'me', memberCount: 3, goingCount: 2), contacts: [lite('andrea'), lite('leo'), lite('zoe'), lite('paul')]),
+  Rendezvous(id: 'r4', userId: 'me', title: 'Brunch', appointmentAt: d(6, 11), status: RdvStatus.planifie, eventId: 't', rsvp: Rsvp.pending,
+      event: EventInfo(id: 't', organizerId: 'u-andrea', visibility: EventVisibility.contacts, memberCount: 4, goingCount: 3), contacts: [lite('andrea')]),
+  Rendezvous(id: 'r5', userId: 'me', title: 'Week-end au ski', location: 'Chamonix', appointmentAt: d(10, 9), status: RdvStatus.planifie, eventId: 'v',
+      event: EventInfo(id: 'v', organizerId: 'me', visibility: EventVisibility.contacts, slotsOpen: true, memberCount: 5, goingCount: 3,
+          description: 'On loue un chalet, partage des frais. Dites-moi vos dispos !')),
+  Rendezvous(id: 'r6', userId: 'me', title: 'Concert jazz au parc', location: 'Parc de Bruxelles', appointmentAt: d(12, 20), status: RdvStatus.planifie,
+      eventId: 'w', rsvp: Rsvp.accepted,
+      event: EventInfo(id: 'w', organizerId: 'u-org', visibility: EventVisibility.public, memberCount: 128, goingCount: 120, description: 'Concert gratuit en plein air.')),
 ];
+
+FeedEvent feedEvent(String id, String title, {String org = 'u-andrea', String orgName = 'Cocsi_bucci', EventVisibility vis = EventVisibility.contacts,
+        int days = 3, int going = 4, String? myRdv, Rsvp? myRsvp, bool slots = false, String? location, bool mine = false}) =>
+    FeedEvent(
+      id: id,
+      organizerId: org,
+      organizerName: orgName,
+      organizerUsername: 'cocsi_bucci',
+      visibility: vis,
+      title: title,
+      location: location,
+      description: 'Venez nombreux ! On commence à 19h, apportez de quoi grignoter.',
+      appointmentAt: d(days, 19),
+      slotsOpen: slots,
+      going: going,
+      myRdvId: myRdv,
+      myRsvp: myRsvp,
+      isMine: mine,
+      canPost: vis != EventVisibility.public || mine,
+    );
+
+final friendsFeed = [
+  feedEvent('t', 'Brunch', days: 6, myRdv: 'r4', myRsvp: Rsvp.pending),
+  feedEvent('e2', 'Soirée jeux de société', location: 'Chez Tom', orgName: 'Tom', going: 6),
+  feedEvent('e3', 'Rando en forêt de Soignes', days: 9, going: 1, slots: true),
+];
+
+final publicFeed = [
+  feedEvent('w', 'Concert jazz au parc', vis: EventVisibility.public, orgName: 'Brussels Jazz', days: 12, going: 120, myRdv: 'r6', myRsvp: Rsvp.accepted, location: 'Parc de Bruxelles'),
+  feedEvent('p2', 'Marché de Noël solidaire', vis: EventVisibility.public, orgName: 'Asbl Entraide', days: 20, going: 48, location: 'Place Flagey'),
+  feedEvent('p3', 'Atelier poterie débutants', vis: EventVisibility.public, orgName: 'Terre & Feu', days: 25, going: 9),
+];
+
+final events = {
+  for (final e in [...friendsFeed, ...publicFeed]) e.id: e,
+  's': feedEvent('s', 'Soirée poker', org: 'me', orgName: 'Arthur', vis: EventVisibility.private, myRdv: 'r3', mine: true),
+  'v': feedEvent('v', 'Week-end au ski', org: 'me', orgName: 'Arthur', slots: true, myRdv: 'r5', mine: true),
+};
+
+final participants = [
+  Participant(userId: 'me', name: 'Arthur', username: 'arthur', role: 'organizer'),
+  Participant(userId: 'u-andrea', name: 'Cocsi_bucci', username: 'cocsi_bucci', role: 'accepted', isFriend: true),
+  Participant(userId: 'u-tom', name: 'Tom', username: 'tom', role: 'accepted', isFriend: true),
+  Participant(userId: 'u-lea', name: 'Léa', username: 'lea.m', role: 'pending'),
+];
+
+final slots = [
+  EventSlot(id: 'sl1', startsAt: d(10, 9), yes: 2, maybe: 1, no: 1, myAnswer: SlotAnswer.yes, yesNames: ['Arthur', 'Tom'], maybeNames: ['Léa']),
+  EventSlot(id: 'sl2', startsAt: d(17, 9), yes: 4, maybe: 0, no: 0, myAnswer: SlotAnswer.yes, yesNames: ['Arthur', 'Cocsi_bucci', 'Tom', 'Léa']),
+  EventSlot(id: 'sl3', startsAt: d(24, 9), yes: 1, maybe: 2, no: 1, myAnswer: SlotAnswer.maybe, yesNames: ['Tom'], maybeNames: ['Arthur', 'Léa']),
+];
+
+final messages = [
+  ChatMessage(id: 'm3', userId: 'u-tom', authorName: 'Tom', body: 'Je peux prendre 3 personnes en voiture 🚗', createdAt: d(0, 18, 2)),
+  ChatMessage(id: 'm2', userId: 'me', authorName: 'Arthur', body: 'Top, je réserve le chalet ce soir', createdAt: d(0, 17, 40)),
+  ChatMessage(id: 'm1', userId: 'u-andrea', authorName: 'Cocsi_bucci', body: 'Le 2e week-end me va parfaitement !', createdAt: d(0, 17, 31)),
+];
+
+class _Section extends HomeSectionNotifier {
+  _Section(this.initial);
+  final HomeSection initial;
+  @override
+  HomeSection build() => initial;
+}
 
 final history = [
   Rendezvous(id: 'h1', userId: 'me', title: 'Petit date', appointmentAt: d(-1, 13, 15), status: RdvStatus.valide, contacts: [lite('andrea')]),
@@ -114,7 +188,7 @@ Future<void> loadFonts() async {
   await lucide.load();
 }
 
-Widget app(String location, Brightness brightness, List<RouteBase> extra) {
+Widget app(String location, Brightness brightness, List<RouteBase> extra, {List overrides = const []}) {
   Widget tab(Widget w) => w;
   final router = GoRouter(initialLocation: location, routes: [
     GoRoute(path: '/', builder: (_, _) => tab(const HomeScreen())),
@@ -130,7 +204,14 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra) {
     GoRoute(path: '/contacts/new', builder: (_, _) => const ContactFormScreen()),
     GoRoute(path: '/contacts/:id', builder: (_, s) => ContactDetailScreen(id: s.pathParameters['id']!)),
     GoRoute(path: '/contacts/:id/edit', builder: (_, s) => ContactFormScreen(editId: s.pathParameters['id'])),
-    GoRoute(path: '/rdv/new', builder: (_, s) => RdvFormScreen(preselectContactId: s.uri.queryParameters['contact'])),
+    GoRoute(
+        path: '/rdv/new',
+        builder: (_, s) => RdvFormScreen(
+            preselectContactId: s.uri.queryParameters['contact'],
+            initialVisibility: s.uri.queryParameters['vis'] == null ? null : EventVisibility.parse(s.uri.queryParameters['vis']))),
+    GoRoute(path: '/rdv/:id/edit', builder: (_, s) => RdvFormScreen(editId: s.pathParameters['id'])),
+    GoRoute(path: '/event/:id', builder: (_, s) => EventPreviewScreen(id: s.pathParameters['id']!)),
+    GoRoute(path: '/settings/moderation', builder: (_, _) => const ModerationScreen()),
     GoRoute(path: '/rdv/:id', builder: (_, s) => RdvDetailScreen(id: s.pathParameters['id']!)),
     ...extra,
   ]);
@@ -155,6 +236,18 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra) {
       contactPhotosProvider.overrideWith((ref, id) async => const <Photo>[]),
       sharedRdvPhotosProvider.overrideWith((ref, id) async => const <Photo>[]),
       rdvInvitesProvider.overrideWith((ref, id) async => const <RdvInvitation>[]),
+      feedProvider.overrideWith((ref, k) async => k.scope == 'public' ? publicFeed : friendsFeed),
+      eventProvider.overrideWith((ref, id) async => events[id]),
+      participantsProvider.overrideWith((ref, id) async => participants),
+      slotsProvider.overrideWith((ref, id) async => slots),
+      chatPreviewProvider.overrideWith((ref, id) async => messages),
+      canCreatePublicProvider.overrideWith((ref) async => false),
+      mutesProvider.overrideWith((ref) async => [
+            MuteEntry(id: 'mu1', targetUser: 'u-x', userName: 'Max', username: 'max'),
+            MuteEntry(id: 'mu2', eventId: 'p2', eventTitle: 'Marché de Noël solidaire', eventAt: d(20, 19)),
+          ]),
+      blockedProvider.overrideWith((ref) async => [BlockedUser(userId: 'u-y', name: 'Spammeur', username: 'spam42')]),
+      ...overrides,
     ],
     child: MaterialApp.router(
       routerConfig: router,
@@ -177,31 +270,41 @@ void main() {
   setUp(() => clock = () => now);
   tearDown(() => clock = DateTime.now);
 
-  const screens = {
-    'home': '/',
-    'contacts': '/contacts',
-    'contact_detail': '/contacts/andrea',
-    'contact_form': '/contacts/new',
-    'rdv_form': '/rdv/new?contact=andrea',
-    'rdv_detail': '/rdv/r3',
-    'contacts_friend_link': '/contacts?ami=tom',
-    'calendar': '/history-calendar',
-    'day_review': '/history/day/2026-11-13',
-    'rdv_tentative': '/rdv/r4',
-    'history': '/history',
-    'settings': '/settings',
-    'login': '/login',
+  List section(HomeSection v) => [homeSectionProvider.overrideWith(() => _Section(v))];
+  final screens = <String, (String, List)>{
+    'home': ('/', const []),
+    'home_friends': ('/', section(HomeSection.friends)),
+    'home_explore': ('/', section(HomeSection.explore)),
+    'contacts': ('/contacts', const []),
+    'contact_detail': ('/contacts/andrea', const []),
+    'contact_form': ('/contacts/new', const []),
+    'rdv_form': ('/rdv/new?contact=andrea', const []),
+    'rdv_form_slots': ('/rdv/r5/edit', const []),
+    'rdv_form_public': ('/rdv/new?vis=public', const []),
+    'rdv_detail': ('/rdv/r3', const []),
+    'rdv_slots': ('/rdv/r5', const []),
+    'rdv_public': ('/rdv/r6', const []),
+    'event_preview': ('/event/e2', const []),
+    'event_preview_public': ('/event/p2', const []),
+    'contacts_friend_link': ('/contacts?ami=tom', const []),
+    'calendar': ('/history-calendar', const []),
+    'day_review': ('/history/day/2026-11-13', const []),
+    'rdv_tentative': ('/rdv/r4', const []),
+    'history': ('/history', const []),
+    'settings': ('/settings', const []),
+    'moderation': ('/settings/moderation', const []),
+    'login': ('/login', const []),
   };
 
   // French in light + dark, English in light (catches longer strings overflowing).
   for (final (lang, brightness) in [('fr', Brightness.light), ('fr', Brightness.dark), ('en', Brightness.light)]) {
-    for (final MapEntry(key: name, value: location) in screens.entries) {
+    for (final MapEntry(key: name, value: (location, overrides)) in screens.entries) {
       testWidgets('$name ${brightness.name} $lang', (tester) async {
         applyLanguage(lang);
         tester.view.physicalSize = const Size(1170, 2532);
         tester.view.devicePixelRatio = 3;
         addTearDown(tester.view.reset);
-        await tester.pumpWidget(app(location, brightness, const []));
+        await tester.pumpWidget(app(location, brightness, const [], overrides: overrides));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 500));
         expect(tester.takeException(), isNull);

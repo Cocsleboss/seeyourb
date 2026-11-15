@@ -18,6 +18,7 @@ import '../../domain/text.dart';
 import '../friends/friend_sheets.dart';
 import '../photos/photo_section.dart';
 import 'quick_sheets.dart';
+import '../events/moderation.dart';
 import '../../core/i18n.dart';
 
 String birthdayLabel(BirthdayInfo b) {
@@ -38,6 +39,7 @@ class ContactDetailScreen extends ConsumerWidget {
       return MissingItem(title: tr.contactNotFound, backLabel: tr.seeMyContacts, backPath: '/contacts');
     }
     final contact = value.value;
+    if (contact?.linkedUserId != null) ref.watch(mutesProvider);
     return AppScaffold(
       title: contact?.name ?? '',
       back: true,
@@ -48,6 +50,18 @@ class ContactDetailScreen extends ConsumerWidget {
             tooltip: tr.edit,
             color: context.colors.brandText,
             onPressed: () => context.push('/contacts/$id/edit'),
+          ),
+        if (contact?.linkedUserId != null)
+          AppIconButton(
+            icon: LucideIcons.ellipsis,
+            tooltip: tr.moreActions,
+            onPressed: () {
+              final mutes = ref.read(mutesProvider).value ?? const <MuteEntry>[];
+              final muted = mutes.any((m) => m.targetUser == contact!.linkedUserId);
+              showModerationSheet(context,
+                  title: contact!.name,
+                  actions: personActions(context, ref, userId: contact.linkedUserId!, name: contact.name, muted: muted));
+            },
           ),
       ],
       body: contact == null

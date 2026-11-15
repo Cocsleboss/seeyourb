@@ -2169,4 +2169,447 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get confirm => 'Confirmer';
+
+  @override
+  String get visPrivate => 'Privé';
+
+  @override
+  String get visContacts => 'Entre amis';
+
+  @override
+  String get visPublic => 'Public';
+
+  @override
+  String eventBy(String name) {
+    return 'Événement de $name';
+  }
+
+  @override
+  String get sponsored => 'Sponsorisé';
+
+  @override
+  String get dateToChoose => 'Date à choisir';
+
+  @override
+  String get byYou => 'Par vous';
+
+  @override
+  String nGoing(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n participants',
+      one: '1 participant',
+      zero: 'Personne pour l\'instant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get youreGoing => 'Vous y allez';
+
+  @override
+  String get homeAgenda => 'Mon agenda';
+
+  @override
+  String get homeFriends => 'Entre amis';
+
+  @override
+  String get homeExplore => 'Explorer';
+
+  @override
+  String get exploreIntro =>
+      'Les événements publics à venir : concerts, sorties, rencontres… Rejoignez ceux qui vous tentent.';
+
+  @override
+  String get friendsFeedIntro =>
+      'Les événements que vos amis ouvrent à tous leurs amis. Vous pouvez les rejoindre directement.';
+
+  @override
+  String get exploreEmptyTitle => 'Aucun événement public pour l\'instant';
+
+  @override
+  String get exploreEmptyMessage =>
+      'Revenez bientôt : les événements ouverts à tous apparaîtront ici.';
+
+  @override
+  String get friendsFeedEmptyTitle => 'Rien de prévu entre amis';
+
+  @override
+  String get friendsFeedEmptyMessage =>
+      'Quand un ami crée un événement « Entre amis », il apparaît ici. Lancez le vôtre !';
+
+  @override
+  String get createFriendsEvent => 'Créer un événement entre amis';
+
+  @override
+  String get loadMore => 'Voir plus';
+
+  @override
+  String get exploreSearchHint => 'Rechercher (titre, lieu, @organisateur)';
+
+  @override
+  String get slotsAtLeastTwo => 'Proposez au moins deux créneaux différents.';
+
+  @override
+  String get proposeSlots => 'Proposer ces créneaux';
+
+  @override
+  String get whoCanSee => 'Qui peut le voir ?';
+
+  @override
+  String get memberEditHint =>
+      'Vous participez à cet événement : seul l\'organisateur peut changer la date, le lieu ou l\'annuler. Vos notes, vos contacts et le statut restent à vous.';
+
+  @override
+  String get withWhomOptional => 'Avec qui ? (facultatif)';
+
+  @override
+  String get withWhomHint =>
+      'Vos contacts qui viennent : leur compteur repart de zéro une fois l\'événement passé.';
+
+  @override
+  String get oneDate => 'Une date';
+
+  @override
+  String get severalSlots => 'Plusieurs créneaux';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get descriptionHint =>
+      'Visible par tous ceux qui voient l\'événement.';
+
+  @override
+  String get descriptionPlaceholder => 'Programme, ce qu\'il faut apporter…';
+
+  @override
+  String get statusHintCancelledAll =>
+      'L\'événement est annulé pour tous les participants.';
+
+  @override
+  String get shareSlotsHelp =>
+      'Vos amis reçoivent les créneaux et indiquent leurs disponibilités. Vous choisissez ensuite la date.';
+
+  @override
+  String get contactsBroadcastHint =>
+      'Tous vos amis SeeU seront prévenus et pourront le rejoindre.';
+
+  @override
+  String get publicPhotosHint =>
+      'Événement public : vous seul pourrez publier des annonces et des photos.';
+
+  @override
+  String get publicReserved =>
+      'Réservé aux organisateurs vérifiés pour l\'instant.';
+
+  @override
+  String get visPrivateHelp => 'Seulement les amis que vous invitez.';
+
+  @override
+  String get visContactsHelp =>
+      'Tous vos amis SeeU le voient et peuvent le rejoindre.';
+
+  @override
+  String get visPublicHelp => 'Tout le monde peut le voir et le rejoindre.';
+
+  @override
+  String get slotsLabel => 'Créneaux proposés';
+
+  @override
+  String get slotsHint =>
+      'Chaque participant indique s\'il est disponible ; vous choisissez ensuite le meilleur créneau.';
+
+  @override
+  String get addSlot => 'Ajouter un créneau';
+
+  @override
+  String get slotsPollTitle => 'Quand êtes-vous disponible ?';
+
+  @override
+  String get slotsPollHelp =>
+      'Pour chaque créneau : ✓ disponible, ? peut-être, ✗ pas disponible.';
+
+  @override
+  String get slotYes => 'Disponible';
+
+  @override
+  String get slotMaybe => 'Peut-être';
+
+  @override
+  String get slotNo => 'Pas disponible';
+
+  @override
+  String get slotMaybeShort => 'peut-être';
+
+  @override
+  String slotCounts(int nYes, int nMaybe) {
+    String _temp0 = intl.Intl.pluralLogic(
+      nYes,
+      locale: localeName,
+      other: '$nYes dispo',
+      one: '1 dispo',
+      zero: '0 dispo',
+    );
+    return '$_temp0 · $nMaybe peut-être';
+  }
+
+  @override
+  String get choose => 'Choisir';
+
+  @override
+  String chooseSlotTitle(String when) {
+    return 'Fixer la date au $when ?';
+  }
+
+  @override
+  String get chooseSlotMessage =>
+      'Le vote se termine et tous les participants sont prévenus de la date choisie.';
+
+  @override
+  String get chooseThisSlot => 'Choisir ce créneau';
+
+  @override
+  String get slotChosen => 'Date choisie, les participants sont prévenus';
+
+  @override
+  String get slotsNoVotes => 'Pas encore de réponses';
+
+  @override
+  String get bestSlot => 'Meilleur créneau';
+
+  @override
+  String get bestSlotsTie => 'Meilleurs créneaux (ex æquo)';
+
+  @override
+  String get slotsWaitOrganizer =>
+      'Vos invités vont indiquer leurs disponibilités. Vous serez prévenu, puis vous choisirez la date.';
+
+  @override
+  String get slotsWaitMember =>
+      'Indiquez vos disponibilités : l\'organisateur choisira ensuite la date.';
+
+  @override
+  String get slotsOrganizerDecides =>
+      'L\'organisateur choisira la date définitive.';
+
+  @override
+  String get eventMuted => 'Notifications de cet événement coupées';
+
+  @override
+  String get eventUnmuted => 'Notifications de cet événement réactivées';
+
+  @override
+  String personMuted(String name) {
+    return 'Événements et messages de $name masqués';
+  }
+
+  @override
+  String personUnmuted(String name) {
+    return '$name n\'est plus masqué(e)';
+  }
+
+  @override
+  String blockTitle(String name) {
+    return 'Bloquer $name ?';
+  }
+
+  @override
+  String get blockMessage =>
+      'Vous ne serez plus amis, vous ne verrez plus ses événements ni ses messages, et vous ne pourrez plus vous trouver ni vous inviter. Vous pourrez le débloquer dans les Réglages.';
+
+  @override
+  String get block => 'Bloquer';
+
+  @override
+  String blocked(String name) {
+    return '$name est bloqué(e)';
+  }
+
+  @override
+  String mutePerson(String name) {
+    return 'Masquer les événements de $name';
+  }
+
+  @override
+  String unmutePerson(String name) {
+    return 'Ne plus masquer $name';
+  }
+
+  @override
+  String blockName(String name) {
+    return 'Bloquer $name';
+  }
+
+  @override
+  String get announcements => 'Annonces';
+
+  @override
+  String get chat => 'Discussion';
+
+  @override
+  String get announceEmptyOrganizer =>
+      'Publiez des annonces : tous les participants confirmés seront prévenus.';
+
+  @override
+  String get announceEmpty => 'Pas encore d\'annonce de l\'organisateur.';
+
+  @override
+  String get chatEmpty => 'Pas encore de message. Lancez la discussion !';
+
+  @override
+  String get openAnnouncements => 'Voir les annonces';
+
+  @override
+  String get openChat => 'Ouvrir la discussion';
+
+  @override
+  String nNew(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n nouveaux',
+      one: '1 nouveau',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteMessage => 'Supprimer le message';
+
+  @override
+  String get announceHint => 'Une annonce pour les participants…';
+
+  @override
+  String get messageHint => 'Votre message…';
+
+  @override
+  String get announceReadOnly =>
+      'Seul l\'organisateur publie ici. Vous êtes prévenu à chaque annonce si vous venez.';
+
+  @override
+  String get chatJoinToPost => 'Rejoignez l\'événement pour écrire.';
+
+  @override
+  String get moreActions => 'Plus d\'actions';
+
+  @override
+  String get muteEvent => 'Couper les notifications de cet événement';
+
+  @override
+  String get unmuteEvent => 'Réactiver les notifications de cet événement';
+
+  @override
+  String get joinedToast => 'C\'est noté, vous y allez !';
+
+  @override
+  String get notGoingToast => 'C\'est noté, vous n\'y allez pas';
+
+  @override
+  String organizedBy(String name) {
+    return 'Organisé par $name';
+  }
+
+  @override
+  String get eventCancelledInfo =>
+      'Cet événement a été annulé par l\'organisateur.';
+
+  @override
+  String get joinToVote => 'Rejoignez-le pour indiquer vos disponibilités';
+
+  @override
+  String get areYouComing => 'Vous venez ?';
+
+  @override
+  String get joinPublicHint =>
+      '« À confirmer » l\'ajoute à votre agenda sans engagement. Vous recevrez les annonces de l\'organisateur si vous venez.';
+
+  @override
+  String get joinFriendsHint =>
+      'L\'organisateur est prévenu quand vous venez. « À confirmer » l\'ajoute à votre agenda sans engagement.';
+
+  @override
+  String get moderationTitle => 'Masqués et bloqués';
+
+  @override
+  String get moderationIntro =>
+      'Masquer coupe les notifications et retire les événements des fils. Bloquer coupe tout contact avec la personne.';
+
+  @override
+  String get mutedPeopleAndEvents => 'Personnes et événements masqués';
+
+  @override
+  String get nothingMuted => 'Rien de masqué.';
+
+  @override
+  String get eventsMuted => 'événements et messages masqués';
+
+  @override
+  String get unmute => 'Réactiver';
+
+  @override
+  String get blockedPeople => 'Personnes bloquées';
+
+  @override
+  String get nobodyBlocked => 'Personne n\'est bloqué.';
+
+  @override
+  String get unblock => 'Débloquer';
+
+  @override
+  String unblocked(String name) {
+    return '$name est débloqué(e)';
+  }
+
+  @override
+  String get unblockHint =>
+      'Débloquer ne rétablit pas l\'amitié : il faudra renvoyer une demande.';
+
+  @override
+  String get mutedAndBlocked => 'Masqués et bloqués';
+
+  @override
+  String get mutedAndBlockedSub =>
+      'Personnes et événements que vous avez masqués ou bloqués.';
+
+  @override
+  String get leaveEventTitle => 'Retirer cet événement de votre agenda ?';
+
+  @override
+  String get leaveEventMessage =>
+      'Vous ne participerez plus et vos photos disparaîtront de la galerie commune. Vous pourrez le rejoindre à nouveau s\'il est encore visible.';
+
+  @override
+  String get removeFromAgenda => 'Retirer de mon agenda';
+
+  @override
+  String get myContactsInEvent => 'Mes contacts';
+
+  @override
+  String get photosEmptyPublicMember =>
+      'L\'organisateur partagera ici les photos de l\'événement.';
+
+  @override
+  String get you => 'Vous';
+
+  @override
+  String get organizer => 'Organisateur';
+
+  @override
+  String andNMore(int n) {
+    return 'et $n autres';
+  }
+
+  @override
+  String get kindEventNew => 'Nouvel événement entre amis';
+
+  @override
+  String get kindEventJoin => 'Participant à votre événement';
+
+  @override
+  String get kindEventMessage => 'Message dans un événement';
+
+  @override
+  String get kindEventAnnouncement => 'Annonce d\'un événement';
 }

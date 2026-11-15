@@ -1,0 +1,122 @@
+# Events (visibility, feeds, slots, chat, moderation)
+visPrivate | Privé | Private
+visContacts | Entre amis | Friends
+visPublic | Public | Public
+eventBy | Événement de {name} | {name}'s event
+sponsored | Sponsorisé | Sponsored
+dateToChoose | Date à choisir | Date to be chosen
+byYou | Par vous | By you
+nGoing | {n, plural, =0{Personne pour l'instant} =1{1 participant} other{{n} participants}} | {n, plural, =0{Nobody yet} =1{1 going} other{{n} going}}
+youreGoing | Vous y allez | You're going
+homeAgenda | Mon agenda | My agenda
+homeFriends | Entre amis | Friends
+homeExplore | Explorer | Explore
+exploreIntro | Les événements publics à venir : concerts, sorties, rencontres… Rejoignez ceux qui vous tentent. | Upcoming public events: concerts, outings, meetups… Join the ones you like.
+friendsFeedIntro | Les événements que vos amis ouvrent à tous leurs amis. Vous pouvez les rejoindre directement. | Events your friends open to all their friends. You can join them directly.
+exploreEmptyTitle | Aucun événement public pour l'instant | No public events yet
+exploreEmptyMessage | Revenez bientôt : les événements ouverts à tous apparaîtront ici. | Come back soon: events open to everyone will show up here.
+friendsFeedEmptyTitle | Rien de prévu entre amis | Nothing planned with friends
+friendsFeedEmptyMessage | Quand un ami crée un événement « Entre amis », il apparaît ici. Lancez le vôtre ! | When a friend creates a “Friends” event, it shows up here. Start your own!
+createFriendsEvent | Créer un événement entre amis | Create a friends event
+loadMore | Voir plus | Load more
+exploreSearchHint | Rechercher (titre, lieu, @organisateur) | Search (title, place, @organizer)
+slotsAtLeastTwo | Proposez au moins deux créneaux différents. | Suggest at least two different timeslots.
+proposeSlots | Proposer ces créneaux | Suggest these timeslots
+whoCanSee | Qui peut le voir ? | Who can see it?
+memberEditHint | Vous participez à cet événement : seul l'organisateur peut changer la date, le lieu ou l'annuler. Vos notes, vos contacts et le statut restent à vous. | You're taking part in this event: only the organizer can change the date or place, or cancel it. Your notes, contacts and status are yours.
+withWhomOptional | Avec qui ? (facultatif) | With whom? (optional)
+withWhomHint | Vos contacts qui viennent : leur compteur repart de zéro une fois l'événement passé. | Your contacts who are coming: their counter starts over once the event has happened.
+oneDate | Une date | One date
+severalSlots | Plusieurs créneaux | Several timeslots
+descriptionLabel | Description | Description
+descriptionHint | Visible par tous ceux qui voient l'événement. | Visible to everyone who can see the event.
+descriptionPlaceholder | Programme, ce qu'il faut apporter… | Plan, what to bring…
+statusHintCancelledAll | L'événement est annulé pour tous les participants. | The event is cancelled for every participant.
+shareSlotsHelp | Vos amis reçoivent les créneaux et indiquent leurs disponibilités. Vous choisissez ensuite la date. | Your friends get the timeslots and share their availability. You then pick the date.
+contactsBroadcastHint | Tous vos amis SeeU seront prévenus et pourront le rejoindre. | All your SeeU friends will be notified and can join.
+publicPhotosHint | Événement public : vous seul pourrez publier des annonces et des photos. | Public event: only you can post announcements and photos.
+publicReserved | Réservé aux organisateurs vérifiés pour l'instant. | Only for verified organizers for now.
+visPrivateHelp | Seulement les amis que vous invitez. | Only the friends you invite.
+visContactsHelp | Tous vos amis SeeU le voient et peuvent le rejoindre. | All your SeeU friends see it and can join.
+visPublicHelp | Tout le monde peut le voir et le rejoindre. | Anyone can see and join it.
+slotsLabel | Créneaux proposés | Suggested timeslots
+slotsHint | Chaque participant indique s'il est disponible ; vous choisissez ensuite le meilleur créneau. | Each participant says if they're available; then you pick the best timeslot.
+addSlot | Ajouter un créneau | Add a timeslot
+slotsPollTitle | Quand êtes-vous disponible ? | When are you available?
+slotsPollHelp | Pour chaque créneau : ✓ disponible, ? peut-être, ✗ pas disponible. | For each timeslot: ✓ available, ? maybe, ✗ not available.
+slotYes | Disponible | Available
+slotMaybe | Peut-être | Maybe
+slotNo | Pas disponible | Not available
+slotMaybeShort | peut-être | maybe
+slotCounts | {nYes, plural, =0{0 dispo} =1{1 dispo} other{{nYes} dispo}} · {nMaybe} peut-être | {nYes} available · {nMaybe} maybe
+choose | Choisir | Choose
+chooseSlotTitle | Fixer la date au {when} ? | Set the date to {when}?
+chooseSlotMessage | Le vote se termine et tous les participants sont prévenus de la date choisie. | Voting ends and every participant is told the chosen date.
+chooseThisSlot | Choisir ce créneau | Choose this timeslot
+slotChosen | Date choisie, les participants sont prévenus | Date set, participants have been notified
+slotsNoVotes | Pas encore de réponses | No answers yet
+bestSlot | Meilleur créneau | Best timeslot
+bestSlotsTie | Meilleurs créneaux (ex æquo) | Best timeslots (tied)
+slotsWaitOrganizer | Vos invités vont indiquer leurs disponibilités. Vous serez prévenu, puis vous choisirez la date. | Your guests will share their availability. Then you pick the date.
+slotsWaitMember | Indiquez vos disponibilités : l'organisateur choisira ensuite la date. | Share your availability: the organizer will then pick the date.
+slotsOrganizerDecides | L'organisateur choisira la date définitive. | The organizer will pick the final date.
+eventMuted | Notifications de cet événement coupées | Notifications for this event muted
+eventUnmuted | Notifications de cet événement réactivées | Notifications for this event turned back on
+personMuted | Événements et messages de {name} masqués | {name}'s events and messages muted
+personUnmuted | {name} n'est plus masqué(e) | {name} is no longer muted
+blockTitle | Bloquer {name} ? | Block {name}?
+blockMessage | Vous ne serez plus amis, vous ne verrez plus ses événements ni ses messages, et vous ne pourrez plus vous trouver ni vous inviter. Vous pourrez le débloquer dans les Réglages. | You'll no longer be friends, you won't see each other's events or messages, and you won't be able to find or invite each other. You can unblock them in Settings.
+block | Bloquer | Block
+blocked | {name} est bloqué(e) | {name} is blocked
+mutePerson | Masquer les événements de {name} | Mute {name}'s events
+unmutePerson | Ne plus masquer {name} | Unmute {name}
+blockName | Bloquer {name} | Block {name}
+announcements | Annonces | Announcements
+chat | Discussion | Chat
+announceEmptyOrganizer | Publiez des annonces : tous les participants confirmés seront prévenus. | Post announcements: every confirmed participant will be notified.
+announceEmpty | Pas encore d'annonce de l'organisateur. | No announcement from the organizer yet.
+chatEmpty | Pas encore de message. Lancez la discussion ! | No messages yet. Start the conversation!
+openAnnouncements | Voir les annonces | See announcements
+openChat | Ouvrir la discussion | Open the chat
+nNew | {n, plural, =1{1 nouveau} other{{n} nouveaux}} | {n} new
+deleteMessage | Supprimer le message | Delete message
+announceHint | Une annonce pour les participants… | An announcement for participants…
+messageHint | Votre message… | Your message…
+announceReadOnly | Seul l'organisateur publie ici. Vous êtes prévenu à chaque annonce si vous venez. | Only the organizer posts here. You're notified of each announcement if you're going.
+chatJoinToPost | Rejoignez l'événement pour écrire. | Join the event to write.
+moreActions | Plus d'actions | More actions
+muteEvent | Couper les notifications de cet événement | Mute this event
+unmuteEvent | Réactiver les notifications de cet événement | Unmute this event
+joinedToast | C'est noté, vous y allez ! | Great, you're going!
+notGoingToast | C'est noté, vous n'y allez pas | Got it, you're not going
+organizedBy | Organisé par {name} | Organized by {name}
+eventCancelledInfo | Cet événement a été annulé par l'organisateur. | This event was cancelled by the organizer.
+joinToVote | Rejoignez-le pour indiquer vos disponibilités | Join it to share your availability
+areYouComing | Vous venez ? | Are you coming?
+joinPublicHint | « À confirmer » l'ajoute à votre agenda sans engagement. Vous recevrez les annonces de l'organisateur si vous venez. | “Maybe” adds it to your agenda without commitment. You'll get the organizer's announcements if you're going.
+joinFriendsHint | L'organisateur est prévenu quand vous venez. « À confirmer » l'ajoute à votre agenda sans engagement. | The organizer is notified when you're going. “Maybe” adds it to your agenda without commitment.
+moderationTitle | Masqués et bloqués | Muted and blocked
+moderationIntro | Masquer coupe les notifications et retire les événements des fils. Bloquer coupe tout contact avec la personne. | Muting turns off notifications and hides events from the feeds. Blocking cuts all contact with the person.
+mutedPeopleAndEvents | Personnes et événements masqués | Muted people and events
+nothingMuted | Rien de masqué. | Nothing muted.
+eventsMuted | événements et messages masqués | events and messages muted
+unmute | Réactiver | Unmute
+blockedPeople | Personnes bloquées | Blocked people
+nobodyBlocked | Personne n'est bloqué. | Nobody is blocked.
+unblock | Débloquer | Unblock
+unblocked | {name} est débloqué(e) | {name} is unblocked
+unblockHint | Débloquer ne rétablit pas l'amitié : il faudra renvoyer une demande. | Unblocking doesn't restore the friendship: you'll need to send a new request.
+mutedAndBlocked | Masqués et bloqués | Muted and blocked
+mutedAndBlockedSub | Personnes et événements que vous avez masqués ou bloqués. | People and events you muted or blocked.
+leaveEventTitle | Retirer cet événement de votre agenda ? | Remove this event from your agenda?
+leaveEventMessage | Vous ne participerez plus et vos photos disparaîtront de la galerie commune. Vous pourrez le rejoindre à nouveau s'il est encore visible. | You'll no longer take part and your photos will disappear from the shared gallery. You can join again if it's still visible.
+removeFromAgenda | Retirer de mon agenda | Remove from my agenda
+myContactsInEvent | Mes contacts | My contacts
+photosEmptyPublicMember | L'organisateur partagera ici les photos de l'événement. | The organizer will share the event's photos here.
+you | Vous | You
+organizer | Organisateur | Organizer
+andNMore | et {n} autres | and {n} more
+kindEventNew | Nouvel événement entre amis | New friends event
+kindEventJoin | Participant à votre événement | Someone joined your event
+kindEventMessage | Message dans un événement | Event message
+kindEventAnnouncement | Annonce d'un événement | Event announcement

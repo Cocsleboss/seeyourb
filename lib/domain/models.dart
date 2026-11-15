@@ -290,8 +290,10 @@ class Rendezvous {
     this.notes,
     required this.appointmentAt,
     required this.status,
-    this.shareId,
+    this.eventId,
+    this.event,
     this.rsvp,
+    this.chatReadAt,
     this.contacts = const [],
     this.photos = const [],
   });
@@ -303,15 +305,23 @@ class Rendezvous {
   final String? notes;
   final DateTime appointmentAt;
   final RdvStatus status;
-  final String? shareId;
 
-  /// Only on a copy received from a friend: à confirmer / accepté / refusé.
+  /// The shared event this copy belongs to (null: personal entry, e.g. "Vu").
+  final String? eventId;
+  final EventInfo? event;
+
+  /// Only on someone else's event: à confirmer / accepté / refusé.
   final Rsvp? rsvp;
+  final DateTime? chatReadAt;
   final List<ContactLite> contacts;
   final List<Photo> photos;
 
-  bool get isShared => shareId != null;
+  /// Other people take part (or can join).
+  bool get isShared => event != null && (event!.memberCount > 1 || event!.visibility != EventVisibility.private);
   bool get isTentative => rsvp == Rsvp.pending;
+  bool get isOrganizer => event == null || event!.organizerId == userId;
+  bool get slotsOpen => event?.slotsOpen ?? false;
+  EventVisibility get visibility => event?.visibility ?? EventVisibility.private;
 
   /// Planned and its time passed more than 30 minutes ago → "à confirmer".
   bool needsConfirmation([DateTime? now]) =>
@@ -342,12 +352,291 @@ class Rendezvous {
       notes: _str(j['notes']),
       appointmentAt: DateTime.parse(j['appointment_at'] as String).toLocal(),
       status: RdvStatus.parse(j['status'] as String?),
-      shareId: j['share_id'] as String?,
+      eventId: j['event_id'] as String?,
+      event: j['events'] is Map<String, dynamic> ? EventInfo.fromJson(j['events'] as Map<String, dynamic>) : null,
       rsvp: Rsvp.parse(j['rsvp'] as String?),
+      chatReadAt: _ts(j['chat_read_at']),
       contacts: contacts,
       photos: photos,
     );
   }
+}
+
+/// Who can see an event.
+enum EventVisibility {
+  private,
+  contacts,
+  public;
+
+  static EventVisibility parse(String? s) => values.where((v) => v.name == s).firstOrNull ?? private;
+
+  String get label => switch (this) {
+        private => tr.visPrivate,
+        contacts => tr.visContacts,
+        public => tr.visPublic,
+      };
+}
+
+/// Shared part of a rendezvous (embedded in the copy).
+class EventInfo {
+  EventInfo({
+    required this.id,
+    required this.organizerId,
+    this.visibility = EventVisibility.private,
+    this.slotsOpen = false,
+    this.description,
+    this.memberCount = 1,
+    this.goingCount = 1,
+  });
+  final String id;
+  final String organizerId;
+  final EventVisibility visibility;
+  final bool slotsOpen;
+  final String? description;
+  final int memberCount;
+  final int goingCount;
+
+  factory EventInfo.fromJson(Map<String, dynamic> j) => EventInfo(
+        id: j['id'] as String,
+        organizerId: j['organizer_id'] as String,
+        visibility: EventVisibility.parse(j['visibility'] as String?),
+        slotsOpen: (j['slots_open'] as bool?) ?? false,
+        description: _str(j['description']),
+        memberCount: (j['member_count'] as int?) ?? 1,
+        goingCount: (j['going_count'] as int?) ?? 1,
+      );
+}
+
+/// An event as listed in the feeds / previewed before joining.
+class FeedEvent {
+  FeedEvent({
+    required this.id,
+    required this.organizerId,
+    required this.organizerName,
+    this.organizerUsername,
+    required this.visibility,
+    this.title,
+    this.location,
+    this.description,
+    required this.appointmentAt,
+    this.status = RdvStatus.planifie,
+    this.slotsOpen = false,
+    this.going = 1,
+    this.myRdvId,
+    this.myRsvp,
+    this.isMine = false,
+    this.canPost = false,
+    this.organizerIsFriend = false,
+    this.mutedEvent = false,
+    this.mutedOrganizer = false,
+  });
+  final String id;
+  final String organizerId;
+  final String organizerName;
+  final String? organizerUsername;
+  final EventVisibility visibility;
+  final String? title;
+  final String? location;
+  final String? description;
+  final DateTime appointmentAt;
+  final RdvStatus status;
+  final bool slotsOpen;
+  final int going;
+  final String? myRdvId;
+  final Rsvp? myRsvp;
+  final bool isMine;
+  final bool canPost;
+  final bool organizerIsFriend;
+  final bool mutedEvent;
+  final bool mutedOrganizer;
+
+  /// In my agenda (organizer, going or "à confirmer").
+  bool get joined => myRdvId != null && myRsvp != Rsvp.declined;
+  String get displayTitle => title ?? tr.eventBy(organizerName);
+
+  factory FeedEvent.fromJson(Map<String, dynamic> j) => FeedEvent(
+        id: j['id'] as String,
+        organizerId: j['organizer_id'] as String,
+        organizerName: (j['organizer_name'] as String?) ?? 'SeeU',
+        organizerUsername: j['organizer_username'] as String?,
+        visibility: EventVisibility.parse(j['visibility'] as String?),
+        title: _str(j['title']),
+        location: _str(j['location']),
+        description: _str(j['description']),
+        appointmentAt: DateTime.parse(j['appointment_at'] as String).toLocal(),
+        status: RdvStatus.parse(j['status'] as String?),
+        slotsOpen: (j['slots_open'] as bool?) ?? false,
+        going: (j['going'] as int?) ?? 1,
+        myRdvId: j['my_rdv_id'] as String?,
+        myRsvp: Rsvp.parse(j['my_rsvp'] as String?),
+        isMine: (j['is_mine'] as bool?) ?? false,
+        canPost: (j['can_post'] as bool?) ?? false,
+        organizerIsFriend: (j['organizer_is_friend'] as bool?) ?? false,
+        mutedEvent: (j['muted_event'] as bool?) ?? false,
+        mutedOrganizer: (j['muted_organizer'] as bool?) ?? false,
+      );
+}
+
+class Participant {
+  Participant({required this.userId, required this.name, this.username, required this.role, this.isFriend = false});
+  final String userId;
+  final String name;
+  final String? username;
+
+  /// 'organizer' | 'accepted' | 'pending'
+  final String role;
+  final bool isFriend;
+
+  bool get isOrganizer => role == 'organizer';
+
+  factory Participant.fromJson(Map<String, dynamic> j) => Participant(
+        userId: j['user_id'] as String,
+        name: (j['display_name'] as String?) ?? 'SeeU',
+        username: j['username'] as String?,
+        role: (j['rsvp'] as String?) ?? 'pending',
+        isFriend: (j['is_friend'] as bool?) ?? false,
+      );
+}
+
+enum SlotAnswer {
+  yes,
+  maybe,
+  no;
+
+  static SlotAnswer? parse(String? s) => values.where((v) => v.name == s).firstOrNull;
+}
+
+class EventSlot {
+  EventSlot({
+    required this.id,
+    required this.startsAt,
+    this.yes = 0,
+    this.maybe = 0,
+    this.no = 0,
+    this.myAnswer,
+    this.yesNames = const [],
+    this.maybeNames = const [],
+  });
+  final String id;
+  final DateTime startsAt;
+  final int yes;
+  final int maybe;
+  final int no;
+  final SlotAnswer? myAnswer;
+  final List<String> yesNames;
+  final List<String> maybeNames;
+
+  /// Ranking: available people first, "maybe" counts half.
+  double get score => yes + maybe * 0.5;
+
+  factory EventSlot.fromJson(Map<String, dynamic> j) => EventSlot(
+        id: j['id'] as String,
+        startsAt: DateTime.parse(j['starts_at'] as String).toLocal(),
+        yes: (j['yes'] as int?) ?? 0,
+        maybe: (j['maybe'] as int?) ?? 0,
+        no: (j['no'] as int?) ?? 0,
+        myAnswer: SlotAnswer.parse(j['my_answer'] as String?),
+        yesNames: _strList(j['yes_names']),
+        maybeNames: _strList(j['maybe_names']),
+      );
+}
+
+/// Best timeslots (several when tied); empty when nobody voted yet.
+List<EventSlot> bestSlots(List<EventSlot> slots) {
+  if (slots.isEmpty) return const [];
+  final top = slots.map((s) => s.score).reduce((a, b) => a > b ? a : b);
+  if (top <= 0) return const [];
+  return slots.where((s) => s.score == top).toList();
+}
+
+class ChatMessage {
+  ChatMessage({required this.id, required this.userId, required this.authorName, required this.body, required this.createdAt});
+  final String id;
+  final String userId;
+  final String authorName;
+  final String body;
+  final DateTime createdAt;
+
+  factory ChatMessage.fromJson(Map<String, dynamic> j) => ChatMessage(
+        id: j['id'] as String,
+        userId: j['user_id'] as String,
+        authorName: (j['author_name'] as String?) ?? '',
+        body: j['body'] as String,
+        createdAt: _ts(j['created_at']) ?? DateTime.now(),
+      );
+}
+
+class BlockedUser {
+  BlockedUser({required this.userId, required this.name, this.username});
+  final String userId;
+  final String name;
+  final String? username;
+  factory BlockedUser.fromJson(Map<String, dynamic> j) =>
+      BlockedUser(userId: j['user_id'] as String, name: (j['display_name'] as String?) ?? 'SeeU', username: j['username'] as String?);
+}
+
+class MuteEntry {
+  MuteEntry({required this.id, this.targetUser, this.userName, this.username, this.eventId, this.eventTitle, this.eventAt});
+  final String id;
+  final String? targetUser;
+  final String? userName;
+  final String? username;
+  final String? eventId;
+  final String? eventTitle;
+  final DateTime? eventAt;
+  bool get isPerson => targetUser != null;
+
+  factory MuteEntry.fromJson(Map<String, dynamic> j) => MuteEntry(
+        id: j['id'] as String,
+        targetUser: j['target_user'] as String?,
+        userName: j['user_name'] as String?,
+        username: j['username'] as String?,
+        eventId: j['event_id'] as String?,
+        eventTitle: _str(j['event_title']),
+        eventAt: _ts(j['event_at']),
+      );
+}
+
+/// What the event form sends to save_event.
+class EventInput {
+  EventInput({
+    this.rdvId,
+    this.visibility = EventVisibility.private,
+    this.title,
+    this.location,
+    this.description,
+    this.notes,
+    this.appointmentAt,
+    this.status = RdvStatus.planifie,
+    this.slots = const [],
+    this.contactIds = const [],
+    this.inviteUserIds = const [],
+  });
+  String? rdvId;
+  EventVisibility visibility;
+  String? title;
+  String? location;
+  String? description;
+  String? notes;
+  DateTime? appointmentAt;
+  RdvStatus status;
+  List<DateTime> slots;
+  List<String> contactIds;
+  List<String> inviteUserIds;
+
+  Map<String, dynamic> toJson() => {
+        'rdv_id': ?rdvId,
+        'visibility': visibility.name,
+        'title': _str(title),
+        'location': _str(location),
+        'description': _str(description),
+        'notes': _str(notes),
+        'appointment_at': appointmentAt?.toUtc().toIso8601String(),
+        'status': status.name,
+        'slots': [for (final s in slots) s.toUtc().toIso8601String()],
+        'contact_ids': contactIds.toSet().toList(),
+        'invite_user_ids': inviteUserIds.toSet().toList(),
+      };
 }
 
 /// Answer to an invitation, stored on the invitee's copy.
