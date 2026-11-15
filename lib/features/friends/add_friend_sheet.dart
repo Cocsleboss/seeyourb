@@ -16,19 +16,21 @@ import 'friend_sheets.dart';
 import '../../core/i18n.dart';
 
 /// Returns the user id of a person who became a friend right away (they had invited me).
-Future<void> showAddFriendSheet(BuildContext context, {String? initialQuery}) async {
+/// [forContact]: the request is for this contact, which gets linked once accepted.
+Future<void> showAddFriendSheet(BuildContext context, {String? initialQuery, Contact? forContact}) async {
   final becameFriend = await showAppSheet<String>(
     context,
-    title: tr.addSeeuFriendLong,
-    subtitle: tr.addFriendSub,
-    builder: (_) => _AddFriend(initialQuery: initialQuery),
+    title: forContact == null ? tr.addSeeuFriendLong : tr.findContactOnSeeu(forContact.name),
+    subtitle: forContact == null ? tr.addFriendSub : tr.findContactOnSeeuSub(forContact.name),
+    builder: (_) => _AddFriend(initialQuery: initialQuery, forContact: forContact),
   );
-  if (becameFriend != null && context.mounted) await offerLinkAfterAccept(context, becameFriend);
+  if (becameFriend != null && forContact == null && context.mounted) await offerLinkAfterAccept(context, becameFriend);
 }
 
 class _AddFriend extends ConsumerStatefulWidget {
-  const _AddFriend({this.initialQuery});
+  const _AddFriend({this.initialQuery, this.forContact});
   final String? initialQuery;
+  final Contact? forContact;
   @override
   ConsumerState<_AddFriend> createState() => _AddFriendState();
 }
@@ -84,7 +86,7 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
 
   Future<void> _add(UserSearchResult u) async {
     setState(() => _busy = u.userId);
-    final res = await guard(() => ref.read(apiProvider).sendFriendRequest(u.username));
+    final res = await guard(() => ref.read(apiProvider).sendFriendRequest(u.username, contactId: widget.forContact?.id));
     if (!mounted) return;
     setState(() => _busy = null);
     if (res == null) return;
@@ -102,7 +104,9 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
         showToast(tr.accountGone, kind: ToastKind.error);
     }
     refreshData(ref);
-    if (res.status == FriendRequestStatus.accepted) {
+    if (widget.forContact != null && res.status != FriendRequestStatus.notFound && res.status != FriendRequestStatus.self) {
+      Navigator.pop(context); // back to the contact, which now shows the request / link
+    } else if (res.status == FriendRequestStatus.accepted) {
       Navigator.pop(context, res.userId ?? u.userId);
     } else {
       _onQuery(_q.text);
@@ -173,7 +177,7 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Row(children: [
-            Avatar(name: u.displayName, size: 42),
+            Avatar(name: u.displayName, size: 42, userId: u.userId),
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

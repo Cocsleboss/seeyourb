@@ -28,7 +28,7 @@ class ContactRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(children: [
-          FriendAvatar(name: contact.name, path: contact.photoPath, size: 46, isFriend: contact.linkedUserId != null),
+          FriendAvatar(name: contact.name, path: contact.photoPath, size: 46, isFriend: contact.linkedUserId != null, userId: contact.linkedUserId),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -60,8 +60,11 @@ class ContactRow extends StatelessWidget {
 
 /// Avatar with a small SeeU badge when the person is a SeeU friend.
 class FriendAvatar extends StatelessWidget {
-  const FriendAvatar({super.key, required this.name, this.path, this.size = 46, this.isFriend = false, this.seeu});
+  const FriendAvatar({super.key, required this.name, this.path, this.size = 46, this.isFriend = false, this.seeu, this.userId});
   final String name;
+
+  /// SeeU account (shows their profile picture).
+  final String? userId;
 
   /// Has a SeeU account (defaults to [isFriend]).
   final bool? seeu;
@@ -71,7 +74,7 @@ class FriendAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avatar = Avatar(name: name, path: path, size: size, seeu: seeu ?? isFriend);
+    final avatar = Avatar(name: name, path: path, size: size, seeu: seeu ?? isFriend, userId: userId);
     if (!isFriend) return avatar;
     final c = context.colors;
     final badge = size * 0.42;

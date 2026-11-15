@@ -12,11 +12,12 @@ import '../domain/dates.dart';
 import '../domain/models.dart';
 
 const _rdvSelect = '*, contact_rendezvous(contacts(id, name, photo_path, categories, linked_user_id)), photos(*), '
-    'events(id, organizer_id, visibility, slots_open, description, member_count, going_count, guests_can_invite)';
+    'events(id, organizer_id, visibility, slots_open, description, member_count, going_count, guests_can_invite, link, lat, lng)';
 
 /// Hides invitations I declined (rsvp null = my own rendezvous).
 const _notDeclined = 'rsvp.is.null,rsvp.in.(pending,accepted)';
 const photosBucket = 'photos';
+const avatarsBucket = 'avatars';
 
 String _randomId() {
   final r = Random.secure();
@@ -64,6 +65,34 @@ class Api {
       profile = Profile.fromJson(row);
     }
     return profile;
+  }
+
+  /// SeeU profile picture: public bucket (anyone who sees me in SeeU), random file name.
+  Future<Profile> setMyAvatar(Uint8List? bytes, {String? oldPath}) async {
+    String? path;
+    if (bytes != null) {
+      path = '$uid/${_randomId()}.jpg';
+      final jpg = await compressImage(bytes, shortSide: avatarShortSide);
+      await sb.storage.from(avatarsBucket).uploadBinary(path, jpg, fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: false));
+    }
+    final p = await updateProfile({'avatar_path': path});
+    if (oldPath != null && oldPath != path) {
+      try {
+        await sb.storage.from(avatarsBucket).remove([oldPath]);
+      } catch (_) {}
+    }
+    return p;
+  }
+
+  String avatarUrl(String path) => sb.storage.from(avatarsBucket).getPublicUrl(path);
+
+  /// Profile pictures of SeeU users (only those who have one).
+  Future<Map<String, String>> profileAvatars(List<String> ids) async {
+    if (ids.isEmpty) return const {};
+    final rows = await sb.rpc('profile_avatars', params: {'p_ids': ids}) as List;
+    return {
+      for (final r in rows.cast<Map<String, dynamic>>()) r['user_id'] as String: avatarUrl(r['avatar_path'] as String),
+    };
   }
 
   Future<Profile> updateProfile(Map<String, dynamic> patch) async {
@@ -464,8 +493,9 @@ class Api {
     return rows.map((r) => UserSearchResult.fromJson(r as Map<String, dynamic>)).toList();
   }
 
-  Future<FriendRequestResult> sendFriendRequest(String username) async {
-    final res = await sb.rpc('send_friend_request', params: {'p_username': username.trim()});
+  /// [contactId]: my contact this request is for; linked automatically once accepted.
+  Future<FriendRequestResult> sendFriendRequest(String username, {String? contactId}) async {
+    final res = await sb.rpc('send_friend_request', params: {'p_username': username.trim(), 'p_contact': ?contactId});
     return FriendRequestResult.fromJson(Map<String, dynamic>.from(res as Map));
   }
 

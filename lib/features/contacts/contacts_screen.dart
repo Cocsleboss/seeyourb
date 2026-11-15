@@ -182,6 +182,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                   RowsCard(children: [
                     for (final f in received)
                       _PersonRow(
+                        userId: f.userId,
                         name: f.displayName,
                         subtitle: '${handle(f.username)} · ${tr.sentYouARequest}',
                         trailing: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -199,6 +200,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                   RowsCard(children: [
                     for (final f in sent)
                       _PersonRow(
+                        userId: f.userId,
                         name: f.displayName,
                         subtitle: '${handle(f.username)} · ${tr.waitingForAnswer}',
                         trailing: AppButton(tr.cancel,
@@ -312,6 +314,7 @@ class _UnlinkedFriendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _PersonRow(
+      userId: friend.userId,
       name: friend.displayName,
       subtitle: '${handle(friend.username)} · ${tr.notInContactsYet}',
       friendBadge: true,
@@ -323,7 +326,8 @@ class _UnlinkedFriendRow extends StatelessWidget {
 }
 
 class _PersonRow extends StatelessWidget {
-  const _PersonRow({required this.name, required this.subtitle, this.trailing, this.onTap, this.friendBadge = false});
+  const _PersonRow({required this.name, required this.subtitle, this.trailing, this.onTap, this.friendBadge = false, this.userId});
+  final String? userId;
   final String name;
   final String subtitle;
   final Widget? trailing;
@@ -338,7 +342,7 @@ class _PersonRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(children: [
-          FriendAvatar(name: name, size: 46, isFriend: friendBadge, seeu: true),
+          FriendAvatar(name: name, size: 46, isFriend: friendBadge, seeu: true, userId: userId),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -227,10 +227,14 @@ class _Body extends ConsumerWidget {
                 ]),
               ),
             ],
+            if (rdv.event?.link != null) ...[
+              const SizedBox(height: 8),
+              EventLinkRow(rdv.event!.link!),
+            ],
             if (event != null && !rdv.isOrganizer) ...[
               const SizedBox(height: 10),
               Row(children: [
-                Avatar(name: event.organizerName, size: 24),
+                Avatar(name: event.organizerName, size: 24, userId: event.organizerId),
                 const SizedBox(width: 8),
                 Expanded(child: Text(tr.organizedBy(event.organizerName), style: TextStyle(fontSize: 15, color: c.text))),
               ]),

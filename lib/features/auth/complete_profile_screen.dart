@@ -13,6 +13,7 @@ import '../../ui/logo.dart';
 import 'username_field.dart';
 import '../../core/i18n.dart';
 import '../../ui/language.dart';
+import '../settings/my_avatar.dart';
 
 class CompleteProfileScreen extends ConsumerStatefulWidget {
   const CompleteProfileScreen({super.key});
@@ -75,6 +76,8 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 Text(tr.completeProfileSub,
                     textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: c.textMuted)),
                 const SizedBox(height: 24),
+                const MyAvatarPicker(),
+                const SizedBox(height: 18),
                 UsernameField(controller: _username, onStatus: (s) => setState(() => _status = s)),
                 LabeledField(
                   label: tr.displayName,

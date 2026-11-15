@@ -153,6 +153,8 @@ class _FakeApi extends Api {
   void Function() watchMessages(String eventId, void Function(Map<String, dynamic> row) onInsert, void Function(String id) onDelete) => () {};
   @override
   Future<void> markChatRead(String rdvId) async {}
+  @override
+  Future<Map<String, String>> profileAvatars(List<String> ids) async => const {};
 }
 
 /// Created once outside the tests (the client starts timers).
@@ -271,6 +273,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
             MuteEntry(id: 'mu2', eventId: 'p2', eventTitle: 'Marché de Noël solidaire', eventAt: d(20, 19)),
           ]),
       blockedProvider.overrideWith((ref) async => [BlockedUser(userId: 'u-y', name: 'Spammeur', username: 'spam42')]),
+      avatarUrlProvider.overrideWith((ref, id) async => null),
       apiProvider.overrideWithValue(fakeApi),
       ...overrides,
     ],

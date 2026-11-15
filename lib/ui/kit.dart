@@ -503,22 +503,30 @@ class StorageImage extends ConsumerWidget {
   }
 }
 
-class Avatar extends StatelessWidget {
-  const Avatar({super.key, required this.name, this.path, this.size = 44, this.ring, this.seeu = true});
+class Avatar extends ConsumerWidget {
+  const Avatar({super.key, required this.name, this.path, this.size = 44, this.ring, this.seeu = true, this.userId});
   final String name;
+
+  /// My own photo for a contact (private bucket).
   final String? path;
   final double size;
   final Color? ring;
 
   /// Convention: someone without a SeeU account (a contact not linked) is a plain
-  /// grey person icon; SeeU accounts get colored initials (or their photo).
+  /// grey person icon (or the photo I set, with a small "regular contact" badge);
+  /// SeeU accounts get their profile picture, else colored initials.
   final bool seeu;
 
+  /// SeeU account: shows their profile picture when they have one.
+  final String? userId;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
+    final isSeeu = seeu || userId != null;
+    final url = userId == null ? null : ref.watch(avatarUrlProvider(userId!)).value;
     final (bg, fg) = _avatarLight[colorIndexFor(name)];
-    final initialsBox = seeu
+    final initialsBox = isSeeu
         ? Container(
             color: bg,
             alignment: Alignment.center,
@@ -530,13 +538,40 @@ class Avatar extends StatelessWidget {
             alignment: Alignment.center,
             child: Icon(LucideIcons.user, size: size * 0.52, color: c.isDark ? Palette.gray400 : Palette.gray500),
           );
-    return Container(
+    final circle = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(shape: BoxShape.circle, border: ring == null ? null : Border.all(color: ring!, width: 2)),
       child: ClipOval(
-        child: path == null ? initialsBox : StorageImage(path!, placeholder: initialsBox, width: size, height: size),
+        child: url != null
+            ? CachedNetworkImage(imageUrl: url, width: size, height: size, fit: BoxFit.cover,
+                placeholder: (_, _) => initialsBox, errorWidget: (_, _, _) => initialsBox)
+            : path == null
+                ? initialsBox
+                : StorageImage(path!, placeholder: initialsBox, width: size, height: size),
       ),
+    );
+    // A photo on someone without SeeU: small "regular contact" badge (the plain
+    // grey icon says it already when there's no photo).
+    if (isSeeu || path == null || size < 32) return circle;
+    final badge = size * 0.4;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(clipBehavior: Clip.none, children: [
+        circle,
+        Positioned(
+          right: -2,
+          bottom: -2,
+          child: Container(
+            width: badge,
+            height: badge,
+            decoration: BoxDecoration(
+                color: c.isDark ? Palette.gray600 : Palette.gray400, shape: BoxShape.circle, border: Border.all(color: c.card, width: 2)),
+            child: Icon(LucideIcons.user, size: badge * 0.55, color: Colors.white),
+          ),
+        ),
+      ]),
     );
   }
 }
@@ -553,7 +588,7 @@ class AvatarStack extends StatelessWidget {
     final shown = people.take(max).toList();
     final rest = people.length - shown.length;
     final items = <Widget>[
-      for (final p in shown) Avatar(name: p.name, path: p.photoPath, size: size, ring: c.card, seeu: p.linkedUserId != null),
+      for (final p in shown) Avatar(name: p.name, path: p.photoPath, size: size, ring: c.card, seeu: p.linkedUserId != null, userId: p.linkedUserId),
       if (rest > 0)
         Container(
           width: size,

@@ -2797,4 +2797,86 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get usernameFixed =>
       'Votre identifiant ne peut pas être modifié : c\'est grâce à lui que vos amis vous trouvent.';
+
+  @override
+  String get slotsPollHelpOrganizer =>
+      'Vous avez proposé ces créneaux : vous êtes compté comme disponible sur chacun. Voici les réponses des participants.';
+
+  @override
+  String get slotNoAnswerYet => 'Pas encore de réponse';
+
+  @override
+  String slotYesCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n disponibles',
+      one: '1 disponible',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String slotMaybeCount(int n) {
+    return '$n peut-être';
+  }
+
+  @override
+  String slotNoCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n pas dispo',
+      one: '1 pas dispo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get slotsOrganizerOnlyFree =>
+      'Proposez uniquement des créneaux où vous êtes disponible : vous êtes compté comme disponible sur chacun.';
+
+  @override
+  String findContactOnSeeu(String name) {
+    return '$name sur SeeU';
+  }
+
+  @override
+  String findContactOnSeeuSub(String name) {
+    return 'Cherchez son @identifiant : une fois la demande acceptée, la fiche de $name est liée et ses rendez-vous à venir avec vous sont partagés.';
+  }
+
+  @override
+  String get friendRequestPending => 'Demande d\'ami SeeU envoyée · en attente';
+
+  @override
+  String friendRequestPendingHelp(String name) {
+    return 'Dès que $name accepte, sa fiche est liée et vos rendez-vous à venir sont partagés.';
+  }
+
+  @override
+  String get cancelRequest => 'Annuler la demande';
+
+  @override
+  String get findOnSeeu => 'Pas encore ami : chercher son @identifiant';
+
+  @override
+  String get avatarHint =>
+      'Visible par vos amis et les participants de vos rendez-vous.';
+
+  @override
+  String get avatarUpdated => 'Photo de profil mise à jour';
+
+  @override
+  String get avatarRemoved => 'Photo de profil retirée';
+
+  @override
+  String get errBadLink =>
+      'Ce lien n\'est pas valide (il doit commencer par https://).';
+
+  @override
+  String get linkLabel => 'Lien';
+
+  @override
+  String get linkHint => 'Billetterie, menu, page de l\'événement…';
 }

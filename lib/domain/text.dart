@@ -108,3 +108,14 @@ String suggestUsername(String? source) {
   final base = normalizeUsername((source ?? '').split('@').first.replaceAll(RegExp(r'\s+'), '.'));
   return base.replaceFirst(RegExp(r'^[_.]+'), '');
 }
+
+
+/// "example.com/x" → "https://example.com/x"; null when it isn't a web link.
+String? normalizeLink(String raw) {
+  var s = raw.trim();
+  if (s.isEmpty) return null;
+  if (!RegExp(r'^https?://', caseSensitive: false).hasMatch(s)) s = 'https://$s';
+  final u = Uri.tryParse(s);
+  if (u == null || !u.hasAuthority || !u.host.contains('.') || s.contains(RegExp(r'\s'))) return null;
+  return s;
+}

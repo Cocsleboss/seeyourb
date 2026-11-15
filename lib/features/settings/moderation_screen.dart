@@ -87,7 +87,7 @@ class ModerationScreen extends ConsumerWidget {
                 : RowsCard(children: [
                     for (final b in list)
                       row(
-                        leading: Avatar(name: b.name, size: 40),
+                        leading: Avatar(name: b.name, size: 40, userId: b.userId),
                         title: b.name,
                         subtitle: handle(b.username),
                         action: tr.unblock,

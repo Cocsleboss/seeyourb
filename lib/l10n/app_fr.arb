@@ -1583,5 +1583,65 @@
   "phaseNow": "En cours",
   "phasePast": "Passé",
   "keepInTouchHelp": "Rappels selon la fréquence choisie pour chaque contact. Rien n'est prévu : planifiez un rendez-vous, ou notez que vous vous êtes vus.",
-  "usernameFixed": "Votre identifiant ne peut pas être modifié : c'est grâce à lui que vos amis vous trouvent."
+  "usernameFixed": "Votre identifiant ne peut pas être modifié : c'est grâce à lui que vos amis vous trouvent.",
+  "slotsPollHelpOrganizer": "Vous avez proposé ces créneaux : vous êtes compté comme disponible sur chacun. Voici les réponses des participants.",
+  "slotNoAnswerYet": "Pas encore de réponse",
+  "slotYesCount": "{n, plural, =1{1 disponible} other{{n} disponibles}}",
+  "@slotYesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "slotMaybeCount": "{n} peut-être",
+  "@slotMaybeCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "slotNoCount": "{n, plural, =1{1 pas dispo} other{{n} pas dispo}}",
+  "@slotNoCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "slotsOrganizerOnlyFree": "Proposez uniquement des créneaux où vous êtes disponible : vous êtes compté comme disponible sur chacun.",
+  "findContactOnSeeu": "{name} sur SeeU",
+  "@findContactOnSeeu": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "findContactOnSeeuSub": "Cherchez son @identifiant : une fois la demande acceptée, la fiche de {name} est liée et ses rendez-vous à venir avec vous sont partagés.",
+  "@findContactOnSeeuSub": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "friendRequestPending": "Demande d'ami SeeU envoyée · en attente",
+  "friendRequestPendingHelp": "Dès que {name} accepte, sa fiche est liée et vos rendez-vous à venir sont partagés.",
+  "@friendRequestPendingHelp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cancelRequest": "Annuler la demande",
+  "findOnSeeu": "Pas encore ami : chercher son @identifiant",
+  "avatarHint": "Visible par vos amis et les participants de vos rendez-vous.",
+  "avatarUpdated": "Photo de profil mise à jour",
+  "avatarRemoved": "Photo de profil retirée",
+  "errBadLink": "Ce lien n'est pas valide (il doit commencer par https://).",
+  "linkLabel": "Lien",
+  "linkHint": "Billetterie, menu, page de l'événement…"
 }

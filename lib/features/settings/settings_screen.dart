@@ -25,6 +25,7 @@ import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../../ui/scaffold.dart';
 import '../auth/username_field.dart';
+import 'my_avatar.dart';
 import '../friends/friend_sheets.dart';
 import '../home/push_banner.dart';
 import '../../core/i18n.dart';
@@ -139,6 +140,8 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
       SectionTitle(tr.profile),
       AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const MyAvatarPicker(),
+          const SizedBox(height: 16),
           LabeledField(
             label: tr.displayName,
             required: true,

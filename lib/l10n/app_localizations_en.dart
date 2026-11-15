@@ -2733,4 +2733,73 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get usernameFixed =>
       'Your username can\'t be changed: it\'s how your friends find you.';
+
+  @override
+  String get slotsPollHelpOrganizer =>
+      'You proposed these slots, so you count as available for each. Here are the participants\' answers.';
+
+  @override
+  String get slotNoAnswerYet => 'No answers yet';
+
+  @override
+  String slotYesCount(int n) {
+    return '$n available';
+  }
+
+  @override
+  String slotMaybeCount(int n) {
+    return '$n maybe';
+  }
+
+  @override
+  String slotNoCount(int n) {
+    return '$n not available';
+  }
+
+  @override
+  String get slotsOrganizerOnlyFree =>
+      'Only propose slots you\'re free for: you count as available on each of them.';
+
+  @override
+  String findContactOnSeeu(String name) {
+    return '$name on SeeU';
+  }
+
+  @override
+  String findContactOnSeeuSub(String name) {
+    return 'Search their @username: once the request is accepted, $name\'s card gets linked and your upcoming events with them are shared.';
+  }
+
+  @override
+  String get friendRequestPending => 'SeeU friend request sent · waiting';
+
+  @override
+  String friendRequestPendingHelp(String name) {
+    return 'As soon as $name accepts, the card gets linked and your upcoming events are shared.';
+  }
+
+  @override
+  String get cancelRequest => 'Cancel request';
+
+  @override
+  String get findOnSeeu => 'Not friends yet: search their @username';
+
+  @override
+  String get avatarHint => 'Visible to your friends and people in your events.';
+
+  @override
+  String get avatarUpdated => 'Profile picture updated';
+
+  @override
+  String get avatarRemoved => 'Profile picture removed';
+
+  @override
+  String get errBadLink =>
+      'This link isn\'t valid (it must start with https://).';
+
+  @override
+  String get linkLabel => 'Link';
+
+  @override
+  String get linkHint => 'Tickets, menu, event page…';
 }

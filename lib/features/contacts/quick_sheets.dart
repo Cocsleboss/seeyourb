@@ -195,7 +195,7 @@ class _SeeSoonState extends ConsumerState<_SeeSoon> {
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                     enabled: _busyId == null,
-                    leading: Avatar(name: x.name, path: x.photoPath, size: 40, seeu: x.linkedUserId != null),
+                    leading: Avatar(name: x.name, path: x.photoPath, size: 40, seeu: x.linkedUserId != null, userId: x.linkedUserId),
                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
                     subtitle: x.categoryLabel == null ? null : Text(x.categoryLabel!, style: TextStyle(color: c.textMuted, fontSize: 13)),
                     trailing: _busyId == x.id

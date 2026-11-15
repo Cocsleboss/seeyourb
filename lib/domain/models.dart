@@ -69,9 +69,13 @@ class Profile {
     this.dailyHour = 8,
     this.dueLeadDays = 0,
     this.rdvReminderMinutes = 30,
+    this.avatarPath,
   });
 
   final String id;
+
+  /// SeeU profile picture (public "avatars" bucket).
+  final String? avatarPath;
   final String? email;
   final String? displayName;
   final String? username;
@@ -96,6 +100,7 @@ class Profile {
         email: j['email'] as String?,
         displayName: j['display_name'] as String?,
         username: j['username'] as String?,
+        avatarPath: j['avatar_path'] as String?,
         birthday: _day(j['birthday']),
         timezone: (j['timezone'] as String?) ?? 'Europe/Paris',
         locale: (j['locale'] as String?) ?? 'fr',
@@ -416,9 +421,19 @@ class EventInfo {
     this.memberCount = 1,
     this.goingCount = 1,
     this.guestsCanInvite = true,
+    this.link,
+    this.lat,
+    this.lng,
   });
   final String id;
   final String organizerId;
+
+  /// Web link (tickets, menu, meeting page…).
+  final String? link;
+
+  /// Place picked on the map (null: free text only).
+  final double? lat;
+  final double? lng;
   final EventVisibility visibility;
   final bool slotsOpen;
   final String? description;
@@ -437,6 +452,9 @@ class EventInfo {
         memberCount: (j['member_count'] as int?) ?? 1,
         goingCount: (j['going_count'] as int?) ?? 1,
         guestsCanInvite: (j['guests_can_invite'] as bool?) ?? true,
+        link: _str(j['link']),
+        lat: (j['lat'] as num?)?.toDouble(),
+        lng: (j['lng'] as num?)?.toDouble(),
       );
 }
 
@@ -462,7 +480,13 @@ class FeedEvent {
     this.organizerIsFriend = false,
     this.mutedEvent = false,
     this.mutedOrganizer = false,
+    this.link,
+    this.lat,
+    this.lng,
   });
+  final String? link;
+  final double? lat;
+  final double? lng;
   final String id;
   final String organizerId;
   final String organizerName;
@@ -507,6 +531,9 @@ class FeedEvent {
         organizerIsFriend: (j['organizer_is_friend'] as bool?) ?? false,
         mutedEvent: (j['muted_event'] as bool?) ?? false,
         mutedOrganizer: (j['muted_organizer'] as bool?) ?? false,
+        link: _str(j['link']),
+        lat: (j['lat'] as num?)?.toDouble(),
+        lng: (j['lng'] as num?)?.toDouble(),
       );
 }
 
@@ -569,6 +596,7 @@ class EventSlot {
     this.myAnswer,
     this.yesNames = const [],
     this.maybeNames = const [],
+    this.noNames = const [],
   });
   final String id;
   final DateTime startsAt;
@@ -578,6 +606,7 @@ class EventSlot {
   final SlotAnswer? myAnswer;
   final List<String> yesNames;
   final List<String> maybeNames;
+  final List<String> noNames;
 
   /// Ranking: available people first, "maybe" counts half.
   double get score => yes + maybe * 0.5;
@@ -590,6 +619,7 @@ class EventSlot {
         no: (j['no'] as int?) ?? 0,
         myAnswer: SlotAnswer.parse(j['my_answer'] as String?),
         yesNames: _strList(j['yes_names']),
+        noNames: _strList(j['no_names']),
         maybeNames: _strList(j['maybe_names']),
       );
 }
@@ -665,8 +695,14 @@ class EventInput {
     this.contactIds = const [],
     this.inviteUserIds = const [],
     this.guestsCanInvite = true,
+    this.link,
+    this.lat,
+    this.lng,
   });
   String? rdvId;
+  String? link;
+  double? lat;
+  double? lng;
   EventVisibility visibility;
   String? title;
   String? location;
@@ -692,6 +728,9 @@ class EventInput {
         'contact_ids': contactIds.toSet().toList(),
         'invite_user_ids': inviteUserIds.toSet().toList(),
         'guests_can_invite': guestsCanInvite,
+        'link': _str(link),
+        'lat': lat,
+        'lng': lng,
       };
 }
 
@@ -771,16 +810,18 @@ class Friend {
     required this.userId,
     this.username,
     required this.displayName,
-    this.email,
     required this.accepted,
     required this.incoming,
+    this.contactId,
   });
   final String friendshipId;
   final String userId;
   final String? username;
   final String displayName;
-  final String? email;
   final bool accepted;
+
+  /// My contact this request was sent for (linked automatically on accept).
+  final String? contactId;
 
   /// true = request I received; false = request I sent.
   final bool incoming;
@@ -790,9 +831,9 @@ class Friend {
         userId: j['user_id'] as String,
         username: j['username'] as String?,
         displayName: (j['display_name'] as String?) ?? '',
-        email: j['email'] as String?,
         accepted: j['status'] == 'accepted',
         incoming: (j['incoming'] as bool?) ?? false,
+        contactId: j['contact_id'] as String?,
       );
 }
 

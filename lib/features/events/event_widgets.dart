@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/i18n.dart';
 import '../../core/theme.dart';
@@ -87,7 +88,7 @@ class EventCard extends StatelessWidget {
                   const OwnerPill(mine: true, long: true)
                 else
                   Row(mainAxisSize: MainAxisSize.min, children: [
-                    Avatar(name: e.organizerName, size: 22),
+                    Avatar(name: e.organizerName, size: 22, userId: e.organizerId),
                     const SizedBox(width: 6),
                     Text(e.organizerName, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: c.text)),
                   ]),
@@ -101,6 +102,31 @@ class EventCard extends StatelessWidget {
           ),
         ]),
       ),
+    );
+  }
+}
+
+
+/// The event's web link: host shown, opens in the browser.
+class EventLinkRow extends StatelessWidget {
+  const EventLinkRow(this.link, {super.key});
+  final String link;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final uri = Uri.tryParse(link);
+    final label = uri == null ? link : '${uri.host.replaceFirst(RegExp(r'^www\.'), '')}${uri.path.length > 1 ? uri.path : ''}';
+    return InkWell(
+      onTap: uri == null ? null : () => launchUrl(uri, mode: LaunchMode.externalApplication),
+      child: Row(children: [
+        Icon(LucideIcons.link, size: 20, color: c.brandText),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 16, color: c.brandText)),
+        ),
+        Icon(LucideIcons.externalLink, size: 16, color: c.brandText),
+      ]),
     );
   }
 }

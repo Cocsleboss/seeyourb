@@ -64,7 +64,6 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
 
   bool _suggested(Contact c) {
     final f = widget.friend;
-    if (f.email != null && c.email != null && c.email!.toLowerCase() == f.email!.toLowerCase()) return true;
     final first = normalizeText(f.displayName.split(RegExp(r'\s+')).first);
     return first.isNotEmpty && normalizeText(c.name.split(RegExp(r'\s+')).first) == first;
   }
@@ -114,7 +113,7 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 4),
             enabled: _busy == null,
-            leading: Avatar(name: x.name, path: x.photoPath, size: 40, seeu: x.linkedUserId != null),
+            leading: Avatar(name: x.name, path: x.photoPath, size: 40, seeu: x.linkedUserId != null, userId: x.linkedUserId),
             title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
             subtitle: x.linkedUserId == f.userId
                 ? Text(tr.alreadyLinked, style: TextStyle(color: c.textMuted, fontSize: 13))
@@ -267,9 +266,14 @@ class _LinkContactToFriendState extends ConsumerState<_LinkContactToFriend> {
 
   bool _suggested(Friend f) {
     final c = widget.contact;
-    if (f.email != null && c.email != null && f.email!.toLowerCase() == c.email!.toLowerCase()) return true;
     final first = normalizeText(c.name.split(RegExp(r'\s+')).first);
     return first.isNotEmpty && normalizeText(f.displayName.split(RegExp(r'\s+')).first) == first;
+  }
+
+  void _search() {
+    final nav = Navigator.of(context);
+    nav.pop();
+    showAddFriendSheet(nav.context, forContact: widget.contact);
   }
 
   Future<void> _link(Friend f) async {
@@ -299,21 +303,17 @@ class _LinkContactToFriendState extends ConsumerState<_LinkContactToFriend> {
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(tr.noSeeuFriendsYet, style: TextStyle(color: c.textMuted, fontSize: 15)),
         const SizedBox(height: 14),
-        AppButton(tr.addSeeuFriendLong, icon: LucideIcons.heartHandshake, full: true, onPressed: () {
-          final nav = Navigator.of(context);
-          nav.pop();
-          showAddFriendSheet(nav.context);
-        }),
+        AppButton(tr.findOnSeeu, icon: LucideIcons.userSearch, full: true, onPressed: _search),
       ]);
     }
-    return Column(children: [
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       for (final f in friends)
         Builder(builder: (_) {
           final other = linkedContactOf(contacts, f.userId);
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 4),
             enabled: _busy == null,
-            leading: Avatar(name: f.displayName, path: other?.photoPath, size: 40),
+            leading: Avatar(name: f.displayName, path: other?.photoPath, size: 40, userId: f.userId),
             title: Text(f.displayName, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
             subtitle: Text(
               [handle(f.username), if (other != null) tr.linkedTo(other.name)].where((s) => s.isNotEmpty).join(' · '),
@@ -325,6 +325,9 @@ class _LinkContactToFriendState extends ConsumerState<_LinkContactToFriend> {
             onTap: () => _link(f),
           );
         }),
+      const SizedBox(height: 12),
+      // Not a friend yet: send a request tied to this contact.
+      AppButton(tr.findOnSeeu, icon: LucideIcons.userSearch, variant: ButtonVariant.secondary, full: true, onPressed: _search),
     ]);
   }
 }

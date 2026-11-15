@@ -122,9 +122,13 @@ class _PreviewState extends ConsumerState<_Preview> {
                 Expanded(child: Text(e.location!, style: TextStyle(fontSize: 16, color: c.text))),
               ]),
             ],
+            if (e.link != null) ...[
+              const SizedBox(height: 8),
+              EventLinkRow(e.link!),
+            ],
             const SizedBox(height: 14),
             Row(children: [
-              Avatar(name: e.organizerName, size: 36),
+              Avatar(name: e.organizerName, size: 36, userId: e.organizerId),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

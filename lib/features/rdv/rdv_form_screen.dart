@@ -76,6 +76,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   late final TextEditingController _title;
   late final TextEditingController _location;
   late final TextEditingController _description;
+  late final TextEditingController _link;
   late final TextEditingController _notes;
   final _search = TextEditingController();
   late EventVisibility _visibility;
@@ -84,6 +85,10 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   RdvStatus? _status;
   bool _share = true;
   late bool _guestsCanInvite;
+
+  /// Map position of the place (picked in the place search); null = free text.
+  double? _lat;
+  double? _lng;
   bool _busy = false;
   String? _error;
 
@@ -109,9 +114,12 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     _title = TextEditingController(text: e?.title ?? (e == null ? '' : e.displayTitle));
     _location = TextEditingController(text: e?.location ?? '');
     _description = TextEditingController(text: e?.event?.description ?? '');
+    _link = TextEditingController(text: e?.event?.link ?? '');
     _notes = TextEditingController(text: e?.notes ?? '');
     _multi = e?.slotsOpen ?? false;
     _guestsCanInvite = e?.event?.guestsCanInvite ?? true;
+    _lat = e?.event?.lat;
+    _lng = e?.event?.lng;
     _slots = widget.existingSlots.isNotEmpty
         ? [for (final s in widget.existingSlots) s.startsAt]
         : [at, at.add(const Duration(days: 1))];
@@ -119,7 +127,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
 
   @override
   void dispose() {
-    for (final c in [_title, _location, _description, _notes, _search]) {
+    for (final c in [_title, _location, _description, _link, _notes, _search]) {
       c.dispose();
     }
     super.dispose();
@@ -137,11 +145,13 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
 
 
   bool _titleMissing = false;
+  bool _linkInvalid = false;
 
   Future<void> _save() async {
     setState(() => _titleMissing = _organizer && _title.text.trim().isEmpty);
     if (_contactsRequired && _selected.isEmpty) return setState(() => _error = tr.chooseOneContact);
     if (_titleMissing) return;
+    if (_organizer && _link.text.trim().isNotEmpty && normalizeLink(_link.text) == null) return setState(() => _linkInvalid = true);
     final slots = (_slots.toSet().toList()..sort());
     if (_multi && slots.length < 2) return setState(() => _error = tr.slotsAtLeastTwo);
     setState(() {
@@ -165,6 +175,9 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       contactIds: _selected.toList(),
       inviteUserIds: invite,
       guestsCanInvite: _guestsCanInvite,
+      link: _organizer ? normalizeLink(_link.text) : widget.existing?.event?.link,
+      lat: _organizer ? _lat : widget.existing?.event?.lat,
+      lng: _organizer ? _lng : widget.existing?.event?.lng,
     );
     final id = await guard(
       () => api.saveEvent(input),
@@ -253,7 +266,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                       Wrap(spacing: 8, runSpacing: 8, children: [
                         for (final s in selected)
                           InputChip(
-                            avatar: Avatar(name: s.name, path: s.photoPath, size: 24, seeu: s.linkedUserId != null),
+                            avatar: Avatar(name: s.name, path: s.photoPath, size: 24, seeu: s.linkedUserId != null, userId: s.linkedUserId),
                             label: Row(mainAxisSize: MainAxisSize.min, children: [
                               Text(s.name),
                               if (s.linkedUserId != null) ...[
@@ -295,7 +308,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                                     controlAffinity: ListTileControlAffinity.trailing,
                                     activeColor: Palette.brand600,
                                     shape: const RoundedRectangleBorder(),
-                                    secondary: FriendAvatar(name: x.name, path: x.photoPath, size: 38, isFriend: x.linkedUserId != null),
+                                    secondary: FriendAvatar(name: x.name, path: x.photoPath, size: 38, isFriend: x.linkedUserId != null, userId: x.linkedUserId),
                                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
                                     subtitle: () {
                                       // SeeU friends: their @username, so they're told apart at a glance.
@@ -379,6 +392,19 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
               ),
             ),
             LabeledField(label: tr.placeOptional, child: AppTextField(controller: _location, hint: tr.placeHint, maxLength: 200)),
+            LabeledField(
+              label: tr.linkLabel,
+              error: _linkInvalid ? tr.errBadLink : null,
+              child: AppTextField(
+                controller: _link,
+                hint: tr.linkHint,
+                keyboardType: TextInputType.url,
+                maxLength: 500,
+                onChanged: (_) {
+                  if (_linkInvalid) setState(() => _linkInvalid = false);
+                },
+              ),
+            ),
             LabeledField(
               label: tr.descriptionLabel,
               tag: tr.tagShared,
@@ -534,7 +560,7 @@ class _SlotsEditor extends StatelessWidget {
     final c = context.colors;
     return LabeledField(
       label: tr.slotsLabel,
-      hint: tr.slotsHint,
+      hint: '${tr.slotsHint} ${tr.slotsOrganizerOnlyFree}',
       error: error,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         for (var i = 0; i < slots.length; i++)

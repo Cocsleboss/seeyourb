@@ -131,7 +131,7 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
       trailing = Pill(tr.rsvpAccepted, tone: Tone.green);
     }
     return _PersonTile(
-      avatar: FriendAvatar(name: contact?.name ?? p.name, path: contact?.photoPath, size: 40, isFriend: p.isFriend, seeu: true),
+      avatar: FriendAvatar(name: contact?.name ?? p.name, path: contact?.photoPath, size: 40, isFriend: p.isFriend, seeu: true, userId: p.userId),
       title: me ? tr.you : (contact?.name ?? p.name),
       subtitle: cancellable ? tr.invitationPending : (p.username == null ? null : handle(p.username)),
       trailing: trailing,
@@ -156,7 +156,7 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
               : null);
     }
     return _PersonTile(
-      avatar: FriendAvatar(name: f.name, path: f.photoPath, size: 40, isFriend: true),
+      avatar: FriendAvatar(name: f.name, path: f.photoPath, size: 40, isFriend: true, userId: f.linkedUserId),
       title: f.name,
       subtitle: left ? tr.leftEvent : (declined ? tr.declinedInvitation : tr.friendNotInvited),
       trailing: action,

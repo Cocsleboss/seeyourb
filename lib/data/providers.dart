@@ -209,6 +209,39 @@ final signedUrlProvider = FutureProvider.family<String, String>((ref, path) asyn
 });
 
 /// Refreshes everything after a mutation (cheap: lists are small, per user).
+/// Profile pictures, fetched in batches: every avatar shown in the same frame
+/// costs one request. Value: public URL, or null (no picture).
+class AvatarBatcher {
+  AvatarBatcher(this._api);
+  final Api _api;
+  final _waiting = <String, Completer<String?>>{};
+  Timer? _timer;
+
+  Future<String?> get(String userId) {
+    final existing = _waiting[userId];
+    if (existing != null) return existing.future;
+    final c = Completer<String?>();
+    _waiting[userId] = c;
+    _timer ??= Timer(const Duration(milliseconds: 30), _flush);
+    return c.future;
+  }
+
+  Future<void> _flush() async {
+    _timer = null;
+    final batch = Map.of(_waiting);
+    _waiting.clear();
+    try {
+      final urls = await _api.profileAvatars(batch.keys.toList());
+      batch.forEach((id, c) => c.complete(urls[id]));
+    } catch (_) {
+      batch.forEach((_, c) => c.complete(null)); // initials instead; never an error state
+    }
+  }
+}
+
+final avatarBatcherProvider = Provider<AvatarBatcher>((ref) => AvatarBatcher(ref.watch(apiProvider)));
+final avatarUrlProvider = FutureProvider.family<String?, String>((ref, userId) => ref.watch(avatarBatcherProvider).get(userId));
+
 void refreshData(WidgetRef ref) {
   ref.invalidate(contactsProvider);
   ref.invalidate(plannedRdvProvider);
@@ -230,6 +263,7 @@ void refreshData(WidgetRef ref) {
   ref.invalidate(chatPreviewProvider);
   ref.invalidate(mutesProvider);
   ref.invalidate(blockedProvider);
+  ref.invalidate(avatarUrlProvider);
 }
 
 void refreshDataFromContainer(ProviderContainer c) {

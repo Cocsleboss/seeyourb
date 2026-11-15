@@ -162,13 +162,16 @@ class _SlotPollState extends ConsumerState<SlotPoll> {
         builder: (slots) {
           final best = bestSlots(slots).map((s) => s.id).toSet();
           final voters = slots.isEmpty ? 0 : slots.map((s) => s.yes + s.maybe + s.no).reduce((a, b) => a > b ? a : b);
-          final total = widget.members < voters ? voters : widget.members;
+          // The organizer proposed the slots and doesn't vote.
+          final others = widget.members - 1;
+          final total = others < voters ? voters : others;
           final merged = mergedAnswers(slots, draft);
           final unsent = slots.any((s) => draft[s.id] != null && draft[s.id] != s.myAnswer);
           final neverSent = slots.every((s) => s.myAnswer == null);
           final outcome = rsvpFromAnswers(merged.values);
           return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(tr.slotsPollHelp, style: TextStyle(color: c.textMuted, fontSize: 14, height: 1.35)),
+            Text(widget.isOrganizer ? tr.slotsPollHelpOrganizer : tr.slotsPollHelp,
+                style: TextStyle(color: c.textMuted, fontSize: 14, height: 1.35)),
             const SizedBox(height: 10),
             RowsCard(children: [
               for (final s in slots)
@@ -178,14 +181,16 @@ class _SlotPollState extends ConsumerState<SlotPoll> {
                   changed: draft[s.id] != null && draft[s.id] != s.myAnswer,
                   best: best.contains(s.id),
                   total: total,
-                  onVote: (a) => ref.read(availabilityDraftProvider(widget.eventId).notifier).set(s.id, a),
+                  onVote: widget.isOrganizer ? null : (a) => ref.read(availabilityDraftProvider(widget.eventId).notifier).set(s.id, a),
                   onChoose: widget.isOrganizer ? () => _choose(s) : null,
                   choosing: _busy == s.id,
                 ),
             ]),
             const SizedBox(height: 12),
             // My answers: what they mean, and the button to send them
-            if (unsent || neverSent)
+            if (widget.isOrganizer)
+              const SizedBox.shrink()
+            else if (unsent || neverSent)
               AppCard(
                 color: c.brandSoft,
                 borderColor: c.isDark ? Palette.brand900 : Palette.brand200,
@@ -247,7 +252,8 @@ class _SlotRow extends StatelessWidget {
   final bool changed;
   final bool best;
   final int total;
-  final ValueChanged<SlotAnswer> onVote;
+  /// null for the organizer (doesn't vote).
+  final ValueChanged<SlotAnswer>? onVote;
   final VoidCallback? onChoose;
   final bool choosing;
 
@@ -257,10 +263,7 @@ class _SlotRow extends StatelessWidget {
     final green = c.tone(Tone.green);
     final amber = c.tone(Tone.amber);
     final denom = total <= 0 ? 1 : total;
-    final names = [
-      if (slot.yesNames.isNotEmpty) joinNames(slot.yesNames, max: 4),
-      if (slot.maybeNames.isNotEmpty) '${tr.slotMaybeShort} : ${joinNames(slot.maybeNames, max: 3)}',
-    ].join(' · ');
+    final red = c.tone(Tone.red);
 
     Widget answer(SlotAnswer a, IconData icon, Tone tone, String label) {
       final on = mine == a;
@@ -272,7 +275,7 @@ class _SlotRow extends StatelessWidget {
           selected: on,
           label: label,
           child: InkResponse(
-            onTap: () => onVote(a),
+            onTap: () => onVote!(a),
             radius: 24,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
@@ -308,11 +311,14 @@ class _SlotRow extends StatelessWidget {
               ]),
             ]),
           ),
-          answer(SlotAnswer.yes, LucideIcons.check, Tone.green, tr.slotYes),
-          const SizedBox(width: 6),
-          answer(SlotAnswer.maybe, LucideIcons.circleHelp, Tone.amber, tr.slotMaybe),
-          const SizedBox(width: 6),
-          answer(SlotAnswer.no, LucideIcons.x, Tone.red, tr.slotNo),
+          if (onVote != null) ...[
+            answer(SlotAnswer.yes, LucideIcons.check, Tone.green, tr.slotYes),
+            const SizedBox(width: 6),
+            answer(SlotAnswer.maybe, LucideIcons.circleHelp, Tone.amber, tr.slotMaybe),
+            const SizedBox(width: 6),
+            answer(SlotAnswer.no, LucideIcons.x, Tone.red, tr.slotNo),
+          ] else if (onChoose != null)
+            AppButton(tr.choose, size: ButtonSize.sm, variant: best ? ButtonVariant.primary : ButtonVariant.secondary, loading: choosing, onPressed: onChoose),
         ]),
         const SizedBox(height: 10),
         ClipRRect(
@@ -322,21 +328,51 @@ class _SlotRow extends StatelessWidget {
             child: Row(children: [
               if (slot.yes > 0) Expanded(flex: slot.yes, child: Container(color: green.solid)),
               if (slot.maybe > 0) Expanded(flex: slot.maybe, child: Container(color: amber.solid)),
-              if (denom - slot.yes - slot.maybe > 0) Expanded(flex: denom - slot.yes - slot.maybe, child: Container(color: c.secondaryFill)),
+              if (slot.no > 0) Expanded(flex: slot.no, child: Container(color: red.solid)),
+              if (denom - slot.yes - slot.maybe - slot.no > 0)
+                Expanded(flex: denom - slot.yes - slot.maybe - slot.no, child: Container(color: c.secondaryFill)),
             ]),
           ),
         ),
-        const SizedBox(height: 6),
-        Row(children: [
-          Expanded(
-            child: Text(
-              [tr.slotCounts(slot.yes, slot.maybe), if (names.isNotEmpty) names].join(' — '),
-              style: TextStyle(fontSize: 12.5, color: c.textMuted),
-            ),
+        const SizedBox(height: 8),
+        // Who answered what: one line per answer.
+        if (slot.yes + slot.maybe + slot.no == 0)
+          Text(tr.slotNoAnswerYet, style: TextStyle(fontSize: 13, color: c.textSubtle))
+        else ...[
+          _AnswerLine(icon: LucideIcons.check, color: green.text, label: tr.slotYesCount(slot.yes), names: slot.yesNames),
+          _AnswerLine(icon: LucideIcons.circleHelp, color: amber.text, label: tr.slotMaybeCount(slot.maybe), names: slot.maybeNames),
+          _AnswerLine(icon: LucideIcons.x, color: red.text, label: tr.slotNoCount(slot.no), names: slot.noNames),
+        ],
+      ]),
+    );
+  }
+}
+
+class _AnswerLine extends StatelessWidget {
+  const _AnswerLine({required this.icon, required this.color, required this.label, required this.names});
+  final IconData icon;
+  final Color color;
+  final String label;
+  final List<String> names;
+
+  @override
+  Widget build(BuildContext context) {
+    if (names.isEmpty) return const SizedBox.shrink();
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.only(top: 3),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(padding: const EdgeInsets.only(top: 1), child: Icon(icon, size: 15, color: color)),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text.rich(
+            TextSpan(children: [
+              TextSpan(text: '$label : ', style: TextStyle(fontWeight: FontWeight.w600, color: color)),
+              TextSpan(text: names.join(', '), style: TextStyle(color: c.text)),
+            ]),
+            style: const TextStyle(fontSize: 13.5, height: 1.3),
           ),
-          if (onChoose != null)
-            AppButton(tr.choose, size: ButtonSize.sm, variant: best ? ButtonVariant.primary : ButtonVariant.ghost, loading: choosing, onPressed: onChoose),
-        ]),
+        ),
       ]),
     );
   }

@@ -4441,6 +4441,114 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre identifiant ne peut pas être modifié : c\'est grâce à lui que vos amis vous trouvent.'**
   String get usernameFixed;
+
+  /// No description provided for @slotsPollHelpOrganizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous avez proposé ces créneaux : vous êtes compté comme disponible sur chacun. Voici les réponses des participants.'**
+  String get slotsPollHelpOrganizer;
+
+  /// No description provided for @slotNoAnswerYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de réponse'**
+  String get slotNoAnswerYet;
+
+  /// No description provided for @slotYesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 disponible} other{{n} disponibles}}'**
+  String slotYesCount(int n);
+
+  /// No description provided for @slotMaybeCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} peut-être'**
+  String slotMaybeCount(int n);
+
+  /// No description provided for @slotNoCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 pas dispo} other{{n} pas dispo}}'**
+  String slotNoCount(int n);
+
+  /// No description provided for @slotsOrganizerOnlyFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposez uniquement des créneaux où vous êtes disponible : vous êtes compté comme disponible sur chacun.'**
+  String get slotsOrganizerOnlyFree;
+
+  /// No description provided for @findContactOnSeeu.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} sur SeeU'**
+  String findContactOnSeeu(String name);
+
+  /// No description provided for @findContactOnSeeuSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cherchez son @identifiant : une fois la demande acceptée, la fiche de {name} est liée et ses rendez-vous à venir avec vous sont partagés.'**
+  String findContactOnSeeuSub(String name);
+
+  /// No description provided for @friendRequestPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande d\'ami SeeU envoyée · en attente'**
+  String get friendRequestPending;
+
+  /// No description provided for @friendRequestPendingHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dès que {name} accepte, sa fiche est liée et vos rendez-vous à venir sont partagés.'**
+  String friendRequestPendingHelp(String name);
+
+  /// No description provided for @cancelRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la demande'**
+  String get cancelRequest;
+
+  /// No description provided for @findOnSeeu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore ami : chercher son @identifiant'**
+  String get findOnSeeu;
+
+  /// No description provided for @avatarHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visible par vos amis et les participants de vos rendez-vous.'**
+  String get avatarHint;
+
+  /// No description provided for @avatarUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil mise à jour'**
+  String get avatarUpdated;
+
+  /// No description provided for @avatarRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil retirée'**
+  String get avatarRemoved;
+
+  /// No description provided for @errBadLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien n\'est pas valide (il doit commencer par https://).'**
+  String get errBadLink;
+
+  /// No description provided for @linkLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien'**
+  String get linkLabel;
+
+  /// No description provided for @linkHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Billetterie, menu, page de l\'événement…'**
+  String get linkHint;
 }
 
 class _AppLocalizationsDelegate

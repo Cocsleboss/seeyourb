@@ -120,7 +120,7 @@ class _Body extends ConsumerWidget {
       children: [
         // 1. Header
         const SizedBox(height: 8),
-        Center(child: Avatar(name: contact.name, path: contact.photoPath, size: 100, seeu: contact.linkedUserId != null)),
+        Center(child: Avatar(name: contact.name, path: contact.photoPath, size: 100, seeu: contact.linkedUserId != null, userId: contact.linkedUserId)),
         const SizedBox(height: 12),
         Text(contact.name, textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: c.text)),
         if (contact.categories.isNotEmpty) ...[
@@ -278,6 +278,45 @@ class _FriendSectionState extends ConsumerState<_FriendSection> {
     final c = context.colors;
     final contact = widget.contact;
     if (contact.linkedUserId == null) {
+      // A friend request sent for this contact, not accepted yet.
+      final pending = (ref.watch(friendsProvider).value ?? const <Friend>[])
+          .where((f) => !f.accepted && !f.incoming && f.contactId == contact.id)
+          .firstOrNull;
+      if (pending != null) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: AppCard(
+            color: c.brandSoft,
+            borderColor: c.isDark ? Palette.brand900 : Palette.brand200,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Row(children: [
+                Icon(LucideIcons.hourglass, size: 20, color: c.brandText),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(tr.friendRequestPending, style: TextStyle(fontWeight: FontWeight.w600, color: c.text, fontSize: 15)),
+                ),
+              ]),
+              const SizedBox(height: 4),
+              Text('${pending.displayName} · ${handle(pending.username)}', style: TextStyle(color: c.textMuted, fontSize: 13.5)),
+              const SizedBox(height: 4),
+              Text(tr.friendRequestPendingHelp(contact.name), style: TextStyle(color: c.textMuted, fontSize: 13.5, height: 1.35)),
+              const SizedBox(height: 12),
+              AppButton(tr.cancelRequest,
+                  icon: LucideIcons.x,
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.sm,
+                  full: true,
+                  onAsync: () async {
+                    final ok = await guard(() async {
+                      await ref.read(apiProvider).removeFriend(pending.friendshipId);
+                      return true;
+                    }, success: tr.requestCancelled);
+                    if (ok != null) refreshData(ref);
+                  }),
+            ]),
+          ),
+        );
+      }
       return Padding(
         padding: const EdgeInsets.only(top: 10),
         child: AppButton(tr.linkToFriend,

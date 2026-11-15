@@ -43,7 +43,7 @@ class _InviteCardState extends ConsumerState<InviteCard> {
       onTap: i.toRdvId == null ? null : () => context.push('/rdv/${i.toRdvId}'),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Avatar(name: i.fromName, size: 52),
+          Avatar(name: i.fromName, size: 52, userId: i.fromUser),
           const SizedBox(width: 14),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

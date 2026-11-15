@@ -53,3 +53,21 @@ phaseNow | En cours | Happening
 phasePast | Passé | Past
 keepInTouchHelp | Rappels selon la fréquence choisie pour chaque contact. Rien n'est prévu : planifiez un rendez-vous, ou notez que vous vous êtes vus. | Reminders based on how often you want to see each contact. Nothing is planned yet: plan an event, or note that you've met.
 usernameFixed | Votre identifiant ne peut pas être modifié : c'est grâce à lui que vos amis vous trouvent. | Your username can't be changed: it's how your friends find you.
+slotsPollHelpOrganizer | Vous avez proposé ces créneaux : vous êtes compté comme disponible sur chacun. Voici les réponses des participants. | You proposed these slots, so you count as available for each. Here are the participants' answers.
+slotNoAnswerYet | Pas encore de réponse | No answers yet
+slotYesCount | {n, plural, =1{1 disponible} other{{n} disponibles}} | {n} available
+slotMaybeCount | {n} peut-être | {n} maybe
+slotNoCount | {n, plural, =1{1 pas dispo} other{{n} pas dispo}} | {n} not available
+slotsOrganizerOnlyFree | Proposez uniquement des créneaux où vous êtes disponible : vous êtes compté comme disponible sur chacun. | Only propose slots you're free for: you count as available on each of them.
+findContactOnSeeu | {name} sur SeeU | {name} on SeeU
+findContactOnSeeuSub | Cherchez son @identifiant : une fois la demande acceptée, la fiche de {name} est liée et ses rendez-vous à venir avec vous sont partagés. | Search their @username: once the request is accepted, {name}'s card gets linked and your upcoming events with them are shared.
+friendRequestPending | Demande d'ami SeeU envoyée · en attente | SeeU friend request sent · waiting
+friendRequestPendingHelp | Dès que {name} accepte, sa fiche est liée et vos rendez-vous à venir sont partagés. | As soon as {name} accepts, the card gets linked and your upcoming events are shared.
+cancelRequest | Annuler la demande | Cancel request
+findOnSeeu | Pas encore ami : chercher son @identifiant | Not friends yet: search their @username
+avatarHint | Visible par vos amis et les participants de vos rendez-vous. | Visible to your friends and people in your events.
+avatarUpdated | Photo de profil mise à jour | Profile picture updated
+avatarRemoved | Photo de profil retirée | Profile picture removed
+errBadLink | Ce lien n'est pas valide (il doit commencer par https://). | This link isn't valid (it must start with https://).
+linkLabel | Lien | Link
+linkHint | Billetterie, menu, page de l'événement… | Tickets, menu, event page…
