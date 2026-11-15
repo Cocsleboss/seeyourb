@@ -89,8 +89,10 @@ The app runs without Firebase; push is simply unavailable until it's configured.
 
 ### 3. Run the app
 
-Requirements: Flutter 3.47+, Android SDK 37, **Xcode 26.2+** (the Firebase iOS SDK 13 used by
-`firebase_messaging` 17 does not resolve with older Xcode versions).
+Requirements: Flutter 3.47+, Android SDK 37, Xcode 26.
+`firebase_core` / `firebase_messaging` are pinned to 4.15.0 / 16.7.0 (Firebase iOS SDK 12.19.0)
+because the current releases (Firebase iOS SDK 13) need Xcode 26.2+. After updating Xcode,
+you can move to `firebase_core ^5` / `firebase_messaging ^17`.
 
 
 ```sh
@@ -128,9 +130,9 @@ reminders, digest, birthdays) with stubs for Supabase's `auth`, `storage`, `vaul
 
 ## Notes for later
 
-- Push uses FCM registration tokens. `firebase_messaging` 17 deprecates them in favour of
-  Firebase Installation IDs; migrate `lib/core/push.dart` and `supabase/functions/dispatch`
-  together when the new API is settled.
+- Push uses FCM registration tokens. `firebase_messaging` 17+ deprecates them in favour of
+  Firebase Installation IDs; when upgrading, migrate `lib/core/push.dart` and
+  `supabase/functions/dispatch` together.
 - `run_reminders()` scans the profiles due for their daily digest every 10 minutes. With a
   very large user base, store a precomputed `next_digest_at` (indexed) instead.
 - Lists are loaded per user and refreshed after each change, when the app resumes and when a
