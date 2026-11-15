@@ -11,8 +11,11 @@ import 'kit.dart';
 import '../features/rdv/rsvp.dart';
 
 class ContactRow extends StatelessWidget {
-  const ContactRow({super.key, required this.contact, this.onTap, this.trailing, this.showBadge = true});
+  const ContactRow({super.key, required this.contact, this.onTap, this.trailing, this.showBadge = true, this.friend});
   final Contact contact;
+
+  /// The SeeU friend linked to this contact, if any (shows the SeeU badge and @username).
+  final Friend? friend;
   final VoidCallback? onTap;
   final Widget? trailing;
   final bool showBadge;
@@ -25,7 +28,7 @@ class ContactRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(children: [
-          Avatar(name: contact.name, path: contact.photoPath, size: 46),
+          FriendAvatar(name: contact.name, path: contact.photoPath, size: 46, isFriend: contact.linkedUserId != null),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -33,7 +36,11 @@ class ContactRow extends StatelessWidget {
                   maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w600, color: c.text)),
               const SizedBox(height: 2),
               Text(
-                '${contact.lastMeetingDate == null ? 'Pas encore vu' : 'Vu le ${formatDate(contact.lastMeetingDate!)}'} · ${frequencyLabel(contact.frequencyValue, contact.frequencyUnit)}',
+                [
+                  if (friend?.username != null) '@${friend!.username}',
+                  contact.lastMeetingDate == null ? 'Pas encore vu' : 'Vu le ${formatDate(contact.lastMeetingDate!)}',
+                  frequencyLabel(contact.frequencyValue, contact.frequencyUnit),
+                ].join(' · '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 13.5, color: c.textMuted),
@@ -45,6 +52,43 @@ class ContactRow extends StatelessWidget {
             trailing!
           else if (showBadge)
             contact.seeSoon ? const Pill('★ Bientôt', tone: Tone.violet) : DueBadge(contact, short: true),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Avatar with a small SeeU badge when the person is a SeeU friend.
+class FriendAvatar extends StatelessWidget {
+  const FriendAvatar({super.key, required this.name, this.path, this.size = 46, this.isFriend = false});
+  final String name;
+  final String? path;
+  final double size;
+  final bool isFriend;
+
+  @override
+  Widget build(BuildContext context) {
+    final avatar = Avatar(name: name, path: path, size: size);
+    if (!isFriend) return avatar;
+    final c = context.colors;
+    final badge = size * 0.42;
+    return Tooltip(
+      message: 'Ami SeeU',
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Stack(clipBehavior: Clip.none, children: [
+          avatar,
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: Container(
+              width: badge,
+              height: badge,
+              decoration: BoxDecoration(color: Palette.brand600, shape: BoxShape.circle, border: Border.all(color: c.card, width: 2)),
+              child: Icon(LucideIcons.heartHandshake, size: badge * 0.55, color: Colors.white),
+            ),
+          ),
         ]),
       ),
     );

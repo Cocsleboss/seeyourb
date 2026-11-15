@@ -14,6 +14,8 @@ import '../../ui/kit.dart';
 import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
+import '../../domain/text.dart';
+import '../friends/friend_sheets.dart';
 import '../photos/photo_section.dart';
 import 'quick_sheets.dart';
 
@@ -116,12 +118,7 @@ class _Body extends ConsumerWidget {
         ],
         if (contact.linkedUserId != null) ...[
           const SizedBox(height: 8),
-          Center(
-            child: GestureDetector(
-              onTap: () => context.go('/friends'),
-              child: const Pill('Ami SeeU · rendez-vous et photos partageables', tone: Tone.brand, icon: LucideIcons.users),
-            ),
-          ),
+          const Center(child: Pill('Ami SeeU · rendez-vous et photos partageables', tone: Tone.brand, icon: LucideIcons.users)),
         ],
         if (bday != null && bday.days <= 30) ...[
           const SizedBox(height: 10),
@@ -171,6 +168,9 @@ class _Body extends ConsumerWidget {
           full: true,
           onPressed: () => _toggleSeeSoon(ref),
         ),
+
+        // SeeU friend: actions if linked, otherwise offer to associate
+        _FriendSection(contact: contact),
 
         // 4. Information
         if (contact.phone != null || contact.email != null || contact.notes != null || contact.birthday != null) ...[
@@ -229,6 +229,84 @@ class _Body extends ConsumerWidget {
             icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
       ],
     );
+  }
+}
+
+class _FriendSection extends ConsumerStatefulWidget {
+  const _FriendSection({required this.contact});
+  final Contact contact;
+  @override
+  ConsumerState<_FriendSection> createState() => _FriendSectionState();
+}
+
+class _FriendSectionState extends ConsumerState<_FriendSection> {
+  bool _waving = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final contact = widget.contact;
+    if (contact.linkedUserId == null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: AppButton('Associer à un ami SeeU',
+            icon: LucideIcons.link2,
+            variant: ButtonVariant.ghost,
+            full: true,
+            onPressed: () => showLinkContactToFriendSheet(context, contact)),
+      );
+    }
+    final friend = (ref.watch(friendsProvider).value ?? const <Friend>[])
+        .where((f) => f.accepted && f.userId == contact.linkedUserId)
+        .firstOrNull;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      const SectionTitle('Ami SeeU'),
+      AppCard(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Icon(LucideIcons.heartHandshake, color: c.brandText),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                friend == null ? 'Associé à un compte SeeU' : '${friend.displayName} · ${handle(friend.username)}',
+                style: TextStyle(fontWeight: FontWeight.w600, color: c.text, fontSize: 15.5),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          Text('Vous pouvez lui envoyer vos rendez-vous et partager les photos.',
+              style: TextStyle(color: c.textMuted, fontSize: 13.5)),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(
+              child: AppButton('Envie de se voir',
+                  icon: LucideIcons.hand,
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.sm,
+                  full: true,
+                  loading: _waving,
+                  onPressed: () async {
+                    setState(() => _waving = true);
+                    await guard(() async {
+                      await ref.read(apiProvider).sendWave(contact.linkedUserId!);
+                      return true;
+                    }, success: '${contact.name} sait que vous aimeriez vous voir 👋');
+                    if (mounted) setState(() => _waving = false);
+                  }),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: AppButton('Gérer',
+                  icon: LucideIcons.settings2,
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.sm,
+                  full: true,
+                  onPressed: friend == null ? null : () => showFriendSheet(context, friend)),
+            ),
+          ]),
+        ]),
+      ),
+    ]);
   }
 }
 

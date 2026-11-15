@@ -11,7 +11,8 @@ import '../features/contacts/contact_detail_screen.dart';
 import '../features/contacts/contact_form_screen.dart';
 import '../features/contacts/contacts_screen.dart';
 import '../features/contacts/import_screen.dart';
-import '../features/friends/friends_screen.dart';
+import '../domain/dates.dart';
+import '../features/history/calendar.dart';
 import '../features/history/history_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/misc/fallback_screens.dart';
@@ -30,6 +31,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     final path = state.uri.path;
     // Auth email links (seeu://auth-callback?code=…) are handled by Supabase itself.
     if (path.isEmpty || path == '/auth-callback') return '/';
+    // Friends now live in the Contacts tab ("/friends?q=andrea" comes from shared links and notifications).
+    if (path == '/friends') {
+      final q = state.uri.queryParameters['q'];
+      return q == null || q.isEmpty ? '/contacts' : '/contacts?ami=${Uri.encodeQueryComponent(q)}';
+    }
     if (session.passwordRecovery) return path == '/reset-password' ? null : '/reset-password';
     if (!session.signedIn) return _publicPaths.contains(path) ? null : '/login';
     if (session.profile == null) return path == '/splash' ? null : '/splash';
@@ -57,11 +63,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state, shell) => shell,
         branches: [
           StatefulShellBranch(routes: [tab('/', const HomeScreen())]),
-          StatefulShellBranch(routes: [tab('/contacts', const ContactsScreen())]),
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/friends',
-              pageBuilder: (_, s) => NoTransitionPage(key: s.pageKey, child: FriendsScreen(initialQuery: s.uri.queryParameters['q'])),
+              path: '/contacts',
+              pageBuilder: (_, s) => NoTransitionPage(key: s.pageKey, child: ContactsScreen(friendQuery: s.uri.queryParameters['ami'])),
             ),
           ]),
           StatefulShellBranch(routes: [tab('/history', const HistoryScreen())]),
@@ -72,6 +77,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/contacts/import', pageBuilder: (_, s) => page(s, const ImportScreen())),
       GoRoute(path: '/contacts/:id', pageBuilder: (_, s) => page(s, ContactDetailScreen(id: s.pathParameters['id']!))),
       GoRoute(path: '/contacts/:id/edit', pageBuilder: (_, s) => page(s, ContactFormScreen(editId: s.pathParameters['id']))),
+      GoRoute(
+        path: '/history/day/:date',
+        pageBuilder: (_, s) => page(s, DayReviewScreen(day: parseDay(s.pathParameters['date']!))),
+      ),
       GoRoute(
         path: '/rdv/new',
         pageBuilder: (_, s) => page(s, RdvFormScreen(preselectContactId: s.uri.queryParameters['contact'])),
@@ -88,7 +97,7 @@ void openAppPath(GoRouter router, String? url) {
   final uri = Uri.tryParse(url);
   if (uri == null) return;
   final path = uri.path.isEmpty ? '/' : uri.path;
-  const tabs = {'/', '/contacts', '/friends', '/history', '/settings'};
+  const tabs = {'/', '/contacts', '/friends', '/history', '/settings'}; // /friends redirects to /contacts
   final location = uri.hasQuery ? '$path?${uri.query}' : path;
   if (tabs.contains(path)) {
     router.go(location);

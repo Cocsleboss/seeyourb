@@ -22,7 +22,8 @@ import 'package:seeu/features/auth/login_screen.dart';
 import 'package:seeu/features/contacts/contact_detail_screen.dart';
 import 'package:seeu/features/contacts/contact_form_screen.dart';
 import 'package:seeu/features/contacts/contacts_screen.dart';
-import 'package:seeu/features/friends/friends_screen.dart';
+import 'package:seeu/features/history/calendar.dart';
+import 'package:seeu/ui/scaffold.dart';
 import 'package:seeu/features/history/history_screen.dart';
 import 'package:seeu/features/home/home_screen.dart';
 import 'package:seeu/features/home/push_banner.dart';
@@ -70,6 +71,7 @@ final planned = [
   Rendezvous(id: 'r1', userId: 'me', title: 'Petit matcha bebew', location: 'LLN', appointmentAt: d(0, 19, 30), status: RdvStatus.planifie, contacts: [lite('andrea')]),
   Rendezvous(id: 'r2', userId: 'me', appointmentAt: d(1, 18), status: RdvStatus.planifie, contacts: [lite('marie'), lite('paul')]),
   Rendezvous(id: 'r3', userId: 'me', title: 'Soirée poker', location: 'Bruxelles', appointmentAt: d(4, 21), status: RdvStatus.planifie, shareId: 's', contacts: [lite('andrea'), lite('leo'), lite('zoe'), lite('paul')]),
+  Rendezvous(id: 'r4', userId: 'me', title: 'Brunch', appointmentAt: d(6, 11), status: RdvStatus.planifie, shareId: 't', rsvp: Rsvp.pending, contacts: [lite('andrea')]),
 ];
 
 final history = [
@@ -82,6 +84,7 @@ final friends = [
   Friend(friendshipId: 'f1', userId: 'u-andrea', username: 'cocsi_bucci', displayName: 'Cocsi_bucci', accepted: true, incoming: false),
   Friend(friendshipId: 'f2', userId: 'u-bob', username: 'bob', displayName: 'Bob', accepted: false, incoming: true),
   Friend(friendshipId: 'f3', userId: 'u-lea', username: 'lea.m', displayName: 'Léa', accepted: false, incoming: false),
+  Friend(friendshipId: 'f4', userId: 'u-tom', username: 'tom', displayName: 'Tom', accepted: true, incoming: false),
 ];
 
 final invites = [
@@ -117,7 +120,11 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra) {
   final router = GoRouter(initialLocation: location, routes: [
     GoRoute(path: '/', builder: (_, _) => tab(const HomeScreen())),
     GoRoute(path: '/contacts', builder: (_, _) => const ContactsScreen()),
-    GoRoute(path: '/friends', builder: (_, _) => const FriendsScreen()),
+    GoRoute(
+      path: '/history-calendar',
+      builder: (_, _) => const AppScaffold(title: 'Historique', body: SingleChildScrollView(padding: EdgeInsets.all(16), child: HistoryCalendar())),
+    ),
+    GoRoute(path: '/history/day/:date', builder: (_, s) => DayReviewScreen(day: parseDay(s.pathParameters['date']!))),
     GoRoute(path: '/history', builder: (_, _) => const HistoryScreen()),
     GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
     GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
@@ -136,6 +143,8 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra) {
       contactsProvider.overrideWith((ref) async => contacts),
       plannedRdvProvider.overrideWith((ref) async => planned),
       historyProvider.overrideWith((ref) async => history),
+      historyMonthProvider.overrideWith((ref, month) async => history.where((r) => r.appointmentAt.month == month.month).toList()),
+      historyDayProvider.overrideWith((ref, day) async => history.where((r) => dayOf(r.appointmentAt) == day).toList()),
       friendsProvider.overrideWith((ref) async => friends),
       incomingInvitesProvider.overrideWith((ref) async => invites),
       notificationLogProvider.overrideWith((ref) async => [
@@ -177,7 +186,10 @@ void main() {
     'contact_form': '/contacts/new',
     'rdv_form': '/rdv/new?contact=andrea',
     'rdv_detail': '/rdv/r3',
-    'friends': '/friends',
+    'contacts_friend_link': '/contacts?ami=tom',
+    'calendar': '/history-calendar',
+    'day_review': '/history/day/2026-11-13',
+    'rdv_tentative': '/rdv/r4',
     'history': '/history',
     'settings': '/settings',
     'login': '/login',

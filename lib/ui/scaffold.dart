@@ -17,7 +17,6 @@ class TabItem {
 const appTabs = [
   TabItem('/', 'Accueil', LucideIcons.house),
   TabItem('/contacts', 'Contacts', LucideIcons.users),
-  TabItem('/friends', 'Amis', LucideIcons.heartHandshake),
   TabItem('/history', 'Historique', LucideIcons.clock),
   TabItem('/settings', 'Réglages', LucideIcons.settings),
 ];

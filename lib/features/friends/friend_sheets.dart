@@ -14,6 +14,7 @@ import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import '../contacts/contact_form_screen.dart';
+import 'add_friend_sheet.dart';
 
 /// "Ajoute-moi sur SeeU : @andrea" + a link opening the Friends tab, search prefilled.
 Future<void> shareMyHandle(String username) {
@@ -225,6 +226,105 @@ class _FriendSheetState extends ConsumerState<_FriendSheet> {
         AppButton('Associer à un contact', icon: LucideIcons.link2, variant: ButtonVariant.secondary, full: true, onPressed: relink),
       const SizedBox(height: 22),
       AppButton('Retirer de mes amis', icon: LucideIcons.userMinus, variant: ButtonVariant.danger, full: true, onPressed: _remove),
+    ]);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  After a friendship is accepted: offer to associate a contact      */
+/* ------------------------------------------------------------------ */
+
+Future<void> offerLinkAfterAccept(BuildContext context, String userId) async {
+  final container = ProviderScope.containerOf(context, listen: false);
+  container.invalidate(friendsProvider);
+  final friends = await container.read(friendsProvider.future);
+  final f = friends.where((x) => x.userId == userId && x.accepted).firstOrNull;
+  if (f == null || !context.mounted) return;
+  if (linkedContactOf(container.read(contactsProvider).value ?? const [], userId) != null) return;
+  await showLinkSheet(context, f);
+}
+
+/* ------------------------------------------------------------------ */
+/*  From a contact: associate it with one of my SeeU friends          */
+/* ------------------------------------------------------------------ */
+
+Future<void> showLinkContactToFriendSheet(BuildContext context, Contact contact) => showAppSheet(
+      context,
+      title: 'Associer ${contact.name} à un ami SeeU',
+      subtitle: 'Vous pourrez lui envoyer vos rendez-vous et partager les photos. Chaque ami ne peut être associé qu\'à un seul contact.',
+      builder: (_) => _LinkContactToFriend(contact),
+    );
+
+class _LinkContactToFriend extends ConsumerStatefulWidget {
+  const _LinkContactToFriend(this.contact);
+  final Contact contact;
+  @override
+  ConsumerState<_LinkContactToFriend> createState() => _LinkContactToFriendState();
+}
+
+class _LinkContactToFriendState extends ConsumerState<_LinkContactToFriend> {
+  String? _busy;
+
+  bool _suggested(Friend f) {
+    final c = widget.contact;
+    if (f.email != null && c.email != null && f.email!.toLowerCase() == c.email!.toLowerCase()) return true;
+    final first = normalizeText(c.name.split(RegExp(r'\s+')).first);
+    return first.isNotEmpty && normalizeText(f.displayName.split(RegExp(r'\s+')).first) == first;
+  }
+
+  Future<void> _link(Friend f) async {
+    setState(() => _busy = f.userId);
+    final ok = await guard(() async {
+      await ref.read(apiProvider).linkFriendToContact(f.userId, widget.contact.id);
+      return true;
+    }, success: '${widget.contact.name} est associé à ${f.displayName}');
+    if (!mounted) return;
+    setState(() => _busy = null);
+    if (ok != null) {
+      refreshData(ref);
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
+    final friends = (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.accepted).toList()
+      ..sort((a, b) {
+        final s = (_suggested(b) ? 1 : 0) - (_suggested(a) ? 1 : 0);
+        return s != 0 ? s : compareNames(a.displayName, b.displayName);
+      });
+    if (friends.isEmpty) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text("Vous n'avez pas encore d'ami SeeU.", style: TextStyle(color: c.textMuted, fontSize: 15)),
+        const SizedBox(height: 14),
+        AppButton('Ajouter un ami SeeU', icon: LucideIcons.heartHandshake, full: true, onPressed: () {
+          final nav = Navigator.of(context);
+          nav.pop();
+          showAddFriendSheet(nav.context);
+        }),
+      ]);
+    }
+    return Column(children: [
+      for (final f in friends)
+        Builder(builder: (_) {
+          final other = linkedContactOf(contacts, f.userId);
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+            enabled: _busy == null,
+            leading: Avatar(name: f.displayName, path: other?.photoPath, size: 40),
+            title: Text(f.displayName, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
+            subtitle: Text(
+              [handle(f.username), if (other != null) 'Associé à ${other.name}'].where((s) => s.isNotEmpty).join(' · '),
+              style: TextStyle(color: c.textMuted, fontSize: 13),
+            ),
+            trailing: _busy == f.userId
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : (_suggested(f) ? const Pill('Suggéré', tone: Tone.brand) : null),
+            onTap: () => _link(f),
+          );
+        }),
     ]);
   }
 }

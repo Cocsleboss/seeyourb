@@ -159,6 +159,14 @@ final contactProvider = Provider.family<AsyncValue<Contact?>, String>((ref, id) 
 final plannedRdvProvider = FutureProvider<List<Rendezvous>>((ref) => _api(ref).listPlannedRdv());
 final historyProvider = FutureProvider<List<Rendezvous>>((ref) => _api(ref).listHistory());
 final rdvProvider = FutureProvider.family<Rendezvous?, String>((ref, id) => _api(ref).getRdv(id));
+
+/// Validated / cancelled rendezvous of a month (key: first day of the month).
+final historyMonthProvider = FutureProvider.family<List<Rendezvous>, DateTime>(
+    (ref, month) => _api(ref).listHistoryBetween(month, DateTime(month.year, month.month + 1)));
+
+/// Validated / cancelled rendezvous of one day (key: the day at midnight).
+final historyDayProvider = FutureProvider.family<List<Rendezvous>, DateTime>(
+    (ref, day) => _api(ref).listHistoryBetween(day, DateTime(day.year, day.month, day.day + 1)));
 final contactRdvsProvider = FutureProvider.family<List<Rendezvous>, String>((ref, id) => _api(ref).listRdvForContact(id));
 final contactPhotosProvider = FutureProvider.family<List<Photo>, String>((ref, id) => _api(ref).listPhotosForContact(id));
 final sharedRdvPhotosProvider = FutureProvider.family<List<Photo>, String>((ref, id) => _api(ref).listSharedPhotosForRdv(id));
@@ -180,6 +188,8 @@ void refreshData(WidgetRef ref) {
   ref.invalidate(contactsProvider);
   ref.invalidate(plannedRdvProvider);
   ref.invalidate(historyProvider);
+  ref.invalidate(historyMonthProvider);
+  ref.invalidate(historyDayProvider);
   ref.invalidate(rdvProvider);
   ref.invalidate(contactRdvsProvider);
   ref.invalidate(contactPhotosProvider);
@@ -193,6 +203,8 @@ void refreshDataFromContainer(ProviderContainer c) {
   c.invalidate(contactsProvider);
   c.invalidate(plannedRdvProvider);
   c.invalidate(historyProvider);
+  c.invalidate(historyMonthProvider);
+  c.invalidate(historyDayProvider);
   c.invalidate(rdvProvider);
   c.invalidate(contactRdvsProvider);
   c.invalidate(contactPhotosProvider);
