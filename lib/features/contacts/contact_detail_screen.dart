@@ -82,8 +82,8 @@ class _Body extends ConsumerWidget {
       return true;
     }, success: 'Contact supprimé');
     if (done == null || !context.mounted) return;
-    context.go('/contacts');
     refreshData(ref);
+    context.go('/contacts');
   }
 
   @override

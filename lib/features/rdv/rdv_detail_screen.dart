@@ -72,8 +72,8 @@ class _Body extends ConsumerWidget {
       return true;
     }, success: 'Rendez-vous supprimé');
     if (done == null || !context.mounted) return;
-    context.canPop() ? context.pop() : context.go('/');
     refreshData(ref);
+    context.canPop() ? context.pop() : context.go('/');
   }
 
   Future<void> _addToCalendar() async {

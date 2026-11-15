@@ -28,6 +28,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
   String? redirect(BuildContext context, GoRouterState state) {
     final path = state.uri.path;
+    // Auth email links (seeu://auth-callback?code=…) are handled by Supabase itself.
+    if (path.isEmpty || path == '/auth-callback') return '/';
     if (session.passwordRecovery) return path == '/reset-password' ? null : '/reset-password';
     if (!session.signedIn) return _publicPaths.contains(path) ? null : '/login';
     if (session.profile == null) return path == '/splash' ? null : '/splash';
