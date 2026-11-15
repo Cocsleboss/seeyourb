@@ -204,12 +204,10 @@ class _Agenda extends ConsumerWidget {
 
       // 5. Counters
       const SizedBox(height: 20),
-      Row(children: [
-        Expanded(child: _Stat(value: contacts.length, label: tr.statContacts(contacts.length), onTap: () => context.go('/contacts'))),
-        const SizedBox(width: 10),
-        Expanded(child: _Stat(value: overdue, label: tr.statOverdue, danger: overdue > 0, onTap: () => context.go('/contacts'))),
-        const SizedBox(width: 10),
-        Expanded(child: _Stat(value: upcoming.length, label: tr.statUpcoming)),
+      _StatsStrip(stats: [
+        _Stat(icon: LucideIcons.users, tone: Tone.brand, value: contacts.length, label: tr.statContacts(contacts.length), onTap: () => context.go('/contacts')),
+        _Stat(icon: LucideIcons.alarmClock, tone: overdue > 0 ? Tone.red : Tone.gray, value: overdue, label: tr.statOverdue, onTap: () => context.go('/contacts')),
+        _Stat(icon: LucideIcons.calendarDays, tone: Tone.green, value: upcoming.length, label: tr.statUpcoming),
       ]),
 
       // 6. To confirm
@@ -328,28 +326,55 @@ class _Welcome extends StatelessWidget {
       );
 }
 
+/// Key figures as one flat, tinted strip (deliberately unlike the section buttons above).
+class _StatsStrip extends StatelessWidget {
+  const _StatsStrip({required this.stats});
+  final List<_Stat> stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Container(
+      decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(16)),
+      child: IntrinsicHeight(
+        child: Row(children: [
+          for (var i = 0; i < stats.length; i++) ...[
+            if (i > 0) VerticalDivider(width: 1, thickness: 1, indent: 12, endIndent: 12, color: c.border),
+            Expanded(child: stats[i]),
+          ],
+        ]),
+      ),
+    );
+  }
+}
+
 class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label, this.danger = false, this.onTap});
+  const _Stat({required this.icon, required this.tone, required this.value, required this.label, this.onTap});
+  final IconData icon;
+  final Tone tone;
   final int value;
   final String label;
-  final bool danger;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final color = danger ? c.tone(Tone.red).text : c.text;
-    return AppCard(
+    final t = c.tone(tone);
+    return InkWell(
       onTap: onTap,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      child: Column(children: [
-        Text('$value', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: color)),
-        const SizedBox(height: 2),
-        Text(label.toUpperCase(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, letterSpacing: 0.8, fontWeight: FontWeight.w500, color: danger ? color : c.textMuted)),
-      ]),
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Icon(icon, size: 18, color: t.text),
+            const SizedBox(width: 6),
+            Text('$value', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: tone == Tone.red ? t.text : c.text, height: 1.1)),
+          ]),
+          const SizedBox(height: 2),
+          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: c.textMuted)),
+        ]),
+      ),
     );
   }
 }
