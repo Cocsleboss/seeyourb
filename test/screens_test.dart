@@ -37,16 +37,16 @@ DateTime d(int daysFromNow, [int h = 12, int m = 0]) => DateTime(now.year, now.m
 final me = Profile(id: 'me', email: 'arthur@example.com', displayName: 'Arthur', username: 'arthur', timezone: 'Europe/Brussels');
 
 Contact contact(String id, String name,
-        {String? category, int last = -10, int value = 1, FrequencyUnit unit = FrequencyUnit.months, bool seeSoon = false, String? linked, DateTime? birthday, String? phone}) =>
+        {List<String> categories = const [], int? last = -10, int value = 1, FrequencyUnit unit = FrequencyUnit.months, bool seeSoon = false, String? linked, DateTime? birthday, String? phone}) =>
     Contact(
       id: id,
       userId: 'me',
       name: name,
-      category: category,
-      lastMeetingDate: d(last),
+      categories: categories,
+      lastMeetingDate: last == null ? null : d(last),
       frequencyValue: value,
       frequencyUnit: unit,
-      nextDueDate: addFrequency(dayOf(d(last)), value, unit),
+      nextDueDate: addFrequency(dayOf(d(last ?? -3)), value, unit),
       seeSoon: seeSoon,
       linkedUserId: linked,
       birthday: birthday,
@@ -56,12 +56,12 @@ Contact contact(String id, String name,
     );
 
 final contacts = [
-  contact('andrea', 'Andrea', category: 'Amis', last: -1, value: 2, unit: FrequencyUnit.weeks, linked: 'u-andrea', birthday: DateTime(2003, 11, 29), phone: '06 12 34 56 78'),
-  contact('marie', 'Marie Dupont', category: 'Famille', last: -40),
-  contact('paul', 'Paul Martin', category: 'Pro', last: -25, value: 1, unit: FrequencyUnit.months),
-  contact('helene', 'Hélène', category: 'Amis', last: -5, seeSoon: true),
+  contact('andrea', 'Andrea', categories: ['Amis', 'Pro'], last: -1, value: 2, unit: FrequencyUnit.weeks, linked: 'u-andrea', birthday: DateTime(2003, 11, 29), phone: '06 12 34 56 78'),
+  contact('marie', 'Marie Dupont', categories: ['Famille'], last: -40),
+  contact('paul', 'Paul Martin', categories: ['Pro'], last: -25, value: 1, unit: FrequencyUnit.months),
+  contact('helene', 'Hélène', categories: ['Amis'], last: -5, seeSoon: true),
   contact('leo', 'Léo Bernard', last: -3, birthday: DateTime(1996, 11, 14), phone: '0470 12 34 56'),
-  contact('zoe', 'Zoé', category: 'Voisins', last: -200, value: 6),
+  contact('zoe', 'Zoé', categories: ['Voisins'], last: null, value: 6),
 ];
 
 ContactLite lite(String id) => contacts.firstWhere((c) => c.id == id).lite;

@@ -55,11 +55,11 @@ DueGroups groupByDue(List<Contact> contacts) {
   );
 }
 
-bool contactMatches(Contact c, String query) => matchesAny([c.name, c.category, c.notes], query);
+bool contactMatches(Contact c, String query) => matchesAny([c.name, ...c.categories, c.notes], query);
 
 /// Categories actually used, sorted.
 List<String> usedCategories(List<Contact> contacts) {
-  final set = contacts.map((c) => c.category).whereType<String>().toSet().toList();
+  final set = contacts.expand((c) => c.categories).toSet().toList();
   set.sort(compareNames);
   return set;
 }

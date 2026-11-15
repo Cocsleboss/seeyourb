@@ -9,7 +9,10 @@ import '../core/errors.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
 
-const _rdvSelect = '*, contact_rendezvous(contacts(id, name, photo_path, category, linked_user_id)), photos(*)';
+const _rdvSelect = '*, contact_rendezvous(contacts(id, name, photo_path, categories, linked_user_id)), photos(*)';
+
+/// Hides invitations I declined (rsvp null = my own rendezvous).
+const _notDeclined = 'rsvp.is.null,rsvp.in.(pending,accepted)';
 const photosBucket = 'photos';
 
 String _randomId() {
@@ -145,7 +148,7 @@ class Api {
   /* ----------------------------- Rendezvous ---------------------------- */
 
   Future<List<Rendezvous>> listPlannedRdv() async {
-    final rows = await sb.from('rendezvous').select(_rdvSelect).eq('status', 'planifie').order('appointment_at');
+    final rows = await sb.from('rendezvous').select(_rdvSelect).eq('status', 'planifie').or(_notDeclined).order('appointment_at');
     return rows.map(Rendezvous.fromJson).toList();
   }
 
@@ -154,8 +157,22 @@ class Api {
         .from('rendezvous')
         .select(_rdvSelect)
         .inFilter('status', ['valide', 'annule'])
+        .or(_notDeclined)
         .order('appointment_at', ascending: false)
         .limit(limit);
+    return rows.map(Rendezvous.fromJson).toList();
+  }
+
+  /// Validated or cancelled rendezvous between two days (history calendar).
+  Future<List<Rendezvous>> listHistoryBetween(DateTime from, DateTime to) async {
+    final rows = await sb
+        .from('rendezvous')
+        .select(_rdvSelect)
+        .inFilter('status', ['valide', 'annule'])
+        .or(_notDeclined)
+        .gte('appointment_at', from.toUtc().toIso8601String())
+        .lt('appointment_at', to.toUtc().toIso8601String())
+        .order('appointment_at');
     return rows.map(Rendezvous.fromJson).toList();
   }
 
@@ -338,9 +355,9 @@ class Api {
     return rows.map((r) => IncomingInvite.fromJson(r as Map<String, dynamic>)).toList();
   }
 
-  /// Accept → id of MY copy of the rendezvous; decline → null.
-  Future<String?> respondRdvInvite(String inviteId, bool accept) async {
-    final res = await sb.rpc('respond_rdv_invite', params: {'p_invite': inviteId, 'p_accept': accept});
+  /// À confirmer / accepter / refuser; returns the id of MY copy of the rendezvous.
+  Future<String?> respondRdvInvite(String inviteId, Rsvp answer) async {
+    final res = await sb.rpc('respond_rdv_invite', params: {'p_invite': inviteId, 'p_status': answer.name});
     return res as String?;
   }
 

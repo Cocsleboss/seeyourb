@@ -5,11 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme.dart';
-import '../../data/providers.dart';
 import '../../domain/dates.dart';
 import '../../domain/models.dart';
-import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import '../rdv/rsvp.dart';
 
 class InviteCard extends ConsumerStatefulWidget {
   const InviteCard({super.key, required this.invite});
@@ -19,16 +18,14 @@ class InviteCard extends ConsumerStatefulWidget {
 }
 
 class _InviteCardState extends ConsumerState<InviteCard> {
-  bool? _busy;
+  Rsvp? _busy;
 
-  Future<void> _respond(bool accept) async {
-    setState(() => _busy = accept);
-    final res = await guard(() => ref.read(apiProvider).respondRdvInvite(widget.invite.id, accept),
-        success: accept ? 'Rendez-vous ajouté' : 'Invitation refusée');
+  Future<void> _answer(Rsvp answer) async {
+    setState(() => _busy = answer);
+    final copy = await answerInvitation(ref, widget.invite.id, answer);
     if (!mounted) return;
     setState(() => _busy = null);
-    refreshData(ref);
-    if (accept && res != null) context.push('/rdv/$res');
+    if (answer == Rsvp.accepted && copy != null) context.push('/rdv/$copy');
   }
 
   @override
@@ -38,6 +35,7 @@ class _InviteCardState extends ConsumerState<InviteCard> {
     final past = i.rdvStatus == RdvStatus.valide;
     return AppCard(
       padding: const EdgeInsets.all(18),
+      onTap: i.toRdvId == null ? null : () => context.push('/rdv/${i.toRdvId}'),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Avatar(name: i.fromName, size: 52),
@@ -66,21 +64,12 @@ class _InviteCardState extends ConsumerState<InviteCard> {
           ),
         ]),
         const SizedBox(height: 16),
-        Row(children: [
-          Expanded(
-            child: AppButton('Refuser',
-                icon: LucideIcons.x,
-                variant: ButtonVariant.secondary,
-                full: true,
-                loading: _busy == false,
-                onPressed: _busy == null ? () => _respond(false) : null),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: AppButton('Accepter',
-                icon: LucideIcons.check, full: true, loading: _busy == true, onPressed: _busy == null ? () => _respond(true) : null),
-          ),
-        ]),
+        RsvpSelector(value: Rsvp.pending, busy: _busy, onChanged: _answer),
+        const SizedBox(height: 8),
+        Text(
+          'Il est déjà dans votre agenda, « à confirmer ». Votre ami n\'est prévenu que si vous acceptez ou refusez.',
+          style: TextStyle(fontSize: 12.5, color: c.textMuted),
+        ),
       ]),
     );
   }

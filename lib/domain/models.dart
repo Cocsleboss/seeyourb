@@ -25,6 +25,9 @@ enum RdvStatus {
 
 DateTime? _day(dynamic v) => v == null ? null : parseDay(v as String);
 DateTime? _ts(dynamic v) => v == null ? null : DateTime.parse(v as String).toLocal();
+List<String> _strList(dynamic v) =>
+    ((v as List?) ?? const []).map((e) => (e as String).trim()).where((e) => e.isNotEmpty).toList();
+
 String? _str(dynamic v) {
   if (v == null) return null;
   final s = (v as String).trim();
@@ -104,12 +107,12 @@ class Contact implements HasDue {
     required this.userId,
     required this.name,
     this.photoPath,
-    this.category,
+    this.categories = const [],
     this.phone,
     this.email,
     this.birthday,
     this.notes,
-    required this.lastMeetingDate,
+    this.lastMeetingDate,
     required this.frequencyValue,
     required this.frequencyUnit,
     required this.nextDueDate,
@@ -117,18 +120,21 @@ class Contact implements HasDue {
     this.seeSoon = false,
     this.linkedUserId,
     this.createdAt,
+    this.addedOn,
   });
 
   final String id;
   final String userId;
   final String name;
   final String? photoPath;
-  final String? category;
+  final List<String> categories;
   final String? phone;
   final String? email;
   final DateTime? birthday;
   final String? notes;
-  final DateTime lastMeetingDate;
+
+  /// null = no meeting recorded yet (due date counts from the day the contact was added).
+  final DateTime? lastMeetingDate;
   final int frequencyValue;
   final FrequencyUnit frequencyUnit;
   @override
@@ -139,17 +145,20 @@ class Contact implements HasDue {
   final String? linkedUserId;
   final DateTime? createdAt;
 
+  /// Day the contact was added: start of the first period when no meeting is recorded.
+  final DateTime? addedOn;
+
   factory Contact.fromJson(Map<String, dynamic> j) => Contact(
         id: j['id'] as String,
         userId: j['user_id'] as String,
         name: j['name'] as String,
         photoPath: j['photo_path'] as String?,
-        category: _str(j['category']),
+        categories: _strList(j['categories']),
         phone: _str(j['phone']),
         email: _str(j['email']),
         birthday: _day(j['birthday']),
         notes: _str(j['notes']),
-        lastMeetingDate: parseDay(j['last_meeting_date'] as String),
+        lastMeetingDate: _day(j['last_meeting_date']),
         frequencyValue: j['frequency_value'] as int,
         frequencyUnit: FrequencyUnit.parse(j['frequency_unit'] as String?),
         nextDueDate: parseDay(j['next_due_date'] as String),
@@ -157,45 +166,49 @@ class Contact implements HasDue {
         seeSoon: (j['see_soon'] as bool?) ?? false,
         linkedUserId: j['linked_user_id'] as String?,
         createdAt: _ts(j['created_at']),
+        addedOn: _day(j['added_on']),
       );
 
-  ContactLite get lite => ContactLite(id: id, name: name, photoPath: photoPath, category: category, linkedUserId: linkedUserId);
+  ContactLite get lite => ContactLite(id: id, name: name, photoPath: photoPath, categories: categories, linkedUserId: linkedUserId);
+
+  /// "Amis · Pro"
+  String? get categoryLabel => categories.isEmpty ? null : categories.join(' · ');
 }
 
 /// Editable fields of a contact (form + import).
 class ContactInput {
   ContactInput({
     required this.name,
-    this.category,
+    this.categories = const [],
     this.phone,
     this.email,
     this.birthday,
     this.notes,
-    required this.lastMeetingDate,
+    this.lastMeetingDate,
     this.frequencyValue = 1,
     this.frequencyUnit = FrequencyUnit.months,
     this.linkedUserId,
   });
 
   String name;
-  String? category;
+  List<String> categories;
   String? phone;
   String? email;
   DateTime? birthday;
   String? notes;
-  DateTime lastMeetingDate;
+  DateTime? lastMeetingDate;
   int frequencyValue;
   FrequencyUnit frequencyUnit;
   String? linkedUserId;
 
   Map<String, dynamic> toJson() => {
         'name': name.trim(),
-        'category': _str(category),
+        'categories': categories.map((c) => c.trim()).where((c) => c.isNotEmpty).toSet().toList(),
         'phone': _str(phone),
         'email': _str(email),
         'birthday': birthday == null ? null : dayIso(birthday!),
         'notes': _str(notes),
-        'last_meeting_date': dayIso(lastMeetingDate),
+        'last_meeting_date': lastMeetingDate == null ? null : dayIso(lastMeetingDate!),
         'frequency_value': frequencyValue,
         'frequency_unit': frequencyUnit.name,
         'linked_user_id': ?linkedUserId,
@@ -203,18 +216,20 @@ class ContactInput {
 }
 
 class ContactLite {
-  ContactLite({required this.id, required this.name, this.photoPath, this.category, this.linkedUserId});
+  ContactLite({required this.id, required this.name, this.photoPath, this.categories = const [], this.linkedUserId});
   final String id;
   final String name;
   final String? photoPath;
-  final String? category;
+  final List<String> categories;
   final String? linkedUserId;
+
+  String? get categoryLabel => categories.isEmpty ? null : categories.join(' · ');
 
   factory ContactLite.fromJson(Map<String, dynamic> j) => ContactLite(
         id: j['id'] as String,
         name: j['name'] as String,
         photoPath: j['photo_path'] as String?,
-        category: _str(j['category']),
+        categories: _strList(j['categories']),
         linkedUserId: j['linked_user_id'] as String?,
       );
 }
@@ -259,6 +274,7 @@ class Rendezvous {
     required this.appointmentAt,
     required this.status,
     this.shareId,
+    this.rsvp,
     this.contacts = const [],
     this.photos = const [],
   });
@@ -271,14 +287,19 @@ class Rendezvous {
   final DateTime appointmentAt;
   final RdvStatus status;
   final String? shareId;
+
+  /// Only on a copy received from a friend: à confirmer / accepté / refusé.
+  final Rsvp? rsvp;
   final List<ContactLite> contacts;
   final List<Photo> photos;
 
   bool get isShared => shareId != null;
+  bool get isTentative => rsvp == Rsvp.pending;
 
   /// Planned and its time passed more than 30 minutes ago → "à confirmer".
   bool needsConfirmation([DateTime? now]) =>
       status == RdvStatus.planifie &&
+      (rsvp == null || rsvp == Rsvp.accepted) &&
       appointmentAt.isBefore((now ?? DateTime.now()).subtract(const Duration(minutes: 30)));
 
   /// Title, or "Avec Marie, Paul" / "Avec Marie, Paul et 2 autres".
@@ -305,10 +326,23 @@ class Rendezvous {
       appointmentAt: DateTime.parse(j['appointment_at'] as String).toLocal(),
       status: RdvStatus.parse(j['status'] as String?),
       shareId: j['share_id'] as String?,
+      rsvp: Rsvp.parse(j['rsvp'] as String?),
       contacts: contacts,
       photos: photos,
     );
   }
+}
+
+/// Answer to an invitation, stored on the invitee's copy.
+enum Rsvp {
+  pending('À confirmer'),
+  accepted('Accepté'),
+  declined('Refusé');
+
+  const Rsvp(this.label);
+  final String label;
+
+  static Rsvp? parse(String? s) => s == null ? null : Rsvp.values.where((v) => v.name == s).firstOrNull;
 }
 
 String rdvTitle(String? title, List<String> names) {
@@ -474,6 +508,7 @@ class IncomingInvite {
   IncomingInvite({
     required this.id,
     required this.rdvId,
+    this.toRdvId,
     required this.fromUser,
     required this.fromName,
     this.title,
@@ -483,6 +518,9 @@ class IncomingInvite {
   });
   final String id;
   final String rdvId;
+
+  /// My tentative copy of the rendezvous.
+  final String? toRdvId;
   final String fromUser;
   final String fromName;
   final String? title;
@@ -493,6 +531,7 @@ class IncomingInvite {
   factory IncomingInvite.fromJson(Map<String, dynamic> j) => IncomingInvite(
         id: j['id'] as String,
         rdvId: j['rdv_id'] as String,
+        toRdvId: j['to_rdv_id'] as String?,
         fromUser: j['from_user'] as String,
         fromName: (j['from_name'] as String?) ?? 'Un ami',
         title: _str(j['title']),

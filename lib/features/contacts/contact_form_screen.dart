@@ -14,6 +14,8 @@ import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
 import '../../ui/kit.dart';
+import '../../ui/pickers.dart';
+import '../../domain/selectors.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
@@ -64,14 +66,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   late final TextEditingController _phone;
   late final TextEditingController _email;
   late final TextEditingController _notes;
-  late final TextEditingController _customCategory;
-  late final TextEditingController _customValue;
-  String? _category;
-  bool _otherCategory = false;
-  late DateTime _lastMeeting;
+  late List<String> _categories;
+  DateTime? _lastMeeting;
   late int _freqValue;
   late FrequencyUnit _freqUnit;
-  bool _customFreq = false;
   DateTime? _birthday;
 
   // photo: null = unchanged; _removePhoto = remove
@@ -90,20 +88,16 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _phone = TextEditingController(text: e?.phone ?? '');
     _email = TextEditingController(text: e?.email ?? p?.email ?? '');
     _notes = TextEditingController(text: e?.notes ?? '');
-    _category = e?.category;
-    _otherCategory = _category != null && !categorySuggestions.contains(_category);
-    _customCategory = TextEditingController(text: _otherCategory ? _category : '');
-    _lastMeeting = e?.lastMeetingDate ?? today();
+    _categories = [...?e?.categories];
+    _lastMeeting = e?.lastMeetingDate;
     _freqValue = e?.frequencyValue ?? 1;
     _freqUnit = e?.frequencyUnit ?? FrequencyUnit.months;
-    _customFreq = e != null && !frequencyPresets.any((f) => f.value == _freqValue && f.unit == _freqUnit);
-    _customValue = TextEditingController(text: '$_freqValue');
     _birthday = e?.birthday;
   }
 
   @override
   void dispose() {
-    for (final c in [_name, _phone, _email, _notes, _customCategory, _customValue]) {
+    for (final c in [_name, _phone, _email, _notes]) {
       c.dispose();
     }
     super.dispose();
@@ -130,7 +124,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     final api = ref.read(apiProvider);
     final input = ContactInput(
       name: _name.text,
-      category: _otherCategory ? _customCategory.text : _category,
+      categories: _categories,
       phone: _phone.text,
       email: _email.text.trim().toLowerCase(),
       birthday: _birthday,
@@ -163,7 +157,8 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final hasPhoto = _newPhoto != null || (!_removePhoto && widget.existing?.photoPath != null);
-    final next = addFrequency(_lastMeeting, _freqValue < 1 ? 1 : _freqValue, _freqUnit);
+    final start = _lastMeeting ?? widget.existing?.addedOn ?? today();
+    final next = addFrequency(start, _freqValue < 1 ? 1 : _freqValue, _freqUnit);
 
     return AppScaffold(
       title: widget.existing == null ? 'Nouveau contact' : 'Modifier le contact',
@@ -220,34 +215,25 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           ),
 
           LabeledField(
-            label: 'Catégorie',
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              ChipWrap(children: [
-                for (final cat in categorySuggestions)
-                  AppChip(cat,
-                      selected: !_otherCategory && _category == cat,
-                      onTap: () => setState(() {
-                            _otherCategory = false;
-                            _category = _category == cat ? null : cat;
-                          })),
-                AppChip('Autre…',
-                    selected: _otherCategory,
-                    onTap: () => setState(() {
-                          _otherCategory = !_otherCategory;
-                          if (!_otherCategory) _customCategory.clear();
-                        })),
-              ]),
-              if (_otherCategory) ...[
-                const SizedBox(height: 10),
-                AppTextField(controller: _customCategory, hint: 'Ex. Voisins, Sport…', maxLength: 40, autofocus: true),
-              ],
-            ]),
+            label: 'Catégories',
+            hint: 'Facultatif · plusieurs choix possibles',
+            child: CategoryPicker(
+              selected: _categories,
+              known: usedCategories(ref.watch(contactsProvider).value ?? const []),
+              onChanged: (v) => setState(() => _categories = v),
+            ),
           ),
 
           LabeledField(
             label: 'Dernière rencontre',
-            required: true,
-            child: DateField(value: _lastMeeting, last: today(), onChanged: (d) => setState(() => _lastMeeting = d ?? today())),
+            hint: _lastMeeting == null ? 'Facultatif. Sans date, la période démarre aujourd\'hui.' : null,
+            child: DateField(
+              value: _lastMeeting,
+              last: today(),
+              clearable: true,
+              placeholder: 'Pas encore de rencontre notée',
+              onChanged: (d) => setState(() => _lastMeeting = d),
+            ),
           ),
 
           LabeledField(
@@ -255,40 +241,14 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
             required: true,
             error: _submitted ? _freqError : null,
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              ChipWrap(children: [
-                for (final f in frequencyPresets)
-                  AppChip(f.label,
-                      selected: !_customFreq && f.value == _freqValue && f.unit == _freqUnit,
-                      onTap: () => setState(() {
-                            _customFreq = false;
-                            _freqValue = f.value;
-                            _freqUnit = f.unit;
-                            _customValue.text = '${f.value}';
-                          })),
-                AppChip('Personnalisée', selected: _customFreq, onTap: () => setState(() => _customFreq = true)),
-              ]),
-              if (_customFreq) ...[
-                const SizedBox(height: 10),
-                Row(children: [
-                  SizedBox(
-                    width: 90,
-                    child: AppTextField(
-                      controller: _customValue,
-                      keyboardType: TextInputType.number,
-                      maxLength: 4,
-                      onChanged: (v) => setState(() => _freqValue = int.tryParse(v) ?? 0),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: AppDropdown<FrequencyUnit>(
-                      value: _freqUnit,
-                      items: [for (final u in FrequencyUnit.values) (u, unitLabel(u, _freqValue))],
-                      onChanged: (u) => setState(() => _freqUnit = u),
-                    ),
-                  ),
-                ]),
-              ],
+              FrequencyPicker(
+                value: _freqValue,
+                unit: _freqUnit,
+                onChanged: (v, u) => setState(() {
+                  _freqValue = v;
+                  _freqUnit = u;
+                }),
+              ),
               const SizedBox(height: 10),
               InfoBox(
                 child: Text.rich(TextSpan(children: [

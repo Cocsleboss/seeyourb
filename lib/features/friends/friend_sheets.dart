@@ -116,7 +116,7 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
             title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
             subtitle: x.linkedUserId == f.userId
                 ? Text('Déjà associé', style: TextStyle(color: c.textMuted, fontSize: 13))
-                : (x.category == null ? null : Text(x.category!, style: TextStyle(color: c.textMuted, fontSize: 13))),
+                : (x.categoryLabel == null ? null : Text(x.categoryLabel!, style: TextStyle(color: c.textMuted, fontSize: 13))),
             trailing: _busy == x.id
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                 : (_suggested(x) ? const Pill('Suggéré', tone: Tone.brand) : null),

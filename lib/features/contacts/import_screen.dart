@@ -13,19 +13,21 @@ import '../../domain/models.dart';
 import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
+import '../../domain/selectors.dart';
 import '../../ui/kit.dart';
+import '../../ui/pickers.dart';
 import '../../ui/scaffold.dart';
 
 enum _Step { source, review, confirm }
 
 /// Settings chosen for one imported person.
 class _Choice {
-  _Choice({required this.value, required this.unit, this.category, required this.lastMeeting});
+  _Choice({required this.value, required this.unit, this.categories = const [], this.lastMeeting});
   int value;
   FrequencyUnit unit;
-  String? category;
-  DateTime lastMeeting;
-  _Choice copy() => _Choice(value: value, unit: unit, category: category, lastMeeting: lastMeeting);
+  List<String> categories;
+  DateTime? lastMeeting;
+  _Choice copy() => _Choice(value: value, unit: unit, categories: [...categories], lastMeeting: lastMeeting);
 }
 
 class ImportScreen extends ConsumerStatefulWidget {
@@ -48,7 +50,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   List<ImportedContact> _queue = [];
   int _index = 0;
   final Map<String, _Choice?> _decisions = {}; // null = ignored
-  _Choice _current = _Choice(value: 1, unit: FrequencyUnit.months, lastMeeting: today());
+  _Choice _current = _Choice(value: 1, unit: FrequencyUnit.months);
   DedupeResult? _dedupe;
 
   bool _saving = false;
@@ -159,8 +161,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final choice = await showAppSheet<bool>(
       context,
       title: 'Les $remaining restants d\'un coup',
-      subtitle: 'Fréquence ${frequencyLabel(_current.value, _current.unit)}${_current.category != null ? ', catégorie ${_current.category}' : ''}, '
-          'dernière rencontre le ${formatDate(_current.lastMeeting)}.',
+      subtitle: 'Fréquence ${frequencyLabel(_current.value, _current.unit)}'
+          '${_current.categories.isNotEmpty ? ', catégories ${_current.categories.join(', ')}' : ''}'
+          '${_current.lastMeeting != null ? ', dernière rencontre le ${formatDate(_current.lastMeeting!)}' : ''}.',
       builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         AppButton('Tout ajouter', icon: LucideIcons.userPlus, full: true, onPressed: () => Navigator.pop(ctx, true)),
         const SizedBox(height: 10),
@@ -189,7 +192,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           email: c.email,
           birthday: c.birthday,
           notes: c.notes,
-          category: _decisions[c.key]!.category,
+          categories: _decisions[c.key]!.categories,
           lastMeetingDate: _decisions[c.key]!.lastMeeting,
           frequencyValue: _decisions[c.key]!.value,
           frequencyUnit: _decisions[c.key]!.unit,
@@ -242,7 +245,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           child: Row(children: [
             Expanded(child: AppButton('Ignorer', variant: ButtonVariant.secondary, size: ButtonSize.lg, full: true, onPressed: () => _decide(false))),
             const SizedBox(width: 10),
-            Expanded(child: AppButton('Ajouter', icon: LucideIcons.check, size: ButtonSize.lg, full: true, onPressed: () => _decide(true))),
+            Expanded(
+              child: AppButton('Ajouter',
+                  icon: LucideIcons.check, size: ButtonSize.lg, full: true, onPressed: _current.value < 1 ? null : () => _decide(true)),
+            ),
           ]),
         );
       case _Step.confirm:
@@ -332,7 +338,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final c = context.colors;
     final person = _queue[_index];
     final remaining = _queue.length - _index;
-    final presetSelected = frequencyPresets.where((f) => f.value == _current.value && f.unit == _current.unit).firstOrNull;
     return PageList(children: [
       const SizedBox(height: 8),
       ClipRRect(
@@ -368,26 +373,35 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       const SizedBox(height: 18),
       LabeledField(
         label: 'Fréquence',
-        child: ChipWrap(children: [
-          for (final f in frequencyPresets)
-            AppChip(f.label,
-                selected: presetSelected == f,
-                onTap: () => setState(() {
-                      _current.value = f.value;
-                      _current.unit = f.unit;
-                    })),
-        ]),
+        error: _current.value < 1 ? "La fréquence doit être d'au moins 1." : null,
+        child: FrequencyPicker(
+          key: ValueKey('freq-${person.key}'),
+          value: _current.value,
+          unit: _current.unit,
+          onChanged: (v, u) => setState(() {
+            _current.value = v;
+            _current.unit = u;
+          }),
+        ),
       ),
       LabeledField(
-        label: 'Catégorie',
-        child: ChipWrap(children: [
-          for (final cat in categorySuggestions)
-            AppChip(cat, selected: _current.category == cat, onTap: () => setState(() => _current.category = _current.category == cat ? null : cat)),
-        ]),
+        label: 'Catégories',
+        child: CategoryPicker(
+          selected: _current.categories,
+          known: usedCategories(ref.watch(contactsProvider).value ?? const []),
+          onChanged: (v) => setState(() => _current.categories = v),
+        ),
       ),
       LabeledField(
         label: 'Dernière rencontre',
-        child: DateField(value: _current.lastMeeting, last: today(), onChanged: (d) => setState(() => _current.lastMeeting = d ?? today())),
+        hint: 'Facultatif',
+        child: DateField(
+          value: _current.lastMeeting,
+          last: today(),
+          clearable: true,
+          placeholder: 'Pas encore de rencontre notée',
+          onChanged: (d) => setState(() => _current.lastMeeting = d),
+        ),
       ),
       if (remaining > 1)
         Center(
@@ -417,7 +431,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               leading: Avatar(name: x.name, size: 40),
               title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
               subtitle: Text(
-                [frequencyLabel(_decisions[x.key]!.value, _decisions[x.key]!.unit), ?_decisions[x.key]!.category].join(' · '),
+                [frequencyLabel(_decisions[x.key]!.value, _decisions[x.key]!.unit), ..._decisions[x.key]!.categories].join(' · '),
                 style: TextStyle(color: c.textMuted, fontSize: 13),
               ),
               trailing: IconButton(

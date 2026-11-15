@@ -8,6 +8,7 @@ import '../domain/dates.dart';
 import '../domain/models.dart';
 import '../domain/text.dart';
 import 'kit.dart';
+import '../features/rdv/rsvp.dart';
 
 class ContactRow extends StatelessWidget {
   const ContactRow({super.key, required this.contact, this.onTap, this.trailing, this.showBadge = true});
@@ -32,7 +33,7 @@ class ContactRow extends StatelessWidget {
                   maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w600, color: c.text)),
               const SizedBox(height: 2),
               Text(
-                'Vu le ${formatDate(contact.lastMeetingDate)} · ${frequencyLabel(contact.frequencyValue, contact.frequencyUnit)}',
+                '${contact.lastMeetingDate == null ? 'Pas encore vu' : 'Vu le ${formatDate(contact.lastMeetingDate!)}'} · ${frequencyLabel(contact.frequencyValue, contact.frequencyUnit)}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 13.5, color: c.textMuted),
@@ -114,7 +115,8 @@ class RdvRow extends StatelessWidget {
             const SizedBox(width: 8),
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               if (rdv.contacts.isNotEmpty) AvatarStack(people: rdv.contacts),
-              if (showStatus) ...[const SizedBox(height: 4), StatusPill(rdv.status)],
+              if (rdv.isTentative) ...[const SizedBox(height: 4), const TentativePill()]
+              else if (showStatus) ...[const SizedBox(height: 4), StatusPill(rdv.status)],
             ]),
           ]),
           if (footer != null) ...[const SizedBox(height: 12), footer!],

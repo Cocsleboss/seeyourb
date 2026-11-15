@@ -121,7 +121,7 @@ class HomeScreen extends ConsumerWidget {
 
       // 6. To confirm
       if (toConfirm.isNotEmpty) ...[
-        const SectionTitle('À confirmer'),
+        const SectionTitle('Ont-ils eu lieu ?'),
         RowsCard(children: [for (final r in toConfirm) RdvRow(rdv: r, showStatus: false, footer: RdvStatusActions(rdv: r))]),
       ],
 

@@ -62,6 +62,9 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   final _search = TextEditingController();
   bool _done = false;
   bool _doneTouched = false;
+
+  /// Edit mode: the status can be changed here too.
+  RdvStatus? _status;
   bool _share = true;
   bool _busy = false;
   String? _error;
@@ -79,6 +82,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     final at = e?.appointmentAt ?? nextQuarterHour();
     _date = dayOf(at);
     _time = TimeOfDay(hour: at.hour, minute: at.minute);
+    _status = e?.status;
     _title = TextEditingController(text: e?.title ?? '');
     _location = TextEditingController(text: e?.location ?? '');
     _notes = TextEditingController(text: e?.notes ?? '');
@@ -115,7 +119,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       location: _location.text,
       notes: _notes.text,
       appointmentAt: _at,
-      status: _editing ? null : (_done ? RdvStatus.valide : RdvStatus.planifie),
+      status: _editing ? _status : (_done ? RdvStatus.valide : RdvStatus.planifie),
     );
     final saved = await guard(() async {
       if (_editing) return api.updateRdv(widget.existing!.id, input.toJson(), contactIds: _selected.toList());
@@ -228,7 +232,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                                     shape: const RoundedRectangleBorder(),
                                     secondary: Avatar(name: x.name, path: x.photoPath, size: 36),
                                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
-                                    subtitle: x.category == null ? null : Text(x.category!, style: TextStyle(fontSize: 12.5, color: c.textMuted)),
+                                    subtitle: x.categoryLabel == null ? null : Text(x.categoryLabel!, style: TextStyle(fontSize: 12.5, color: c.textMuted)),
                                   );
                                 },
                               ),
@@ -280,17 +284,37 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             child: AppTextField(controller: _notes, hint: 'Idées de sujets, à ne pas oublier…', maxLines: 4),
           ),
 
+          if (_editing)
+            LabeledField(
+              label: 'Statut',
+              hint: switch (_status) {
+                RdvStatus.valide => 'La date de dernière rencontre des participants sera mise à jour.',
+                RdvStatus.annule => "Il reste dans l'historique comme annulé.",
+                _ => 'Vous recevrez un rappel avant, puis pourrez le valider.',
+              },
+              child: SegmentedControl<RdvStatus>(
+                options: const [(RdvStatus.planifie, 'Planifié'), (RdvStatus.valide, 'A eu lieu'), (RdvStatus.annule, 'Annulé')],
+                value: _status ?? RdvStatus.planifie,
+                onChanged: (v) => setState(() => _status = v),
+              ),
+            ),
+
           if (!_editing) ...[
-            // 5. Already happened
+            // 5. Already happened: a plain checkbox, the text describes what checking it does
             AppCard(
-              child: ToggleRow(
-                title: 'Ce rendez-vous a déjà eu lieu',
-                subtitle: _done
-                    ? 'Il sera enregistré comme une rencontre passée : la date de dernière rencontre des participants sera mise à jour.'
-                    : 'Il sera planifié : vous recevrez un rappel avant, puis pourrez le valider.',
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: CheckboxListTile(
                 value: _done,
+                activeColor: Palette.brand600,
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+                title: Text('Ce rendez-vous a déjà eu lieu', style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+                subtitle: Text(
+                  'Cochez pour noter une rencontre passée : elle va directement dans l\'historique et remet le compteur des participants à zéro.',
+                  style: TextStyle(fontSize: 13, color: c.textMuted, height: 1.35),
+                ),
                 onChanged: (v) => setState(() {
-                  _done = v;
+                  _done = v ?? false;
                   _doneTouched = true;
                 }),
               ),

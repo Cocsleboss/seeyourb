@@ -105,9 +105,14 @@ class _Body extends ConsumerWidget {
         Center(child: Avatar(name: contact.name, path: contact.photoPath, size: 100)),
         const SizedBox(height: 12),
         Text(contact.name, textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: c.text)),
-        if (contact.category != null) ...[
+        if (contact.categories.isNotEmpty) ...[
           const SizedBox(height: 6),
-          Center(child: Pill(contact.category!, large: true)),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            runSpacing: 6,
+            children: [for (final cat in contact.categories) Pill(cat, large: true)],
+          ),
         ],
         if (contact.linkedUserId != null) ...[
           const SizedBox(height: 8),
@@ -133,7 +138,7 @@ class _Body extends ConsumerWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             DueBadge(contact, large: true),
             const SizedBox(height: 12),
-            InfoLine('Dernière rencontre', formatDateLong(contact.lastMeetingDate)),
+            InfoLine('Dernière rencontre', contact.lastMeetingDate == null ? 'Pas encore notée' : formatDateLong(contact.lastMeetingDate!)),
             InfoLine('Prochaine échéance', '${formatDateLong(effectiveDueDate(contact))}${snoozed ? ' (reportée)' : ''}'),
             InfoLine('Fréquence', frequencyLabel(contact.frequencyValue, contact.frequencyUnit)),
           ]),

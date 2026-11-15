@@ -15,6 +15,7 @@ import '../../domain/models.dart';
 import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import 'rsvp.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
@@ -114,6 +115,9 @@ class _Body extends ConsumerWidget {
       },
       children: [
         const SizedBox(height: 8),
+        // 0. Invitation from a friend: my answer (à confirmer / accepter / refuser)
+        if (rdv.rsvp != null) ...[_RsvpCard(rdv: rdv), const SizedBox(height: 16)],
+
         // 1. Amber "did it happen?" banner
         if (rdv.needsConfirmation()) ...[
           AppCard(
@@ -141,6 +145,7 @@ class _Body extends ConsumerWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               StatusPill(rdv.status),
+              if (rdv.isTentative) ...[const SizedBox(width: 6), const TentativePill()],
               const Spacer(),
               // "Aujourd'hui" / "Demain" / "Hier" only (otherwise it repeats the date below)
               if (calendarDaysBetween(today(), rdv.appointmentAt).abs() <= 1)
@@ -196,7 +201,7 @@ class _Body extends ConsumerWidget {
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 leading: Avatar(name: p.name, path: p.photoPath, size: 46),
                 title: Text(p.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.5, color: c.text)),
-                subtitle: p.category == null ? null : Text(p.category!, style: TextStyle(color: c.textMuted)),
+                subtitle: p.categoryLabel == null ? null : Text(p.categoryLabel!, style: TextStyle(color: c.textMuted)),
                 trailing: Icon(LucideIcons.chevronRight, color: c.textMuted),
                 onTap: () => context.push('/contacts/${p.id}'),
               ),
@@ -227,6 +232,60 @@ class _Body extends ConsumerWidget {
         AppButton('Supprimer le rendez-vous',
             icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
       ],
+    );
+  }
+}
+
+class _RsvpCard extends ConsumerStatefulWidget {
+  const _RsvpCard({required this.rdv});
+  final Rendezvous rdv;
+  @override
+  ConsumerState<_RsvpCard> createState() => _RsvpCardState();
+}
+
+class _RsvpCardState extends ConsumerState<_RsvpCard> {
+  Rsvp? _busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final rdv = widget.rdv;
+    final invite = (ref.watch(rdvInvitesProvider(rdv.id)).value ?? const <RdvInvitation>[])
+        .where((i) => i.toRdvId == rdv.id)
+        .firstOrNull;
+    final friends = ref.watch(friendsProvider).value ?? const <Friend>[];
+    final from = invite == null ? null : friends.where((f) => f.userId == invite.fromUser).firstOrNull;
+    final tone = c.tone(rsvpTone(rdv.rsvp!));
+    return AppCard(
+      color: tone.bg,
+      borderColor: tone.bg,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(
+          from == null ? 'Invitation d\'un ami SeeU' : '${from.displayName} vous a proposé ce rendez-vous',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: tone.fg),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          switch (rdv.rsvp!) {
+            Rsvp.pending => 'À confirmer : il est dans votre agenda, mais votre ami ne sait pas encore si vous venez.',
+            Rsvp.accepted => 'Vous avez accepté. Une fois validé, votre période avec ce contact repart de zéro.',
+            Rsvp.declined => 'Vous avez refusé : il n\'apparaît plus dans vos listes.',
+          },
+          style: TextStyle(fontSize: 14, color: tone.fg.withValues(alpha: 0.85), height: 1.35),
+        ),
+        const SizedBox(height: 12),
+        RsvpSelector(
+          value: rdv.rsvp!,
+          busy: _busy,
+          onChanged: invite == null
+              ? null
+              : (answer) async {
+                  setState(() => _busy = answer);
+                  await answerInvitation(ref, invite.id, answer);
+                  if (mounted) setState(() => _busy = null);
+                },
+        ),
+      ]),
     );
   }
 }

@@ -67,7 +67,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   Widget _list(List<Contact> all) {
     final c = context.colors;
     final categories = usedCategories(all);
-    final filtered = all.where((x) => (_category == null || x.category == _category) && contactMatches(x, _q.text)).toList();
+    final filtered = all.where((x) => (_category == null || x.categories.contains(_category)) && contactMatches(x, _q.text)).toList();
     final overdue = overdueCount(all);
 
     final sections = <Widget>[];
