@@ -938,10 +938,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get groupUpToDate => 'À jour';
 
   @override
-  String get addSeeuFriend => 'Trouver un ami';
+  String get addSeeuFriend => 'Ajouter un ami SeeU';
 
   @override
-  String get addContact => 'Contact';
+  String get addContact => 'Ajouter un contact';
 
   @override
   String get rdvInvitations => 'Invitations à un rendez-vous';
@@ -2756,4 +2756,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noInvitedUpcoming => 'Aucune invitation à venir.';
+
+  @override
+  String get notOnSeeu => 'Pas sur SeeU';
+
+  @override
+  String notOnSeeuAddedBy(String name) {
+    return 'Pas sur SeeU · ajouté par $name';
+  }
+
+  @override
+  String get memberPending => 'À confirmer';
+
+  @override
+  String get inviteFriend => 'Inviter';
+
+  @override
+  String get peopleLegend =>
+      'Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l\'invitation, voient le chat et les photos.';
 }

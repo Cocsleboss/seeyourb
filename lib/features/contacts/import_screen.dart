@@ -327,7 +327,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               value: on,
               activeColor: Palette.brand600,
               onChanged: (_) => setState(() => on ? _picked.remove(x.key) : _picked.add(x.key)),
-              secondary: Avatar(name: x.name, size: 40),
+              secondary: Avatar(name: x.name, size: 40, seeu: false),
               title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
               subtitle: (x.phone ?? x.email) == null ? null : Text((x.phone ?? x.email)!, style: TextStyle(color: c.textMuted, fontSize: 13)),
             );
@@ -362,7 +362,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       const SizedBox(height: 14),
       AppCard(
         child: Row(children: [
-          Avatar(name: person.name, size: 56),
+          Avatar(name: person.name, size: 56, seeu: false),
           const SizedBox(width: 14),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -431,7 +431,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         RowsCard(children: [
           for (final x in kept)
             ListTile(
-              leading: Avatar(name: x.name, size: 40),
+              leading: Avatar(name: x.name, size: 40, seeu: false),
               title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
               subtitle: Text(
                 [frequencyLabel(_decisions[x.key]!.value, _decisions[x.key]!.unit), ..._decisions[x.key]!.categories].join(' · '),

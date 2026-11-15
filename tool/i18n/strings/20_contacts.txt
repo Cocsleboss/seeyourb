@@ -9,8 +9,8 @@ tryAnotherSearch | Essayez une autre recherche. | Try another search.
 groupOverdue | En retard | Overdue
 groupThisWeek | Cette semaine | This week
 groupUpToDate | À jour | Up to date
-addSeeuFriend | Trouver un ami | Find a friend
-addContact | Contact | Contact
+addSeeuFriend | Ajouter un ami SeeU | Add a SeeU friend
+addContact | Ajouter un contact | Add a contact
 rdvInvitations | Invitations à un rendez-vous | Event invitations
 friendRequestsReceived | Demandes d'ami reçues | Friend requests received
 sentYouARequest | Vous a envoyé une demande | Sent you a request

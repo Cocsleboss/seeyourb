@@ -1493,13 +1493,13 @@ abstract class AppLocalizations {
   /// No description provided for @addSeeuFriend.
   ///
   /// In fr, this message translates to:
-  /// **'Trouver un ami'**
+  /// **'Ajouter un ami SeeU'**
   String get addSeeuFriend;
 
   /// No description provided for @addContact.
   ///
   /// In fr, this message translates to:
-  /// **'Contact'**
+  /// **'Ajouter un contact'**
   String get addContact;
 
   /// No description provided for @rdvInvitations.
@@ -4369,6 +4369,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aucune invitation à venir.'**
   String get noInvitedUpcoming;
+
+  /// No description provided for @notOnSeeu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas sur SeeU'**
+  String get notOnSeeu;
+
+  /// No description provided for @notOnSeeuAddedBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas sur SeeU · ajouté par {name}'**
+  String notOnSeeuAddedBy(String name);
+
+  /// No description provided for @memberPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'À confirmer'**
+  String get memberPending;
+
+  /// No description provided for @inviteFriend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter'**
+  String get inviteFriend;
+
+  /// No description provided for @peopleLegend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l\'invitation, voient le chat et les photos.'**
+  String get peopleLegend;
 }
 
 class _AppLocalizationsDelegate

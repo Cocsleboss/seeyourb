@@ -232,8 +232,8 @@
   "groupOverdue": "Overdue",
   "groupThisWeek": "This week",
   "groupUpToDate": "Up to date",
-  "addSeeuFriend": "Find a friend",
-  "addContact": "Contact",
+  "addSeeuFriend": "Add a SeeU friend",
+  "addContact": "Add a contact",
   "rdvInvitations": "Event invitations",
   "friendRequestsReceived": "Friend requests received",
   "sentYouARequest": "Sent you a request",
@@ -711,5 +711,10 @@
   "filterMine": "Organized by you",
   "filterInvited": "Invitations",
   "noMineUpcoming": "No events organized by you.",
-  "noInvitedUpcoming": "No upcoming invitations."
+  "noInvitedUpcoming": "No upcoming invitations.",
+  "notOnSeeu": "Not on SeeU",
+  "notOnSeeuAddedBy": "Not on SeeU · added by {name}",
+  "memberPending": "To be confirmed",
+  "inviteFriend": "Invite",
+  "peopleLegend": "Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos."
 }

@@ -262,6 +262,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
       feedProvider.overrideWith((ref, k) async => k.scope == 'public' ? publicFeed : friendsFeed),
       eventProvider.overrideWith((ref, id) async => events[id]),
       participantsProvider.overrideWith((ref, id) async => participants),
+      eventGuestsProvider.overrideWith((ref, id) async => [EventGuest(name: 'Mamie Jo', addedBy: 'u-andrea', addedByName: 'Cocsi_bucci')]),
       slotsProvider.overrideWith((ref, id) async => slots),
       chatPreviewProvider.overrideWith((ref, id) async => messages),
       canCreatePublicProvider.overrideWith((ref) async => false),

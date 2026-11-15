@@ -15,11 +15,11 @@ import '../../domain/models.dart';
 import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
-import '../../ui/rows.dart';
 import 'rsvp.dart';
 import '../../ui/scaffold.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
+import 'people_section.dart';
 import 'status_actions.dart';
 import '../events/chat.dart';
 import '../events/event_widgets.dart';
@@ -151,7 +151,6 @@ class _Body extends ConsumerWidget {
     final photos = shared == null
         ? AsyncValue.data(rdv.photos)
         : shared.whenData((others) => [...rdv.photos, ...others]..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
-    final friendContacts = rdv.contacts.where((p) => p.linkedUserId != null).toList();
     final event = rdv.eventId == null ? null : ref.watch(eventProvider(rdv.eventId!)).value;
     final public = rdv.visibility == EventVisibility.public;
 
@@ -271,28 +270,8 @@ class _Body extends ConsumerWidget {
             canPost: event?.canPost ?? (rdv.visibility != EventVisibility.public || rdv.isOrganizer),
           ),
 
-        // 3. People taking part (shared events) and my contacts
-        if (rdv.isShared && rdv.eventId != null) _PeopleSection(rdv: rdv),
-        if (!rdv.isShared || rdv.contacts.isNotEmpty) SectionTitle(rdv.isShared ? tr.myContactsInEvent : tr.participants),
-        if (!rdv.isShared && rdv.contacts.isEmpty)
-          Text(tr.noParticipants, style: TextStyle(color: c.textMuted))
-        else if (rdv.contacts.isNotEmpty)
-          RowsCard(children: [
-            for (final p in rdv.contacts)
-              ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                leading: Avatar(name: p.name, path: p.photoPath, size: 46),
-                title: Text(p.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.5, color: c.text)),
-                subtitle: p.categoryLabel == null ? null : Text(p.categoryLabel!, style: TextStyle(color: c.textMuted)),
-                trailing: Icon(LucideIcons.chevronRight, color: c.textMuted),
-                onTap: () => context.push('/contacts/${p.id}'),
-              ),
-          ]),
-
-        // 4. Sharing
-        // (members invite their friends only when the organizer allows it)
-        if (friendContacts.isNotEmpty && (rdv.isOrganizer || (!public && (rdv.event?.guestsCanInvite ?? true))))
-          _ShareSection(rdv: rdv, friends: friendContacts),
+        // 3. Everyone: SeeU members, my friends to invite, people without SeeU
+        PeopleSection(rdv: rdv),
 
         // 5. Status + calendar
         const SizedBox(height: 20),
@@ -390,164 +369,5 @@ class _RsvpCardState extends ConsumerState<_RsvpCard> {
         ),
       ]),
     );
-  }
-}
-
-class _ShareSection extends ConsumerStatefulWidget {
-  const _ShareSection({required this.rdv, required this.friends});
-  final Rendezvous rdv;
-  final List<ContactLite> friends;
-  @override
-  ConsumerState<_ShareSection> createState() => _ShareSectionState();
-}
-
-class _ShareSectionState extends ConsumerState<_ShareSection> {
-  String? _busy;
-
-  Future<void> _run(String key, Future<void> Function() action, String success) async {
-    setState(() => _busy = key);
-    final ok = await guard(() async {
-      await action();
-      return true;
-    }, success: success);
-    if (!mounted) return;
-    setState(() => _busy = null);
-    if (ok != null) refreshData(ref);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final invites = ref.watch(rdvInvitesProvider(widget.rdv.id));
-    final rdv = widget.rdv;
-
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      SectionTitle(tr.sharing),
-      AsyncBody(
-        value: invites,
-        skeletonRows: 1,
-        onRetry: () => ref.invalidate(rdvInvitesProvider(rdv.id)),
-        builder: (list) => RowsCard(children: [
-          for (final f in widget.friends) _row(c, f, list),
-        ]),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
-        child: Text(
-          tr.sharingHelp,
-          style: TextStyle(color: c.textMuted, fontSize: 14, height: 1.4),
-        ),
-      ),
-    ]);
-  }
-
-  Widget _row(AppColors c, ContactLite f, List<RdvInvitation> invites) {
-    final rdv = widget.rdv;
-    RdvInvitation? sent;
-    RdvInvitation? received;
-    for (final i in invites) {
-      if (i.rdvId == rdv.id && i.toUser == f.linkedUserId) sent = i;
-      if (i.toRdvId == rdv.id && i.fromUser == f.linkedUserId) received = i;
-    }
-    String text;
-    Widget? action;
-    if (received != null) {
-      text = tr.proposedThisRdv;
-    } else if (sent == null) {
-      text = tr.friendNotInvited;
-      if (rdv.status != RdvStatus.annule) {
-        action = AppButton(tr.send,
-            icon: LucideIcons.send,
-            size: ButtonSize.sm,
-            loading: _busy == f.id,
-            onPressed: _busy == null
-                ? () => _run(f.id, () => ref.read(apiProvider).sendRdvInvite(rdv.id, f.linkedUserId!), tr.invitationSentTo(f.name))
-                : null);
-      }
-    } else {
-      final invite = sent;
-      switch (invite.status) {
-        case InviteStatus.pending:
-          text = tr.invitationPending;
-          action = AppButton(tr.cancel,
-              variant: ButtonVariant.secondary,
-              size: ButtonSize.sm,
-              loading: _busy == f.id,
-              onPressed: _busy == null ? () => _run(f.id, () => ref.read(apiProvider).cancelRdvInvite(invite.id), tr.invitationCancelled) : null);
-        case InviteStatus.accepted:
-          text = tr.acceptedShared;
-        case InviteStatus.declined:
-          text = tr.declinedInvitation;
-          if (rdv.status != RdvStatus.annule) {
-            action = AppButton(tr.resend,
-                icon: LucideIcons.send,
-                variant: ButtonVariant.secondary,
-                size: ButtonSize.sm,
-                loading: _busy == f.id,
-                onPressed: _busy == null
-                    ? () => _run(f.id, () => ref.read(apiProvider).sendRdvInvite(rdv.id, f.linkedUserId!), tr.invitationSentTo(f.name))
-                    : null);
-          }
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(children: [
-        Avatar(name: f.name, path: f.photoPath, size: 46),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(f.name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.5, color: c.text)),
-            const SizedBox(height: 2),
-            Text(text, style: TextStyle(color: c.textMuted, fontSize: 14)),
-          ]),
-        ),
-        if (action != null) ...[const SizedBox(width: 8), action],
-      ]),
-    );
-  }
-}
-
-/// Everyone taking part in a shared event (organizer, going, "à confirmer").
-class _PeopleSection extends ConsumerWidget {
-  const _PeopleSection({required this.rdv});
-  final Rendezvous rdv;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.colors;
-    final value = ref.watch(participantsProvider(rdv.eventId!));
-    final contactsByUser = {
-      for (final x in ref.watch(contactsProvider).value ?? const <Contact>[])
-        if (x.linkedUserId != null) x.linkedUserId!: x,
-    };
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      SectionTitle(tr.participants, count: value.value?.length),
-      AsyncBody<List<Participant>>(
-        value: value,
-        skeletonRows: 2,
-        onRetry: () => ref.invalidate(participantsProvider(rdv.eventId!)),
-        builder: (people) => RowsCard(children: [
-          for (final p in people.take(50))
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-              leading: FriendAvatar(name: p.name, size: 40, isFriend: p.isFriend),
-              title: Text(p.userId == rdv.userId ? tr.you : p.name, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
-              subtitle: p.username == null ? null : Text(handle(p.username), style: TextStyle(color: c.textMuted, fontSize: 13)),
-              trailing: p.isOrganizer
-                  ? Pill(tr.organizer, tone: Tone.brand)
-                  : p.role == 'pending'
-                      ? const TentativePill()
-                      : Pill(tr.rsvpAccepted, tone: Tone.green),
-              onTap: contactsByUser[p.userId] == null ? null : () => context.push('/contacts/${contactsByUser[p.userId]!.id}'),
-            ),
-          if (people.length > 50)
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Text(tr.andNMore(people.length - 50), textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
-            ),
-        ]),
-      ),
-    ]);
   }
 }

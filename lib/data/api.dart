@@ -267,6 +267,18 @@ class Api {
     return rows.map((r) => Participant.fromJson(r as Map<String, dynamic>)).toList();
   }
 
+  /// Other members' contacts without a SeeU account. Empty when the server
+  /// function isn't deployed yet (my own ones come from my copy anyway).
+  Future<List<EventGuest>> listGuests(String eventId) async {
+    try {
+      final rows = await sb.rpc('list_event_guests', params: {'p_event': eventId}) as List;
+      return rows.map((r) => EventGuest.fromJson(r as Map<String, dynamic>)).toList();
+    } on PostgrestException catch (e) {
+      if (e.code == 'PGRST202' || e.code == '42883') return const [];
+      rethrow;
+    }
+  }
+
   Future<List<EventSlot>> listSlots(String eventId) async {
     final rows = await sb.rpc('list_event_slots', params: {'p_event': eventId}) as List;
     return rows.map((r) => EventSlot.fromJson(r as Map<String, dynamic>)).toList();

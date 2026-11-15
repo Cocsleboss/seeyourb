@@ -183,6 +183,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                       name: _name.text.isEmpty ? '?' : _name.text,
                       path: _removePhoto ? null : widget.existing?.photoPath,
                       size: 76,
+                      seeu: (widget.existing?.linkedUserId ?? widget.prefill?.linkedUserId) != null,
                     ),
             ),
             const SizedBox(width: 14),

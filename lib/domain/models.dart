@@ -504,6 +504,26 @@ class Participant {
       );
 }
 
+/// Someone without a SeeU account attached to an event by a member (one of their contacts).
+class EventGuest {
+  EventGuest({this.contactId, required this.name, required this.addedBy, required this.addedByName, this.isMine = false});
+
+  /// Only for my own contacts.
+  final String? contactId;
+  final String name;
+  final String addedBy;
+  final String addedByName;
+  final bool isMine;
+
+  factory EventGuest.fromJson(Map<String, dynamic> j) => EventGuest(
+        contactId: j['contact_id'] as String?,
+        name: j['name'] as String,
+        addedBy: j['added_by'] as String,
+        addedByName: (j['added_by_name'] as String?) ?? 'SeeU',
+        isMine: (j['is_mine'] as bool?) ?? false,
+      );
+}
+
 enum SlotAnswer {
   yes,
   maybe,

@@ -261,7 +261,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                       Wrap(spacing: 8, runSpacing: 8, children: [
                         for (final s in selected)
                           InputChip(
-                            avatar: Avatar(name: s.name, path: s.photoPath, size: 24),
+                            avatar: Avatar(name: s.name, path: s.photoPath, size: 24, seeu: s.linkedUserId != null),
                             label: Text(s.name),
                             labelStyle: TextStyle(color: c.tone(Tone.brand).fg, fontWeight: FontWeight.w500),
                             backgroundColor: c.tone(Tone.brand).bg,
@@ -297,7 +297,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                                     controlAffinity: ListTileControlAffinity.trailing,
                                     activeColor: Palette.brand600,
                                     shape: const RoundedRectangleBorder(),
-                                    secondary: Avatar(name: x.name, path: x.photoPath, size: 36),
+                                    secondary: Avatar(name: x.name, path: x.photoPath, size: 36, seeu: x.linkedUserId != null),
                                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
                                     subtitle: x.categoryLabel == null
                                         ? null

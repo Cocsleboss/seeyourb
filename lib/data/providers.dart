@@ -193,6 +193,7 @@ final feedProvider = FutureProvider.family<List<FeedEvent>, ({String scope, Stri
     (ref, k) => _api(ref).listFeed(k.scope, query: k.query));
 final eventProvider = FutureProvider.family<FeedEvent?, String>((ref, id) => _api(ref).getEvent(id));
 final participantsProvider = FutureProvider.family<List<Participant>, String>((ref, id) => _api(ref).listParticipants(id));
+final eventGuestsProvider = FutureProvider.family<List<EventGuest>, String>((ref, id) => _api(ref).listGuests(id));
 final slotsProvider = FutureProvider.family<List<EventSlot>, String>((ref, id) => _api(ref).listSlots(id));
 final chatPreviewProvider = FutureProvider.family<List<ChatMessage>, String>((ref, id) => _api(ref).listMessages(id, limit: 3));
 final canCreatePublicProvider = FutureProvider<bool>((ref) => _api(ref).canCreatePublicEvents().catchError((_) => false));
@@ -224,6 +225,7 @@ void refreshData(WidgetRef ref) {
   ref.invalidate(feedProvider);
   ref.invalidate(eventProvider);
   ref.invalidate(participantsProvider);
+  ref.invalidate(eventGuestsProvider);
   ref.invalidate(slotsProvider);
   ref.invalidate(chatPreviewProvider);
   ref.invalidate(mutesProvider);
@@ -247,6 +249,7 @@ void refreshDataFromContainer(ProviderContainer c) {
   c.invalidate(feedProvider);
   c.invalidate(eventProvider);
   c.invalidate(participantsProvider);
+  c.invalidate(eventGuestsProvider);
   c.invalidate(slotsProvider);
   c.invalidate(chatPreviewProvider);
 }

@@ -920,10 +920,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupUpToDate => 'Up to date';
 
   @override
-  String get addSeeuFriend => 'Find a friend';
+  String get addSeeuFriend => 'Add a SeeU friend';
 
   @override
-  String get addContact => 'Contact';
+  String get addContact => 'Add a contact';
 
   @override
   String get rdvInvitations => 'Event invitations';
@@ -2692,4 +2692,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noInvitedUpcoming => 'No upcoming invitations.';
+
+  @override
+  String get notOnSeeu => 'Not on SeeU';
+
+  @override
+  String notOnSeeuAddedBy(String name) {
+    return 'Not on SeeU · added by $name';
+  }
+
+  @override
+  String get memberPending => 'To be confirmed';
+
+  @override
+  String get inviteFriend => 'Invite';
+
+  @override
+  String get peopleLegend =>
+      'Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos.';
 }

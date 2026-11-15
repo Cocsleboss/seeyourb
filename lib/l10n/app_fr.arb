@@ -514,8 +514,8 @@
   "groupOverdue": "En retard",
   "groupThisWeek": "Cette semaine",
   "groupUpToDate": "À jour",
-  "addSeeuFriend": "Trouver un ami",
-  "addContact": "Contact",
+  "addSeeuFriend": "Ajouter un ami SeeU",
+  "addContact": "Ajouter un contact",
   "rdvInvitations": "Invitations à un rendez-vous",
   "friendRequestsReceived": "Demandes d'ami reçues",
   "sentYouARequest": "Vous a envoyé une demande",
@@ -1564,5 +1564,17 @@
   "filterMine": "Organisés par vous",
   "filterInvited": "Invitations",
   "noMineUpcoming": "Aucun rendez-vous organisé par vous.",
-  "noInvitedUpcoming": "Aucune invitation à venir."
+  "noInvitedUpcoming": "Aucune invitation à venir.",
+  "notOnSeeu": "Pas sur SeeU",
+  "notOnSeeuAddedBy": "Pas sur SeeU · ajouté par {name}",
+  "@notOnSeeuAddedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberPending": "À confirmer",
+  "inviteFriend": "Inviter",
+  "peopleLegend": "Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l'invitation, voient le chat et les photos."
 }

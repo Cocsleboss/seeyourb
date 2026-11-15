@@ -60,15 +60,18 @@ class ContactRow extends StatelessWidget {
 
 /// Avatar with a small SeeU badge when the person is a SeeU friend.
 class FriendAvatar extends StatelessWidget {
-  const FriendAvatar({super.key, required this.name, this.path, this.size = 46, this.isFriend = false});
+  const FriendAvatar({super.key, required this.name, this.path, this.size = 46, this.isFriend = false, this.seeu});
   final String name;
+
+  /// Has a SeeU account (defaults to [isFriend]).
+  final bool? seeu;
   final String? path;
   final double size;
   final bool isFriend;
 
   @override
   Widget build(BuildContext context) {
-    final avatar = Avatar(name: name, path: path, size: size);
+    final avatar = Avatar(name: name, path: path, size: size, seeu: seeu ?? isFriend);
     if (!isFriend) return avatar;
     final c = context.colors;
     final badge = size * 0.42;
@@ -159,6 +162,11 @@ class RdvRow extends StatelessWidget {
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
+                  // Mine: a crown right before the title.
+                  if (showOwner && rdv.isOrganizer) ...[
+                    Tooltip(message: tr.organizedByYou, child: Icon(LucideIcons.crown, size: 16, color: c.brandText)),
+                    const SizedBox(width: 5),
+                  ],
                   if (rdv.visibility != EventVisibility.private) ...[
                     Icon(rdv.visibility == EventVisibility.public ? LucideIcons.globe : LucideIcons.usersRound, size: 15, color: c.brandText),
                     const SizedBox(width: 5),

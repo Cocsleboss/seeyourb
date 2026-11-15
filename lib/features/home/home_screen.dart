@@ -428,7 +428,7 @@ class _BirthdayCard extends StatelessWidget {
         InkWell(
           onTap: () => context.push('/contacts/${contact.id}'),
           child: Row(children: [
-            Avatar(name: contact.name, path: contact.photoPath, size: 44),
+            Avatar(name: contact.name, path: contact.photoPath, size: 44, seeu: contact.linkedUserId != null),
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -485,21 +485,32 @@ class StorageImage extends ConsumerWidget {
 }
 
 class Avatar extends StatelessWidget {
-  const Avatar({super.key, required this.name, this.path, this.size = 44, this.ring});
+  const Avatar({super.key, required this.name, this.path, this.size = 44, this.ring, this.seeu = true});
   final String name;
   final String? path;
   final double size;
   final Color? ring;
 
+  /// Convention: someone without a SeeU account (a contact not linked) is a plain
+  /// grey person icon; SeeU accounts get colored initials (or their photo).
+  final bool seeu;
+
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final (bg, fg) = _avatarLight[colorIndexFor(name)];
-    final initialsBox = Container(
-      color: bg,
-      alignment: Alignment.center,
-      child: Text(initials(name),
-          style: TextStyle(color: fg, fontWeight: FontWeight.w600, fontSize: (size * 0.38).clamp(11, 40))),
-    );
+    final initialsBox = seeu
+        ? Container(
+            color: bg,
+            alignment: Alignment.center,
+            child: Text(initials(name),
+                style: TextStyle(color: fg, fontWeight: FontWeight.w600, fontSize: (size * 0.38).clamp(11, 40))),
+          )
+        : Container(
+            color: c.isDark ? Palette.gray700 : Palette.gray200,
+            alignment: Alignment.center,
+            child: Icon(LucideIcons.user, size: size * 0.52, color: c.isDark ? Palette.gray400 : Palette.gray500),
+          );
     return Container(
       width: size,
       height: size,
@@ -523,7 +534,7 @@ class AvatarStack extends StatelessWidget {
     final shown = people.take(max).toList();
     final rest = people.length - shown.length;
     final items = <Widget>[
-      for (final p in shown) Avatar(name: p.name, path: p.photoPath, size: size, ring: c.card),
+      for (final p in shown) Avatar(name: p.name, path: p.photoPath, size: size, ring: c.card, seeu: p.linkedUserId != null),
       if (rest > 0)
         Container(
           width: size,

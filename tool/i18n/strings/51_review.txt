@@ -39,3 +39,8 @@ filterMine | Organisés par vous | Organized by you
 filterInvited | Invitations | Invitations
 noMineUpcoming | Aucun rendez-vous organisé par vous. | No events organized by you.
 noInvitedUpcoming | Aucune invitation à venir. | No upcoming invitations.
+notOnSeeu | Pas sur SeeU | Not on SeeU
+notOnSeeuAddedBy | Pas sur SeeU · ajouté par {name} | Not on SeeU · added by {name}
+memberPending | À confirmer | To be confirmed
+inviteFriend | Inviter | Invite
+peopleLegend | Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l'invitation, voient le chat et les photos. | Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos.

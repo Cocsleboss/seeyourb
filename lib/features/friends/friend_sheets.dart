@@ -114,7 +114,7 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 4),
             enabled: _busy == null,
-            leading: Avatar(name: x.name, path: x.photoPath, size: 40),
+            leading: Avatar(name: x.name, path: x.photoPath, size: 40, seeu: x.linkedUserId != null),
             title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
             subtitle: x.linkedUserId == f.userId
                 ? Text(tr.alreadyLinked, style: TextStyle(color: c.textMuted, fontSize: 13))

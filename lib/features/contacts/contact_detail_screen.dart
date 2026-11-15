@@ -120,7 +120,7 @@ class _Body extends ConsumerWidget {
       children: [
         // 1. Header
         const SizedBox(height: 8),
-        Center(child: Avatar(name: contact.name, path: contact.photoPath, size: 100)),
+        Center(child: Avatar(name: contact.name, path: contact.photoPath, size: 100, seeu: contact.linkedUserId != null)),
         const SizedBox(height: 12),
         Text(contact.name, textAlign: TextAlign.center, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: c.text)),
         if (contact.categories.isNotEmpty) ...[

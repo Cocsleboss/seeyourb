@@ -158,15 +158,12 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           // Add people
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(children: [
-              Expanded(
-                child: AppButton(tr.addSeeuFriend,
-                    icon: LucideIcons.userSearch, variant: ButtonVariant.secondary, full: true, onPressed: () => showAddFriendSheet(context)),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: AppButton(tr.addContact, icon: LucideIcons.userPlus, full: true, onPressed: () => context.push('/contacts/new')),
-              ),
+            // Stacked: "Ajouter un ami SeeU" is too long for half the width.
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              AppButton(tr.addContact, icon: LucideIcons.userPlus, full: true, onPressed: () => context.push('/contacts/new')),
+              const SizedBox(height: 8),
+              AppButton(tr.addSeeuFriend,
+                  icon: LucideIcons.userSearch, variant: ButtonVariant.secondary, full: true, onPressed: () => showAddFriendSheet(context)),
             ]),
           ),
 
@@ -307,7 +304,7 @@ class _PersonRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(children: [
-          FriendAvatar(name: name, size: 46, isFriend: friendBadge),
+          FriendAvatar(name: name, size: 46, isFriend: friendBadge, seeu: true),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
