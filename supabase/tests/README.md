@@ -12,7 +12,8 @@ node run.mjs /tmp/seeu-pg/db $T/00_stubs.sql $M/20261115000001_init.sql \
   $M/20261115000002_notifications.sql $M/20261116000003_categories_rsvp.sql \
   $T/10_fixture_before_0004.sql $M/20261117000004_events_social.sql $T/20_events_social.sql \
   $M/20261118000005_availability_guests.sql $M/20261119000006_event_guests.sql \
-  $T/40_event_guests.sql $T/30_availability_guests.sql
+  $T/40_event_guests.sql $M/20261119000007_leave_event.sql $T/50_leave_event.sql \
+  $T/30_availability_guests.sql
 ```
 
 `00_stubs.sql` fakes what Supabase provides (auth.uid(), storage, vault). pg_cron and

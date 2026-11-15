@@ -2710,4 +2710,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get peopleLegend =>
       'Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos.';
+
+  @override
+  String get leftEvent => 'Left the event';
+
+  @override
+  String get reinvite => 'Invite again';
 }

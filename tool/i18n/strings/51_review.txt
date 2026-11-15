@@ -44,3 +44,5 @@ notOnSeeuAddedBy | Pas sur SeeU · ajouté par {name} | Not on SeeU · added by 
 memberPending | À confirmer | To be confirmed
 inviteFriend | Inviter | Invite
 peopleLegend | Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l'invitation, voient le chat et les photos. | Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos.
+leftEvent | A quitté le rendez-vous | Left the event
+reinvite | Réinviter | Invite again

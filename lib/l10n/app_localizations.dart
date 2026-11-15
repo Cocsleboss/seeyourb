@@ -4399,6 +4399,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l\'invitation, voient le chat et les photos.'**
   String get peopleLegend;
+
+  /// No description provided for @leftEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'A quitté le rendez-vous'**
+  String get leftEvent;
+
+  /// No description provided for @reinvite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinviter'**
+  String get reinvite;
 }
 
 class _AppLocalizationsDelegate

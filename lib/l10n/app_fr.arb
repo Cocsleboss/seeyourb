@@ -1576,5 +1576,7 @@
   },
   "memberPending": "À confirmer",
   "inviteFriend": "Inviter",
-  "peopleLegend": "Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l'invitation, voient le chat et les photos."
+  "peopleLegend": "Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l'invitation, voient le chat et les photos.",
+  "leftEvent": "A quitté le rendez-vous",
+  "reinvite": "Réinviter"
 }

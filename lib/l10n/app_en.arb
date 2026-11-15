@@ -716,5 +716,7 @@
   "notOnSeeuAddedBy": "Not on SeeU · added by {name}",
   "memberPending": "To be confirmed",
   "inviteFriend": "Invite",
-  "peopleLegend": "Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos."
+  "peopleLegend": "Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos.",
+  "leftEvent": "Left the event",
+  "reinvite": "Invite again"
 }

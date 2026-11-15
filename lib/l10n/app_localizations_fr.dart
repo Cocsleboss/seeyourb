@@ -2774,4 +2774,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get peopleLegend =>
       'Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l\'invitation, voient le chat et les photos.';
+
+  @override
+  String get leftEvent => 'A quitté le rendez-vous';
+
+  @override
+  String get reinvite => 'Réinviter';
 }

@@ -81,7 +81,8 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
           padding: const EdgeInsets.all(14),
           child: Text(tr.andNMore(people.length - _maxMembers), textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
         ),
-      for (final f in friendsOut) _friendOutRow(c, f, sentTo(f.linkedUserId!), canInvite),
+      for (final f in friendsOut)
+        _friendOutRow(c, f, invites.where((i) => i.rdvId == rdv.id && i.toUser == f.linkedUserId).firstOrNull, canInvite),
       for (final x in mineOffSeeu)
         _PersonTile(
           avatar: Avatar(name: x.name, path: x.photoPath, size: 40, seeu: false),
@@ -141,11 +142,13 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
   Widget _friendOutRow(AppColors c, ContactLite f, RdvInvitation? sent, bool canInvite) {
     final rdv = widget.rdv;
     final declined = sent?.status == InviteStatus.declined;
+    // Accepted earlier but no longer in the event: they left (or were removed by a block).
+    final left = sent?.status == InviteStatus.accepted;
     Widget? action;
     if (canInvite) {
-      action = AppButton(declined ? tr.resend : tr.inviteFriend,
+      action = AppButton(left ? tr.reinvite : (declined ? tr.resend : tr.inviteFriend),
           icon: LucideIcons.send,
-          variant: declined ? ButtonVariant.secondary : ButtonVariant.primary,
+          variant: declined || left ? ButtonVariant.secondary : ButtonVariant.primary,
           size: ButtonSize.sm,
           loading: _busy == f.id,
           onPressed: _busy == null
@@ -155,7 +158,7 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
     return _PersonTile(
       avatar: FriendAvatar(name: f.name, path: f.photoPath, size: 40, isFriend: true),
       title: f.name,
-      subtitle: declined ? tr.declinedInvitation : tr.friendNotInvited,
+      subtitle: left ? tr.leftEvent : (declined ? tr.declinedInvitation : tr.friendNotInvited),
       trailing: action,
       onTap: () => context.push('/contacts/${f.id}'),
     );
