@@ -152,7 +152,7 @@ class _EventChatState extends ConsumerState<EventChat> {
             style: TextStyle(color: c.textMuted, fontSize: 14.5)),
       );
     } else {
-      body = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      final items = <Widget>[
         if (_hasOlder)
           Center(
             child: _loadingOlder
@@ -175,7 +175,17 @@ class _EventChatState extends ConsumerState<EventChat> {
             onLongPress: () => _onLongPress(shown[i]),
           ),
         ],
-      ]);
+      ];
+      // Capped height, scrolls inside; reversed so it opens on the newest message.
+      body = ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 380),
+        child: ListView(
+          reverse: true,
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          children: items.reversed.toList(),
+        ),
+      );
     }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

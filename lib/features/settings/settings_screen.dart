@@ -18,6 +18,7 @@ import '../../core/push.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../domain/dates.dart';
+import '../../domain/text.dart';
 import '../../domain/models.dart';
 import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
@@ -121,7 +122,7 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
     final p = await guard(
       () => ref.read(apiProvider).updateProfile({
         'display_name': _name.text.trim(),
-        'username': _username.text,
+        if (widget.profile.username == null) 'username': _username.text,
         'birthday': _birthday == null ? null : dayIso(_birthday!),
       }),
       success: tr.profileUpdated,
@@ -143,11 +144,15 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
             required: true,
             child: AppTextField(controller: _name, hint: tr.yourFirstName, maxLength: 60, onChanged: (_) => setState(() {})),
           ),
-          UsernameField(
-            controller: _username,
-            current: p.username,
-            onStatus: (s) => setState(() => _status = s),
-          ),
+          // The username is chosen once (it's how friends find you), then fixed.
+          if (p.username == null)
+            UsernameField(
+              controller: _username,
+              current: p.username,
+              onStatus: (s) => setState(() => _status = s),
+            )
+          else
+            _ReadOnly(label: tr.usernameLabel, value: handle(p.username), hint: tr.usernameFixed),
           LabeledField(
             label: tr.birthDate,
             hint: tr.birthDateFriendsHint,
@@ -160,7 +165,6 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
                 icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareMyHandle(p.username!)),
           ],
           const SizedBox(height: 16),
-          _ReadOnly(label: tr.emailLabel, value: p.email ?? '—', hint: tr.emailNeverShown),
           _ReadOnly(label: tr.timezone, value: p.timezone, hint: tr.timezoneHint),
         ]),
       ),

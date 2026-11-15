@@ -234,9 +234,11 @@ class _Agenda extends ConsumerWidget {
         RowsCard(children: [for (final r in toConfirm) RdvRow(rdv: r, showStatus: false, footer: RdvStatusActions(rdv: r))]),
       ],
 
-      // 7. To recontact
+      // 7. Keep in touch: people to see regularly (frequency), nothing planned yet.
+      // Deliberately explained: these are reminders, not events.
       SectionTitle(
         tr.toReconnect,
+        padding: const EdgeInsets.only(top: 24, bottom: 2),
         action: Row(mainAxisSize: MainAxisSize.min, children: [
           if (due.length > _maxDue)
             TextButton(
@@ -249,6 +251,14 @@ class _Agenda extends ConsumerWidget {
             color: c.brandText,
             onPressed: () => showSeeSoonSheet(context, excludeIds: due.map((x) => x.id).toSet()),
           ),
+        ]),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(LucideIcons.repeat, size: 15, color: c.textMuted),
+          const SizedBox(width: 6),
+          Expanded(child: Text(tr.keepInTouchHelp, style: TextStyle(color: c.textMuted, fontSize: 13.5, height: 1.35))),
         ]),
       ),
       if (due.isEmpty)

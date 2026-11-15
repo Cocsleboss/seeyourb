@@ -191,7 +191,7 @@ class _Body extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              StatusPill(rdv.status),
+              PhasePill(rdv),
               if (rdv.isTentative) ...[const SizedBox(width: 6), const TentativePill()],
               if (rdv.isShared) ...[const SizedBox(width: 6), VisibilityPill(rdv.visibility)],
               const Spacer(),

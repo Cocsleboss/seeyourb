@@ -58,7 +58,6 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final session = ref.watch(sessionProvider);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -90,8 +89,6 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 AppButton(tr.continueLabel,
                     size: ButtonSize.lg, full: true, loading: _busy, onPressed: _status == UsernameStatus.available ? _submit : null),
                 const SizedBox(height: 24),
-                Text(tr.signedInAs(session.session?.user.email ?? ''),
-                    textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14)),
                 TextButton(
                   onPressed: () => ref.read(supabaseProvider).auth.signOut(),
                   child: Text(tr.signOut, style: TextStyle(color: c.brandText)),

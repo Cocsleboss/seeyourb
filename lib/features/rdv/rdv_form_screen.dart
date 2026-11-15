@@ -17,6 +17,7 @@ import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
 import '../../ui/kit.dart';
+import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import '../events/event_widgets.dart';
 import '../misc/fallback_screens.dart';
@@ -80,8 +81,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   late EventVisibility _visibility;
   bool _multi = false;
   late List<DateTime> _slots;
-  bool _done = false;
-  bool _doneTouched = false;
   RdvStatus? _status;
   bool _share = true;
   late bool _guestsCanInvite;
@@ -128,9 +127,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
 
   DateTime get _at => DateTime(_date.year, _date.month, _date.day, _time.hour, _time.minute);
 
-  void _autoDone() {
-    if (!_doneTouched && !_editing) _done = _at.isBefore(DateTime.now());
-  }
 
   List<Contact> get _selectedContacts =>
       widget.contacts.where((c) => _selected.contains(c.id)).toList()..sort((a, b) => compareNames(a.name, b.name));
@@ -139,8 +135,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
 
   bool get _contactsRequired => _visibility == EventVisibility.private && _organizer;
 
-  /// "Already happened" only makes sense for a private meetup with one date.
-  bool get _canBeDone => !_editing && _visibility == EventVisibility.private && !_multi;
 
   bool _titleMissing = false;
 
@@ -155,7 +149,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       _busy = true;
     });
     final api = ref.read(apiProvider);
-    final done = _canBeDone && _done;
     final invite = !_editing && _share && _visibility != EventVisibility.public
         ? _friendParticipants.map((f) => f.linkedUserId!).toList()
         : <String>[];
@@ -167,7 +160,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       description: _description.text,
       notes: _notes.text,
       appointmentAt: _multi ? null : (_organizer ? _at : widget.existing!.appointmentAt),
-      status: _editing ? (_status ?? RdvStatus.planifie) : (done ? RdvStatus.valide : RdvStatus.planifie),
+      status: _editing ? (_status ?? RdvStatus.planifie) : RdvStatus.planifie,
       slots: _multi ? slots : const [],
       contactIds: _selected.toList(),
       inviteUserIds: invite,
@@ -177,9 +170,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       () => api.saveEvent(input),
       success: _editing
           ? tr.rdvUpdated
-          : done
-              ? tr.meetingRecorded
-              : invite.isEmpty
+          : invite.isEmpty
                   ? tr.rdvPlanned
                   : invite.length == 1
                       ? tr.invitationSentTo(_friendParticipants.first.name)
@@ -203,6 +194,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     final friends = _friendParticipants;
     final shown = (widget.contacts.where((x) => contactMatches(x, _search.text)).toList()..sort((a, b) => compareNames(a.name, b.name)));
     final canPublic = ref.watch(canCreatePublicProvider).value ?? false;
+    final usernames = {for (final f in ref.watch(friendsProvider).value ?? const <Friend>[]) f.userId: f.username};
     final e = widget.existing;
 
     return AppScaffold(
@@ -210,7 +202,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       back: true,
       bottom: BottomActionBar(
         child: AppButton(
-          _editing ? tr.saveChanges : (_canBeDone && _done ? tr.saveMeeting : (_multi ? tr.proposeSlots : tr.planTheRdv)),
+          _editing ? tr.saveChanges : (_multi ? tr.proposeSlots : tr.planTheRdv),
           size: ButtonSize.lg,
           full: true,
           loading: _busy,
@@ -262,7 +254,13 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                         for (final s in selected)
                           InputChip(
                             avatar: Avatar(name: s.name, path: s.photoPath, size: 24, seeu: s.linkedUserId != null),
-                            label: Text(s.name),
+                            label: Row(mainAxisSize: MainAxisSize.min, children: [
+                              Text(s.name),
+                              if (s.linkedUserId != null) ...[
+                                const SizedBox(width: 5),
+                                Icon(LucideIcons.heartHandshake, size: 14, color: c.tone(Tone.brand).fg),
+                              ],
+                            ]),
                             labelStyle: TextStyle(color: c.tone(Tone.brand).fg, fontWeight: FontWeight.w500),
                             backgroundColor: c.tone(Tone.brand).bg,
                             side: BorderSide.none,
@@ -297,11 +295,16 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                                     controlAffinity: ListTileControlAffinity.trailing,
                                     activeColor: Palette.brand600,
                                     shape: const RoundedRectangleBorder(),
-                                    secondary: Avatar(name: x.name, path: x.photoPath, size: 36, seeu: x.linkedUserId != null),
+                                    secondary: FriendAvatar(name: x.name, path: x.photoPath, size: 38, isFriend: x.linkedUserId != null),
                                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
-                                    subtitle: x.categoryLabel == null
-                                        ? null
-                                        : Text(x.categoryLabel!, style: TextStyle(fontSize: 12.5, color: c.textMuted)),
+                                    subtitle: () {
+                                      // SeeU friends: their @username, so they're told apart at a glance.
+                                      final line = [
+                                        if (x.linkedUserId != null) handle(usernames[x.linkedUserId]),
+                                        ?x.categoryLabel,
+                                      ].where((s) => s.isNotEmpty).join(' · ');
+                                      return line.isEmpty ? null : Text(line, style: TextStyle(fontSize: 12.5, color: c.textMuted));
+                                    }(),
                                   );
                                 },
                               ),
@@ -341,7 +344,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                       value: _date,
                       onChanged: (d) => setState(() {
                         _date = d ?? _date;
-                        _autoDone();
                       }),
                     ),
                   ),
@@ -356,7 +358,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                       value: _time,
                       onChanged: (t) => setState(() {
                         _time = t;
-                        _autoDone();
                       }),
                     ),
                   ),
@@ -437,23 +438,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             ),
 
           if (!_editing) ...[
-            // 5. Already happened (private, one date)
-            if (_canBeDone)
-              AppCard(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: CheckboxListTile(
-                  value: _done,
-                  activeColor: Palette.brand600,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(tr.alreadyHappened, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
-                  subtitle: Text(tr.alreadyHappenedHelp, style: TextStyle(fontSize: 13, color: c.textMuted, height: 1.35)),
-                  onChanged: (v) => setState(() {
-                    _done = v ?? false;
-                    _doneTouched = true;
-                  }),
-                ),
-              ),
             // 6. Invite the friends among my contacts
             if (friends.isNotEmpty && _visibility != EventVisibility.public) ...[
               const SizedBox(height: 12),
@@ -464,9 +448,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                   title: tr.sendTo(joinNames(friends.map((f) => f.name).toList())),
                   subtitle: !_share
                       ? tr.shareOffHelp
-                      : _canBeDone && _done
-                          ? tr.shareDoneHelp
-                          : _multi
+                      : _multi
                               ? tr.shareSlotsHelp
                               : tr.sharePlannedHelp,
                   value: _share,

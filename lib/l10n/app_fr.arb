@@ -369,8 +369,8 @@
   "statusToastCancelled": "Rendez-vous annulé",
   "statusToastPlanned": "Rendez-vous remis en planifié",
   "statusSetPlanned": "Remettre en planifié",
-  "statusSetDone": "A eu lieu",
-  "statusSetCancelled": "Annulé",
+  "statusSetDone": "Marquer comme passé",
+  "statusSetCancelled": "Annuler",
   "inviteSharesMeetup": "{name} partage une rencontre avec vous",
   "@inviteSharesMeetup": {
     "placeholders": {
@@ -1015,7 +1015,7 @@
   "statOverdue": "en retard",
   "statUpcoming": "rdv à venir",
   "didTheyHappen": "Ont-ils eu lieu ?",
-  "toReconnect": "À recontacter",
+  "toReconnect": "Garder le contact",
   "seeAllN": "Voir tout ({n})",
   "@seeAllN": {
     "placeholders": {
@@ -1578,5 +1578,10 @@
   "inviteFriend": "Inviter",
   "peopleLegend": "Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l'invitation, voient le chat et les photos.",
   "leftEvent": "A quitté le rendez-vous",
-  "reinvite": "Réinviter"
+  "reinvite": "Réinviter",
+  "phaseUpcoming": "Prévu",
+  "phaseNow": "En cours",
+  "phasePast": "Passé",
+  "keepInTouchHelp": "Rappels selon la fréquence choisie pour chaque contact. Rien n'est prévu : planifiez un rendez-vous, ou notez que vous vous êtes vus.",
+  "usernameFixed": "Votre identifiant ne peut pas être modifié : c'est grâce à lui que vos amis vous trouvent."
 }

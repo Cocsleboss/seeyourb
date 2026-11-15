@@ -46,3 +46,10 @@ inviteFriend | Inviter | Invite
 peopleLegend | Icône grise : pas de compte SeeU. Seuls les amis SeeU reçoivent l'invitation, voient le chat et les photos. | Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos.
 leftEvent | A quitté le rendez-vous | Left the event
 reinvite | Réinviter | Invite again
+
+# Review round 4
+phaseUpcoming | Prévu | Planned
+phaseNow | En cours | Happening
+phasePast | Passé | Past
+keepInTouchHelp | Rappels selon la fréquence choisie pour chaque contact. Rien n'est prévu : planifiez un rendez-vous, ou notez que vous vous êtes vus. | Reminders based on how often you want to see each contact. Nothing is planned yet: plan an event, or note that you've met.
+usernameFixed | Votre identifiant ne peut pas être modifié : c'est grâce à lui que vos amis vous trouvent. | Your username can't be changed: it's how your friends find you.

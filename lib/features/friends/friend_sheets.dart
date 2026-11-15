@@ -99,7 +99,7 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
       AppButton(tr.createNewContact, icon: LucideIcons.userPlus, full: true, onPressed: () {
         final router = GoRouter.of(context);
         Navigator.pop(context);
-        router.push('/contacts/new', extra: ContactPrefill(name: f.displayName, email: f.email, linkedUserId: f.userId));
+        router.push('/contacts/new', extra: ContactPrefill(name: f.displayName, linkedUserId: f.userId));
       }),
       const SizedBox(height: 14),
       SearchField(controller: _q, hint: tr.searchMyContacts, onChanged: (_) => setState(() {})),
@@ -135,7 +135,7 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
 Future<void> showFriendSheet(BuildContext context, Friend friend) => showAppSheet(
       context,
       title: friend.displayName,
-      subtitle: [handle(friend.username), ?friend.email].where((s) => s.isNotEmpty).join(' · '),
+      subtitle: handle(friend.username),
       builder: (_) => _FriendSheet(friend),
     );
 

@@ -27,6 +27,23 @@ enum RdvStatus {
   static RdvStatus parse(String? s) => RdvStatus.values.firstWhere((v) => v.name == s, orElse: () => RdvStatus.planifie);
 }
 
+/// Displayed status: planned events become "en cours" then "passé" with time.
+enum RdvPhase {
+  upcoming,
+  now,
+  past,
+  done,
+  cancelled;
+
+  String get label => switch (this) {
+        upcoming => tr.phaseUpcoming,
+        now => tr.phaseNow,
+        past => tr.phasePast,
+        done => tr.statusDone,
+        cancelled => tr.statusCancelled,
+      };
+}
+
 DateTime? _day(dynamic v) => v == null ? null : parseDay(v as String);
 DateTime? _ts(dynamic v) => v == null ? null : DateTime.parse(v as String).toLocal();
 List<String> _strList(dynamic v) =>
@@ -324,6 +341,16 @@ class Rendezvous {
   EventVisibility get visibility => event?.visibility ?? EventVisibility.private;
 
   /// Planned and its time passed more than 30 minutes ago → "à confirmer".
+  /// What to show as status: derived from the time while planned.
+  RdvPhase phase([DateTime? now]) {
+    if (status == RdvStatus.valide) return RdvPhase.done;
+    if (status == RdvStatus.annule) return RdvPhase.cancelled;
+    final t = now ?? DateTime.now();
+    if (slotsOpen || appointmentAt.isAfter(t)) return RdvPhase.upcoming;
+    if (t.isBefore(appointmentAt.add(const Duration(hours: 3)))) return RdvPhase.now;
+    return RdvPhase.past;
+  }
+
   bool needsConfirmation([DateTime? now]) =>
       status == RdvStatus.planifie &&
       !slotsOpen &&

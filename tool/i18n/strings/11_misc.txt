@@ -13,8 +13,8 @@ statusToastDoneReset | Rendez-vous validé : date de dernière rencontre mise à
 statusToastCancelled | Rendez-vous annulé | Event cancelled
 statusToastPlanned | Rendez-vous remis en planifié | Event set back to planned
 statusSetPlanned | Remettre en planifié | Set back to planned
-statusSetDone | A eu lieu | Happened
-statusSetCancelled | Annulé | Cancelled
+statusSetDone | Marquer comme passé | Mark as happened
+statusSetCancelled | Annuler | Cancel it
 inviteSharesMeetup | {name} partage une rencontre avec vous | {name} shared a meetup with you
 inviteProposes | {name} vous propose un rendez-vous | {name} invites you to an event
 inviteTentativeHint | Il est déjà dans votre agenda, « à confirmer ». Votre ami n'est prévenu que si vous acceptez ou refusez. | It's already in your agenda as “maybe”. Your friend is only notified if you accept or decline.

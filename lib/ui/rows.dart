@@ -185,7 +185,7 @@ class RdvRow extends StatelessWidget {
               if (rdv.contacts.isNotEmpty) AvatarStack(people: rdv.contacts),
               if (rdv.isTentative) ...[const SizedBox(height: 4), const TentativePill()]
               else if (showOwner) ...[const SizedBox(height: 4), OwnerPill(mine: rdv.isOrganizer)]
-              else if (showStatus) ...[const SizedBox(height: 4), StatusPill(rdv.status)],
+              else if (showStatus) ...[const SizedBox(height: 4), PhasePill(rdv)],
             ]),
           ]),
           if (footer != null) ...[const SizedBox(height: 12), footer!],

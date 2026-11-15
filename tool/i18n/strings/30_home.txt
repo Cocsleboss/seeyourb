@@ -8,7 +8,7 @@ statContacts | {n, plural, =0{contact} =1{contact} other{contacts}} | {n, plural
 statOverdue | en retard | overdue
 statUpcoming | rdv à venir | upcoming
 didTheyHappen | Ont-ils eu lieu ? | Did they happen?
-toReconnect | À recontacter | Time to catch up
+toReconnect | Garder le contact | Keep in touch
 seeAllN | Voir tout ({n}) | See all ({n})
 addSeeSoon | Ajouter quelqu'un à voir bientôt | Add someone to see soon
 allUpToDate | Tout est à jour 🎉 | All caught up 🎉

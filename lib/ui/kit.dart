@@ -382,6 +382,25 @@ class StatusPill extends StatelessWidget {
   Widget build(BuildContext context) => Pill(status.label, tone: statusTone(status));
 }
 
+/// Status as shown to people: Prévu / En cours / Passé / A eu lieu / Annulé.
+class PhasePill extends StatelessWidget {
+  const PhasePill(this.rdv, {super.key});
+  final Rendezvous rdv;
+  @override
+  Widget build(BuildContext context) {
+    final p = rdv.phase();
+    return Pill(p.label,
+        dot: p == RdvPhase.now,
+        tone: switch (p) {
+          RdvPhase.upcoming => Tone.brand,
+          RdvPhase.now => Tone.green,
+          RdvPhase.past => Tone.amber,
+          RdvPhase.done => statusTone(RdvStatus.valide),
+          RdvPhase.cancelled => statusTone(RdvStatus.annule),
+        });
+  }
+}
+
 class AppChip extends StatelessWidget {
   const AppChip(this.label, {super.key, required this.selected, this.onTap, this.icon});
   final String label;

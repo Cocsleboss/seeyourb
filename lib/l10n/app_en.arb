@@ -143,8 +143,8 @@
   "statusToastCancelled": "Event cancelled",
   "statusToastPlanned": "Event set back to planned",
   "statusSetPlanned": "Set back to planned",
-  "statusSetDone": "Happened",
-  "statusSetCancelled": "Cancelled",
+  "statusSetDone": "Mark as happened",
+  "statusSetCancelled": "Cancel it",
   "inviteSharesMeetup": "{name} shared a meetup with you",
   "inviteProposes": "{name} invites you to an event",
   "inviteTentativeHint": "It's already in your agenda as “maybe”. Your friend is only notified if you accept or decline.",
@@ -403,7 +403,7 @@
   "statOverdue": "overdue",
   "statUpcoming": "upcoming",
   "didTheyHappen": "Did they happen?",
-  "toReconnect": "Time to catch up",
+  "toReconnect": "Keep in touch",
   "seeAllN": "See all ({n})",
   "addSeeSoon": "Add someone to see soon",
   "allUpToDate": "All caught up 🎉",
@@ -718,5 +718,10 @@
   "inviteFriend": "Invite",
   "peopleLegend": "Grey icon: no SeeU account. Only SeeU friends get the invitation and see the chat and photos.",
   "leftEvent": "Left the event",
-  "reinvite": "Invite again"
+  "reinvite": "Invite again",
+  "phaseUpcoming": "Planned",
+  "phaseNow": "Happening",
+  "phasePast": "Past",
+  "keepInTouchHelp": "Reminders based on how often you want to see each contact. Nothing is planned yet: plan an event, or note that you've met.",
+  "usernameFixed": "Your username can't be changed: it's how your friends find you."
 }

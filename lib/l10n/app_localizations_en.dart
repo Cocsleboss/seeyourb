@@ -626,10 +626,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statusSetPlanned => 'Set back to planned';
 
   @override
-  String get statusSetDone => 'Happened';
+  String get statusSetDone => 'Mark as happened';
 
   @override
-  String get statusSetCancelled => 'Cancelled';
+  String get statusSetCancelled => 'Cancel it';
 
   @override
   String inviteSharesMeetup(String name) {
@@ -1596,7 +1596,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get didTheyHappen => 'Did they happen?';
 
   @override
-  String get toReconnect => 'Time to catch up';
+  String get toReconnect => 'Keep in touch';
 
   @override
   String seeAllN(int n) {
@@ -2716,4 +2716,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reinvite => 'Invite again';
+
+  @override
+  String get phaseUpcoming => 'Planned';
+
+  @override
+  String get phaseNow => 'Happening';
+
+  @override
+  String get phasePast => 'Past';
+
+  @override
+  String get keepInTouchHelp =>
+      'Reminders based on how often you want to see each contact. Nothing is planned yet: plan an event, or note that you\'ve met.';
+
+  @override
+  String get usernameFixed =>
+      'Your username can\'t be changed: it\'s how your friends find you.';
 }

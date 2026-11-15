@@ -959,13 +959,13 @@ abstract class AppLocalizations {
   /// No description provided for @statusSetDone.
   ///
   /// In fr, this message translates to:
-  /// **'A eu lieu'**
+  /// **'Marquer comme passé'**
   String get statusSetDone;
 
   /// No description provided for @statusSetCancelled.
   ///
   /// In fr, this message translates to:
-  /// **'Annulé'**
+  /// **'Annuler'**
   String get statusSetCancelled;
 
   /// No description provided for @inviteSharesMeetup.
@@ -2519,7 +2519,7 @@ abstract class AppLocalizations {
   /// No description provided for @toReconnect.
   ///
   /// In fr, this message translates to:
-  /// **'À recontacter'**
+  /// **'Garder le contact'**
   String get toReconnect;
 
   /// No description provided for @seeAllN.
@@ -4411,6 +4411,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Réinviter'**
   String get reinvite;
+
+  /// No description provided for @phaseUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévu'**
+  String get phaseUpcoming;
+
+  /// No description provided for @phaseNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get phaseNow;
+
+  /// No description provided for @phasePast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passé'**
+  String get phasePast;
+
+  /// No description provided for @keepInTouchHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels selon la fréquence choisie pour chaque contact. Rien n\'est prévu : planifiez un rendez-vous, ou notez que vous vous êtes vus.'**
+  String get keepInTouchHelp;
+
+  /// No description provided for @usernameFixed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre identifiant ne peut pas être modifié : c\'est grâce à lui que vos amis vous trouvent.'**
+  String get usernameFixed;
 }
 
 class _AppLocalizationsDelegate

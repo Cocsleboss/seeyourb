@@ -645,10 +645,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statusSetPlanned => 'Remettre en planifié';
 
   @override
-  String get statusSetDone => 'A eu lieu';
+  String get statusSetDone => 'Marquer comme passé';
 
   @override
-  String get statusSetCancelled => 'Annulé';
+  String get statusSetCancelled => 'Annuler';
 
   @override
   String inviteSharesMeetup(String name) {
@@ -1633,7 +1633,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get didTheyHappen => 'Ont-ils eu lieu ?';
 
   @override
-  String get toReconnect => 'À recontacter';
+  String get toReconnect => 'Garder le contact';
 
   @override
   String seeAllN(int n) {
@@ -2780,4 +2780,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reinvite => 'Réinviter';
+
+  @override
+  String get phaseUpcoming => 'Prévu';
+
+  @override
+  String get phaseNow => 'En cours';
+
+  @override
+  String get phasePast => 'Passé';
+
+  @override
+  String get keepInTouchHelp =>
+      'Rappels selon la fréquence choisie pour chaque contact. Rien n\'est prévu : planifiez un rendez-vous, ou notez que vous vous êtes vus.';
+
+  @override
+  String get usernameFixed =>
+      'Votre identifiant ne peut pas être modifié : c\'est grâce à lui que vos amis vous trouvent.';
 }
