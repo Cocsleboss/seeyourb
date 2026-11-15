@@ -78,7 +78,7 @@ tool/                        launcher icon rendering
 
 The app runs without Firebase; push is simply unavailable until it's configured.
 
-1. Create a Firebase project, add an **Android app** and an **iOS app**, both with the id `com.seeuapp.seeu`.
+1. Create a Firebase project, add an **Android app** and an **iOS app**, both with the id `com.seeuapp.mobile`.
 2. Download `google-services.json` → `android/app/` and `GoogleService-Info.plist` → `ios/Runner/`.
    Both files are git-ignored; the Xcode project already references `Runner/GoogleService-Info.plist`,
    so a fresh clone needs that file before building iOS.
@@ -123,7 +123,7 @@ reminders, digest, birthdays) with stubs for Supabase's `auth`, `storage`, `vaul
 
 ## Before the first store release
 
-- **App id** is `com.seeuapp.seeu` on both platforms (`app.seeu` was already taken on Apple's side).
+- **App id** is `com.seeuapp.mobile` on both platforms (`app.seeu` and `com.seeuapp.seeu` were already taken on Apple's side).
 - **Share links** use the `seeu://` scheme, which most messaging apps don't make clickable.
   Set up a domain with Android App Links / iOS Universal Links and pass it as `SHARE_LINK_BASE`
   (and `APP_DOWNLOAD_URL` for invitations to people without the app).
