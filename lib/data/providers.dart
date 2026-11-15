@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/i18n.dart';
 import '../domain/models.dart';
 import 'api.dart';
 
@@ -73,13 +74,25 @@ class SessionController extends ChangeNotifier {
     profileError = null;
     notifyListeners();
     try {
-      profile = await _api.ensureProfile(await deviceTimezone());
+      profile = await _api.ensureProfile(await deviceTimezone(), currentLanguage);
       _loadedFor = id;
     } catch (e) {
       profileError = e;
     } finally {
       profileLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// The app language changed: notifications follow.
+  Future<void> syncLanguage(String lang) async {
+    final p = profile;
+    if (p == null || p.locale == lang) return;
+    try {
+      profile = await _api.updateProfile({'locale': lang});
+      notifyListeners();
+    } catch (_) {
+      // retried at next launch by ensureProfile
     }
   }
 

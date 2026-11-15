@@ -29,9 +29,9 @@ Future<List<XFile>> pickPhotos(BuildContext context, {bool multiple = true}) asy
   final picker = ImagePicker();
   try {
     if (source == ImageSource.gallery && multiple) {
-      return await picker.pickMultiImage(maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
+      return await picker.pickMultiImage(maxWidth: 2048, maxHeight: 2048, imageQuality: 95);
     }
-    final one = await picker.pickImage(source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
+    final one = await picker.pickImage(source: source, maxWidth: 2048, maxHeight: 2048, imageQuality: 95);
     return one == null ? [] : [one];
   } catch (e) {
     showToast(tr.photoAccessDenied, kind: ToastKind.error);
@@ -92,7 +92,7 @@ class _PhotoSectionState extends ConsumerState<PhotoSection> {
             for (var i = 0; i < photos.length; i++)
               GestureDetector(
                 onTap: () => openPhotoViewer(context, photos, i),
-                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].storagePath)),
+                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].previewPath, cacheWidth: 360)),
               ),
           ],
         ),

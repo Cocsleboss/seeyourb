@@ -132,7 +132,7 @@ class _DayCell extends StatelessWidget {
     final Widget body;
     if (photo != null) {
       body = Stack(fit: StackFit.expand, children: [
-        StorageImage(photo.storagePath),
+        StorageImage(photo.previewPath, cacheWidth: 200),
         Align(alignment: Alignment.topLeft, child: Padding(padding: const EdgeInsets.all(5), child: number)),
         if (rdvs.length > 1)
           Positioned(
@@ -239,7 +239,7 @@ class _DayEvent extends ConsumerWidget {
             for (var i = 0; i < photos.length; i++)
               GestureDetector(
                 onTap: () => openPhotoViewer(context, photos, i),
-                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].storagePath)),
+                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].previewPath, cacheWidth: 360)),
               ),
           ],
         ),

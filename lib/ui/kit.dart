@@ -425,12 +425,15 @@ const _avatarLight = [
 
 /// Photo of a private file (signed URL), cached by storage path.
 class StorageImage extends ConsumerWidget {
-  const StorageImage(this.path, {super.key, this.fit = BoxFit.cover, this.placeholder, this.width, this.height});
+  const StorageImage(this.path, {super.key, this.fit = BoxFit.cover, this.placeholder, this.width, this.height, this.cacheWidth});
   final String path;
   final BoxFit fit;
   final Widget? placeholder;
   final double? width;
   final double? height;
+
+  /// Decoded width in memory (px): small for grid cells.
+  final int? cacheWidth;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -443,6 +446,7 @@ class StorageImage extends ConsumerWidget {
         fit: fit,
         width: width,
         height: height,
+        memCacheWidth: cacheWidth ?? (width == null ? null : (width! * MediaQuery.devicePixelRatioOf(context)).round()),
         fadeInDuration: const Duration(milliseconds: 120),
         placeholder: (_, _) => ph,
         errorWidget: (_, _, _) => ph,

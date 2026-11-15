@@ -105,6 +105,7 @@ class _SeeUAppState extends ConsumerState<SeeUApp> with WidgetsBindingObserver {
     if (lang != currentLanguage) {
       applyLanguage(lang);
       _setShortcuts();
+      Future.microtask(() => ref.read(sessionProvider).syncLanguage(lang));
     }
     final online = ref.watch(connectivityProvider).value ?? true;
     return MaterialApp.router(

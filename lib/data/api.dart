@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/errors.dart';
+import '../core/images.dart';
 import '../core/i18n.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
@@ -39,21 +40,23 @@ class Api {
   }
 
   /// Gets the profile (creates it if missing) and syncs the device timezone.
-  Future<Profile> ensureProfile(String timezone) async {
+  /// Loads (or creates) my profile and keeps its time zone and language up to date
+  /// (notifications are written in the profile's language).
+  Future<Profile> ensureProfile(String timezone, String locale) async {
     final user = sb.auth.currentUser!;
     var profile = await getProfile();
     if (profile == null) {
       final row = await sb
           .from('profiles')
-          .upsert({'id': user.id, 'email': user.email, 'display_name': user.email?.split('@').first, 'timezone': timezone})
+          .upsert({'id': user.id, 'email': user.email, 'display_name': user.email?.split('@').first, 'timezone': timezone, 'locale': locale})
           .select()
           .single();
       return Profile.fromJson(row);
     }
-    if (profile.timezone != timezone || (profile.email == null && user.email != null)) {
+    if (profile.timezone != timezone || profile.locale != locale || (profile.email == null && user.email != null)) {
       final row = await sb
           .from('profiles')
-          .update({'timezone': timezone, 'email': profile.email ?? user.email})
+          .update({'timezone': timezone, 'locale': locale, 'email': profile.email ?? user.email})
           .eq('id', user.id)
           .select()
           .single();
@@ -109,18 +112,18 @@ class Api {
   /// Deletes the contact, its profile photo and the photos attached to it
   /// (its rendezvous links and photos cascade in the database).
   Future<void> deleteContact(Contact contact) async {
-    final photos = await sb.from('photos').select('storage_path').eq('contact_id', contact.id);
+    final photos = await sb.from('photos').select('storage_path, thumb_path').eq('contact_id', contact.id);
     final rdvLinks = await sb.from('contact_rendezvous').select('rendezvous_id').eq('contact_id', contact.id);
     final rdvIds = rdvLinks.map((l) => l['rendezvous_id'] as String).toList();
-    final paths = [...photos.map((p) => p['storage_path'] as String), ?contact.photoPath];
+    final paths = [...photos.expand(_photoPaths), ?contact.photoPath];
     // Rendezvous whose only participant is this contact go away with it.
     if (rdvIds.isNotEmpty) {
       final others = await sb.from('contact_rendezvous').select('rendezvous_id').inFilter('rendezvous_id', rdvIds).neq('contact_id', contact.id);
       final shared = others.map((o) => o['rendezvous_id'] as String).toSet();
       final orphan = rdvIds.where((id) => !shared.contains(id)).toList();
       if (orphan.isNotEmpty) {
-        final rdvPhotos = await sb.from('photos').select('storage_path').inFilter('rendezvous_id', orphan);
-        paths.addAll(rdvPhotos.map((p) => p['storage_path'] as String));
+        final rdvPhotos = await sb.from('photos').select('storage_path, thumb_path').inFilter('rendezvous_id', orphan);
+        paths.addAll(rdvPhotos.expand(_photoPaths));
         await sb.from('rendezvous').delete().inFilter('id', orphan);
       }
     }
@@ -129,7 +132,7 @@ class Api {
   }
 
   Future<Contact> setContactPhoto(Contact contact, Uint8List? bytes) async {
-    final newPath = bytes == null ? null : await uploadImage(bytes);
+    final newPath = bytes == null ? null : await uploadImage(await compressImage(bytes, shortSide: avatarShortSide));
     final updated = await updateContact(contact.id, {'photo_path': newPath});
     if (contact.photoPath != null && contact.photoPath != newPath) await _removeFiles([contact.photoPath!]);
     return updated;
@@ -232,14 +235,16 @@ class Api {
 
   Future<void> deleteRdv(Rendezvous rdv) async {
     await sb.from('rendezvous').delete().eq('id', rdv.id);
-    await _removeFiles(rdv.photos.map((p) => p.storagePath).toList());
+    await _removeFiles(rdv.photos.expand((p) => p.allPaths).toList());
   }
 
   /* ------------------------------- Photos ------------------------------ */
 
-  /// Uploads an already resized JPEG into the user's private folder.
-  Future<String> uploadImage(Uint8List bytes) async {
-    final path = '$uid/${_randomId()}.jpg';
+  static Iterable<String> _photoPaths(Map<String, dynamic> row) => [row['storage_path'] as String, ?(row['thumb_path'] as String?)];
+
+  /// Uploads an already compressed JPEG into the user's private folder.
+  Future<String> uploadImage(Uint8List bytes, {String? path}) async {
+    path ??= '$uid/${_randomId()}.jpg';
     await sb.storage
         .from(photosBucket)
         .uploadBinary(path, bytes, fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: false));
@@ -284,24 +289,29 @@ class Api {
     return rows.map((r) => Photo.fromJson(r as Map<String, dynamic>)).toList();
   }
 
-  Future<Photo> addPhoto(Uint8List bytes, {String? contactId, String? rdvId}) async {
-    final path = await uploadImage(bytes);
+  /// Compresses (720 px + 256 px thumbnail), uploads both, then records the photo.
+  Future<Photo> addPhoto(Uint8List raw, {String? contactId, String? rdvId}) async {
+    final c = await compressPhoto(raw);
+    final id = _randomId();
+    final path = await uploadImage(c.full, path: '$uid/$id.jpg');
+    String? thumb;
     try {
+      thumb = await uploadImage(c.thumb, path: '$uid/${id}_t.jpg');
       final row = await sb
           .from('photos')
-          .insert({'user_id': uid, 'contact_id': contactId, 'rendezvous_id': rdvId, 'storage_path': path})
+          .insert({'user_id': uid, 'contact_id': contactId, 'rendezvous_id': rdvId, 'storage_path': path, 'thumb_path': thumb})
           .select()
           .single();
       return Photo.fromJson(row);
     } catch (e) {
-      await _removeFiles([path]);
+      await _removeFiles([path, ?thumb]);
       rethrow;
     }
   }
 
   Future<void> deletePhoto(Photo photo) async {
     await sb.from('photos').delete().eq('id', photo.id);
-    await _removeFiles([photo.storagePath]);
+    await _removeFiles(photo.allPaths);
   }
 
   /* ------------------------------- Friends ----------------------------- */
@@ -365,7 +375,7 @@ class Api {
   /* ---------------------------- Notifications -------------------------- */
 
   Future<List<NotificationEntry>> listNotifications({int limit = 10}) async {
-    final rows = await sb.from('notifications').select().order('created_at', ascending: false).limit(limit);
+    final rows = await sb.from('notifications').select().not('title', 'is', null).order('created_at', ascending: false).limit(limit);
     return rows.map(NotificationEntry.fromJson).toList();
   }
 

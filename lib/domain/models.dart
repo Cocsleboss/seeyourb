@@ -46,6 +46,7 @@ class Profile {
     this.username,
     this.birthday,
     this.timezone = 'Europe/Paris',
+    this.locale = 'fr',
     this.notifyPush = true,
     this.notifyEmail = true,
     this.dailyHour = 8,
@@ -59,6 +60,9 @@ class Profile {
   final String? username;
   final DateTime? birthday;
   final String timezone;
+
+  /// Language of the notifications ('fr', 'en').
+  final String locale;
   final bool notifyPush;
   final bool notifyEmail;
   final int dailyHour;
@@ -77,6 +81,7 @@ class Profile {
         username: j['username'] as String?,
         birthday: _day(j['birthday']),
         timezone: (j['timezone'] as String?) ?? 'Europe/Paris',
+        locale: (j['locale'] as String?) ?? 'fr',
         notifyPush: (j['notify_push'] as bool?) ?? true,
         notifyEmail: (j['notify_email'] as bool?) ?? true,
         dailyHour: (j['daily_hour'] as int?) ?? 8,
@@ -245,6 +250,7 @@ class Photo {
     this.contactId,
     this.rendezvousId,
     required this.storagePath,
+    this.thumbPath,
     this.caption,
     required this.createdAt,
   });
@@ -254,7 +260,13 @@ class Photo {
   final String? contactId;
   final String? rendezvousId;
   final String storagePath;
+
+  /// Small version for grids (null for photos uploaded before thumbnails existed).
+  final String? thumbPath;
   final String? caption;
+
+  String get previewPath => thumbPath ?? storagePath;
+  List<String> get allPaths => [storagePath, ?thumbPath];
   final DateTime createdAt;
 
   factory Photo.fromJson(Map<String, dynamic> j) => Photo(
@@ -263,6 +275,7 @@ class Photo {
         contactId: j['contact_id'] as String?,
         rendezvousId: j['rendezvous_id'] as String?,
         storagePath: j['storage_path'] as String,
+        thumbPath: j['thumb_path'] as String?,
         caption: j['caption'] as String?,
         createdAt: _ts(j['created_at']) ?? DateTime.now(),
       );

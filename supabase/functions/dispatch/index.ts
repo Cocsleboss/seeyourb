@@ -13,13 +13,15 @@
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by the platform.
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.49.4";
+import { emailChrome, render } from "./templates.ts";
 
 interface NotificationRow {
   id: string;
   user_id: string;
   kind: string;
-  title: string;
+  title: string | null;
   body: string | null;
+  params: Record<string, unknown> | null;
   url: string | null;
   force_push: boolean;
 }
@@ -29,6 +31,8 @@ interface ProfileRow {
   email: string | null;
   notify_push: boolean;
   notify_email: boolean;
+  locale: string | null;
+  timezone: string | null;
 }
 
 const BATCH = 200;
@@ -63,14 +67,14 @@ Deno.serve(async (req) => {
       .update({ status: "sending" })
       .in("id", pending.map((p) => p.id))
       .eq("status", "pending")
-      .select("id, user_id, kind, title, body, url, force_push");
+      .select("id, user_id, kind, title, body, params, url, force_push");
     if (claimError) return json({ error: claimError.message }, 500);
     const rows = (claimed ?? []) as NotificationRow[];
     if (!rows.length) continue;
 
     const userIds = [...new Set(rows.map((r) => r.user_id))];
     const [{ data: profiles }, { data: tokens }] = await Promise.all([
-      admin.from("profiles").select("id, email, notify_push, notify_email").in("id", userIds),
+      admin.from("profiles").select("id, email, notify_push, notify_email, locale, timezone").in("id", userIds),
       admin.from("device_tokens").select("user_id, token, platform").in("user_id", userIds),
     ]);
     const profileById = new Map((profiles as ProfileRow[] | null ?? []).map((p) => [p.id, p]));
@@ -81,12 +85,19 @@ Deno.serve(async (req) => {
 
     await Promise.all(
       rows.map(async (n) => {
-        const channel = await deliver(admin, n, profileById.get(n.user_id) ?? null, tokensByUser.get(n.user_id) ?? []);
+        const profile = profileById.get(n.user_id) ?? null;
+        // Text in the recipient's language and time zone (rows queued before 0004 already have one).
+        const text = render(n.kind, n.params ?? {}, profile?.locale ?? null, profile?.timezone ?? null);
+        if (text && (!n.title || Object.keys(n.params ?? {}).length > 0)) {
+          n.title = text.title;
+          n.body = text.body;
+        }
+        const channel = await deliver(admin, n, profile, tokensByUser.get(n.user_id) ?? []);
         channels[channel]++;
         processed++;
         await admin
           .from("notifications")
-          .update({ status: "sent", channel, sent_at: new Date().toISOString() })
+          .update({ status: "sent", channel, title: n.title ?? n.kind, body: n.body, sent_at: new Date().toISOString() })
           .eq("id", n.id);
       }),
     );
@@ -119,7 +130,7 @@ async function deliver(
 
   // 2) Email fallback
   if ((profile?.notify_email ?? true) && profile?.email && emailConfigured()) {
-    const ok = await sendEmail(profile.email, n.title, n.body ?? "");
+    const ok = await sendEmail(profile.email, n.title ?? "SeeU", n.body ?? "", profile.locale);
     if (ok) return "email";
   }
   return "none";
@@ -201,7 +212,7 @@ async function sendFcm(token: string, n: NotificationRow): Promise<"ok" | "stale
       body: JSON.stringify({
         message: {
           token,
-          notification: { title: n.title, body: n.body ?? "" },
+          notification: { title: n.title ?? "SeeU", body: n.body ?? "" },
           data: { url: n.url ?? "/", kind: n.kind, notification_id: n.id },
           android: {
             priority: "high",
@@ -242,22 +253,23 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
-function renderHtml(title: string, body: string): string {
-  return `<!doctype html><html><body style="margin:0;background:#f9fafb;font-family:-apple-system,Segoe UI,Roboto,sans-serif">
+function renderHtml(title: string, body: string, locale: string | null): string {
+  const chrome = emailChrome[locale === "en" ? "en" : "fr"];
+  return `<!doctype html><html lang="${locale === "en" ? "en" : "fr"}"><body style="margin:0;background:#f9fafb;font-family:-apple-system,Segoe UI,Roboto,sans-serif">
 <div style="max-width:480px;margin:0 auto;padding:32px 20px">
 <div style="background:#fff;border-radius:20px;padding:24px;border:1px solid #e5e7eb">
 <p style="margin:0 0 4px;color:#4f46e5;font-weight:700">SeeU</p>
 <h1 style="margin:0 0 12px;font-size:20px;color:#111827">${escapeHtml(title)}</h1>
 <p style="margin:0;color:#374151;line-height:1.5">${escapeHtml(body)}</p>
-<p style="margin:20px 0 0;color:#6b7280;font-size:13px">Ouvrez l'application SeeU pour en savoir plus.</p>
+<p style="margin:20px 0 0;color:#6b7280;font-size:13px">${chrome.more}</p>
 </div>
-<p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:16px">Vous pouvez désactiver ces emails dans Réglages → Notifications.</p>
+<p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:16px">${chrome.unsubscribe}</p>
 </div></body></html>`;
 }
 
-async function sendEmail(to: string, subject: string, text: string): Promise<boolean> {
+async function sendEmail(to: string, subject: string, text: string, locale: string | null): Promise<boolean> {
   const from = Deno.env.get("EMAIL_FROM")!;
-  const html = renderHtml(subject, text);
+  const html = renderHtml(subject, text, locale);
   try {
     const brevo = Deno.env.get("BREVO_API_KEY");
     if (brevo) {
