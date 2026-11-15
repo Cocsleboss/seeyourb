@@ -33,7 +33,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     super.initState();
     final p = ref.read(sessionProvider).profile;
     _name = TextEditingController(text: p?.displayName ?? '');
-    _username = TextEditingController(text: suggestUsername(p?.displayName ?? p?.email));
+    _username = TextEditingController(text: suggestUsername(p?.displayName));
     _birthday = p?.birthday;
   }
 

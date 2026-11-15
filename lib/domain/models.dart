@@ -356,11 +356,9 @@ class Rendezvous {
     return RdvPhase.past;
   }
 
+  /// "Has it happened?" — same moment the status turns to "Passé".
   bool needsConfirmation([DateTime? now]) =>
-      status == RdvStatus.planifie &&
-      !slotsOpen &&
-      (rsvp == null || rsvp == Rsvp.accepted) &&
-      appointmentAt.isBefore((now ?? DateTime.now()).subtract(const Duration(minutes: 30)));
+      (rsvp == null || rsvp == Rsvp.accepted) && phase(now) == RdvPhase.past;
 
   /// Title, or "Avec Marie, Paul" / "Avec Marie, Paul et 2 autres".
   String get displayTitle => rdvTitle(title, contacts.map((c) => c.name).toList());
