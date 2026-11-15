@@ -8,8 +8,11 @@ import 'kit.dart';
 import '../core/i18n.dart';
 
 class LabeledField extends StatelessWidget {
-  const LabeledField({super.key, this.label, required this.child, this.hint, this.error, this.required = false});
+  const LabeledField({super.key, this.label, required this.child, this.hint, this.error, this.required = false, this.tag});
   final String? label;
+
+  /// Muted note after the label, e.g. "(personnel)".
+  final String? tag;
   final Widget child;
   final String? hint;
   final String? error;
@@ -29,6 +32,7 @@ class LabeledField extends StatelessWidget {
               child: Text.rich(TextSpan(children: [
                 TextSpan(text: label),
                 if (required) TextSpan(text: ' *', style: TextStyle(color: c.tone(Tone.red).text)),
+                if (tag != null) TextSpan(text: ' $tag', style: TextStyle(color: c.textSubtle, fontWeight: FontWeight.w400)),
               ]), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: c.isDark ? Palette.gray300 : Palette.gray700)),
             ),
           child,

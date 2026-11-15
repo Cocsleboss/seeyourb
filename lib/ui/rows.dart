@@ -115,9 +115,12 @@ class DateBlock extends StatelessWidget {
 }
 
 class RdvRow extends StatelessWidget {
-  const RdvRow({super.key, required this.rdv, this.showStatus = true, this.footer, this.dayLabel = true});
+  const RdvRow({super.key, required this.rdv, this.showStatus = true, this.footer, this.dayLabel = true, this.showOwner = false});
   final Rendezvous rdv;
   final bool showStatus;
+
+  /// "Par vous" / "Invité" badge (upcoming lists).
+  final bool showOwner;
   final Widget? footer;
 
   /// "Hier · 18:30" (true) or "18:30" only (grouped by day already).
@@ -173,6 +176,7 @@ class RdvRow extends StatelessWidget {
             Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
               if (rdv.contacts.isNotEmpty) AvatarStack(people: rdv.contacts),
               if (rdv.isTentative) ...[const SizedBox(height: 4), const TentativePill()]
+              else if (showOwner) ...[const SizedBox(height: 4), OwnerPill(mine: rdv.isOrganizer)]
               else if (showStatus) ...[const SizedBox(height: 4), StatusPill(rdv.status)],
             ]),
           ]),
@@ -181,6 +185,20 @@ class RdvRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Whether I organize the event ("Par vous") or I'm a guest ("Invité").
+class OwnerPill extends StatelessWidget {
+  const OwnerPill({super.key, required this.mine, this.long = false});
+  final bool mine;
+
+  /// "Organisé par vous" instead of "Par vous".
+  final bool long;
+
+  @override
+  Widget build(BuildContext context) => mine
+      ? Pill(long ? tr.organizedByYou : tr.byYou, tone: Tone.brand, icon: LucideIcons.crown)
+      : Pill(tr.youAreGuest, icon: LucideIcons.mailOpen);
 }
 
 class _PendingDateBlock extends StatelessWidget {

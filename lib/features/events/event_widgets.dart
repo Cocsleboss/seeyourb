@@ -83,12 +83,14 @@ class EventCard extends StatelessWidget {
               ],
               const SizedBox(height: 8),
               Wrap(spacing: 6, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  Avatar(name: e.organizerName, size: 22),
-                  const SizedBox(width: 6),
-                  Text(e.isMine ? tr.byYou : e.organizerName,
-                      style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: c.text)),
-                ]),
+                if (e.isMine)
+                  const OwnerPill(mine: true, long: true)
+                else
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    Avatar(name: e.organizerName, size: 22),
+                    const SizedBox(width: 6),
+                    Text(e.organizerName, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: c.text)),
+                  ]),
                 Pill(tr.nGoing(e.going), icon: LucideIcons.users),
                 if (e.joined && !e.isMine)
                   e.myRsvp == Rsvp.pending

@@ -24,3 +24,18 @@ demoAds | Publicités de démonstration | Demo ads
 demoAdsHelp | Affiche de fausses annonces pour juger de leur intégration (mode développement). | Shows fake ads to judge how they fit (development mode).
 adCta | En savoir plus | Learn more
 earlierMessages | Messages précédents | Earlier messages
+
+# Review round 3
+tagPersonal | (personnel) | (personal)
+tagShared | (partagée) | (shared)
+titleRequired | Donnez un titre au rendez-vous | Give the event a title
+descriptionHintAll | Visible par tous les participants. | Visible to every participant.
+editFrequency | Modifier la fréquence | Change frequency
+frequencySheetSub | À quelle fréquence voulez-vous voir {name} ? | How often do you want to see {name}?
+frequencyUpdated | Fréquence mise à jour | Frequency updated
+organizedByYou | Organisé par vous | Organized by you
+youAreGuest | Invité | Guest
+filterMine | Organisés par vous | Organized by you
+filterInvited | Invitations | Invitations
+noMineUpcoming | Aucun rendez-vous organisé par vous. | No events organized by you.
+noInvitedUpcoming | Aucune invitation à venir. | No upcoming invitations.

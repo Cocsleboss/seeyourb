@@ -12,6 +12,7 @@ import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
 import '../../ui/kit.dart';
+import '../../ui/pickers.dart';
 import '../../core/i18n.dart';
 
 Future<void> showMarkSeenSheet(BuildContext context, Contact contact) =>
@@ -19,6 +20,9 @@ Future<void> showMarkSeenSheet(BuildContext context, Contact contact) =>
 
 Future<void> showSnoozeSheet(BuildContext context, Contact contact) =>
     showAppSheet(context, title: tr.snoozeTitle(contact.name), builder: (_) => _Snooze(contact));
+
+Future<void> showFrequencySheet(BuildContext context, Contact contact) => showAppSheet(context,
+    title: tr.editFrequency, subtitle: tr.frequencySheetSub(contact.name), builder: (_) => _Frequency(contact));
 
 Future<void> showSeeSoonSheet(BuildContext context, {required Set<String> excludeIds}) => showAppSheet(
       context,
@@ -201,6 +205,51 @@ class _SeeSoonState extends ConsumerState<_SeeSoon> {
                   ),
               ]),
       ),
+    ]);
+  }
+}
+
+
+class _Frequency extends ConsumerStatefulWidget {
+  const _Frequency(this.contact);
+  final Contact contact;
+  @override
+  ConsumerState<_Frequency> createState() => _FrequencyState();
+}
+
+class _FrequencyState extends ConsumerState<_Frequency> {
+  late int _value = widget.contact.frequencyValue;
+  late FrequencyUnit _unit = widget.contact.frequencyUnit;
+  bool _busy = false;
+
+  Future<void> _save() async {
+    setState(() => _busy = true);
+    final ok = await guard(
+      () => ref.read(apiProvider).updateContact(widget.contact.id, {'frequency_value': _value, 'frequency_unit': _unit.name}),
+      success: tr.frequencyUpdated,
+    );
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (ok != null) {
+      refreshData(ref);
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final valid = _value >= 1;
+    final start = widget.contact.lastMeetingDate ?? widget.contact.addedOn ?? today();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      FrequencyPicker(value: _value, unit: _unit, onChanged: (v, u) => setState(() => (_value = v, _unit = u))),
+      const SizedBox(height: 12),
+      Text(
+        valid ? '${tr.nextDue} : ${formatDateLong(addFrequency(start, _value, _unit))}' : tr.frequencyMin,
+        style: TextStyle(fontSize: 13.5, color: valid ? c.textMuted : c.tone(Tone.red).text, height: 1.35),
+      ),
+      const SizedBox(height: 16),
+      AppButton(tr.save, icon: LucideIcons.check, size: ButtonSize.lg, full: true, loading: _busy, onPressed: valid ? _save : null),
     ]);
   }
 }

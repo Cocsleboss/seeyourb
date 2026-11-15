@@ -106,7 +106,8 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     _time = TimeOfDay(hour: at.hour, minute: at.minute);
     _status = e?.status;
     _visibility = e?.visibility ?? widget.initialVisibility ?? EventVisibility.private;
-    _title = TextEditingController(text: e?.title ?? '');
+    // Older events may have no title: start from the one shown everywhere.
+    _title = TextEditingController(text: e?.title ?? (e == null ? '' : e.displayTitle));
     _location = TextEditingController(text: e?.location ?? '');
     _description = TextEditingController(text: e?.event?.description ?? '');
     _notes = TextEditingController(text: e?.notes ?? '');
@@ -141,8 +142,12 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   /// "Already happened" only makes sense for a private meetup with one date.
   bool get _canBeDone => !_editing && _visibility == EventVisibility.private && !_multi;
 
+  bool _titleMissing = false;
+
   Future<void> _save() async {
+    setState(() => _titleMissing = _organizer && _title.text.trim().isEmpty);
     if (_contactsRequired && _selected.isEmpty) return setState(() => _error = tr.chooseOneContact);
+    if (_titleMissing) return;
     final slots = (_slots.toSet().toList()..sort());
     if (_multi && slots.length < 2) return setState(() => _error = tr.slotsAtLeastTwo);
     setState(() {
@@ -159,7 +164,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
       visibility: _visibility,
       title: _title.text,
       location: _location.text,
-      description: _visibility == EventVisibility.private ? null : _description.text,
+      description: _description.text,
       notes: _notes.text,
       appointmentAt: _multi ? null : (_organizer ? _at : widget.existing!.appointmentAt),
       status: _editing ? (_status ?? RdvStatus.planifie) : (done ? RdvStatus.valide : RdvStatus.planifie),
@@ -197,7 +202,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     final selected = _selectedContacts;
     final friends = _friendParticipants;
     final shown = (widget.contacts.where((x) => contactMatches(x, _search.text)).toList()..sort((a, b) => compareNames(a.name, b.name)));
-    final placeholderTitle = selected.isEmpty ? tr.titleExample : rdvTitle(null, selected.map((s) => s.name).toList());
     final canPublic = ref.watch(canCreatePublicProvider).value ?? false;
     final e = widget.existing;
 
@@ -360,14 +364,26 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
               ]),
 
             // 3. Title, place, description
-            LabeledField(label: tr.titleOptional, child: AppTextField(controller: _title, hint: placeholderTitle, maxLength: 120)),
-            LabeledField(label: tr.placeOptional, child: AppTextField(controller: _location, hint: tr.placeHint, maxLength: 200)),
-            if (_visibility != EventVisibility.private)
-              LabeledField(
-                label: tr.descriptionLabel,
-                hint: tr.descriptionHint,
-                child: AppTextField(controller: _description, hint: tr.descriptionPlaceholder, maxLines: 4, maxLength: 2000),
+            LabeledField(
+              label: tr.titleOptional,
+              required: true,
+              error: _titleMissing ? tr.titleRequired : null,
+              child: AppTextField(
+                controller: _title,
+                hint: tr.titleExample,
+                maxLength: 120,
+                onChanged: (v) {
+                  if (_titleMissing && v.trim().isNotEmpty) setState(() => _titleMissing = false);
+                },
               ),
+            ),
+            LabeledField(label: tr.placeOptional, child: AppTextField(controller: _location, hint: tr.placeHint, maxLength: 200)),
+            LabeledField(
+              label: tr.descriptionLabel,
+              tag: tr.tagShared,
+              hint: _visibility == EventVisibility.private ? tr.descriptionHintAll : tr.descriptionHint,
+              child: AppTextField(controller: _description, hint: tr.descriptionPlaceholder, maxLines: 4, maxLength: 2000),
+            ),
           ] else if (e != null) ...[
             const SizedBox(height: 16),
             AppCard(
@@ -381,8 +397,8 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
           ],
 
           // 3b. May guests bring their own friends? (public events: anyone joins anyway)
+          // (the field above already leaves 16 px: same gap below the card)
           if (_organizer && _visibility != EventVisibility.public) ...[
-            const SizedBox(height: 16),
             AppCard(
               child: ToggleRow(
                 title: tr.guestsCanInvite,
@@ -391,11 +407,13 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                 onChanged: (v) => setState(() => _guestsCanInvite = v),
               ),
             ),
+            const SizedBox(height: 16),
           ],
 
           // 4. Private notes
           LabeledField(
             label: tr.notesOptional,
+            tag: tr.tagPersonal,
             hint: tr.notesPrivateHint,
             child: AppTextField(controller: _notes, hint: tr.notesRdvHint, maxLines: 4),
           ),

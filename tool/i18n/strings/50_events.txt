@@ -24,7 +24,7 @@ slotsAtLeastTwo | Proposez au moins deux créneaux différents. | Suggest at lea
 proposeSlots | Proposer ces créneaux | Suggest these timeslots
 whoCanSee | Qui peut le voir ? | Who can see it?
 memberEditHint | Vous participez à cet événement : seul l'organisateur peut changer la date, le lieu ou l'annuler. Vos notes, vos contacts et le statut restent à vous. | You're taking part in this event: only the organizer can change the date or place, or cancel it. Your notes, contacts and status are yours.
-withWhomOptional | Avec qui ? (facultatif) | With whom? (optional)
+withWhomOptional | Avec qui ? | With whom?
 withWhomHint | Vos contacts qui viennent : leur compteur repart de zéro une fois l'événement passé. | Your contacts who are coming: their counter starts over once the event has happened.
 oneDate | Une date | One date
 severalSlots | Plusieurs créneaux | Several timeslots

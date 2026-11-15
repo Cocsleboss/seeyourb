@@ -938,7 +938,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get groupUpToDate => 'À jour';
 
   @override
-  String get addSeeuFriend => 'Ami SeeU';
+  String get addSeeuFriend => 'Trouver un ami';
 
   @override
   String get addContact => 'Contact';
@@ -1035,7 +1035,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get whenDidYouSee => 'Quand l\'avez-vous vu(e) ?';
 
   @override
-  String get noteOptional => 'Une note (facultatif)';
+  String get noteOptional => 'Une note';
 
   @override
   String get noteHint => 'Un souvenir, un détail à retenir…';
@@ -1882,16 +1882,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get time => 'Heure';
 
   @override
-  String get titleOptional => 'Titre (facultatif)';
+  String get titleOptional => 'Titre';
 
   @override
-  String get placeOptional => 'Lieu (facultatif)';
+  String get placeOptional => 'Lieu';
 
   @override
   String get placeHint => 'Café, adresse, visio…';
 
   @override
-  String get notesOptional => 'Notes (facultatif)';
+  String get notesOptional => 'Notes';
 
   @override
   String get notesPrivateHint =>
@@ -2266,7 +2266,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vous participez à cet événement : seul l\'organisateur peut changer la date, le lieu ou l\'annuler. Vos notes, vos contacts et le statut restent à vous.';
 
   @override
-  String get withWhomOptional => 'Avec qui ? (facultatif)';
+  String get withWhomOptional => 'Avec qui ?';
 
   @override
   String get withWhomHint =>
@@ -2715,4 +2715,45 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get earlierMessages => 'Messages précédents';
+
+  @override
+  String get tagPersonal => '(personnel)';
+
+  @override
+  String get tagShared => '(partagée)';
+
+  @override
+  String get titleRequired => 'Donnez un titre au rendez-vous';
+
+  @override
+  String get descriptionHintAll => 'Visible par tous les participants.';
+
+  @override
+  String get editFrequency => 'Modifier la fréquence';
+
+  @override
+  String frequencySheetSub(String name) {
+    return 'À quelle fréquence voulez-vous voir $name ?';
+  }
+
+  @override
+  String get frequencyUpdated => 'Fréquence mise à jour';
+
+  @override
+  String get organizedByYou => 'Organisé par vous';
+
+  @override
+  String get youAreGuest => 'Invité';
+
+  @override
+  String get filterMine => 'Organisés par vous';
+
+  @override
+  String get filterInvited => 'Invitations';
+
+  @override
+  String get noMineUpcoming => 'Aucun rendez-vous organisé par vous.';
+
+  @override
+  String get noInvitedUpcoming => 'Aucune invitation à venir.';
 }

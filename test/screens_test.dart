@@ -110,6 +110,7 @@ final friendsFeed = [
   feedEvent('t', 'Brunch', days: 6, myRdv: 'r4', myRsvp: Rsvp.pending),
   feedEvent('e2', 'Soirée jeux de société', location: 'Chez Tom', orgName: 'Tom', going: 6),
   feedEvent('e3', 'Rando en forêt de Soignes', days: 9, going: 1, slots: true),
+  feedEvent('e4', 'Apéro chez moi', org: 'me', orgName: 'Arthur', days: 11, going: 3, myRdv: 'r3', mine: true),
 ];
 
 final publicFeed = [
@@ -307,6 +308,7 @@ void main() {
     'contact_form': ('/contacts/new', const []),
     'rdv_form': ('/rdv/new?contact=andrea', const []),
     'rdv_form_slots': ('/rdv/r5/edit', const []),
+    'rdv_form_tall': ('/rdv/new?contact=andrea', const []),
     'rdv_form_public': ('/rdv/new?vis=public', const []),
     'rdv_detail': ('/rdv/r3', const []),
     'rdv_slots': ('/rdv/r5', const []),

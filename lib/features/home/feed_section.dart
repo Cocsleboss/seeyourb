@@ -37,6 +37,7 @@ class _FeedSectionState extends ConsumerState<FeedSection> {
   final _more = <FeedEvent>[];
   bool _loadingMore = false;
   bool _end = false;
+  bool _mineOnly = false;
 
   bool get _public => widget.scope == 'public';
 
@@ -122,8 +123,18 @@ class _FeedSectionState extends ConsumerState<FeedSection> {
         ];
       } else {
         final first = feed.requireValue;
+        final hasMine = all.any((e) => e.isMine);
+        final shown = hasMine && _mineOnly ? all.where((e) => e.isMine).toList() : all;
         body = [
-          ...withAds([for (final e in all) EventCard(event: e)], _public ? AdPlacement.exploreFeed : AdPlacement.friendsFeed,
+          if (hasMine)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: ChipWrap(children: [
+                AppChip(tr.filterAll, selected: !_mineOnly, onTap: () => setState(() => _mineOnly = false)),
+                AppChip(tr.filterMine, icon: LucideIcons.crown, selected: _mineOnly, onTap: () => setState(() => _mineOnly = true)),
+              ]),
+            ),
+          ...withAds([for (final e in shown) EventCard(event: e)], _public ? AdPlacement.exploreFeed : AdPlacement.friendsFeed,
               first: 3, every: 5),
           if (!_end && first.length >= 30)
             Padding(

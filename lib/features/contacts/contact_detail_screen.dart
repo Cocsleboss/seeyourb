@@ -153,7 +153,22 @@ class _Body extends ConsumerWidget {
             const SizedBox(height: 12),
             InfoLine(tr.lastMeeting, contact.lastMeetingDate == null ? tr.notRecordedYet : formatDateLong(contact.lastMeetingDate!)),
             InfoLine(tr.nextDue, '${formatDateLong(effectiveDueDate(contact))}${snoozed ? ' ${tr.snoozedSuffix}' : ''}'),
-            InfoLine(tr.frequency, frequencyLabel(contact.frequencyValue, contact.frequencyUnit)),
+            // Tappable: change the frequency without opening the whole form.
+            InkWell(
+              onTap: () => showFrequencySheet(context, contact),
+              borderRadius: BorderRadius.circular(8),
+              child: Row(children: [
+                Expanded(child: InfoLine(tr.frequency, frequencyLabel(contact.frequencyValue, contact.frequencyUnit))),
+                Tooltip(
+                  message: tr.editFrequency,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(color: c.tone(Tone.brand).bg, shape: BoxShape.circle),
+                    child: Icon(LucideIcons.pencil, size: 15, color: c.brandText),
+                  ),
+                ),
+              ]),
+            ),
           ]),
         ),
         const SizedBox(height: 16),
@@ -225,7 +240,7 @@ class _Body extends ConsumerWidget {
             return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               if (upcoming.isNotEmpty) ...[
                 Overline(tr.upcoming),
-                RowsCard(children: [for (final r in upcoming) RdvRow(rdv: r, showStatus: false)]),
+                RowsCard(children: [for (final r in upcoming) RdvRow(rdv: r, showStatus: false, showOwner: true)]),
                 const SizedBox(height: 12),
               ],
               if (past.isNotEmpty) ...[

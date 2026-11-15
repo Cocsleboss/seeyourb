@@ -1493,7 +1493,7 @@ abstract class AppLocalizations {
   /// No description provided for @addSeeuFriend.
   ///
   /// In fr, this message translates to:
-  /// **'Ami SeeU'**
+  /// **'Trouver un ami'**
   String get addSeeuFriend;
 
   /// No description provided for @addContact.
@@ -1631,7 +1631,7 @@ abstract class AppLocalizations {
   /// No description provided for @noteOptional.
   ///
   /// In fr, this message translates to:
-  /// **'Une note (facultatif)'**
+  /// **'Une note'**
   String get noteOptional;
 
   /// No description provided for @noteHint.
@@ -2927,13 +2927,13 @@ abstract class AppLocalizations {
   /// No description provided for @titleOptional.
   ///
   /// In fr, this message translates to:
-  /// **'Titre (facultatif)'**
+  /// **'Titre'**
   String get titleOptional;
 
   /// No description provided for @placeOptional.
   ///
   /// In fr, this message translates to:
-  /// **'Lieu (facultatif)'**
+  /// **'Lieu'**
   String get placeOptional;
 
   /// No description provided for @placeHint.
@@ -2945,7 +2945,7 @@ abstract class AppLocalizations {
   /// No description provided for @notesOptional.
   ///
   /// In fr, this message translates to:
-  /// **'Notes (facultatif)'**
+  /// **'Notes'**
   String get notesOptional;
 
   /// No description provided for @notesPrivateHint.
@@ -3563,7 +3563,7 @@ abstract class AppLocalizations {
   /// No description provided for @withWhomOptional.
   ///
   /// In fr, this message translates to:
-  /// **'Avec qui ? (facultatif)'**
+  /// **'Avec qui ?'**
   String get withWhomOptional;
 
   /// No description provided for @withWhomHint.
@@ -4291,6 +4291,84 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Messages précédents'**
   String get earlierMessages;
+
+  /// No description provided for @tagPersonal.
+  ///
+  /// In fr, this message translates to:
+  /// **'(personnel)'**
+  String get tagPersonal;
+
+  /// No description provided for @tagShared.
+  ///
+  /// In fr, this message translates to:
+  /// **'(partagée)'**
+  String get tagShared;
+
+  /// No description provided for @titleRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnez un titre au rendez-vous'**
+  String get titleRequired;
+
+  /// No description provided for @descriptionHintAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visible par tous les participants.'**
+  String get descriptionHintAll;
+
+  /// No description provided for @editFrequency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la fréquence'**
+  String get editFrequency;
+
+  /// No description provided for @frequencySheetSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'À quelle fréquence voulez-vous voir {name} ?'**
+  String frequencySheetSub(String name);
+
+  /// No description provided for @frequencyUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence mise à jour'**
+  String get frequencyUpdated;
+
+  /// No description provided for @organizedByYou.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisé par vous'**
+  String get organizedByYou;
+
+  /// No description provided for @youAreGuest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invité'**
+  String get youAreGuest;
+
+  /// No description provided for @filterMine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisés par vous'**
+  String get filterMine;
+
+  /// No description provided for @filterInvited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invitations'**
+  String get filterInvited;
+
+  /// No description provided for @noMineUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun rendez-vous organisé par vous.'**
+  String get noMineUpcoming;
+
+  /// No description provided for @noInvitedUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune invitation à venir.'**
+  String get noInvitedUpcoming;
 }
 
 class _AppLocalizationsDelegate

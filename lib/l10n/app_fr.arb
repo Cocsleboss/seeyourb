@@ -514,7 +514,7 @@
   "groupOverdue": "En retard",
   "groupThisWeek": "Cette semaine",
   "groupUpToDate": "À jour",
-  "addSeeuFriend": "Ami SeeU",
+  "addSeeuFriend": "Trouver un ami",
   "addContact": "Contact",
   "rdvInvitations": "Invitations à un rendez-vous",
   "friendRequestsReceived": "Demandes d'ami reçues",
@@ -579,7 +579,7 @@
     }
   },
   "whenDidYouSee": "Quand l'avez-vous vu(e) ?",
-  "noteOptional": "Une note (facultatif)",
+  "noteOptional": "Une note",
   "noteHint": "Un souvenir, un détail à retenir…",
   "markSeenHelp": "La date de dernière rencontre et la prochaine échéance seront mises à jour automatiquement. La rencontre apparaîtra dans l'historique.",
   "saveMeeting": "Enregistrer la rencontre",
@@ -1153,10 +1153,10 @@
   "createAContact": "Créer un contact",
   "date": "Date",
   "time": "Heure",
-  "titleOptional": "Titre (facultatif)",
-  "placeOptional": "Lieu (facultatif)",
+  "titleOptional": "Titre",
+  "placeOptional": "Lieu",
   "placeHint": "Café, adresse, visio…",
-  "notesOptional": "Notes (facultatif)",
+  "notesOptional": "Notes",
   "notesPrivateHint": "Toujours privées, même si le rendez-vous est partagé.",
   "notesRdvHint": "Idées de sujets, à ne pas oublier…",
   "status": "Statut",
@@ -1308,7 +1308,7 @@
   "proposeSlots": "Proposer ces créneaux",
   "whoCanSee": "Qui peut le voir ?",
   "memberEditHint": "Vous participez à cet événement : seul l'organisateur peut changer la date, le lieu ou l'annuler. Vos notes, vos contacts et le statut restent à vous.",
-  "withWhomOptional": "Avec qui ? (facultatif)",
+  "withWhomOptional": "Avec qui ?",
   "withWhomHint": "Vos contacts qui viennent : leur compteur repart de zéro une fois l'événement passé.",
   "oneDate": "Une date",
   "severalSlots": "Plusieurs créneaux",
@@ -1544,5 +1544,25 @@
   "demoAds": "Publicités de démonstration",
   "demoAdsHelp": "Affiche de fausses annonces pour juger de leur intégration (mode développement).",
   "adCta": "En savoir plus",
-  "earlierMessages": "Messages précédents"
+  "earlierMessages": "Messages précédents",
+  "tagPersonal": "(personnel)",
+  "tagShared": "(partagée)",
+  "titleRequired": "Donnez un titre au rendez-vous",
+  "descriptionHintAll": "Visible par tous les participants.",
+  "editFrequency": "Modifier la fréquence",
+  "frequencySheetSub": "À quelle fréquence voulez-vous voir {name} ?",
+  "@frequencySheetSub": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "frequencyUpdated": "Fréquence mise à jour",
+  "organizedByYou": "Organisé par vous",
+  "youAreGuest": "Invité",
+  "filterMine": "Organisés par vous",
+  "filterInvited": "Invitations",
+  "noMineUpcoming": "Aucun rendez-vous organisé par vous.",
+  "noInvitedUpcoming": "Aucune invitation à venir."
 }

@@ -9,7 +9,7 @@ tryAnotherSearch | Essayez une autre recherche. | Try another search.
 groupOverdue | En retard | Overdue
 groupThisWeek | Cette semaine | This week
 groupUpToDate | À jour | Up to date
-addSeeuFriend | Ami SeeU | SeeU friend
+addSeeuFriend | Trouver un ami | Find a friend
 addContact | Contact | Contact
 rdvInvitations | Invitations à un rendez-vous | Event invitations
 friendRequestsReceived | Demandes d'ami reçues | Friend requests received
@@ -32,7 +32,7 @@ seeSoonTitle | À voir bientôt | See soon
 seeSoonSub | Choisissez quelqu'un à revoir sans attendre la fin de sa période. Il restera en tête de liste jusqu'à votre prochaine rencontre. | Pick someone to see without waiting for the end of their period. They'll stay at the top of the list until you meet.
 meetingSaved | Rencontre avec {name} enregistrée | Meetup with {name} saved
 whenDidYouSee | Quand l'avez-vous vu(e) ? | When did you see them?
-noteOptional | Une note (facultatif) | A note (optional)
+noteOptional | Une note | A note
 noteHint | Un souvenir, un détail à retenir… | A memory, a detail to remember…
 markSeenHelp | La date de dernière rencontre et la prochaine échéance seront mises à jour automatiquement. La rencontre apparaîtra dans l'historique. | The last meetup date and the next due date will update automatically. The meetup will show up in the history.
 saveMeeting | Enregistrer la rencontre | Save the meetup

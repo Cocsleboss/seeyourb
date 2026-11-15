@@ -36,6 +36,17 @@ class HomeSectionNotifier extends Notifier<HomeSection> {
   void set(HomeSection s) => state = s;
 }
 
+/// Filter of "Prochains rendez-vous": all, organized by me, where I'm a guest.
+enum AgendaFilter { all, mine, invited }
+
+final agendaFilterProvider = NotifierProvider<AgendaFilterNotifier, AgendaFilter>(AgendaFilterNotifier.new);
+
+class AgendaFilterNotifier extends Notifier<AgendaFilter> {
+  @override
+  AgendaFilter build() => AgendaFilter.all;
+  void set(AgendaFilter f) => state = f;
+}
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -197,6 +208,13 @@ class _Agenda extends ConsumerWidget {
     final bdaysToday = birthdaysToday(contacts);
     final bdaysWeek = birthdaysThisWeek(contacts);
     final overdue = overdueCount(contacts);
+    final filter = ref.watch(agendaFilterProvider);
+    final hasGuest = upcoming.any((r) => !r.isOrganizer);
+    final shown = switch (hasGuest ? filter : AgendaFilter.all) {
+      AgendaFilter.all => upcoming,
+      AgendaFilter.mine => upcoming.where((r) => r.isOrganizer).toList(),
+      AgendaFilter.invited => upcoming.where((r) => !r.isOrganizer).toList(),
+    };
 
     return [
       // 4. Birthdays today
@@ -286,16 +304,31 @@ class _Agenda extends ConsumerWidget {
           ]),
         )
       else ...[
-        for (final (day, list) in groupOrdered(upcoming.take(_maxUpcoming), (Rendezvous r) => dayOf(r.appointmentAt))) ...[
+        // Only useful once some events are someone else's.
+        if (hasGuest)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: ChipWrap(children: [
+              for (final (f, label) in [(AgendaFilter.all, tr.filterAll), (AgendaFilter.mine, tr.filterMine), (AgendaFilter.invited, tr.filterInvited)])
+                AppChip(label, selected: filter == f, onTap: () => ref.read(agendaFilterProvider.notifier).set(f)),
+            ]),
+          ),
+        if (shown.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(filter == AgendaFilter.mine ? tr.noMineUpcoming : tr.noInvitedUpcoming,
+                textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
+          ),
+        for (final (day, list) in groupOrdered(shown.take(_maxUpcoming), (Rendezvous r) => dayOf(r.appointmentAt))) ...[
           Overline(relativeDayLabel(day)),
-          RowsCard(children: [for (final r in list) RdvRow(rdv: r, showStatus: false, dayLabel: false)]),
+          RowsCard(children: [for (final r in list) RdvRow(rdv: r, showStatus: false, dayLabel: false, showOwner: true)]),
           const SizedBox(height: 8),
         ],
-        if (upcoming.length > _maxUpcoming)
+        if (shown.length > _maxUpcoming)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              tr.moreRdvs(upcoming.length - _maxUpcoming),
+              tr.moreRdvs(shown.length - _maxUpcoming),
               textAlign: TextAlign.center,
               style: TextStyle(color: c.textMuted, fontSize: 14),
             ),
@@ -365,14 +398,14 @@ class _Stat extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
+        child: Column(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(icon, size: 18, color: t.text),
             const SizedBox(width: 6),
             Text('$value', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: tone == Tone.red ? t.text : c.text, height: 1.1)),
           ]),
           const SizedBox(height: 2),
-          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: c.textMuted)),
+          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: c.textMuted)),
         ]),
       ),
     );

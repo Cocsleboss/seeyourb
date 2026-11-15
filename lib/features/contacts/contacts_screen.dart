@@ -161,7 +161,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             child: Row(children: [
               Expanded(
                 child: AppButton(tr.addSeeuFriend,
-                    icon: LucideIcons.heartHandshake, variant: ButtonVariant.secondary, full: true, onPressed: () => showAddFriendSheet(context)),
+                    icon: LucideIcons.userSearch, variant: ButtonVariant.secondary, full: true, onPressed: () => showAddFriendSheet(context)),
               ),
               const SizedBox(width: 10),
               Expanded(

@@ -45,10 +45,10 @@ createContactFirst | Créez d'abord un contact pour pouvoir planifier un rendez-
 createAContact | Créer un contact | Create a contact
 date | Date | Date
 time | Heure | Time
-titleOptional | Titre (facultatif) | Title (optional)
-placeOptional | Lieu (facultatif) | Place (optional)
+titleOptional | Titre | Title
+placeOptional | Lieu | Place
 placeHint | Café, adresse, visio… | Café, address, video call…
-notesOptional | Notes (facultatif) | Notes (optional)
+notesOptional | Notes | Notes
 notesPrivateHint | Toujours privées, même si le rendez-vous est partagé. | Always private, even if the event is shared.
 notesRdvHint | Idées de sujets, à ne pas oublier… | Topics, things not to forget…
 status | Statut | Status
