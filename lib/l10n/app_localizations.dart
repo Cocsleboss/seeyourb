@@ -626,6 +626,12 @@ abstract class AppLocalizations {
   /// **'Suppression impossible pour le moment. Réessayez plus tard.'**
   String get errDeleteAccountFailed;
 
+  /// No description provided for @errLinkOtherDevice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien doit être ouvert sur l\'appareil où vous l\'avez demandé. Ouvrez l\'email sur cet appareil, ou redemandez un lien depuis celui-ci.'**
+  String get errLinkOtherDevice;
+
   /// No description provided for @tabHome.
   ///
   /// In fr, this message translates to:

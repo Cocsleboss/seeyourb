@@ -4,7 +4,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_actions/quick_actions.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/errors.dart';
 import 'core/i18n.dart';
 import 'core/push.dart';
 import 'core/router.dart';
@@ -39,6 +41,12 @@ class _SeeUAppState extends ConsumerState<SeeUApp> with WidgetsBindingObserver {
     _subs.add(push.onOpen.listen(_open));
     _subs.add(push.onReceived.listen((_) => _refresh()));
     _lifecycle = AppLifecycleListener(onResume: _refresh);
+    // Email links (sign-up confirmation, magic link, password reset) that fail would
+    // otherwise just bring the app to the front: say what went wrong.
+    _subs.add(Supabase.instance.client.auth.onAuthStateChange.listen((_) {}, onError: (Object e) {
+      if (e is AuthRetryableFetchException) return; // offline token refresh: retried automatically
+      showToast(e is AuthException ? translateAuthError(e.message) : errorMessage(e), kind: ToastKind.error);
+    }));
 
     const QuickActions().initialize((type) => _open(type == 'new_contact' ? '/contacts/new' : '/rdv/new'));
     _setShortcuts();

@@ -432,6 +432,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Suppression impossible pour le moment. Réessayez plus tard.';
 
   @override
+  String get errLinkOtherDevice =>
+      'Ce lien doit être ouvert sur l\'appareil où vous l\'avez demandé. Ouvrez l\'email sur cet appareil, ou redemandez un lien depuis celui-ci.';
+
+  @override
   String get tabHome => 'Accueil';
 
   @override

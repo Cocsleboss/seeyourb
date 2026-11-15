@@ -88,6 +88,7 @@
   "errTooManySlots": "10 timeslots maximum.",
   "errContactsAddedBeforeError": "{n, plural, =1{1 contact added before the error: {error}} other{{n} contacts added before the error: {error}}}",
   "errDeleteAccountFailed": "Can't delete the account right now. Try again later.",
+  "errLinkOtherDevice": "This link must be opened on the device where you requested it. Open the email on that device, or request a new link from this one.",
   "tabHome": "Home",
   "tabContacts": "Contacts",
   "tabHistory": "History",

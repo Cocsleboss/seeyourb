@@ -269,6 +269,7 @@
     }
   },
   "errDeleteAccountFailed": "Suppression impossible pour le moment. Réessayez plus tard.",
+  "errLinkOtherDevice": "Ce lien doit être ouvert sur l'appareil où vous l'avez demandé. Ouvrez l'email sur cet appareil, ou redemandez un lien depuis celui-ci.",
   "tabHome": "Accueil",
   "tabContacts": "Contacts",
   "tabHistory": "Historique",

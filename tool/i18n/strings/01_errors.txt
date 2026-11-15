@@ -39,3 +39,4 @@ errNotParticipant | Rejoignez l'événement pour participer. | Join the event to
 errTooManySlots | 10 créneaux maximum. | 10 timeslots maximum.
 errContactsAddedBeforeError | {n, plural, =1{1 contact ajouté avant l'erreur : {error}} other{{n} contacts ajoutés avant l'erreur : {error}}} | {n, plural, =1{1 contact added before the error: {error}} other{{n} contacts added before the error: {error}}}
 errDeleteAccountFailed | Suppression impossible pour le moment. Réessayez plus tard. | Can't delete the account right now. Try again later.
+errLinkOtherDevice | Ce lien doit être ouvert sur l'appareil où vous l'avez demandé. Ouvrez l'email sur cet appareil, ou redemandez un lien depuis celui-ci. | This link must be opened on the device where you requested it. Open the email on that device, or request a new link from this one.

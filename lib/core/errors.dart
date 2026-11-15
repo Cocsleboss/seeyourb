@@ -102,7 +102,9 @@ String translateAuthError(String msg) {
   if (m.contains('signups not allowed') || (m.contains('signup') && m.contains('disabled'))) return tr.errSignupsDisabled;
   if (m.contains('invalid email') || m.contains('validate email') || m.contains('unable to validate')) return tr.errInvalidEmail;
   if (m.contains('same password') || m.contains('different from the old')) return tr.errSamePassword;
-  if (m.contains('expired') || m.contains('otp') || m.contains('invalid flow state') || m.contains('code verifier')) {
+  // PKCE: the link was opened on another device / app install than the one that asked for it.
+  if (m.contains('code verifier')) return tr.errLinkOtherDevice;
+  if (m.contains('expired') || m.contains('otp') || m.contains('invalid flow state') || m.contains('flow_state')) {
     return tr.errLinkExpired;
   }
   if (m.contains('session') && m.contains('missing')) return tr.errSessionExpired;

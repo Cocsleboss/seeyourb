@@ -421,6 +421,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Can\'t delete the account right now. Try again later.';
 
   @override
+  String get errLinkOtherDevice =>
+      'This link must be opened on the device where you requested it. Open the email on that device, or request a new link from this one.';
+
+  @override
   String get tabHome => 'Home';
 
   @override
