@@ -5,7 +5,7 @@ each person, the app tells you when it's time, helps you plan a meeting, and
 resets the counter once you've met. Friends on SeeU can share rendezvous, a
 common photo gallery and a "want to see you" signal.
 
-The full functional description (in French) is in [`description.md`](description.md);
+The full functional description (in French) is in [`description.md`](description.md); identifiers, URLs and secrets are mapped in [`docs/SETUP.md`](docs/SETUP.md);
 reference screenshots are in [`docs/design/`](docs/design).
 
 ## Stack
