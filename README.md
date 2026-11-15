@@ -79,11 +79,16 @@ tool/                        launcher icon rendering
 The app runs without Firebase; push is simply unavailable until it's configured.
 
 1. Create a Firebase project, add an **Android app** (`app.seeu`) and an **iOS app** (`app.seeu`).
-2. Download `google-services.json` → `android/app/` and `GoogleService-Info.plist` → `ios/Runner/`
-   (add it to the Runner target in Xcode). Both files are git-ignored.
-3. iOS: in Xcode → Runner → Signing & Capabilities, add **Push Notifications** and
-   **Background Modes → Remote notifications**; upload an APNs key in
-   Firebase → Project settings → Cloud Messaging.
+2. Download `google-services.json` → `android/app/` and `GoogleService-Info.plist` → `ios/Runner/`.
+   Both files are git-ignored; the Xcode project already references `Runner/GoogleService-Info.plist`,
+   so a fresh clone needs that file before building iOS.
+3. iOS push needs a paid Apple Developer account (free "Personal Team" signing cannot use the
+   Push Notifications capability). Until then the app runs on the simulator and on your iPhone,
+   without push. When you have the account:
+   - Xcode → Runner target → Signing & Capabilities: choose the team, add **Push Notifications**
+     (Background Modes → Remote notifications is already declared in `Info.plist`);
+   - developer.apple.com → Keys → new key with **APNs** → upload the `.p8` in
+     Firebase → Project settings → Cloud Messaging (with its Key ID and your Team ID).
 4. Firebase → Project settings → Service accounts → *Generate new private key*: that JSON is
    the `FCM_SERVICE_ACCOUNT` secret above.
 
