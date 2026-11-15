@@ -161,9 +161,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             // Side by side; icon above the label so the full wording fits.
             child: IntrinsicHeight(
               child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Expanded(child: _AddButton(icon: LucideIcons.userPlus, label: tr.addContact, primary: true, onTap: () => context.push('/contacts/new'))),
+                Expanded(child: _AddButton(icon: LucideIcons.userSearch, label: tr.addSeeuFriend, primary: true, onTap: () => showAddFriendSheet(context))),
                 const SizedBox(width: 10),
-                Expanded(child: _AddButton(icon: LucideIcons.userSearch, label: tr.addSeeuFriend, onTap: () => showAddFriendSheet(context))),
+                Expanded(child: _AddButton(icon: LucideIcons.userPlus, label: tr.addContact, onTap: () => context.push('/contacts/new'))),
               ]),
             ),
           ),
