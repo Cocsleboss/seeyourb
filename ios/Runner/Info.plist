@@ -29,6 +29,8 @@
 		<string>mailto</string>
 		<string>maps</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SeeU utilise votre position approximative pour proposer d'abord les lieux proches quand vous cherchez un endroit.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>SeeU lit les contacts que vous choisissez d'importer (nom, téléphone, email, anniversaire, notes). Rien n'est envoyé sans votre confirmation.</string>
 	<key>NSCameraUsageDescription</key>

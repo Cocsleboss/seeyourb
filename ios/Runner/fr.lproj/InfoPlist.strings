@@ -5,3 +5,4 @@
 "NSCalendarsUsageDescription" = "Ajoutez vos rendez-vous SeeU à votre calendrier.";
 "NSCalendarsWriteOnlyAccessUsageDescription" = "Ajoutez vos rendez-vous SeeU à votre calendrier.";
 "NSCalendarsFullAccessUsageDescription" = "Ajoutez vos rendez-vous SeeU à votre calendrier.";
+"NSLocationWhenInUseUsageDescription" = "SeeU utilise votre position approximative pour proposer d'abord les lieux proches quand vous cherchez un endroit.";

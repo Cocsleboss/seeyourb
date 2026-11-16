@@ -156,3 +156,14 @@ calendar. Contact pictures are 384 px. Photos uploaded before this change keep t
 - [ ] Android release signing (replace the debug signing config in `android/app/build.gradle.kts`).
 - [ ] Ads: see `docs/ADS.md` (AdMob account, consent flow, AdsService implementation).
 - [ ] Auth email templates in French + English (see "Languages" above).
+
+## Maps & place search
+
+- Map tiles: OpenStreetMap's public server (`lib/maps/maps.dart`, `_tileUrl`), used per its
+  [tile usage policy](https://operations.osmfoundation.org/policies/tiles/): exact URL, app
+  User-Agent `SeeU/1.0 (com.seeuapp.mobile)`, attribution always visible, flutter_map's
+  built-in cache (honours the server's cache headers), no prefetch / offline areas.
+  The service has no SLA and can block an app without notice: **before a public launch,
+  switch `_tileUrl` to a provider with a key** (MapTiler, Stadia, Thunderforest…).
+- Place search: Photon (komoot), biased towards the phone's approximate position
+  (asked once; rounded to ~1 km before being sent), else the area of the user's events.

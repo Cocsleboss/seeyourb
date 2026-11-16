@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -16,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../core/i18n.dart';
 import '../core/theme.dart';
+import '../data/providers.dart';
 
 const _packageName = 'com.seeuapp.mobile';
 const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -24,7 +26,10 @@ const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 final mapsEnabledProvider = Provider<bool>((ref) => true);
 
 class PlaceResult {
-  const PlaceResult({required this.name, this.address, required this.lat, required this.lng, this.kind});
+  const PlaceResult({required this.name, this.address, required this.lat, required this.lng, this.kind, this.km});
+
+  /// Distance from where I am (when known).
+  final double? km;
   final String name;
   final String? address;
   final double lat;
@@ -54,7 +59,8 @@ class PhotonPlaceSearch implements PlaceSearch {
       'limit': '7',
       // Photon knows de / en / fr / it
       'lang': const {'fr', 'en', 'de', 'it'}.contains(lang) ? lang : 'en',
-      if (near != null) ...{'lat': '${near.latitude}', 'lon': '${near.longitude}'},
+      // Prefer results around [near] (city scale); far ones still come after.
+      if (near != null) ...{'lat': '${near.latitude}', 'lon': '${near.longitude}', 'zoom': '12', 'location_bias_scale': '0.1'},
     });
     final res = await _client.get(uri, headers: {'User-Agent': 'SeeU/1.0 ($_packageName)'}).timeout(const Duration(seconds: 8));
     if (res.statusCode != 200) throw HttpException('places ${res.statusCode}');
@@ -76,6 +82,9 @@ class PhotonPlaceSearch implements PlaceSearch {
         lat: (coords[1] as num).toDouble(),
         lng: (coords[0] as num).toDouble(),
         kind: p['osm_value'] as String?,
+        km: near == null
+            ? null
+            : const Distance().as(LengthUnit.Meter, near, LatLng((coords[1] as num).toDouble(), (coords[0] as num).toDouble())) / 1000,
       ));
     }
     return out;
@@ -83,6 +92,35 @@ class PhotonPlaceSearch implements PlaceSearch {
 }
 
 final placeSearchProvider = Provider<PlaceSearch>((ref) => PhotonPlaceSearch());
+
+/// Where to look first in the place search ("Belga Café" → Brussels, not
+/// Argentina). The phone's approximate position (asked once, rounded to
+/// ~1 km before it leaves the phone), else the area of my events, else none.
+final searchBiasProvider = FutureProvider<LatLng?>((ref) async {
+  LatLng round(double lat, double lng) => LatLng((lat * 100).round() / 100, (lng * 100).round() / 100);
+  try {
+    if (await Geolocator.isLocationServiceEnabled()) {
+      var perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) perm = await Geolocator.requestPermission();
+      if (perm == LocationPermission.whileInUse || perm == LocationPermission.always) {
+        final pos = await Geolocator.getLastKnownPosition() ??
+            await Geolocator.getCurrentPosition(
+                locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 5)));
+        return round(pos.latitude, pos.longitude);
+      }
+    }
+  } catch (_) {
+    // no location: fall back below
+  }
+  final events = [...?ref.read(plannedRdvProvider).value, ...?ref.read(historyProvider).value]
+      .where((r) => r.event?.lat != null && r.event?.lng != null)
+      .take(20)
+      .toList();
+  if (events.isEmpty) return null;
+  final lat = events.map((r) => r.event!.lat!).reduce((a, b) => a + b) / events.length;
+  final lng = events.map((r) => r.event!.lng!).reduce((a, b) => a + b) / events.length;
+  return round(lat, lng);
+});
 
 IconData placeIcon(String? kind) => switch (kind) {
       'bar' || 'pub' || 'biergarten' => LucideIcons.beer,
@@ -132,11 +170,18 @@ class AppMap extends ConsumerWidget {
       mapController: mapController,
       options: options,
       children: [
-        TileLayer(urlTemplate: _tileUrl, userAgentPackageName: _packageName, maxZoom: 19),
+        // OSM tile policy: exact URL, an app-specific User-Agent, cache kept
+        // (flutter_map's built-in cache honours the server headers), no prefetch.
+        TileLayer(
+          urlTemplate: _tileUrl,
+          tileProvider: NetworkTileProvider(headers: {'User-Agent': 'SeeU/1.0 ($_packageName)'}),
+          maxZoom: 19,
+        ),
         ...children,
-        RichAttributionWidget(
-          alignment: AttributionAlignment.bottomRight,
-          attributions: [TextSourceAttribution('OpenStreetMap', onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')))],
+        // Attribution always visible (the policy forbids hiding it behind a toggle).
+        SimpleAttributionWidget(
+          source: const Text('OpenStreetMap'),
+          onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'), mode: LaunchMode.externalApplication),
         ),
       ],
     );

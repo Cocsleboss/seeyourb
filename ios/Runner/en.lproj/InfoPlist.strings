@@ -5,3 +5,4 @@
 "NSCalendarsUsageDescription" = "Add your SeeU events to your calendar.";
 "NSCalendarsWriteOnlyAccessUsageDescription" = "Add your SeeU events to your calendar.";
 "NSCalendarsFullAccessUsageDescription" = "Add your SeeU events to your calendar.";
+"NSLocationWhenInUseUsageDescription" = "SeeU uses your approximate location to suggest nearby places first when you search for a place.";

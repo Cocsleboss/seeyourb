@@ -54,7 +54,8 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
     final lang = Localizations.localeOf(context).languageCode;
     _debounce = Timer(const Duration(milliseconds: 450), () async {
       try {
-        final r = await ref.read(placeSearchProvider).search(v, lang: lang);
+        final near = await ref.read(searchBiasProvider.future).catchError((_) => null);
+        final r = await ref.read(placeSearchProvider).search(v, lang: lang, near: near);
         if (mounted && seq == _seq) setState(() => (_results = r, _failed = false));
       } catch (_) {
         if (mounted && seq == _seq) setState(() => (_results = const [], _failed = true));
@@ -175,6 +176,10 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
                   subtitle: p.address == null || p.address!.isEmpty
                       ? null
                       : Text(p.address!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.textMuted, fontSize: 12.5)),
+                  trailing: p.km == null
+                      ? null
+                      : Text(p.km! < 1 ? '${(p.km! * 1000).round()} m' : (p.km! < 10 ? '${p.km!.toStringAsFixed(1)} km' : '${p.km!.round()} km'),
+                          style: TextStyle(color: c.textSubtle, fontSize: 12)),
                   onTap: () => _pick(p),
                 ),
             ]),
