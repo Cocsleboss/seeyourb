@@ -2872,7 +2872,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get errBadLink =>
-      'Ce lien n\'est pas valide (il doit commencer par https://).';
+      'Ce lien n\'est pas valide (ex. : www.exemple.be ou exemple.com/page).';
 
   @override
   String get linkLabel => 'Lien';
@@ -2908,8 +2908,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get welcomeFriendsTitle => 'Vos amis SeeU';
 
   @override
-  String get welcomeFriendsMessage =>
-      'Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact.';
+  String welcomeFriendsMessage(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'Vous avez $n amis SeeU sans fiche contact : associez-les pour que SeeU vous rappelle de les voir.',
+      one: 'Vous avez 1 ami SeeU sans fiche contact : associez-le pour que SeeU vous rappelle de le voir.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get quickHowOften => 'À quelle fréquence ?';
@@ -2941,4 +2949,125 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get requestSentOnSave => 'demande envoyée à l\'enregistrement';
+
+  @override
+  String get clearField => 'Effacer';
+
+  @override
+  String get placeAtMine => 'Chez moi';
+
+  @override
+  String get placeVideo => 'En visio';
+
+  @override
+  String get placeTbd => 'Lieu à définir';
+
+  @override
+  String placeUseText(String text) {
+    return 'Utiliser « $text »';
+  }
+
+  @override
+  String get placeUseTextSub => 'Tel quel, sans adresse ni carte';
+
+  @override
+  String get requestAlreadySentLinked =>
+      'demande déjà envoyée : elle sera liée à ce contact';
+
+  @override
+  String get requestReceivedAcceptOnSave =>
+      'vous a envoyé une demande : acceptée à l\'enregistrement';
+
+  @override
+  String get requestPendingShort => 'Demande envoyée';
+
+  @override
+  String get requestReceivedShort => 'Vous a demandé';
+
+  @override
+  String get seeuFriendShort => 'Ami SeeU';
+
+  @override
+  String get prevWeek => 'Semaine précédente';
+
+  @override
+  String get nextWeek => 'Semaine suivante';
+
+  @override
+  String get calendarMonth => 'Mois';
+
+  @override
+  String get calendarWeek => 'Semaine';
+
+  @override
+  String get nothingThatDay => 'Rien de prévu ce jour-là.';
+
+  @override
+  String nEventsHere(int n) {
+    return '$n rendez-vous ici';
+  }
+
+  @override
+  String get tabLink => 'Lier';
+
+  @override
+  String get tabCreate => 'Créer';
+
+  @override
+  String get noContactToLink => 'Aucun contact libre à lier : créez-en un.';
+
+  @override
+  String get searchContactToLink => 'Chercher un de mes contacts…';
+
+  @override
+  String get noSuggestionSearch =>
+      'Pas de suggestion : cherchez le contact à lier.';
+
+  @override
+  String get link => 'Lier';
+
+  @override
+  String get fullForm => 'Formulaire';
+
+  @override
+  String get createContactShort => 'Créer le contact';
+
+  @override
+  String get friendsToAssociate => 'Amis SeeU à associer';
+
+  @override
+  String get friendsToAssociateHelp =>
+      'Liez chacun à un de vos contacts, ou créez-lui une fiche : SeeU vous rappellera de le voir, et vous partagerez rendez-vous et photos.';
+
+  @override
+  String get friendVsContactTitle => 'Contact ou ami SeeU ?';
+
+  @override
+  String get helpContactTitle => 'Contact';
+
+  @override
+  String get helpContactText =>
+      'Une fiche privée, rien que pour vous : à quelle fréquence vous voulez voir la personne, vos notes, ses infos. Elle n\'a pas besoin de SeeU.';
+
+  @override
+  String get helpFriendTitle => 'Ami SeeU';
+
+  @override
+  String get helpFriendText =>
+      'Une personne qui a SeeU et avec qui vous êtes amis (via son @identifiant) : vous pouvez l\'inviter, partager rendez-vous, discussions et photos. Repérable à l\'icône 🤝.';
+
+  @override
+  String get helpLinkTitle => 'Les deux, liés';
+
+  @override
+  String get helpLinkText =>
+      'Liez la fiche d\'un contact à son compte SeeU : vous gardez vos rappels et notes, et vos rendez-vous avec lui sont partagés.';
+
+  @override
+  String contactFromFriendBanner(String name) {
+    return 'Fiche liée à votre ami SeeU $name : vous partagerez rendez-vous et photos, et sa photo de profil est utilisée.';
+  }
+
+  @override
+  String get manageContacts => 'Gérer mes contacts';
 }

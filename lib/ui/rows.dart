@@ -1,5 +1,6 @@
 // List rows shared by several screens: contact row, rendezvous row, date block.
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -7,6 +8,8 @@ import '../core/theme.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
 import 'kit.dart';
+import '../domain/text.dart';
+import '../data/providers.dart';
 import '../features/rdv/rsvp.dart';
 import '../core/i18n.dart';
 
@@ -245,3 +248,39 @@ class InfoLine extends StatelessWidget {
   }
 }
 
+
+
+/// Under a contact's name, everywhere a contact is listed: whether they're a
+/// SeeU friend (handshake + @username) or not on SeeU, then their categories.
+class ContactKindLine extends ConsumerWidget {
+  const ContactKindLine({super.key, required this.linkedUserId, this.categories, this.fontSize = 12.5});
+  final String? linkedUserId;
+  final String? categories;
+  final double fontSize;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final style = TextStyle(fontSize: fontSize, color: c.textMuted);
+    final username = linkedUserId == null
+        ? null
+        : (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.userId == linkedUserId).firstOrNull?.username;
+    return Text.rich(
+      TextSpan(children: [
+        if (linkedUserId != null) ...[
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Padding(padding: const EdgeInsets.only(right: 4), child: Icon(LucideIcons.heartHandshake, size: fontSize + 1, color: c.brandText)),
+          ),
+          TextSpan(text: tr.seeuFriendShort, style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
+          if (username != null) TextSpan(text: ' ${handle(username)}'),
+        ] else
+          TextSpan(text: tr.notOnSeeu),
+        if (categories != null && categories!.isNotEmpty) TextSpan(text: ' · $categories'),
+      ]),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: style,
+    );
+  }
+}

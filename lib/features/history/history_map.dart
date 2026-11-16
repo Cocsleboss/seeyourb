@@ -1,5 +1,6 @@
 // History → Carte: past events placed on a map (those whose place was picked
-// from the search). Tap a pin: recap card, then the full event.
+// from the search). Events at the same place share one pin (with a count);
+// tapping it opens a card right above the pin, listing them.
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,10 +11,37 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
+import '../../domain/dates.dart';
 import '../../domain/models.dart';
+import '../../domain/text.dart';
 import '../../maps/maps.dart';
 import '../../ui/kit.dart';
-import '../../ui/rows.dart';
+
+const _popupWidth = 290.0;
+const _popupRowHeight = 58.0;
+const _popupMaxRows = 4;
+
+class _Place {
+  _Place(this.point, this.rdvs);
+  final LatLng point;
+  final List<Rendezvous> rdvs;
+  String get key => '${point.latitude.toStringAsFixed(5)},${point.longitude.toStringAsFixed(5)}';
+}
+
+/// Same place = same coordinates within ~10 m.
+List<_Place> _groupByPlace(List<Rendezvous> all) {
+  final byKey = <String, _Place>{};
+  for (final r in all) {
+    final lat = r.event?.lat, lng = r.event?.lng;
+    if (lat == null || lng == null) continue;
+    final k = '${lat.toStringAsFixed(4)},${lng.toStringAsFixed(4)}';
+    (byKey[k] ??= _Place(LatLng(lat, lng), [])).rdvs.add(r);
+  }
+  for (final p in byKey.values) {
+    p.rdvs.sort((a, b) => b.appointmentAt.compareTo(a.appointmentAt));
+  }
+  return byKey.values.toList();
+}
 
 class HistoryMap extends ConsumerStatefulWidget {
   const HistoryMap({super.key});
@@ -22,7 +50,20 @@ class HistoryMap extends ConsumerStatefulWidget {
 }
 
 class _HistoryMapState extends ConsumerState<HistoryMap> {
-  Rendezvous? _selected;
+  final _map = MapController();
+  String? _selected;
+
+  double _popupHeight(_Place p) => 44 + _popupRowHeight * p.rdvs.length.clamp(1, _popupMaxRows);
+
+  void _select(_Place p) {
+    setState(() => _selected = p.key);
+    // Recenter so the card above the pin is fully visible: the pin goes
+    // below the middle by half the card's height.
+    try {
+      final zoom = _map.camera.zoom;
+      _map.move(p.point, zoom, offset: Offset(0, _popupHeight(p) / 2 + 20));
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,37 +73,47 @@ class _HistoryMapState extends ConsumerState<HistoryMap> {
       value: value,
       onRetry: () => ref.invalidate(historyProvider),
       builder: (all) {
-        final placed = all.where((r) => r.event?.lat != null && r.event?.lng != null).toList();
-        final points = [for (final r in placed) LatLng(r.event!.lat!, r.event!.lng!)];
+        final places = _groupByPlace(all);
+        final points = [for (final p in places) p.point];
+        final selected = places.where((p) => p.key == _selected).firstOrNull;
+        void clear(TapPosition _, LatLng _) => setState(() => _selected = null);
         final options = points.isEmpty
             ? const MapOptions(initialCenter: LatLng(50.85, 4.35), initialZoom: 5)
             : points.length == 1
-                ? MapOptions(initialCenter: points.first, initialZoom: 14, onTap: (_, _) => setState(() => _selected = null))
+                ? MapOptions(initialCenter: points.first, initialZoom: 14, onTap: clear)
                 : MapOptions(
-                    initialCameraFit: CameraFit.coordinates(coordinates: points, padding: const EdgeInsets.all(48), maxZoom: 15),
-                    onTap: (_, _) => setState(() => _selected = null),
+                    initialCameraFit: CameraFit.coordinates(coordinates: points, padding: const EdgeInsets.all(56), maxZoom: 15),
+                    onTap: clear,
                   );
         return Stack(children: [
           Positioned.fill(
             child: AppMap(
+              mapController: _map,
               options: options,
               children: [
                 MarkerLayer(markers: [
-                  for (final r in placed)
+                  for (final p in places)
                     Marker(
-                      point: LatLng(r.event!.lat!, r.event!.lng!),
-                      width: 44,
-                      height: 44,
-                      child: GestureDetector(
-                        onTap: () => setState(() => _selected = r),
-                        child: MapPin(
-                          icon: r.status == RdvStatus.annule ? LucideIcons.x : LucideIcons.calendarCheck,
-                          color: r.status == RdvStatus.annule ? Palette.gray500 : Palette.brand600,
-                          selected: _selected?.id == r.id,
-                        ),
-                      ),
+                      point: p.point,
+                      width: 48,
+                      height: 48,
+                      child: GestureDetector(onTap: () => _select(p), child: _PlacePin(place: p, selected: p.key == _selected)),
                     ),
                 ]),
+                // The card sits right above its pin and moves with the map.
+                if (selected != null)
+                  MarkerLayer(markers: [
+                    Marker(
+                      point: selected.point,
+                      width: _popupWidth,
+                      height: _popupHeight(selected) + 34,
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 34),
+                        child: _PlaceCard(place: selected, onClose: () => setState(() => _selected = null)),
+                      ),
+                    ),
+                  ]),
               ],
             ),
           ),
@@ -79,32 +130,114 @@ class _HistoryMapState extends ConsumerState<HistoryMap> {
                 ]),
               ),
             ),
-          if (_selected != null)
-            Positioned(
-              left: 12,
-              right: 12,
-              bottom: 16,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: c.card,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 16, offset: const Offset(0, 6))],
-                  ),
-                  child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    RdvRow(rdv: _selected!),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                      child: AppButton(tr.openEvent,
-                          icon: LucideIcons.arrowRight, full: true, onPressed: () => context.push('/rdv/${_selected!.id}')),
-                    ),
-                  ]),
-                ),
-              ),
-            ),
         ]);
       },
+    );
+  }
+}
+
+class _PlacePin extends StatelessWidget {
+  const _PlacePin({required this.place, required this.selected});
+  final _Place place;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = place.rdvs.length;
+    final allCancelled = place.rdvs.every((r) => r.status == RdvStatus.annule);
+    return Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
+      MapPin(
+        icon: allCancelled ? LucideIcons.x : LucideIcons.calendarCheck,
+        color: allCancelled ? Palette.gray500 : Palette.brand600,
+        selected: selected,
+      ),
+      if (n > 1)
+        Positioned(
+          right: 0,
+          top: 0,
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 20),
+            height: 20,
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: context.colors.tone(Tone.amber).solid, borderRadius: BorderRadius.circular(99), border: Border.all(color: Colors.white, width: 2)),
+            child: Text('$n', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+          ),
+        ),
+    ]);
+  }
+}
+
+class _PlaceCard extends StatelessWidget {
+  const _PlaceCard({required this.place, required this.onClose});
+  final _Place place;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final first = place.rdvs.first;
+    return Material(
+      color: c.card,
+      elevation: 6,
+      shadowColor: Colors.black.withValues(alpha: 0.3),
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        // place name + close
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 6, 2, 0),
+          child: Row(children: [
+            Icon(LucideIcons.mapPin, size: 15, color: c.brandText),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                place.rdvs.length > 1 ? '${first.location ?? ''} · ${tr.nEventsHere(place.rdvs.length)}' : (first.location ?? ''),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: c.textMuted),
+              ),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: tr.close,
+              onPressed: onClose,
+              icon: Icon(LucideIcons.x, size: 18, color: c.textMuted),
+            ),
+          ]),
+        ),
+        Flexible(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 4),
+            shrinkWrap: true,
+            children: [
+              for (final r in place.rdvs)
+                InkWell(
+                  onTap: () => context.push('/rdv/${r.id}'),
+                  child: SizedBox(
+                    height: _popupRowHeight,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(children: [
+                        Expanded(
+                          child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Text(r.displayTitle,
+                                maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: c.text)),
+                            const SizedBox(height: 2),
+                            Text(capitalize(formatDateLong(r.appointmentAt)), style: TextStyle(fontSize: 12.5, color: c.textMuted)),
+                          ]),
+                        ),
+                        PhasePill(r),
+                        const SizedBox(width: 4),
+                        Icon(LucideIcons.chevronRight, size: 18, color: c.textMuted),
+                      ]),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 }

@@ -141,5 +141,7 @@ List<Widget> withAds(List<Widget> items, AdPlacement placement, {int first = 3, 
     final n = i + 1;
     if (n == first || (n > first && (n - first) % every == 0)) out.add(AdTile(placement, key: ValueKey('ad-$placement-$n')));
   }
+  // Few items: the ad still shows, after the last one.
+  if (items.isNotEmpty && items.length < first) out.add(AdTile(placement, key: ValueKey('ad-$placement-end')));
   return out;
 }

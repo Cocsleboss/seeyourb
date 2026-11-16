@@ -208,7 +208,6 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     final friends = _friendParticipants;
     final shown = (widget.contacts.where((x) => contactMatches(x, _search.text)).toList()..sort((a, b) => compareNames(a.name, b.name)));
     final canPublic = ref.watch(canCreatePublicProvider).value ?? false;
-    final usernames = {for (final f in ref.watch(friendsProvider).value ?? const <Friend>[]) f.userId: f.username};
     final e = widget.existing;
 
     return AppScaffold(
@@ -230,6 +229,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
           if (_organizer)
             LabeledField(
               label: tr.whoCanSee,
+              icon: LucideIcons.eye,
               child: VisibilityPicker(
                 value: _visibility,
                 publicAllowed: canPublic || _visibility == EventVisibility.public,
@@ -251,6 +251,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
           // 1. My contacts taking part
           LabeledField(
             label: _contactsRequired ? tr.participants : tr.withWhomOptional,
+            icon: LucideIcons.users,
             required: _contactsRequired,
             hint: _visibility == EventVisibility.private || !_organizer ? null : tr.withWhomHint,
             error: _error == tr.chooseOneContact ? _error : null,
@@ -311,14 +312,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                                     shape: const RoundedRectangleBorder(),
                                     secondary: FriendAvatar(name: x.name, path: x.photoPath, size: 38, isFriend: x.linkedUserId != null, userId: x.linkedUserId),
                                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
-                                    subtitle: () {
-                                      // SeeU friends: their @username, so they're told apart at a glance.
-                                      final line = [
-                                        if (x.linkedUserId != null) handle(usernames[x.linkedUserId]),
-                                        ?x.categoryLabel,
-                                      ].where((s) => s.isNotEmpty).join(' · ');
-                                      return line.isEmpty ? null : Text(line, style: TextStyle(fontSize: 12.5, color: c.textMuted));
-                                    }(),
+                                    subtitle: ContactKindLine(linkedUserId: x.linkedUserId, categories: x.categoryLabel),
                                   );
                                 },
                               ),
@@ -352,6 +346,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                   flex: 3,
                   child: LabeledField(
                     label: tr.date,
+                    icon: LucideIcons.calendar,
                     required: true,
                     child: DateField(
                       compact: true,
@@ -367,6 +362,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                   flex: 2,
                   child: LabeledField(
                     label: tr.time,
+                    icon: LucideIcons.clock,
                     required: true,
                     child: TimeField(
                       value: _time,
@@ -381,6 +377,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             // 3. Title, place, description
             LabeledField(
               label: tr.titleOptional,
+              icon: LucideIcons.type,
               required: true,
               error: _titleMissing ? tr.titleRequired : null,
               child: AppTextField(
@@ -394,6 +391,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             ),
             LabeledField(
               label: tr.placeOptional,
+              icon: LucideIcons.mapPin,
               child: PlaceField(
                 controller: _location,
                 lat: _lat,
@@ -403,6 +401,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             ),
             LabeledField(
               label: tr.linkLabel,
+              icon: LucideIcons.link,
               error: _linkInvalid ? tr.errBadLink : null,
               child: AppTextField(
                 controller: _link,
@@ -416,6 +415,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             ),
             LabeledField(
               label: tr.descriptionLabel,
+              icon: LucideIcons.alignLeft,
               tag: tr.tagShared,
               hint: _visibility == EventVisibility.private ? tr.descriptionHintAll : tr.descriptionHint,
               child: AppTextField(controller: _description, hint: tr.descriptionPlaceholder, maxLines: 4, maxLength: 2000),
@@ -449,14 +449,16 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
           // 4. Private notes
           LabeledField(
             label: tr.notesOptional,
+            icon: LucideIcons.stickyNote,
             tag: tr.tagPersonal,
             hint: tr.notesPrivateHint,
             child: AppTextField(controller: _notes, hint: tr.notesRdvHint, maxLines: 4),
           ),
 
-          if (_editing && !(e?.slotsOpen ?? false))
+          if (_editing && _organizer && !(e?.slotsOpen ?? false))
             LabeledField(
               label: tr.status,
+              icon: LucideIcons.flag,
               hint: switch (_status) {
                 RdvStatus.valide => tr.statusHintDone,
                 RdvStatus.annule => _organizer && _visibility != EventVisibility.private ? tr.statusHintCancelledAll : tr.statusHintCancelled,
@@ -569,6 +571,7 @@ class _SlotsEditor extends StatelessWidget {
     final c = context.colors;
     return LabeledField(
       label: tr.slotsLabel,
+      icon: LucideIcons.calendarClock,
       hint: '${tr.slotsHint} ${tr.slotsOrganizerOnlyFree}',
       error: error,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

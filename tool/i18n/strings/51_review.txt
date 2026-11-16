@@ -68,7 +68,7 @@ findOnSeeu | Pas encore ami : chercher son @identifiant | Not friends yet: searc
 avatarHint | Visible par vos amis et les participants de vos rendez-vous. | Visible to your friends and people in your events.
 avatarUpdated | Photo de profil mise à jour | Profile picture updated
 avatarRemoved | Photo de profil retirée | Profile picture removed
-errBadLink | Ce lien n'est pas valide (il doit commencer par https://). | This link isn't valid (it must start with https://).
+errBadLink | Ce lien n'est pas valide (ex. : www.exemple.be ou exemple.com/page). | This link isn't valid (e.g. www.example.com or example.com/page).
 linkLabel | Lien | Link
 linkHint | Billetterie, menu, page de l'événement… | Tickets, menu, event page…
 placeSearchHint | Bar, restaurant, adresse… ou texte libre | Bar, restaurant, address… or free text
@@ -79,7 +79,7 @@ historyMap | Carte | Map
 historyMapEmpty | Les rendez-vous dont le lieu a été choisi dans la recherche apparaîtront ici. | Events whose place was picked from the search will show up here.
 openEvent | Voir le rendez-vous | Open the event
 welcomeFriendsTitle | Vos amis SeeU | Your SeeU friends
-welcomeFriendsMessage | Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact. | Choose how often you want to see each of them: SeeU will remind you to keep in touch.
+welcomeFriendsMessage | {n, plural, =1{Vous avez 1 ami SeeU sans fiche contact : associez-le pour que SeeU vous rappelle de le voir.} other{Vous avez {n} amis SeeU sans fiche contact : associez-les pour que SeeU vous rappelle de les voir.}} | {n, plural, =1{You have 1 SeeU friend without a contact card: set them up so SeeU reminds you to see them.} other{You have {n} SeeU friends without a contact card: set them up so SeeU reminds you to see them.}}
 quickHowOften | À quelle fréquence ? | How often?
 quickCategory | Catégorie | Category
 moreOptions | Plus d'options | More options
@@ -89,3 +89,41 @@ contactLinkHint | Facultatif. Lié à son compte SeeU, vous pourrez partager ren
 contactLinkSheetSub | Un de vos amis SeeU, ou cherchez son @identifiant : la demande d'ami partira à l'enregistrement. | One of your SeeU friends, or search their @username: the friend request is sent when you save.
 orFindByUsername | Pas encore ami ? Cherchez son @identifiant | Not friends yet? Search their @username
 requestSentOnSave | demande envoyée à l'enregistrement | request sent when you save
+
+# Review round 5
+clearField | Effacer | Clear
+placeAtMine | Chez moi | At my place
+placeVideo | En visio | Video call
+placeTbd | Lieu à définir | Place to be decided
+placeUseText | Utiliser « {text} » | Use “{text}”
+placeUseTextSub | Tel quel, sans adresse ni carte | As is, without address or map
+requestAlreadySentLinked | demande déjà envoyée : elle sera liée à ce contact | request already sent: it will be tied to this contact
+requestReceivedAcceptOnSave | vous a envoyé une demande : acceptée à l'enregistrement | sent you a request: accepted when you save
+requestPendingShort | Demande envoyée | Request sent
+requestReceivedShort | Vous a demandé | Asked you
+seeuFriendShort | Ami SeeU | SeeU friend
+prevWeek | Semaine précédente | Previous week
+nextWeek | Semaine suivante | Next week
+calendarMonth | Mois | Month
+calendarWeek | Semaine | Week
+nothingThatDay | Rien de prévu ce jour-là. | Nothing planned that day.
+nEventsHere | {n} rendez-vous ici | {n} events here
+tabLink | Lier | Link
+tabCreate | Créer | Create
+noContactToLink | Aucun contact libre à lier : créez-en un. | No free contact to link: create one.
+searchContactToLink | Chercher un de mes contacts… | Search my contacts…
+noSuggestionSearch | Pas de suggestion : cherchez le contact à lier. | No suggestion: search the contact to link.
+link | Lier | Link
+fullForm | Formulaire | Full form
+createContactShort | Créer le contact | Create contact
+friendsToAssociate | Amis SeeU à associer | SeeU friends to set up
+friendsToAssociateHelp | Liez chacun à un de vos contacts, ou créez-lui une fiche : SeeU vous rappellera de le voir, et vous partagerez rendez-vous et photos. | Link each one to one of your contacts, or create a card: SeeU will remind you to see them, and you'll share events and photos.
+friendVsContactTitle | Contact ou ami SeeU ? | Contact or SeeU friend?
+helpContactTitle | Contact | Contact
+helpContactText | Une fiche privée, rien que pour vous : à quelle fréquence vous voulez voir la personne, vos notes, ses infos. Elle n'a pas besoin de SeeU. | A private card, just for you: how often you want to see them, your notes, their details. They don't need SeeU.
+helpFriendTitle | Ami SeeU | SeeU friend
+helpFriendText | Une personne qui a SeeU et avec qui vous êtes amis (via son @identifiant) : vous pouvez l'inviter, partager rendez-vous, discussions et photos. Repérable à l'icône 🤝. | Someone on SeeU you're friends with (via their @username): you can invite them and share events, chats and photos. Marked with the 🤝 icon.
+helpLinkTitle | Les deux, liés | Both, linked
+helpLinkText | Liez la fiche d'un contact à son compte SeeU : vous gardez vos rappels et notes, et vos rendez-vous avec lui sont partagés. | Link a contact's card to their SeeU account: you keep your reminders and notes, and your events with them are shared.
+contactFromFriendBanner | Fiche liée à votre ami SeeU {name} : vous partagerez rendez-vous et photos, et sa photo de profil est utilisée. | Card linked to your SeeU friend {name}: you'll share events and photos, and their profile picture is used.
+manageContacts | Gérer mes contacts | Manage contacts

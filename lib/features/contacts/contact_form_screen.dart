@@ -24,10 +24,12 @@ import '../../core/i18n.dart';
 
 /// Values to prefill a new contact (e.g. from a SeeU friend).
 class ContactPrefill {
-  const ContactPrefill({this.name, this.email, this.linkedUserId, this.frequencyValue, this.frequencyUnit, this.categories});
+  const ContactPrefill(
+      {this.name, this.email, this.linkedUserId, this.linkedUsername, this.frequencyValue, this.frequencyUnit, this.categories});
   final String? name;
   final String? email;
   final String? linkedUserId;
+  final String? linkedUsername;
   final int? frequencyValue;
   final FrequencyUnit? frequencyUnit;
   final List<String>? categories;
@@ -181,6 +183,24 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: PageList(children: [
+          // Created from a SeeU friend: say it clearly.
+          if (widget.existing == null && widget.prefill?.linkedUserId != null) ...[
+            const SizedBox(height: 8),
+            InfoBox(
+              tone: Tone.brand,
+              child: Row(children: [
+                Icon(LucideIcons.heartHandshake, size: 20, color: c.brandText),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    tr.contactFromFriendBanner(
+                        '${widget.prefill!.name ?? ''}${widget.prefill!.linkedUsername == null ? '' : ' (${handle(widget.prefill!.linkedUsername)})'}'),
+                    style: const TextStyle(fontSize: 13.5, height: 1.35),
+                  ),
+                ),
+              ]),
+            ),
+          ],
           // Photo
           const SizedBox(height: 8),
           Row(children: [
@@ -194,6 +214,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
                       path: _removePhoto ? null : widget.existing?.photoPath,
                       size: 76,
                       seeu: (widget.existing?.linkedUserId ?? widget.prefill?.linkedUserId) != null,
+                      userId: widget.existing?.linkedUserId ?? widget.prefill?.linkedUserId,
                     ),
             ),
             const SizedBox(width: 14),

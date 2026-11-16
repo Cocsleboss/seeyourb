@@ -371,7 +371,7 @@ class _FriendSectionState extends ConsumerState<_FriendSection> {
                   variant: ButtonVariant.secondary,
                   size: ButtonSize.sm,
                   full: true,
-                  onPressed: friend == null ? null : () => showFriendSheet(context, friend)),
+                  onPressed: friend == null ? null : () => showFriendSheet(context, friend, onContactPage: true)),
             ),
           ]),
         ]),

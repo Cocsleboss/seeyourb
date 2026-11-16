@@ -239,4 +239,13 @@ void main() {
     expect(bestSlots([s('a', 2, 2), s('b', 3, 0)]).map((x) => x.id), ['a', 'b']);
     expect(bestSlots([s('a', 0, 0)]), isEmpty);
   });
+
+  test('normalizeLink accepts links without https and rejects text', () {
+    expect(normalizeLink('www.poker.be'), 'https://www.poker.be');
+    expect(normalizeLink('poker.be/soiree'), 'https://poker.be/soiree');
+    expect(normalizeLink('http://a.com'), 'http://a.com');
+    expect(normalizeLink('HTTPS://X.org/a?b=1'), 'HTTPS://X.org/a?b=1');
+    expect(normalizeLink('chez moi'), isNull);
+    expect(normalizeLink('abc'), isNull);
+  });
 }

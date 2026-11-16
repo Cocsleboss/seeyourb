@@ -2795,7 +2795,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errBadLink =>
-      'This link isn\'t valid (it must start with https://).';
+      'This link isn\'t valid (e.g. www.example.com or example.com/page).';
 
   @override
   String get linkLabel => 'Link';
@@ -2830,8 +2830,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeFriendsTitle => 'Your SeeU friends';
 
   @override
-  String get welcomeFriendsMessage =>
-      'Choose how often you want to see each of them: SeeU will remind you to keep in touch.';
+  String welcomeFriendsMessage(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other:
+          'You have $n SeeU friends without a contact card: set them up so SeeU reminds you to see them.',
+      one: 'You have 1 SeeU friend without a contact card: set them up so SeeU reminds you to see them.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get quickHowOften => 'How often?';
@@ -2863,4 +2871,124 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get requestSentOnSave => 'request sent when you save';
+
+  @override
+  String get clearField => 'Clear';
+
+  @override
+  String get placeAtMine => 'At my place';
+
+  @override
+  String get placeVideo => 'Video call';
+
+  @override
+  String get placeTbd => 'Place to be decided';
+
+  @override
+  String placeUseText(String text) {
+    return 'Use “$text”';
+  }
+
+  @override
+  String get placeUseTextSub => 'As is, without address or map';
+
+  @override
+  String get requestAlreadySentLinked =>
+      'request already sent: it will be tied to this contact';
+
+  @override
+  String get requestReceivedAcceptOnSave =>
+      'sent you a request: accepted when you save';
+
+  @override
+  String get requestPendingShort => 'Request sent';
+
+  @override
+  String get requestReceivedShort => 'Asked you';
+
+  @override
+  String get seeuFriendShort => 'SeeU friend';
+
+  @override
+  String get prevWeek => 'Previous week';
+
+  @override
+  String get nextWeek => 'Next week';
+
+  @override
+  String get calendarMonth => 'Month';
+
+  @override
+  String get calendarWeek => 'Week';
+
+  @override
+  String get nothingThatDay => 'Nothing planned that day.';
+
+  @override
+  String nEventsHere(int n) {
+    return '$n events here';
+  }
+
+  @override
+  String get tabLink => 'Link';
+
+  @override
+  String get tabCreate => 'Create';
+
+  @override
+  String get noContactToLink => 'No free contact to link: create one.';
+
+  @override
+  String get searchContactToLink => 'Search my contacts…';
+
+  @override
+  String get noSuggestionSearch => 'No suggestion: search the contact to link.';
+
+  @override
+  String get link => 'Link';
+
+  @override
+  String get fullForm => 'Full form';
+
+  @override
+  String get createContactShort => 'Create contact';
+
+  @override
+  String get friendsToAssociate => 'SeeU friends to set up';
+
+  @override
+  String get friendsToAssociateHelp =>
+      'Link each one to one of your contacts, or create a card: SeeU will remind you to see them, and you\'ll share events and photos.';
+
+  @override
+  String get friendVsContactTitle => 'Contact or SeeU friend?';
+
+  @override
+  String get helpContactTitle => 'Contact';
+
+  @override
+  String get helpContactText =>
+      'A private card, just for you: how often you want to see them, your notes, their details. They don\'t need SeeU.';
+
+  @override
+  String get helpFriendTitle => 'SeeU friend';
+
+  @override
+  String get helpFriendText =>
+      'Someone on SeeU you\'re friends with (via their @username): you can invite them and share events, chats and photos. Marked with the 🤝 icon.';
+
+  @override
+  String get helpLinkTitle => 'Both, linked';
+
+  @override
+  String get helpLinkText =>
+      'Link a contact\'s card to their SeeU account: you keep your reminders and notes, and your events with them are shared.';
+
+  @override
+  String contactFromFriendBanner(String name) {
+    return 'Card linked to your SeeU friend $name: you\'ll share events and photos, and their profile picture is used.';
+  }
+
+  @override
+  String get manageContacts => 'Manage contacts';
 }

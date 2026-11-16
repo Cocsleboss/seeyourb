@@ -64,6 +64,31 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
     });
   }
 
+  void _clear() {
+    _debounce?.cancel();
+    _seq++;
+    widget.controller.clear();
+    if (widget.lat != null) widget.onPlace(null);
+    setState(() {
+      _results = const [];
+      _searching = false;
+      _failed = false;
+    });
+  }
+
+  /// Keep the typed text as the place ("Chez moi", "Au parc"…), no map.
+  void _keepText([String? text]) {
+    _debounce?.cancel();
+    _seq++;
+    if (text != null) widget.controller.text = text;
+    if (widget.lat != null) widget.onPlace(null);
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _results = const [];
+      _searching = false;
+    });
+  }
+
   void _pick(PlaceResult p) {
     widget.controller.text = p.label;
     widget.onPlace(p);
@@ -80,21 +105,68 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
         controller: widget.controller,
         hint: widget.hint ?? tr.placeSearchHint,
         maxLength: 200,
-        onChanged: _onChanged,
+        onChanged: (v) {
+          _onChanged(v);
+          setState(() {}); // show / hide the clear button
+        },
         prefix: Padding(
           padding: const EdgeInsets.only(left: 12, right: 4),
           child: Icon(picked ? LucideIcons.mapPinCheck : LucideIcons.search, size: 19, color: picked ? c.brandText : c.textMuted),
         ),
-        suffix: _searching
-            ? const Padding(padding: EdgeInsets.all(14), child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)))
+        // Loading indicator AND clear button, side by side.
+        suffix: _searching || widget.controller.text.isNotEmpty
+            ? Row(mainAxisSize: MainAxisSize.min, children: [
+                if (_searching)
+                  const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 6),
+                      child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))),
+                if (widget.controller.text.isNotEmpty)
+                  IconButton(
+                    tooltip: tr.clearField,
+                    visualDensity: VisualDensity.compact,
+                    onPressed: _clear,
+                    icon: Icon(LucideIcons.x, size: 18, color: c.textMuted),
+                  ),
+              ])
             : null,
       ),
+      // Places that aren't addresses: one tap.
+      if (widget.controller.text.isEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Wrap(spacing: 6, runSpacing: 6, children: [
+            for (final (icon, label) in [
+              (LucideIcons.house, tr.placeAtMine),
+              (LucideIcons.video, tr.placeVideo),
+              (LucideIcons.circleHelp, tr.placeTbd),
+            ])
+              ActionChip(
+                avatar: Icon(icon, size: 16, color: c.brandText),
+                label: Text(label),
+                labelStyle: TextStyle(color: c.text, fontWeight: FontWeight.w500, fontSize: 13.5),
+                backgroundColor: c.secondaryFill,
+                side: BorderSide.none,
+                shape: const StadiumBorder(),
+                onPressed: () => _keepText(label),
+              ),
+          ]),
+        ),
       if (_results.isNotEmpty)
         Padding(
           padding: const EdgeInsets.only(top: 6),
           child: AppCard(
             padding: EdgeInsets.zero,
             child: Column(children: [
+              // First choice: keep exactly what was typed.
+              ListTile(
+                dense: true,
+                leading: Icon(LucideIcons.pencilLine, size: 20, color: c.textMuted),
+                title: Text(tr.placeUseText(widget.controller.text.trim()),
+                    maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+                subtitle: Text(tr.placeUseTextSub, style: TextStyle(color: c.textMuted, fontSize: 12.5)),
+                onTap: () => _keepText(),
+              ),
+              const Divider(height: 1),
               for (final p in _results)
                 ListTile(
                   dense: true,
@@ -105,10 +177,6 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
                       : Text(p.address!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.textMuted, fontSize: 12.5)),
                   onTap: () => _pick(p),
                 ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
-                child: Text(tr.placeFreeTextHint, style: TextStyle(color: c.textSubtle, fontSize: 12)),
-              ),
             ]),
           ),
         )

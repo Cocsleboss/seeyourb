@@ -131,7 +131,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         RowsCard(
                           children: [for (final r in list) RdvRow(rdv: r)],
                         ),
-                        if (i == 0 && months.length > 1) const AdTile(AdPlacement.history),
+                        // after the first month, whatever the number of months
+                        if (i == 0) const AdTile(AdPlacement.history),
                       ],
                   ],
                 );

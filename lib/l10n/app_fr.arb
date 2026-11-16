@@ -1641,7 +1641,7 @@
   "avatarHint": "Visible par vos amis et les participants de vos rendez-vous.",
   "avatarUpdated": "Photo de profil mise à jour",
   "avatarRemoved": "Photo de profil retirée",
-  "errBadLink": "Ce lien n'est pas valide (il doit commencer par https://).",
+  "errBadLink": "Ce lien n'est pas valide (ex. : www.exemple.be ou exemple.com/page).",
   "linkLabel": "Lien",
   "linkHint": "Billetterie, menu, page de l'événement…",
   "placeSearchHint": "Bar, restaurant, adresse… ou texte libre",
@@ -1652,7 +1652,14 @@
   "historyMapEmpty": "Les rendez-vous dont le lieu a été choisi dans la recherche apparaîtront ici.",
   "openEvent": "Voir le rendez-vous",
   "welcomeFriendsTitle": "Vos amis SeeU",
-  "welcomeFriendsMessage": "Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact.",
+  "welcomeFriendsMessage": "{n, plural, =1{Vous avez 1 ami SeeU sans fiche contact : associez-le pour que SeeU vous rappelle de le voir.} other{Vous avez {n} amis SeeU sans fiche contact : associez-les pour que SeeU vous rappelle de les voir.}}",
+  "@welcomeFriendsMessage": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "quickHowOften": "À quelle fréquence ?",
   "quickCategory": "Catégorie",
   "moreOptions": "Plus d'options",
@@ -1668,5 +1675,62 @@
   "contactLinkHint": "Facultatif. Lié à son compte SeeU, vous pourrez partager rendez-vous et photos.",
   "contactLinkSheetSub": "Un de vos amis SeeU, ou cherchez son @identifiant : la demande d'ami partira à l'enregistrement.",
   "orFindByUsername": "Pas encore ami ? Cherchez son @identifiant",
-  "requestSentOnSave": "demande envoyée à l'enregistrement"
+  "requestSentOnSave": "demande envoyée à l'enregistrement",
+  "clearField": "Effacer",
+  "placeAtMine": "Chez moi",
+  "placeVideo": "En visio",
+  "placeTbd": "Lieu à définir",
+  "placeUseText": "Utiliser « {text} »",
+  "@placeUseText": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "placeUseTextSub": "Tel quel, sans adresse ni carte",
+  "requestAlreadySentLinked": "demande déjà envoyée : elle sera liée à ce contact",
+  "requestReceivedAcceptOnSave": "vous a envoyé une demande : acceptée à l'enregistrement",
+  "requestPendingShort": "Demande envoyée",
+  "requestReceivedShort": "Vous a demandé",
+  "seeuFriendShort": "Ami SeeU",
+  "prevWeek": "Semaine précédente",
+  "nextWeek": "Semaine suivante",
+  "calendarMonth": "Mois",
+  "calendarWeek": "Semaine",
+  "nothingThatDay": "Rien de prévu ce jour-là.",
+  "nEventsHere": "{n} rendez-vous ici",
+  "@nEventsHere": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "tabLink": "Lier",
+  "tabCreate": "Créer",
+  "noContactToLink": "Aucun contact libre à lier : créez-en un.",
+  "searchContactToLink": "Chercher un de mes contacts…",
+  "noSuggestionSearch": "Pas de suggestion : cherchez le contact à lier.",
+  "link": "Lier",
+  "fullForm": "Formulaire",
+  "createContactShort": "Créer le contact",
+  "friendsToAssociate": "Amis SeeU à associer",
+  "friendsToAssociateHelp": "Liez chacun à un de vos contacts, ou créez-lui une fiche : SeeU vous rappellera de le voir, et vous partagerez rendez-vous et photos.",
+  "friendVsContactTitle": "Contact ou ami SeeU ?",
+  "helpContactTitle": "Contact",
+  "helpContactText": "Une fiche privée, rien que pour vous : à quelle fréquence vous voulez voir la personne, vos notes, ses infos. Elle n'a pas besoin de SeeU.",
+  "helpFriendTitle": "Ami SeeU",
+  "helpFriendText": "Une personne qui a SeeU et avec qui vous êtes amis (via son @identifiant) : vous pouvez l'inviter, partager rendez-vous, discussions et photos. Repérable à l'icône 🤝.",
+  "helpLinkTitle": "Les deux, liés",
+  "helpLinkText": "Liez la fiche d'un contact à son compte SeeU : vous gardez vos rappels et notes, et vos rendez-vous avec lui sont partagés.",
+  "contactFromFriendBanner": "Fiche liée à votre ami SeeU {name} : vous partagerez rendez-vous et photos, et sa photo de profil est utilisée.",
+  "@contactFromFriendBanner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "manageContacts": "Gérer mes contacts"
 }

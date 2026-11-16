@@ -310,6 +310,7 @@ void main() {
     'home_ads': ('/', [adsDemoProvider.overrideWith(() => _Ads())]),
     'event_preview_ads': ('/event/p2', [adsDemoProvider.overrideWith(() => _Ads())]),
     'contacts': ('/contacts', const []),
+    'contacts_tall': ('/contacts', const []),
     'contact_detail': ('/contacts/andrea', const []),
     'contact_form': ('/contacts/new', const []),
     'rdv_form': ('/rdv/new?contact=andrea', const []),

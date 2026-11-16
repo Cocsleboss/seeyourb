@@ -51,6 +51,8 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
 
   @override
   Widget build(BuildContext context) {
+    // The organizer decides for everyone (happened / cancelled / planned again).
+    if (!widget.rdv.isOrganizer) return const SizedBox.shrink();
     if (widget.rdv.status != RdvStatus.planifie) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -61,14 +63,6 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
             onPressed: _busy == null ? () => _set(RdvStatus.planifie) : null),
       );
     }
-    final done = AppButton(tr.statusSetDone,
-        icon: LucideIcons.check,
-        variant: ButtonVariant.success,
-        full: true,
-        loading: _busy == RdvStatus.valide,
-        onPressed: _busy == null ? () => _set(RdvStatus.valide) : null);
-    // Only the organizer cancels a shared event (others decline it instead).
-    if (!widget.rdv.isOrganizer) return done;
     return Row(children: [
       Expanded(
         child: AppButton(tr.statusSetDone,

@@ -19,6 +19,7 @@ import '../../ui/scaffold.dart';
 import '../friends/add_friend_sheet.dart';
 import '../friends/friend_sheets.dart';
 import '../friends/invite_card.dart';
+import '../friends/quick_contact_row.dart';
 import '../../core/i18n.dart';
 
 enum _Sort { due, name }
@@ -123,12 +124,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     Widget row(Contact x) => ContactRow(contact: x, friend: x.linkedUserId == null ? null : friendByUser[x.linkedUserId]);
 
     final sections = <Widget>[];
-    if (unlinkedShown.isNotEmpty) {
-      sections
-        ..add(SectionTitle(tr.friendsWithoutCard, count: unlinkedShown.length, padding: const EdgeInsets.only(top: 18, bottom: 8)))
-        ..add(RowsCard(children: [for (final f in unlinkedShown) _UnlinkedFriendRow(friend: f)]));
-    }
-    if (filtered.isEmpty && unlinkedShown.isEmpty && !nothingAtAll) {
+    if (filtered.isEmpty && !nothingAtAll && all.isNotEmpty) {
       sections.add(EmptyState(icon: LucideIcons.searchX, title: tr.noResults, message: tr.tryAnotherSearch));
     } else if (_sort == _Sort.name) {
       final sorted = [...filtered]..sort((a, b) => compareNames(a.name, b.name));
@@ -159,14 +155,45 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             // Side by side; icon above the label so the full wording fits.
-            child: IntrinsicHeight(
-              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Expanded(child: _AddButton(icon: LucideIcons.userSearch, label: tr.addSeeuFriend, primary: true, onTap: () => showAddFriendSheet(context))),
-                const SizedBox(width: 10),
-                Expanded(child: _AddButton(icon: LucideIcons.userPlus, label: tr.addContact, onTap: () => context.push('/contacts/new'))),
+            child: Stack(clipBehavior: Clip.none, children: [
+              IntrinsicHeight(
+                child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  Expanded(child: _AddButton(icon: LucideIcons.userSearch, label: tr.addSeeuFriend, primary: true, onTap: () => showAddFriendSheet(context))),
+                  const SizedBox(width: 10),
+                  Expanded(child: _AddButton(icon: LucideIcons.userPlus, label: tr.addContact, onTap: () => context.push('/contacts/new'))),
+                ]),
+              ),
+              // (?) SeeU friend vs contact
+              Positioned(
+                right: -6,
+                top: -10,
+                child: Material(
+                  color: c.card,
+                  shape: CircleBorder(side: BorderSide(color: c.border)),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => showFriendVsContactHelp(context),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(LucideIcons.circleQuestionMark, size: 18, color: c.brandText),
+                    ),
+                  ),
+                ),
+              ),
+            ]),
+          ),
+
+          // SeeU friends without a contact card: link to a card, or create one
+          if (unlinkedShown.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                SectionTitle(tr.friendsToAssociate, count: unlinkedShown.length),
+                Text(tr.friendsToAssociateHelp, style: TextStyle(color: c.textMuted, fontSize: 13.5, height: 1.35)),
+                const SizedBox(height: 10),
+                RowsCard(children: [for (final f in unlinkedShown) FriendToContactCard(key: ValueKey(f.userId), friend: f)]),
               ]),
             ),
-          ),
 
           // Social activity waiting for me
           if (invites.isNotEmpty || received.isNotEmpty || sent.isNotEmpty)
@@ -308,41 +335,21 @@ class _AddButton extends StatelessWidget {
   }
 }
 
-class _UnlinkedFriendRow extends StatelessWidget {
-  const _UnlinkedFriendRow({required this.friend});
-  final Friend friend;
-  @override
-  Widget build(BuildContext context) {
-    return _PersonRow(
-      userId: friend.userId,
-      name: friend.displayName,
-      subtitle: '${handle(friend.username)} · ${tr.notInContactsYet}',
-      friendBadge: true,
-      onTap: () => showFriendSheet(context, friend),
-      trailing: AppButton(tr.add, icon: LucideIcons.link2, variant: ButtonVariant.secondary, size: ButtonSize.sm,
-          onPressed: () => showLinkSheet(context, friend)),
-    );
-  }
-}
-
 class _PersonRow extends StatelessWidget {
-  const _PersonRow({required this.name, required this.subtitle, this.trailing, this.onTap, this.friendBadge = false, this.userId});
+  const _PersonRow({required this.name, required this.subtitle, this.trailing, this.userId});
   final String? userId;
   final String name;
   final String subtitle;
   final Widget? trailing;
-  final VoidCallback? onTap;
-  final bool friendBadge;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return InkWell(
-      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(children: [
-          FriendAvatar(name: name, size: 46, isFriend: friendBadge, seeu: true, userId: userId),
+          FriendAvatar(name: name, size: 46, seeu: true, userId: userId),
           const SizedBox(width: 12),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -357,3 +364,37 @@ class _PersonRow extends StatelessWidget {
     );
   }
 }
+
+
+/// (?) next to the add buttons: what's the difference, and how they link.
+Future<void> showFriendVsContactHelp(BuildContext context) => showAppSheet(
+      context,
+      title: tr.friendVsContactTitle,
+      builder: (ctx) {
+        final c = ctx.colors;
+        Widget block(IconData icon, Color color, String title, String text) => Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
+                  child: Icon(icon, size: 18, color: color),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5, color: c.text)),
+                    const SizedBox(height: 2),
+                    Text(text, style: TextStyle(color: c.textMuted, fontSize: 14, height: 1.4)),
+                  ]),
+                ),
+              ]),
+            );
+        return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          block(LucideIcons.userRound, c.textMuted, tr.helpContactTitle, tr.helpContactText),
+          block(LucideIcons.heartHandshake, Palette.brand600, tr.helpFriendTitle, tr.helpFriendText),
+          block(LucideIcons.link2, c.tone(Tone.green).text, tr.helpLinkTitle, tr.helpLinkText),
+        ]);
+      },
+    );

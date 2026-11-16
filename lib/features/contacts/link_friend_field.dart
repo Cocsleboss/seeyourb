@@ -20,10 +20,13 @@ import '../friends/friend_sheets.dart';
 
 /// What the field holds: a friend to link now, or a username to send a request to.
 class FriendLinkChoice {
-  const FriendLinkChoice({required this.userId, required this.name, this.username, required this.isFriend});
+  const FriendLinkChoice({required this.userId, required this.name, this.username, required this.isFriend, this.relation = UserRelation.none});
   final String userId;
   final String name;
   final String? username;
+
+  /// When not friends yet: request already sent / received, or none.
+  final UserRelation relation;
 
   /// false: not friends yet → request sent after the contact is created.
   final bool isFriend;
@@ -57,7 +60,14 @@ class LinkFriendField extends ConsumerWidget {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(v.name, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
-            Text(v.isFriend ? handle(v.username) : '${handle(v.username)} · ${tr.requestSentOnSave}',
+            Text(
+                v.isFriend
+                    ? handle(v.username)
+                    : '${handle(v.username)} · ${switch (v.relation) {
+                        UserRelation.sent => tr.requestAlreadySentLinked,
+                        UserRelation.received => tr.requestReceivedAcceptOnSave,
+                        _ => tr.requestSentOnSave,
+                      }}',
                 style: TextStyle(color: c.textMuted, fontSize: 13)),
           ]),
         ),
@@ -135,11 +145,20 @@ class _PickFriendState extends ConsumerState<_PickFriend> {
           leading: Avatar(name: u.displayName, size: 40, userId: u.userId),
           title: Text(u.displayName, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
           subtitle: Text(handle(u.username), style: TextStyle(color: c.textMuted, fontSize: 13)),
-          trailing: u.relation == UserRelation.friends ? Pill(tr.friendPill, tone: Tone.brand) : null,
+          trailing: switch (u.relation) {
+            UserRelation.friends => Pill(tr.seeuFriendShort, tone: Tone.brand),
+            UserRelation.sent => Pill(tr.requestPendingShort, tone: Tone.orange),
+            UserRelation.received => Pill(tr.requestReceivedShort, tone: Tone.violet),
+            UserRelation.none => null,
+          },
           onTap: () => Navigator.pop(
               context,
               FriendLinkChoice(
-                  userId: u.userId, name: u.displayName, username: u.username, isFriend: u.relation == UserRelation.friends)),
+                  userId: u.userId,
+                  name: u.displayName,
+                  username: u.username,
+                  isFriend: u.relation == UserRelation.friends,
+                  relation: u.relation)),
         ),
       if (_results != null && _results!.isEmpty)
         Padding(

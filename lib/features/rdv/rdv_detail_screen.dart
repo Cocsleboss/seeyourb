@@ -304,10 +304,12 @@ class _Body extends ConsumerWidget {
           canAdd: !public || rdv.isOrganizer,
         ),
 
-        // 7. Delete
-        const SizedBox(height: 28),
-        AppButton(rdv.isOrganizer ? tr.deleteRdv : tr.removeFromAgenda,
-            icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
+        // 7. Delete (declined: nothing to remove, it's already out of the agenda)
+        if (rdv.isOrganizer || rdv.rsvp != Rsvp.declined) ...[
+          const SizedBox(height: 28),
+          AppButton(rdv.isOrganizer ? tr.deleteRdv : tr.removeFromAgenda,
+              icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
+        ],
       ],
     );
   }

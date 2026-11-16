@@ -135,7 +135,7 @@ class _FeedSectionState extends ConsumerState<FeedSection> {
               ]),
             ),
           ...withAds([for (final e in shown) EventCard(event: e)], _public ? AdPlacement.exploreFeed : AdPlacement.friendsFeed,
-              first: 3, every: 5),
+              first: _public ? 3 : 1, every: 5),
           if (!_end && first.length >= 30)
             Padding(
               padding: const EdgeInsets.only(top: 4),

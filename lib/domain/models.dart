@@ -357,8 +357,8 @@ class Rendezvous {
   }
 
   /// "Has it happened?" — same moment the status turns to "Passé".
-  bool needsConfirmation([DateTime? now]) =>
-      (rsvp == null || rsvp == Rsvp.accepted) && phase(now) == RdvPhase.past;
+  /// Only the organizer says whether it happened (it's the same for everyone).
+  bool needsConfirmation([DateTime? now]) => isOrganizer && phase(now) == RdvPhase.past;
 
   /// Title, or "Avec Marie, Paul" / "Avec Marie, Paul et 2 autres".
   String get displayTitle => rdvTitle(title, contacts.map((c) => c.name).toList());

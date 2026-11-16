@@ -13,6 +13,7 @@ import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/forms.dart';
 import '../../ui/kit.dart';
+import '../../ui/rows.dart';
 import '../contacts/contact_form_screen.dart';
 import 'add_friend_sheet.dart';
 import '../../core/i18n.dart';
@@ -117,7 +118,7 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
             title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
             subtitle: x.linkedUserId == f.userId
                 ? Text(tr.alreadyLinked, style: TextStyle(color: c.textMuted, fontSize: 13))
-                : (x.categoryLabel == null ? null : Text(x.categoryLabel!, style: TextStyle(color: c.textMuted, fontSize: 13))),
+                : ContactKindLine(linkedUserId: x.linkedUserId, categories: x.categoryLabel, fontSize: 13),
             trailing: _busy == x.id
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                 : (_suggested(x) ? Pill(tr.suggested, tone: Tone.brand) : null),
@@ -131,16 +132,18 @@ class _LinkSheetState extends ConsumerState<_LinkSheet> {
 /*  Friend panel                                                       */
 /* ------------------------------------------------------------------ */
 
-Future<void> showFriendSheet(BuildContext context, Friend friend) => showAppSheet(
+/// [onContactPage]: opened from the contact page itself (no "see the contact").
+Future<void> showFriendSheet(BuildContext context, Friend friend, {bool onContactPage = false}) => showAppSheet(
       context,
       title: friend.displayName,
       subtitle: handle(friend.username),
-      builder: (_) => _FriendSheet(friend),
+      builder: (_) => _FriendSheet(friend, onContactPage: onContactPage),
     );
 
 class _FriendSheet extends ConsumerStatefulWidget {
-  const _FriendSheet(this.friend);
+  const _FriendSheet(this.friend, {this.onContactPage = false});
   final Friend friend;
+  final bool onContactPage;
   @override
   ConsumerState<_FriendSheet> createState() => _FriendSheetState();
 }
@@ -214,9 +217,11 @@ class _FriendSheetState extends ConsumerState<_FriendSheet> {
         AppButton(tr.proposeRdv,
             icon: LucideIcons.calendarPlus, variant: ButtonVariant.secondary, full: true, onPressed: () => go('/rdv/new?contact=${contact.id}')),
         const SizedBox(height: 10),
-        AppButton(tr.seeContactName(contact.name),
-            icon: LucideIcons.user, variant: ButtonVariant.secondary, full: true, onPressed: () => go('/contacts/${contact.id}')),
-        const SizedBox(height: 10),
+        if (!widget.onContactPage) ...[
+          AppButton(tr.seeContactName(contact.name),
+              icon: LucideIcons.user, variant: ButtonVariant.secondary, full: true, onPressed: () => go('/contacts/${contact.id}')),
+          const SizedBox(height: 10),
+        ],
         AppButton(tr.linkToOtherContact, icon: LucideIcons.link2, variant: ButtonVariant.secondary, full: true, onPressed: relink),
         const SizedBox(height: 10),
         AppButton(tr.unlinkContact,

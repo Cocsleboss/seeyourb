@@ -4535,7 +4535,7 @@ abstract class AppLocalizations {
   /// No description provided for @errBadLink.
   ///
   /// In fr, this message translates to:
-  /// **'Ce lien n\'est pas valide (il doit commencer par https://).'**
+  /// **'Ce lien n\'est pas valide (ex. : www.exemple.be ou exemple.com/page).'**
   String get errBadLink;
 
   /// No description provided for @linkLabel.
@@ -4601,8 +4601,8 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeFriendsMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Choisissez à quelle fréquence vous voulez voir chacun : SeeU vous rappellera de garder le contact.'**
-  String get welcomeFriendsMessage;
+  /// **'{n, plural, =1{Vous avez 1 ami SeeU sans fiche contact : associez-le pour que SeeU vous rappelle de le voir.} other{Vous avez {n} amis SeeU sans fiche contact : associez-les pour que SeeU vous rappelle de les voir.}}'**
+  String welcomeFriendsMessage(int n);
 
   /// No description provided for @quickHowOften.
   ///
@@ -4657,6 +4657,222 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'demande envoyée à l\'enregistrement'**
   String get requestSentOnSave;
+
+  /// No description provided for @clearField.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer'**
+  String get clearField;
+
+  /// No description provided for @placeAtMine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chez moi'**
+  String get placeAtMine;
+
+  /// No description provided for @placeVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'En visio'**
+  String get placeVideo;
+
+  /// No description provided for @placeTbd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lieu à définir'**
+  String get placeTbd;
+
+  /// No description provided for @placeUseText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser « {text} »'**
+  String placeUseText(String text);
+
+  /// No description provided for @placeUseTextSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tel quel, sans adresse ni carte'**
+  String get placeUseTextSub;
+
+  /// No description provided for @requestAlreadySentLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'demande déjà envoyée : elle sera liée à ce contact'**
+  String get requestAlreadySentLinked;
+
+  /// No description provided for @requestReceivedAcceptOnSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'vous a envoyé une demande : acceptée à l\'enregistrement'**
+  String get requestReceivedAcceptOnSave;
+
+  /// No description provided for @requestPendingShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée'**
+  String get requestPendingShort;
+
+  /// No description provided for @requestReceivedShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous a demandé'**
+  String get requestReceivedShort;
+
+  /// No description provided for @seeuFriendShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ami SeeU'**
+  String get seeuFriendShort;
+
+  /// No description provided for @prevWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine précédente'**
+  String get prevWeek;
+
+  /// No description provided for @nextWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine suivante'**
+  String get nextWeek;
+
+  /// No description provided for @calendarMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mois'**
+  String get calendarMonth;
+
+  /// No description provided for @calendarWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine'**
+  String get calendarWeek;
+
+  /// No description provided for @nothingThatDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien de prévu ce jour-là.'**
+  String get nothingThatDay;
+
+  /// No description provided for @nEventsHere.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} rendez-vous ici'**
+  String nEventsHere(int n);
+
+  /// No description provided for @tabLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lier'**
+  String get tabLink;
+
+  /// No description provided for @tabCreate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer'**
+  String get tabCreate;
+
+  /// No description provided for @noContactToLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun contact libre à lier : créez-en un.'**
+  String get noContactToLink;
+
+  /// No description provided for @searchContactToLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher un de mes contacts…'**
+  String get searchContactToLink;
+
+  /// No description provided for @noSuggestionSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de suggestion : cherchez le contact à lier.'**
+  String get noSuggestionSearch;
+
+  /// No description provided for @link.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lier'**
+  String get link;
+
+  /// No description provided for @fullForm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formulaire'**
+  String get fullForm;
+
+  /// No description provided for @createContactShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer le contact'**
+  String get createContactShort;
+
+  /// No description provided for @friendsToAssociate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amis SeeU à associer'**
+  String get friendsToAssociate;
+
+  /// No description provided for @friendsToAssociateHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liez chacun à un de vos contacts, ou créez-lui une fiche : SeeU vous rappellera de le voir, et vous partagerez rendez-vous et photos.'**
+  String get friendsToAssociateHelp;
+
+  /// No description provided for @friendVsContactTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contact ou ami SeeU ?'**
+  String get friendVsContactTitle;
+
+  /// No description provided for @helpContactTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contact'**
+  String get helpContactTitle;
+
+  /// No description provided for @helpContactText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fiche privée, rien que pour vous : à quelle fréquence vous voulez voir la personne, vos notes, ses infos. Elle n\'a pas besoin de SeeU.'**
+  String get helpContactText;
+
+  /// No description provided for @helpFriendTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ami SeeU'**
+  String get helpFriendTitle;
+
+  /// No description provided for @helpFriendText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une personne qui a SeeU et avec qui vous êtes amis (via son @identifiant) : vous pouvez l\'inviter, partager rendez-vous, discussions et photos. Repérable à l\'icône 🤝.'**
+  String get helpFriendText;
+
+  /// No description provided for @helpLinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les deux, liés'**
+  String get helpLinkTitle;
+
+  /// No description provided for @helpLinkText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liez la fiche d\'un contact à son compte SeeU : vous gardez vos rappels et notes, et vos rendez-vous avec lui sont partagés.'**
+  String get helpLinkText;
+
+  /// No description provided for @contactFromFriendBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiche liée à votre ami SeeU {name} : vous partagerez rendez-vous et photos, et sa photo de profil est utilisée.'**
+  String contactFromFriendBanner(String name);
+
+  /// No description provided for @manageContacts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mes contacts'**
+  String get manageContacts;
 }
 
 class _AppLocalizationsDelegate

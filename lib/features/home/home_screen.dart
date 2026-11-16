@@ -10,6 +10,7 @@ import '../../data/providers.dart';
 import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../domain/selectors.dart';
+import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
 import '../../ui/rows.dart';
@@ -18,7 +19,8 @@ import '../contacts/quick_sheets.dart';
 import '../friends/invite_card.dart';
 import '../rdv/status_actions.dart';
 import 'push_banner.dart';
-import '../friends/quick_contact_row.dart';
+import 'agenda_calendar.dart';
+import '../friends/add_friend_sheet.dart';
 import 'feed_section.dart';
 import '../../ads/ads.dart';
 import '../../core/i18n.dart';
@@ -212,11 +214,14 @@ class _Agenda extends ConsumerWidget {
     final overdue = overdueCount(contacts);
     final filter = ref.watch(agendaFilterProvider);
     final hasGuest = upcoming.any((r) => !r.isOrganizer);
+    final pickedDay = ref.watch(agendaDayProvider);
     final shown = switch (hasGuest ? filter : AgendaFilter.all) {
       AgendaFilter.all => upcoming,
       AgendaFilter.mine => upcoming.where((r) => r.isOrganizer).toList(),
       AgendaFilter.invited => upcoming.where((r) => !r.isOrganizer).toList(),
-    };
+    }
+        .where((r) => pickedDay == null || (!r.slotsOpen && dayOf(r.appointmentAt) == pickedDay))
+        .toList();
 
     return [
       // 4. Birthdays today
@@ -298,8 +303,26 @@ class _Agenda extends ConsumerWidget {
         ]),
       ],
 
-      // 9. Next rendezvous
+      // 9. Next rendezvous, with the week / month calendar
       SectionTitle(tr.nextRdvs),
+      AgendaCalendar(planned: plannedList),
+      const SizedBox(height: 12),
+      if (pickedDay != null)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: InputChip(
+              label: Text(capitalize(formatDayMonth(pickedDay))),
+              labelStyle: TextStyle(color: c.tone(Tone.brand).fg, fontWeight: FontWeight.w600),
+              backgroundColor: c.tone(Tone.brand).bg,
+              side: BorderSide.none,
+              shape: const StadiumBorder(),
+              deleteIcon: Icon(LucideIcons.x, size: 16, color: c.tone(Tone.brand).fg),
+              onDeleted: () => ref.read(agendaDayProvider.notifier).set(null),
+            ),
+          ),
+        ),
       if (planned.hasError && !planned.hasValue)
         ErrorCard(error: planned.error!, onRetry: () => ref.invalidate(plannedRdvProvider))
       else if (!planned.hasValue)
@@ -328,7 +351,7 @@ class _Agenda extends ConsumerWidget {
         if (shown.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(filter == AgendaFilter.mine ? tr.noMineUpcoming : tr.noInvitedUpcoming,
+            child: Text(pickedDay != null ? tr.nothingThatDay : filter == AgendaFilter.mine ? tr.noMineUpcoming : tr.noInvitedUpcoming,
                 textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
           ),
         for (final (day, list) in groupOrdered(shown.take(_maxUpcoming), (Rendezvous r) => dayOf(r.appointmentAt))) ...[
@@ -355,38 +378,32 @@ class _Welcome extends ConsumerWidget {
   const _Welcome();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final c = context.colors;
     final friends = (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.accepted).toList();
-    // SeeU friends but no contacts yet: make them contacts right here.
-    if (friends.isNotEmpty) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        SectionTitle(tr.welcomeFriendsTitle, count: friends.length),
-        Text(tr.welcomeFriendsMessage, style: TextStyle(color: c.textMuted, fontSize: 14, height: 1.35)),
-        const SizedBox(height: 12),
-        RowsCard(children: [for (final f in friends) QuickFriendContactRow(key: ValueKey(f.userId), friend: f)]),
-        const SizedBox(height: 14),
-        AppButton(tr.addContact,
-            icon: LucideIcons.userPlus, variant: ButtonVariant.secondary, full: true, onPressed: () => context.push('/contacts/new')),
-      ]);
-    }
-    return _welcomeCard(context);
-  }
-
-  Widget _welcomeCard(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(top: 20),
-        child: AppCard(
-          child: EmptyState(
-            icon: LucideIcons.heartHandshake,
-            title: tr.welcomeTitle,
-            message:
-                tr.welcomeMessage,
-            actions: [
-              AppButton(tr.addFirstContact,
-                  icon: LucideIcons.userPlus, size: ButtonSize.lg, onPressed: () => context.push('/contacts/new')),
-            ],
-          ),
+    // SeeU friends waiting for a card: send to Contacts, where they're set up.
+    final toSetUp = friends.isNotEmpty;
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: AppCard(
+        child: EmptyState(
+          icon: LucideIcons.heartHandshake,
+          title: toSetUp ? tr.welcomeFriendsTitle : tr.welcomeTitle,
+          message: toSetUp ? tr.welcomeFriendsMessage(friends.length) : tr.welcomeMessage,
+          actions: [
+            if (toSetUp)
+              AppButton(tr.manageContacts,
+                  icon: LucideIcons.users, size: ButtonSize.lg, onPressed: () => context.go('/contacts')),
+            AppButton(tr.addFirstContact,
+                icon: LucideIcons.userPlus,
+                size: toSetUp ? ButtonSize.md : ButtonSize.lg,
+                variant: toSetUp ? ButtonVariant.secondary : ButtonVariant.primary,
+                onPressed: () => context.push('/contacts/new')),
+            AppButton(tr.addSeeuFriend,
+                icon: LucideIcons.userSearch, variant: ButtonVariant.secondary, onPressed: () => showAddFriendSheet(context)),
+          ],
         ),
-      );
+      ),
+    );
+  }
 }
 
 /// Key figures as one flat, tinted strip (deliberately unlike the section buttons above).
