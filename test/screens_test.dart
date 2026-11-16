@@ -214,7 +214,7 @@ Future<void> loadFonts() async {
   await lucide.load();
 }
 
-Widget app(String location, Brightness brightness, List<RouteBase> extra, {List overrides = const []}) {
+Widget app(String location, Brightness brightness, List<RouteBase> extra, {List overrides = const [], bool slowData = false}) {
   Widget tab(Widget w) => w;
   final router = GoRouter(initialLocation: location, routes: [
     GoRoute(path: '/', builder: (_, _) => tab(const HomeScreen())),
@@ -247,7 +247,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
       profileProvider.overrideWith(_Profile.new),
       userIdProvider.overrideWith(_UserId.new),
       contactsProvider.overrideWith((ref) async => contacts),
-      plannedRdvProvider.overrideWith((ref) async => planned),
+      plannedRdvProvider.overrideWith((ref) => slowData ? Future.delayed(const Duration(milliseconds: 200), () => planned) : Future.value(planned)),
       historyProvider.overrideWith((ref) async => history),
       historyMonthProvider.overrideWith((ref, month) async => history.where((r) => r.appointmentAt.month == month.month).toList()),
       historyDayProvider.overrideWith((ref, day) async => history.where((r) => dayOf(r.appointmentAt) == day).toList()),
@@ -266,7 +266,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
       eventProvider.overrideWith((ref, id) async => events[id]),
       participantsProvider.overrideWith((ref, id) async => participants),
       eventGuestsProvider.overrideWith((ref, id) async => [EventGuest(name: 'Mamie Jo', addedBy: 'u-andrea', addedByName: 'Cocsi_bucci')]),
-      slotsProvider.overrideWith((ref, id) async => slots),
+      slotsProvider.overrideWith((ref, id) => slowData ? Future.delayed(const Duration(milliseconds: 400), () => slots) : Future.value(slots)),
       chatPreviewProvider.overrideWith((ref, id) async => messages),
       canCreatePublicProvider.overrideWith((ref) async => false),
       mutesProvider.overrideWith((ref) async => [
@@ -334,6 +334,24 @@ void main() {
     'moderation': ('/settings/moderation', const []),
     'login': ('/login', const []),
   };
+
+  testWidgets('agenda: picking a proposed-slot day shows "Créneaux proposés ce jour" on first load', (tester) async {
+    applyLanguage('fr');
+    tester.view.physicalSize = const Size(1170, 7200);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    // Like the real app: the agenda, then each event's slots, arrive later.
+    await tester.pumpWidget(app('/', Brightness.light, const [], slowData: true));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('Mois'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('24'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Créneaux proposés ce jour'.toUpperCase()), findsOneWidget);
+  });
 
   // French in light + dark, English in light (catches longer strings overflowing).
   for (final (lang, brightness) in [('fr', Brightness.light), ('fr', Brightness.dark), ('en', Brightness.light)]) {
