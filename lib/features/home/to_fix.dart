@@ -237,6 +237,10 @@ class ProposedThatDay extends StatelessWidget {
                     child: Text('${formatTime(s.startsAt)} · ${r.displayTitle}',
                         maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
                   ),
+                  if (!r.isOrganizer) ...[
+                    Text(tr.yourAnswerShort, style: TextStyle(fontSize: 12.5, color: c.textMuted)),
+                    const SizedBox(width: 6),
+                  ],
                   _AnswerPill(r.isOrganizer ? null : s.myAnswer, organizer: r.isOrganizer),
                 ]),
               ),

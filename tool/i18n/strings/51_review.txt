@@ -147,3 +147,4 @@ legendProposed | créneau proposé (date à choisir) | proposed slot (date to ch
 waitingForOrganizer | En attente de l'organisateur pour fixer la date | Waiting for the organizer to set the date
 waitingForAnswers | En attente des réponses | Waiting for answers
 yourTurnToChoose | À vous de choisir la date | Your turn to pick the date
+yourAnswerShort | Votre réponse : | Your answer:

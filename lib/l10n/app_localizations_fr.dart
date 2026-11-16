@@ -3148,4 +3148,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get yourTurnToChoose => 'À vous de choisir la date';
+
+  @override
+  String get yourAnswerShort => 'Votre réponse :';
 }

@@ -4981,6 +4981,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'À vous de choisir la date'**
   String get yourTurnToChoose;
+
+  /// No description provided for @yourAnswerShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre réponse :'**
+  String get yourAnswerShort;
 }
 
 class _AppLocalizationsDelegate

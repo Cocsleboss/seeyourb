@@ -3068,4 +3068,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yourTurnToChoose => 'Your turn to pick the date';
+
+  @override
+  String get yourAnswerShort => 'Your answer:';
 }

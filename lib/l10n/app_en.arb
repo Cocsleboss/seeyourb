@@ -813,5 +813,6 @@
   "legendProposed": "proposed slot (date to choose)",
   "waitingForOrganizer": "Waiting for the organizer to set the date",
   "waitingForAnswers": "Waiting for answers",
-  "yourTurnToChoose": "Your turn to pick the date"
+  "yourTurnToChoose": "Your turn to pick the date",
+  "yourAnswerShort": "Your answer:"
 }
