@@ -397,6 +397,19 @@ class Api {
 
   /// Deletes my copy. The organizer of a shared event that is still planned cancels it
   /// for everyone first (otherwise it would keep running without anyone to manage it).
+  /// My private notes on my copy of an event.
+  Future<void> setRdvNotes(String rdvId, String notes) =>
+      sb.from('rendezvous').update({'notes': notes.trim().isEmpty ? null : notes.trim()}).eq('id', rdvId);
+
+  /// Adds some of my contacts to my copy of an event (the friends among them
+  /// are then invited by the caller).
+  Future<void> addContactsToRdv(String rdvId, List<String> contactIds) async {
+    if (contactIds.isEmpty) return;
+    await sb.from('contact_rendezvous').upsert(
+        [for (final c in contactIds.toSet()) {'contact_id': c, 'rendezvous_id': rdvId, 'user_id': uid}],
+        onConflict: 'contact_id,rendezvous_id', ignoreDuplicates: true);
+  }
+
   Future<void> deleteRdv(Rendezvous rdv) async {
     if (rdv.isOrganizer && rdv.isShared && rdv.status == RdvStatus.planifie) {
       await sb.from('rendezvous').update({'status': RdvStatus.annule.name}).eq('id', rdv.id);

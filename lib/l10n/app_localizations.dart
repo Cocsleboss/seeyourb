@@ -5017,6 +5017,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Message'**
   String get messageShort;
+
+  /// No description provided for @addPeople.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter des personnes'**
+  String get addPeople;
+
+  /// No description provided for @addPeopleSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parmi vos contacts'**
+  String get addPeopleSub;
+
+  /// No description provided for @addPeopleHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos amis SeeU reçoivent une invitation. Les autres apparaissent aux participants avec la mention « Pas sur SeeU ».'**
+  String get addPeopleHelp;
+
+  /// No description provided for @addNPeople.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{Ajouter 1 personne} other{Ajouter {n} personnes}}'**
+  String addNPeople(int n);
+
+  /// No description provided for @peopleAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 personne ajoutée} other{{n} personnes ajoutées}}'**
+  String peopleAdded(int n);
+
+  /// No description provided for @myNotes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes notes'**
+  String get myNotes;
+
+  /// No description provided for @notesOnlyYou.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visibles par vous seul, même si le rendez-vous est partagé.'**
+  String get notesOnlyYou;
+
+  /// No description provided for @addNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une note'**
+  String get addNote;
 }
 
 class _AppLocalizationsDelegate

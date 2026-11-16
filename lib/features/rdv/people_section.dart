@@ -15,6 +15,8 @@ import '../../domain/models.dart';
 import '../../domain/text.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
+import '../../ui/forms.dart';
+import '../../domain/selectors.dart';
 import '../../ui/rows.dart';
 import 'rsvp.dart';
 
@@ -107,6 +109,18 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
           padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
           child: Text(tr.peopleLegend, style: TextStyle(color: c.textMuted, fontSize: 13, height: 1.4)),
         ),
+      // Add people: my contacts (friends get invited). Only where I may invite.
+      if (canInvite) ...[
+        const SizedBox(height: 10),
+        AppButton(tr.addPeople,
+            icon: LucideIcons.userPlus,
+            variant: ButtonVariant.secondary,
+            full: true,
+            onPressed: () => showAppSheet(context,
+                title: tr.addPeople,
+                subtitle: tr.addPeopleSub,
+                builder: (_) => _AddPeople(rdv: rdv, exclude: {...rdv.contacts.map((x) => x.id)}, memberIds: memberIds))),
+      ],
     ]);
   }
 
@@ -194,5 +208,84 @@ class _PersonTile extends StatelessWidget {
         ]),
       ),
     );
+  }
+}
+
+
+class _AddPeople extends ConsumerStatefulWidget {
+  const _AddPeople({required this.rdv, required this.exclude, required this.memberIds});
+  final Rendezvous rdv;
+  final Set<String> exclude;
+  final Set<String> memberIds;
+  @override
+  ConsumerState<_AddPeople> createState() => _AddPeopleState();
+}
+
+class _AddPeopleState extends ConsumerState<_AddPeople> {
+  final _q = TextEditingController();
+  final _picked = <String>{};
+
+  @override
+  void dispose() {
+    _q.dispose();
+    super.dispose();
+  }
+
+  Future<void> _add(List<Contact> all) async {
+    final api = ref.read(apiProvider);
+    final chosen = all.where((x) => _picked.contains(x.id)).toList();
+    final ok = await guard(() async {
+      await api.addContactsToRdv(widget.rdv.id, chosen.map((x) => x.id).toList());
+      // SeeU friends among them get the invitation.
+      for (final f in chosen.where((x) => x.linkedUserId != null)) {
+        try {
+          await api.sendRdvInvite(widget.rdv.id, f.linkedUserId!);
+        } catch (_) {}
+      }
+      return true;
+    }, success: tr.peopleAdded(chosen.length));
+    if (ok == null || !mounted) return;
+    refreshData(ref);
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final all = (ref.watch(contactsProvider).value ?? const <Contact>[])
+        .where((x) => !widget.exclude.contains(x.id) && (x.linkedUserId == null || !widget.memberIds.contains(x.linkedUserId)))
+        .toList()
+      ..sort((a, b) => compareNames(a.name, b.name));
+    final shown = all.where((x) => contactMatches(x, _q.text)).toList();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SearchField(controller: _q, hint: tr.searchContact, onChanged: (_) => setState(() {})),
+      const SizedBox(height: 6),
+      ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.45),
+        child: shown.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(all.isEmpty ? tr.allAlreadyInList : tr.noMatchingContact, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+              )
+            : ListView(shrinkWrap: true, children: [
+                for (final x in shown)
+                  CheckboxListTile(
+                    value: _picked.contains(x.id),
+                    onChanged: (_) => setState(() => _picked.contains(x.id) ? _picked.remove(x.id) : _picked.add(x.id)),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    activeColor: Palette.brand600,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    secondary: FriendAvatar(name: x.name, path: x.photoPath, size: 38, isFriend: x.linkedUserId != null, userId: x.linkedUserId),
+                    title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+                    subtitle: ContactKindLine(linkedUserId: x.linkedUserId, categories: x.categories),
+                  ),
+              ]),
+      ),
+      const SizedBox(height: 10),
+      Text(tr.addPeopleHelp, style: TextStyle(color: c.textMuted, fontSize: 12.5, height: 1.35)),
+      const SizedBox(height: 12),
+      AppButton(_picked.isEmpty ? tr.addPeople : tr.addNPeople(_picked.length),
+          icon: LucideIcons.check, full: true, onAsync: _picked.isEmpty ? null : () => _add(all)),
+    ]);
   }
 }

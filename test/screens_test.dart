@@ -329,6 +329,7 @@ void main() {
     'calendar': ('/history-calendar', const []),
     'day_review': ('/history/day/2026-11-13', const []),
     'rdv_tentative': ('/rdv/r4', const []),
+    'rdv_tentative_tall': ('/rdv/r4', const []),
     'history': ('/history', const []),
     'settings': ('/settings', const []),
     'moderation': ('/settings/moderation', const []),

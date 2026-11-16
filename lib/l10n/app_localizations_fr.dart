@@ -3168,4 +3168,46 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get messageShort => 'Message';
+
+  @override
+  String get addPeople => 'Ajouter des personnes';
+
+  @override
+  String get addPeopleSub => 'Parmi vos contacts';
+
+  @override
+  String get addPeopleHelp =>
+      'Vos amis SeeU reçoivent une invitation. Les autres apparaissent aux participants avec la mention « Pas sur SeeU ».';
+
+  @override
+  String addNPeople(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Ajouter $n personnes',
+      one: 'Ajouter 1 personne',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleAdded(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n personnes ajoutées',
+      one: '1 personne ajoutée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get myNotes => 'Mes notes';
+
+  @override
+  String get notesOnlyYou =>
+      'Visibles par vous seul, même si le rendez-vous est partagé.';
+
+  @override
+  String get addNote => 'Ajouter une note';
 }

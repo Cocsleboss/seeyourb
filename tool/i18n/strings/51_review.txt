@@ -155,3 +155,11 @@ proposedSlot | Créneau proposé | Proposed slot
 # Review round 7
 keyboardDone | OK | Done
 messageShort | Message | Message
+addPeople | Ajouter des personnes | Add people
+addPeopleSub | Parmi vos contacts | From your contacts
+addPeopleHelp | Vos amis SeeU reçoivent une invitation. Les autres apparaissent aux participants avec la mention « Pas sur SeeU ». | Your SeeU friends get an invitation. The others show up to participants as “Not on SeeU”.
+addNPeople | {n, plural, =1{Ajouter 1 personne} other{Ajouter {n} personnes}} | {n, plural, =1{Add 1 person} other{Add {n} people}}
+peopleAdded | {n, plural, =1{1 personne ajoutée} other{{n} personnes ajoutées}} | {n, plural, =1{1 person added} other{{n} people added}}
+myNotes | Mes notes | My notes
+notesOnlyYou | Visibles par vous seul, même si le rendez-vous est partagé. | Only you can see them, even if the event is shared.
+addNote | Ajouter une note | Add a note

@@ -99,6 +99,10 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
   /// Shared fields (date, place, visibility…) belong to the organizer.
   bool get _organizer => widget.existing?.isOrganizer ?? true;
 
+  /// Guest editing: the organizer's card stays in "with whom" (can't be removed).
+  bool _locked(ContactLite x) =>
+      !_organizer && x.linkedUserId != null && x.linkedUserId == widget.existing?.event?.organizerId;
+
   @override
   void initState() {
     super.initState();
@@ -281,9 +285,11 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                             backgroundColor: c.tone(Tone.brand).bg,
                             side: BorderSide.none,
                             shape: const StadiumBorder(),
-                            deleteIcon: Icon(LucideIcons.x, size: 16, color: c.tone(Tone.brand).fg),
-                            deleteButtonTooltipMessage: tr.removeName(s.name),
-                            onDeleted: () => setState(() => _selected.remove(s.id)),
+                            deleteButtonTooltipMessage: _locked(s.lite) ? tr.organizer : tr.removeName(s.name),
+                            deleteIcon: _locked(s.lite)
+                                ? Icon(LucideIcons.lock, size: 14, color: c.tone(Tone.brand).fg)
+                                : Icon(LucideIcons.x, size: 16, color: c.tone(Tone.brand).fg),
+                            onDeleted: _locked(s.lite) ? () {} : () => setState(() => _selected.remove(s.id)),
                           ),
                       ]),
                       const SizedBox(height: 10),
@@ -307,7 +313,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                                   final on = _selected.contains(x.id);
                                   return CheckboxListTile(
                                     value: on,
-                                    onChanged: (_) => setState(() => on ? _selected.remove(x.id) : _selected.add(x.id)),
+                                    onChanged: _locked(x.lite) ? null : (_) => setState(() => on ? _selected.remove(x.id) : _selected.add(x.id)),
                                     controlAffinity: ListTileControlAffinity.trailing,
                                     activeColor: Palette.brand600,
                                     shape: const RoundedRectangleBorder(),

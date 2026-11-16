@@ -14,6 +14,7 @@ import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../domain/text.dart';
 import '../../ui/feedback.dart';
+import '../../ui/forms.dart';
 import '../../ui/kit.dart';
 import 'rsvp.dart';
 import '../../ui/scaffold.dart';
@@ -53,7 +54,8 @@ class RdvDetailScreen extends ConsumerWidget {
       back: true,
       onBack: leave,
       actions: [
-        if (rdv != null)
+        // Only the organizer edits the event; guests add people and their notes on the page.
+        if (rdv != null && rdv.isOrganizer)
           AppIconButton(
             icon: LucideIcons.pencil,
             tooltip: tr.edit,
@@ -253,14 +255,6 @@ class _Body extends ConsumerWidget {
               const SizedBox(height: 10),
               Text(rdv.event!.description!, style: TextStyle(fontSize: 15, color: c.text, height: 1.45)),
             ],
-            if (rdv.notes != null) ...[
-              const SizedBox(height: 10),
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(LucideIcons.stickyNote, size: 18, color: c.textSubtle),
-                const SizedBox(width: 8),
-                Expanded(child: Text(rdv.notes!, style: TextStyle(fontSize: 15, color: c.text, height: 1.4))),
-              ]),
-            ],
             if (rdv.isShared && rdv.visibility == EventVisibility.private) ...[
               const SizedBox(height: 14),
               InfoBox(
@@ -308,6 +302,9 @@ class _Body extends ConsumerWidget {
                   : tr.photosEmptyPrivate,
           canAdd: !public || rdv.isOrganizer,
         ),
+
+        // 6b. My private notes, clearly apart from what's shared
+        _NotesSection(rdv: rdv),
 
         // 7. Delete (declined: nothing to remove, it's already out of the agenda)
         if (rdv.isOrganizer || rdv.rsvp != Rsvp.declined) ...[
@@ -385,5 +382,73 @@ class _RsvpCardState extends ConsumerState<_RsvpCard> {
         ),
       ]),
     );
+  }
+}
+
+
+/// "Mes notes (personnel)": only for me, editable in place.
+class _NotesSection extends ConsumerWidget {
+  const _NotesSection({required this.rdv});
+  final Rendezvous rdv;
+
+  Future<void> _edit(BuildContext context, WidgetRef ref) async {
+    final ctrl = TextEditingController(text: rdv.notes ?? '');
+    final saved = await showAppSheet<bool>(
+      context,
+      title: tr.myNotes,
+      subtitle: tr.notesOnlyYou,
+      builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        AppTextField(controller: ctrl, hint: tr.notesRdvHint, maxLines: 6, autofocus: true),
+        const SizedBox(height: 12),
+        AppButton(tr.save, icon: LucideIcons.check, full: true, onAsync: () async {
+          final ok = await guard(() async {
+            await ref.read(apiProvider).setRdvNotes(rdv.id, ctrl.text);
+            return true;
+          });
+          if (ok != null && ctx.mounted) Navigator.pop(ctx, true);
+        }),
+      ]),
+    );
+    ctrl.dispose();
+    if (saved == true) refreshData(ref);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Padding(
+        padding: const EdgeInsets.only(top: 24, bottom: 4),
+        child: Row(children: [
+          Icon(LucideIcons.lock, size: 17, color: c.textMuted),
+          const SizedBox(width: 8),
+          Text(tr.myNotes, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: c.text)),
+          const SizedBox(width: 6),
+          Text(tr.tagPersonal, style: TextStyle(fontSize: 15, color: c.textSubtle)),
+        ]),
+      ),
+      Text(tr.notesOnlyYou, style: TextStyle(color: c.textMuted, fontSize: 13)),
+      const SizedBox(height: 8),
+      Material(
+        color: c.secondaryFill,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => _edit(context, ref),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Icon(rdv.notes == null ? LucideIcons.plus : LucideIcons.stickyNote, size: 18, color: c.textMuted),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(rdv.notes ?? tr.addNote,
+                    style: TextStyle(fontSize: 15, height: 1.4, color: rdv.notes == null ? c.textMuted : c.text)),
+              ),
+              if (rdv.notes != null) Icon(LucideIcons.pencil, size: 16, color: c.textMuted),
+            ]),
+          ),
+        ),
+      ),
+    ]);
   }
 }

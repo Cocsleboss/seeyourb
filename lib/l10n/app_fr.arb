@@ -1807,5 +1807,27 @@
   "dateYouSet": "Vous fixez la date",
   "proposedSlot": "Créneau proposé",
   "keyboardDone": "OK",
-  "messageShort": "Message"
+  "messageShort": "Message",
+  "addPeople": "Ajouter des personnes",
+  "addPeopleSub": "Parmi vos contacts",
+  "addPeopleHelp": "Vos amis SeeU reçoivent une invitation. Les autres apparaissent aux participants avec la mention « Pas sur SeeU ».",
+  "addNPeople": "{n, plural, =1{Ajouter 1 personne} other{Ajouter {n} personnes}}",
+  "@addNPeople": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "peopleAdded": "{n, plural, =1{1 personne ajoutée} other{{n} personnes ajoutées}}",
+  "@peopleAdded": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "myNotes": "Mes notes",
+  "notesOnlyYou": "Visibles par vous seul, même si le rendez-vous est partagé.",
+  "addNote": "Ajouter une note"
 }

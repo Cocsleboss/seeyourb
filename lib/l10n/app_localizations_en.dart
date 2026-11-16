@@ -3088,4 +3088,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get messageShort => 'Message';
+
+  @override
+  String get addPeople => 'Add people';
+
+  @override
+  String get addPeopleSub => 'From your contacts';
+
+  @override
+  String get addPeopleHelp =>
+      'Your SeeU friends get an invitation. The others show up to participants as “Not on SeeU”.';
+
+  @override
+  String addNPeople(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Add $n people',
+      one: 'Add 1 person',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleAdded(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n people added',
+      one: '1 person added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get myNotes => 'My notes';
+
+  @override
+  String get notesOnlyYou =>
+      'Only you can see them, even if the event is shared.';
+
+  @override
+  String get addNote => 'Add a note';
 }

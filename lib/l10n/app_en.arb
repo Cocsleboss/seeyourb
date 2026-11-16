@@ -819,5 +819,13 @@
   "dateYouSet": "You set the date",
   "proposedSlot": "Proposed slot",
   "keyboardDone": "Done",
-  "messageShort": "Message"
+  "messageShort": "Message",
+  "addPeople": "Add people",
+  "addPeopleSub": "From your contacts",
+  "addPeopleHelp": "Your SeeU friends get an invitation. The others show up to participants as “Not on SeeU”.",
+  "addNPeople": "{n, plural, =1{Add 1 person} other{Add {n} people}}",
+  "peopleAdded": "{n, plural, =1{1 person added} other{{n} people added}}",
+  "myNotes": "My notes",
+  "notesOnlyYou": "Only you can see them, even if the event is shared.",
+  "addNote": "Add a note"
 }
