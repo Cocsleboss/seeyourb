@@ -205,7 +205,12 @@ class _Body extends ConsumerWidget {
               Row(children: [
                 Icon(LucideIcons.calendarClock, size: 26, color: c.tone(Tone.amber).text),
                 const SizedBox(width: 8),
-                Text(tr.dateToChoose, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: c.text, height: 1.2)),
+                Expanded(
+                  child: Text(
+                    rdv.isOrganizer ? tr.dateYouSet : (event == null ? tr.dateToChoose : tr.dateConfirmedBy(event.organizerName)),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: c.text, height: 1.2),
+                  ),
+                ),
               ])
             else ...[
               Text(capitalize(formatDateLong(rdv.appointmentAt)),

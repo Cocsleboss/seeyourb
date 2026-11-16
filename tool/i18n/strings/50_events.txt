@@ -4,7 +4,7 @@ visContacts | Entre amis | Friends
 visPublic | Public | Public
 eventBy | Événement de {name} | {name}'s event
 sponsored | Sponsorisé | Sponsored
-dateToChoose | Date à choisir | Date to be chosen
+dateToChoose | Date à confirmer | Date to be confirmed
 byYou | Par vous | By you
 nGoing | {n, plural, =0{Personne pour l'instant} =1{1 participant} other{{n} participants}} | {n, plural, =0{Nobody yet} =1{1 going} other{{n} going}}
 youreGoing | Vous y allez | You're going

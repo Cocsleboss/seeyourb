@@ -3443,7 +3443,7 @@ abstract class AppLocalizations {
   /// No description provided for @dateToChoose.
   ///
   /// In fr, this message translates to:
-  /// **'Date à choisir'**
+  /// **'Date à confirmer'**
   String get dateToChoose;
 
   /// No description provided for @byYou.
@@ -4987,6 +4987,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre réponse :'**
   String get yourAnswerShort;
+
+  /// No description provided for @dateConfirmedBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date à confirmer par {name}'**
+  String dateConfirmedBy(String name);
+
+  /// No description provided for @dateYouSet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous fixez la date'**
+  String get dateYouSet;
 }
 
 class _AppLocalizationsDelegate

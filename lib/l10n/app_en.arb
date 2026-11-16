@@ -557,7 +557,7 @@
   "visPublic": "Public",
   "eventBy": "{name}'s event",
   "sponsored": "Sponsored",
-  "dateToChoose": "Date to be chosen",
+  "dateToChoose": "Date to be confirmed",
   "byYou": "By you",
   "nGoing": "{n, plural, =0{Nobody yet} =1{1 going} other{{n} going}}",
   "youreGoing": "You're going",
@@ -814,5 +814,7 @@
   "waitingForOrganizer": "Waiting for the organizer to set the date",
   "waitingForAnswers": "Waiting for answers",
   "yourTurnToChoose": "Your turn to pick the date",
-  "yourAnswerShort": "Your answer:"
+  "yourAnswerShort": "Your answer:",
+  "dateConfirmedBy": "Date to be confirmed by {name}",
+  "dateYouSet": "You set the date"
 }

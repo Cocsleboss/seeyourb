@@ -2192,7 +2192,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sponsored => 'Sponsorisé';
 
   @override
-  String get dateToChoose => 'Date à choisir';
+  String get dateToChoose => 'Date à confirmer';
 
   @override
   String get byYou => 'Par vous';
@@ -3151,4 +3151,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get yourAnswerShort => 'Votre réponse :';
+
+  @override
+  String dateConfirmedBy(String name) {
+    return 'Date à confirmer par $name';
+  }
+
+  @override
+  String get dateYouSet => 'Vous fixez la date';
 }

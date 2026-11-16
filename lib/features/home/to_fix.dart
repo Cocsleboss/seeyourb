@@ -83,6 +83,14 @@ class _TriRingPainter extends CustomPainter {
   bool shouldRepaint(_TriRingPainter old) => old.colors != colors;
 }
 
+/// "Date confirmée par Andrea" / "Vous fixez la date": who decides, so it
+/// doesn't read as something I must do.
+String dateDecidedBy(WidgetRef ref, Rendezvous r) {
+  if (r.isOrganizer) return tr.dateYouSet;
+  final name = r.eventId == null ? null : ref.watch(eventProvider(r.eventId!)).value?.organizerName;
+  return name == null ? tr.dateToChoose : tr.dateConfirmedBy(name);
+}
+
 /// Does this event wait on me? Member: not answered yet. Organizer: everyone
 /// answered (time to pick the date).
 bool toFixNeedsMe(Rendezvous rdv, List<EventSlot>? slots) {
@@ -109,7 +117,7 @@ class ToFixCard extends ConsumerWidget {
 
     Widget status;
     if (slots == null) {
-      status = Text(tr.dateToChoose, style: TextStyle(fontSize: 13, color: c.textMuted));
+      status = Text(dateDecidedBy(ref, rdv), style: TextStyle(fontSize: 13, color: c.textMuted));
     } else if (rdv.isOrganizer) {
       final voters = slots.isEmpty ? 0 : slots.map((s) => s.yes + s.maybe + s.no).reduce((a, b) => a > b ? a : b);
       final others = (rdv.event?.memberCount ?? 1) - 1;
@@ -173,7 +181,7 @@ class ToFixCard extends ConsumerWidget {
                   ]),
                   const SizedBox(height: 3),
                   Row(children: [
-                    Pill(tr.dateToChoose, tone: needsMe ? Tone.amber : Tone.gray, icon: LucideIcons.calendarClock),
+                    Flexible(child: Pill(dateDecidedBy(ref, rdv), tone: needsMe ? Tone.amber : Tone.gray, icon: LucideIcons.calendarClock)),
                     if (slots != null) ...[
                       const SizedBox(width: 6),
                       Text(tr.nSlots(slots.length), style: TextStyle(fontSize: 12.5, color: c.textMuted)),

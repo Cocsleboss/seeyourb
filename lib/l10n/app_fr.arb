@@ -1281,7 +1281,7 @@
     }
   },
   "sponsored": "Sponsorisé",
-  "dateToChoose": "Date à choisir",
+  "dateToChoose": "Date à confirmer",
   "byYou": "Par vous",
   "nGoing": "{n, plural, =0{Personne pour l'instant} =1{1 participant} other{{n} participants}}",
   "@nGoing": {
@@ -1795,5 +1795,14 @@
   "waitingForOrganizer": "En attente de l'organisateur pour fixer la date",
   "waitingForAnswers": "En attente des réponses",
   "yourTurnToChoose": "À vous de choisir la date",
-  "yourAnswerShort": "Votre réponse :"
+  "yourAnswerShort": "Votre réponse :",
+  "dateConfirmedBy": "Date à confirmer par {name}",
+  "@dateConfirmedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dateYouSet": "Vous fixez la date"
 }

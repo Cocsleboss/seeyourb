@@ -111,7 +111,7 @@ class _PreviewState extends ConsumerState<_Preview> {
               Icon(e.slotsOpen ? LucideIcons.calendarClock : LucideIcons.calendar, size: 20, color: c.textMuted),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(e.slotsOpen ? tr.dateToChoose : capitalize(formatDayTime(e.appointmentAt)),
+                child: Text(e.slotsOpen ? tr.dateConfirmedBy(e.organizerName) : capitalize(formatDayTime(e.appointmentAt)),
                     style: TextStyle(fontSize: 16, color: c.text)),
               ),
             ]),
