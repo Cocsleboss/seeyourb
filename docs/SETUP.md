@@ -62,25 +62,36 @@ Never put the Supabase **secret / service_role** key or the Firebase service acc
 
 ## 4. How the pieces connect
 
+```mermaid
+flowchart TB
+  APP["Flutter app (Android / iOS)<br/>supabase_flutter + firebase_messaging"]
+  subgraph SB["Supabase (SeeU)"]
+    direction TB
+    AUTH["Auth<br/>email + password, magic link, reset (PKCE)"]
+    DB[("Postgres<br/>RLS on every table · triggers · RPCs")]
+    ST[("Storage<br/>photos (private) · avatars (public)")]
+    CRON[["pg_cron<br/>reminders, event checks, dispatch"]]
+    OUT[("notifications (outbox)")]
+    DISP["Edge Function dispatch"]
+  end
+  FCM["Firebase Cloud Messaging (seeu-94040)"]
+  APNS["APNs (iOS, needs paid Apple account)"]
+  MAIL["Email fallback (not set yet)"]
+
+  APP <-->|"sign-in · links to seeu://auth-callback"| AUTH
+  APP <-->|"queries, RPC, register_device"| DB
+  APP <-->|"photos, avatars"| ST
+  DB -->|triggers| OUT
+  CRON --> OUT
+  OUT -->|"pg_net: on insert + every minute"| DISP
+  DISP -->|"FCM HTTP v1"| FCM
+  DISP -.-> MAIL
+  FCM -->|Android| APP
+  FCM --> APNS -->|iOS| APP
 ```
-                         ┌──────────────────────────── Supabase (SeeU) ────────────────────────────┐
-  Flutter app            │                                                                          │
-  (Android / iOS)        │  Auth ──────── emails ──► user ──► seeu://auth-callback ──► app          │
-   │                     │                                                                          │
-   │ supabase_flutter    │  Postgres (RLS on every table)                                           │
-   ├────────────────────►│   tables · triggers · RPCs (friends, shared rdv, waves, invitations)     │
-   │  queries / RPC      │        │ social events (triggers)      pg_cron every 10 min              │
-   │                     │        ▼                               run_reminders()                   │
-   │                     │   notifications (outbox, status pending → sent) ◄──┘                     │
-   │                     │        │ pg_net (on insert + every minute)                               │
-   │  storage (photos)   │        ▼                                                                 │
-   ├────────────────────►│   Edge Function dispatch ──► FCM HTTP v1 ──┐   (fallback: email)         │
-   │                     │   Edge Function delete-account             │                            │
-   │                     └────────────────────────────────────────────┼────────────────────────────┘
-   │                                                                  ▼
-   │  register_device(token)                      Firebase Cloud Messaging (seeu-94040)
-   └── firebase_messaging ◄──────── push ──────────  Android direct · iOS via APNs (needs paid Apple account)
-```
+
+The `delete-account` Edge Function (called by the app from Settings) deletes the user's
+storage files and account.
 
 - **Auth**: email + password, magic link, password reset; PKCE flow; sessions stored on device.
 - **Data**: every query goes through Row Level Security; sharing between friends only through
@@ -90,7 +101,8 @@ Never put the Supabase **secret / service_role** key or the Firebase service acc
   `photos_storage_select_shared`).
 - **Push tokens**: the app calls `register_device(token, platform)`; tokens are stored in
   `device_tokens`; `dispatch` deletes tokens FCM reports as invalid.
-- **Scheduled jobs** (pg_cron): `seeu-reminders` (`*/10 * * * *`) and `seeu-dispatch` (`* * * * *`).
+- **Scheduled jobs** (pg_cron): `seeu-reminders` and `seeu-event-checks` (`*/10 * * * *`), `seeu-dispatch` (`* * * * *`).
+- **Database structure** (tables, keys, diagrams): [`DATABASE.md`](DATABASE.md).
 
 ### Events, visibility and who may publish public events
 
