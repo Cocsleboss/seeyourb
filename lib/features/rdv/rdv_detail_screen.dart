@@ -393,24 +393,12 @@ class _NotesSection extends ConsumerWidget {
   final Rendezvous rdv;
 
   Future<void> _edit(BuildContext context, WidgetRef ref) async {
-    final ctrl = TextEditingController(text: rdv.notes ?? '');
     final saved = await showAppSheet<bool>(
       context,
       title: tr.myNotes,
       subtitle: tr.notesOnlyYou,
-      builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        AppTextField(controller: ctrl, hint: tr.notesRdvHint, maxLines: 6, autofocus: true),
-        const SizedBox(height: 12),
-        AppButton(tr.save, icon: LucideIcons.check, full: true, onAsync: () async {
-          final ok = await guard(() async {
-            await ref.read(apiProvider).setRdvNotes(rdv.id, ctrl.text);
-            return true;
-          });
-          if (ok != null && ctx.mounted) Navigator.pop(ctx, true);
-        }),
-      ]),
+      builder: (_) => _NotesEditor(rdv: rdv),
     );
-    ctrl.dispose();
     if (saved == true) refreshData(ref);
   }
 
@@ -452,4 +440,37 @@ class _NotesSection extends ConsumerWidget {
       ),
     ]);
   }
+}
+
+
+/// Owns its text controller: disposed only when the sheet is gone (disposing it
+/// right after the sheet returned crashed while the sheet was still closing).
+class _NotesEditor extends ConsumerStatefulWidget {
+  const _NotesEditor({required this.rdv});
+  final Rendezvous rdv;
+  @override
+  ConsumerState<_NotesEditor> createState() => _NotesEditorState();
+}
+
+class _NotesEditorState extends ConsumerState<_NotesEditor> {
+  late final _ctrl = TextEditingController(text: widget.rdv.notes ?? '');
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        AppTextField(controller: _ctrl, hint: tr.notesRdvHint, maxLines: 6, autofocus: true),
+        const SizedBox(height: 12),
+        AppButton(tr.save, icon: LucideIcons.check, full: true, onAsync: () async {
+          final ok = await guard(() async {
+            await ref.read(apiProvider).setRdvNotes(widget.rdv.id, _ctrl.text);
+            return true;
+          });
+          if (ok != null && mounted) Navigator.pop(this.context, true);
+        }),
+      ]);
 }

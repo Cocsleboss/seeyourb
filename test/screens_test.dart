@@ -156,6 +156,8 @@ class _FakeApi extends Api {
   Future<void> markChatRead(String rdvId) async {}
   @override
   Future<Map<String, String>> profileAvatars(List<String> ids) async => const {};
+  @override
+  Future<void> setRdvNotes(String rdvId, String notes) async {}
 }
 
 /// Created once outside the tests (the client starts timers).
@@ -366,6 +368,24 @@ void main() {
     await tester.tap(find.text('24'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Créneau proposé'), findsOneWidget);
+  });
+
+  testWidgets('event: adding a private note closes cleanly', (tester) async {
+    applyLanguage('fr');
+    tester.view.physicalSize = const Size(1170, 7200);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(app('/rdv/r4', Brightness.light, const []));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.text('Ajouter une note'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 50), EnginePhase.sendSemanticsUpdate, const Duration(seconds: 5));
+    await tester.enterText(find.byType(TextField).last, 'Apporter le dessert');
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.takeException(), isNull);
   });
 
   // French in light + dark, English in light (catches longer strings overflowing).
