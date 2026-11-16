@@ -41,7 +41,7 @@ class ContactRow extends StatelessWidget {
               Text(
                 [
                   if (friend?.username != null) '@${friend!.username}',
-                  contact.lastMeetingDate == null ? tr.notSeenYet : tr.seenOn(formatDate(contact.lastMeetingDate!)),
+                  contact.lastMeetingDate == null ? tr.notSeenYet : tr.seenOn(formatDateShort(contact.lastMeetingDate!)),
                   frequencyLabel(contact.frequencyValue, contact.frequencyUnit),
                 ].join(' · '),
                 maxLines: 1,

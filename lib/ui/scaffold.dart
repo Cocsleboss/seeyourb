@@ -177,6 +177,8 @@ class PageList extends StatelessWidget {
     final list = ListView(
       controller: controller,
       physics: const AlwaysScrollableScrollPhysics(),
+      // Scrolling closes the keyboard (iOS has no key for it on multi-line fields).
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: EdgeInsets.fromLTRB(16, 8, 16, bottomPadding),
       children: children,
     );

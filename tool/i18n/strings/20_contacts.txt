@@ -15,7 +15,7 @@ rdvInvitations | Invitations à un rendez-vous | Event invitations
 friendRequestsReceived | Demandes d'ami reçues | Friend requests received
 sentYouARequest | Vous a envoyé une demande | Sent you a request
 friendRequestsSent | Demandes d'ami envoyées | Friend requests sent
-waitingForAnswer | En attente de sa réponse | Waiting for their answer
+waitingForAnswer | En attente | Waiting
 noContactsTitle | Aucun contact pour l'instant | No contacts yet
 noContactsMessage | Ajoutez les personnes que vous voulez revoir régulièrement. Celles qui sont sur SeeU peuvent devenir vos amis : rendez-vous et photos partagés. | Add the people you want to see regularly. Those on SeeU can become your friends: shared events and photos.
 importFromPhone | Importer depuis le téléphone | Import from phone

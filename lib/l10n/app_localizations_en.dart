@@ -938,7 +938,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get friendRequestsSent => 'Friend requests sent';
 
   @override
-  String get waitingForAnswer => 'Waiting for their answer';
+  String get waitingForAnswer => 'Waiting';
 
   @override
   String get noContactsTitle => 'No contacts yet';
@@ -2951,7 +2951,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fullForm => 'Full form';
 
   @override
-  String get createContactShort => 'Create contact';
+  String get createContactShort => 'Create';
 
   @override
   String get friendsToAssociate => 'SeeU friends to set up';
@@ -3082,4 +3082,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proposedSlot => 'Proposed slot';
+
+  @override
+  String get keyboardDone => 'Done';
+
+  @override
+  String get messageShort => 'Message';
 }

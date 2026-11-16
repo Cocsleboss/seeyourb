@@ -956,7 +956,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get friendRequestsSent => 'Demandes d\'ami envoyées';
 
   @override
-  String get waitingForAnswer => 'En attente de sa réponse';
+  String get waitingForAnswer => 'En attente';
 
   @override
   String get noContactsTitle => 'Aucun contact pour l\'instant';
@@ -3030,7 +3030,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get fullForm => 'Formulaire';
 
   @override
-  String get createContactShort => 'Créer le contact';
+  String get createContactShort => 'Créer';
 
   @override
   String get friendsToAssociate => 'Amis SeeU à associer';
@@ -3162,4 +3162,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get proposedSlot => 'Créneau proposé';
+
+  @override
+  String get keyboardDone => 'OK';
+
+  @override
+  String get messageShort => 'Message';
 }

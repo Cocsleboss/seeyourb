@@ -539,7 +539,7 @@ class _BirthdayCard extends StatelessWidget {
         Row(children: [
           if (contact.phone != null) ...[
             Expanded(
-              child: AppButton(tr.sendMessage,
+              child: AppButton(tr.messageShort,
                   icon: LucideIcons.messageCircle,
                   size: ButtonSize.sm,
                   variant: ButtonVariant.secondary,
@@ -574,37 +574,50 @@ class _DueRow extends ConsumerWidget {
       ContactRow(contact: contact),
       Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-        child: Row(children: [
-          Expanded(
-            child: AppButton(tr.plan,
-                icon: LucideIcons.calendarPlus, size: ButtonSize.sm, full: true, onPressed: () => context.push('/rdv/new?contact=${contact.id}')),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: AppButton(tr.seen,
-                icon: LucideIcons.check,
-                size: ButtonSize.sm,
-                variant: ButtonVariant.secondary,
-                full: true,
-                onPressed: () => showMarkSeenSheet(context, contact)),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: marked
-                ? AppButton(tr.remove, icon: LucideIcons.starOff, size: ButtonSize.sm, variant: ButtonVariant.secondary, full: true,
-                    onPressed: () async {
-                    final ok = await guard(() => ref.read(apiProvider).setSeeSoon(contact.id, false),
-                        success: tr.removedFromList(contact.name));
-                    if (ok != null) refreshData(ref);
-                  })
-                : AppButton(tr.snooze,
-                    icon: LucideIcons.clock,
-                    size: ButtonSize.sm,
-                    variant: ButtonVariant.secondary,
-                    full: true,
-                    onPressed: () => showSnoozeSheet(context, contact)),
-          ),
-        ]),
+        // "Vu" is short: less room for it. Narrow screens: labels without icons.
+        child: LayoutBuilder(builder: (context, box) {
+          final icons = box.maxWidth > 360;
+          return Row(children: [
+            Expanded(
+              flex: 4,
+              child: AppButton(tr.plan,
+                  icon: icons ? LucideIcons.calendarPlus : null,
+                  size: ButtonSize.sm,
+                  full: true,
+                  onPressed: () => context.push('/rdv/new?contact=${contact.id}')),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 3,
+              child: AppButton(tr.seen,
+                  icon: icons ? LucideIcons.check : null,
+                  size: ButtonSize.sm,
+                  variant: ButtonVariant.secondary,
+                  full: true,
+                  onPressed: () => showMarkSeenSheet(context, contact)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 4,
+              child: marked
+                  ? AppButton(tr.remove,
+                      icon: icons ? LucideIcons.starOff : null,
+                      size: ButtonSize.sm,
+                      variant: ButtonVariant.secondary,
+                      full: true, onPressed: () async {
+                      final ok = await guard(() => ref.read(apiProvider).setSeeSoon(contact.id, false),
+                          success: tr.removedFromList(contact.name));
+                      if (ok != null) refreshData(ref);
+                    })
+                  : AppButton(tr.snooze,
+                      icon: icons ? LucideIcons.clock : null,
+                      size: ButtonSize.sm,
+                      variant: ButtonVariant.secondary,
+                      full: true,
+                      onPressed: () => showSnoozeSheet(context, contact)),
+            ),
+          ]);
+        }),
       ),
     ]);
   }

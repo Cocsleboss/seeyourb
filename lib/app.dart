@@ -14,6 +14,7 @@ import 'core/theme.dart';
 import 'data/providers.dart';
 import 'features/misc/fallback_screens.dart';
 import 'ui/feedback.dart';
+import 'ui/keyboard_bar.dart';
 
 final connectivityProvider = StreamProvider<bool>((ref) async* {
   final c = Connectivity();
@@ -130,7 +131,7 @@ class _SeeUAppState extends ConsumerState<SeeUApp> with WidgetsBindingObserver {
       // Keyed by language so every screen rebuilds with the new strings.
       builder: (context, child) => KeyedSubtree(
         key: ValueKey(lang),
-        child: online ? child! : OfflineScreen(onRetry: () => ref.invalidate(connectivityProvider)),
+        child: online ? KeyboardDoneBar(child: child!) : OfflineScreen(onRetry: () => ref.invalidate(connectivityProvider)),
       ),
     );
   }

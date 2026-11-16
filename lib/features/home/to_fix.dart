@@ -180,12 +180,10 @@ class ToFixCard extends ConsumerWidget {
                     ),
                   ]),
                   const SizedBox(height: 3),
-                  Row(children: [
-                    Flexible(child: Pill(dateDecidedBy(ref, rdv), tone: needsMe ? Tone.amber : Tone.gray, icon: LucideIcons.calendarClock)),
-                    if (slots != null) ...[
-                      const SizedBox(width: 6),
-                      Text(tr.nSlots(slots.length), style: TextStyle(fontSize: 12.5, color: c.textMuted)),
-                    ],
+                  // Wraps rather than cutting "Date à confirmer par …".
+                  Wrap(spacing: 6, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
+                    Pill(dateDecidedBy(ref, rdv), tone: needsMe ? Tone.amber : Tone.gray, icon: LucideIcons.calendarClock),
+                    if (slots != null) Text(tr.nSlots(slots.length), style: TextStyle(fontSize: 12.5, color: c.textMuted)),
                   ]),
                   const SizedBox(height: 4),
                   status,

@@ -520,7 +520,7 @@
   "friendRequestsReceived": "Demandes d'ami reçues",
   "sentYouARequest": "Vous a envoyé une demande",
   "friendRequestsSent": "Demandes d'ami envoyées",
-  "waitingForAnswer": "En attente de sa réponse",
+  "waitingForAnswer": "En attente",
   "noContactsTitle": "Aucun contact pour l'instant",
   "noContactsMessage": "Ajoutez les personnes que vous voulez revoir régulièrement. Celles qui sont sur SeeU peuvent devenir vos amis : rendez-vous et photos partagés.",
   "importFromPhone": "Importer depuis le téléphone",
@@ -1714,7 +1714,7 @@
   "noSuggestionSearch": "Pas de suggestion : cherchez le contact à lier.",
   "link": "Lier",
   "fullForm": "Formulaire",
-  "createContactShort": "Créer le contact",
+  "createContactShort": "Créer",
   "friendsToAssociate": "Amis SeeU à associer",
   "friendsToAssociateHelp": "Liez chacun à un de vos contacts, ou créez-lui une fiche : SeeU vous rappellera de le voir, et vous partagerez rendez-vous et photos.",
   "friendVsContactTitle": "Contact ou ami SeeU ?",
@@ -1805,5 +1805,7 @@
     }
   },
   "dateYouSet": "Vous fixez la date",
-  "proposedSlot": "Créneau proposé"
+  "proposedSlot": "Créneau proposé",
+  "keyboardDone": "OK",
+  "messageShort": "Message"
 }

@@ -18,7 +18,6 @@ import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import '../friends/add_friend_sheet.dart';
 import '../friends/friend_sheets.dart';
-import '../friends/invite_card.dart';
 import '../friends/quick_contact_row.dart';
 import '../../core/i18n.dart';
 
@@ -108,7 +107,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
   Widget _content(List<Contact> all) {
     final c = context.colors;
     final friends = ref.watch(friendsProvider).value ?? const <Friend>[];
-    final invites = ref.watch(incomingInvitesProvider).value ?? const <IncomingInvite>[];
     final received = friends.where((f) => !f.accepted && f.incoming).toList();
     final sent = friends.where((f) => !f.accepted && !f.incoming).toList();
     final unlinked = friends.where((f) => f.accepted && linkedContactOf(all, f.userId) == null).toList()
@@ -196,14 +194,10 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
             ),
 
           // Social activity waiting for me
-          if (invites.isNotEmpty || received.isNotEmpty || sent.isNotEmpty)
+          if (received.isNotEmpty || sent.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                if (invites.isNotEmpty) ...[
-                  SectionTitle(tr.rdvInvitations),
-                  for (final i in invites) Padding(padding: const EdgeInsets.only(bottom: 10), child: InviteCard(invite: i)),
-                ],
                 if (received.isNotEmpty) ...[
                   SectionTitle(tr.friendRequestsReceived),
                   RowsCard(children: [
@@ -212,13 +206,29 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                         userId: f.userId,
                         name: f.displayName,
                         subtitle: '${handle(f.username)} · ${tr.sentYouARequest}',
-                        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                          AppButton(tr.rsvpDecline,
-                              variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: _busy == null ? () => _respond(f, false) : null),
-                          const SizedBox(width: 6),
-                          AppButton(tr.rsvpAccept,
-                              size: ButtonSize.sm, loading: _busy == f.friendshipId, onPressed: _busy == null ? () => _respond(f, true) : null),
-                        ]),
+                        // Small screens: ✕ / ✓ only, so the name and @ stay readable.
+                        trailing: Builder(builder: (context) {
+                          final compact = MediaQuery.sizeOf(context).width < 420;
+                          return Row(mainAxisSize: MainAxisSize.min, children: [
+                            Tooltip(
+                              message: tr.rsvpDecline,
+                              child: AppButton(compact ? '' : tr.rsvpDecline,
+                                  icon: compact ? LucideIcons.x : null,
+                                  variant: ButtonVariant.secondary,
+                                  size: ButtonSize.sm,
+                                  onPressed: _busy == null ? () => _respond(f, false) : null),
+                            ),
+                            const SizedBox(width: 6),
+                            Tooltip(
+                              message: tr.rsvpAccept,
+                              child: AppButton(compact ? '' : tr.rsvpAccept,
+                                  icon: compact ? LucideIcons.check : null,
+                                  size: ButtonSize.sm,
+                                  loading: _busy == f.friendshipId,
+                                  onPressed: _busy == null ? () => _respond(f, true) : null),
+                            ),
+                          ]);
+                        }),
                       ),
                   ]),
                 ],

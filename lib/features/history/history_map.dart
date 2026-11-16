@@ -18,7 +18,7 @@ import '../../maps/maps.dart';
 import '../../ui/kit.dart';
 
 const _popupWidth = 290.0;
-const _popupRowHeight = 58.0;
+const _popupRowHeight = 64.0;
 const _popupMaxRows = 4;
 
 class _Place {
@@ -224,7 +224,8 @@ class _PlaceCard extends StatelessWidget {
                             Text(r.displayTitle,
                                 maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: c.text)),
                             const SizedBox(height: 2),
-                            Text(capitalize(formatDateLong(r.appointmentAt)), style: TextStyle(fontSize: 12.5, color: c.textMuted)),
+                            Text(capitalize(formatDateLong(r.appointmentAt)),
+                                maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12.5, color: c.textMuted)),
                           ]),
                         ),
                         PhasePill(r),

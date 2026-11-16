@@ -1529,7 +1529,7 @@ abstract class AppLocalizations {
   /// No description provided for @waitingForAnswer.
   ///
   /// In fr, this message translates to:
-  /// **'En attente de sa réponse'**
+  /// **'En attente'**
   String get waitingForAnswer;
 
   /// No description provided for @noContactsTitle.
@@ -4805,7 +4805,7 @@ abstract class AppLocalizations {
   /// No description provided for @createContactShort.
   ///
   /// In fr, this message translates to:
-  /// **'Créer le contact'**
+  /// **'Créer'**
   String get createContactShort;
 
   /// No description provided for @friendsToAssociate.
@@ -5005,6 +5005,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Créneau proposé'**
   String get proposedSlot;
+
+  /// No description provided for @keyboardDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
+  String get keyboardDone;
+
+  /// No description provided for @messageShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get messageShort;
 }
 
 class _AppLocalizationsDelegate

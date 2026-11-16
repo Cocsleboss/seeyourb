@@ -115,7 +115,7 @@ searchContactToLink | Chercher un de mes contacts… | Search my contacts…
 noSuggestionSearch | Pas de suggestion : cherchez le contact à lier. | No suggestion: search the contact to link.
 link | Lier | Link
 fullForm | Formulaire | Full form
-createContactShort | Créer le contact | Create contact
+createContactShort | Créer | Create
 friendsToAssociate | Amis SeeU à associer | SeeU friends to set up
 friendsToAssociateHelp | Liez chacun à un de vos contacts, ou créez-lui une fiche : SeeU vous rappellera de le voir, et vous partagerez rendez-vous et photos. | Link each one to one of your contacts, or create a card: SeeU will remind you to see them, and you'll share events and photos.
 friendVsContactTitle | Contact ou ami SeeU ? | Contact or SeeU friend?
@@ -151,3 +151,7 @@ yourAnswerShort | Votre réponse : | Your answer:
 dateConfirmedBy | Date à confirmer par {name} | Date to be confirmed by {name}
 dateYouSet | Vous fixez la date | You set the date
 proposedSlot | Créneau proposé | Proposed slot
+
+# Review round 7
+keyboardDone | OK | Done
+messageShort | Message | Message

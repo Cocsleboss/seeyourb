@@ -238,7 +238,7 @@
   "friendRequestsReceived": "Friend requests received",
   "sentYouARequest": "Sent you a request",
   "friendRequestsSent": "Friend requests sent",
-  "waitingForAnswer": "Waiting for their answer",
+  "waitingForAnswer": "Waiting",
   "noContactsTitle": "No contacts yet",
   "noContactsMessage": "Add the people you want to see regularly. Those on SeeU can become your friends: shared events and photos.",
   "importFromPhone": "Import from phone",
@@ -784,7 +784,7 @@
   "noSuggestionSearch": "No suggestion: search the contact to link.",
   "link": "Link",
   "fullForm": "Full form",
-  "createContactShort": "Create contact",
+  "createContactShort": "Create",
   "friendsToAssociate": "SeeU friends to set up",
   "friendsToAssociateHelp": "Link each one to one of your contacts, or create a card: SeeU will remind you to see them, and you'll share events and photos.",
   "friendVsContactTitle": "Contact or SeeU friend?",
@@ -817,5 +817,7 @@
   "yourAnswerShort": "Your answer:",
   "dateConfirmedBy": "Date to be confirmed by {name}",
   "dateYouSet": "You set the date",
-  "proposedSlot": "Proposed slot"
+  "proposedSlot": "Proposed slot",
+  "keyboardDone": "Done",
+  "messageShort": "Message"
 }

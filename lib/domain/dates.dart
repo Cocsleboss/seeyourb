@@ -142,6 +142,9 @@ String unitLabel(FrequencyUnit unit, int value) => switch (unit) {
 /// 12 nov. 2026
 String formatDate(DateTime d) => DateFormat.yMMMd().format(d);
 
+/// "9 nov." this year, "9 nov. 2025" otherwise (short lists).
+String formatDateShort(DateTime d) => d.year == clock().year ? DateFormat.MMMd().format(d) : DateFormat.yMMMd().format(d);
+
 /// sam. 14 nov. 2026
 String formatDateMedium(DateTime d) => DateFormat.yMMMEd().format(d);
 
