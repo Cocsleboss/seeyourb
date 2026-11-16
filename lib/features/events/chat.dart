@@ -177,13 +177,23 @@ class _EventChatState extends ConsumerState<EventChat> {
         ],
       ];
       // Capped height, scrolls inside; reversed so it opens on the newest message.
+      // Older messages fade out under the top edge instead of being cut.
       body = ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 380),
-        child: ListView(
-          reverse: true,
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          children: items.reversed.toList(),
+        constraints: const BoxConstraints(maxHeight: 255),
+        child: ShaderMask(
+          blendMode: BlendMode.dstIn,
+          shaderCallback: (rect) => const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black],
+            stops: [0, 1],
+          ).createShader(Rect.fromLTWH(0, 0, rect.width, 36)),
+          child: ListView(
+            reverse: true,
+            shrinkWrap: true,
+            padding: const EdgeInsets.only(top: 12),
+            children: items.reversed.toList(),
+          ),
         ),
       );
     }
