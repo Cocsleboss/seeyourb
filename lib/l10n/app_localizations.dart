@@ -5065,6 +5065,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ajouter une note'**
   String get addNote;
+
+  /// No description provided for @noReminder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de rappel récurrent'**
+  String get noReminder;
+
+  /// No description provided for @noReminderShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans rappel'**
+  String get noReminderShort;
+
+  /// No description provided for @freqNever.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun rappel'**
+  String get freqNever;
+
+  /// No description provided for @noReminderHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de rappel : ce contact n\'apparaîtra jamais dans « Garder le contact ».'**
+  String get noReminderHelp;
+
+  /// No description provided for @addAsFriend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter en ami SeeU'**
+  String get addAsFriend;
+
+  /// No description provided for @friendRequestSentShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée'**
+  String get friendRequestSentShort;
 }
 
 class _AppLocalizationsDelegate

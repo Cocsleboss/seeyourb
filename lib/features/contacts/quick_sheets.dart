@@ -246,7 +246,11 @@ class _FrequencyState extends ConsumerState<_Frequency> {
       FrequencyPicker(value: _value, unit: _unit, onChanged: (v, u) => setState(() => (_value = v, _unit = u))),
       const SizedBox(height: 12),
       Text(
-        valid ? '${tr.nextDue} : ${formatDateLong(addFrequency(start, _value, _unit))}' : tr.frequencyMin,
+        !valid
+            ? tr.frequencyMin
+            : _unit == FrequencyUnit.never
+                ? tr.noReminderHelp
+                : '${tr.nextDue} : ${formatDateLong(addFrequency(start, _value, _unit))}',
         style: TextStyle(fontSize: 13.5, color: valid ? c.textMuted : c.tone(Tone.red).text, height: 1.35),
       ),
       const SizedBox(height: 16),

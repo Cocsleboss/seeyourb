@@ -163,3 +163,9 @@ peopleAdded | {n, plural, =1{1 personne ajoutée} other{{n} personnes ajoutées}
 myNotes | Mes notes | My notes
 notesOnlyYou | Visibles par vous seul, même si le rendez-vous est partagé. | Only you can see them, even if the event is shared.
 addNote | Ajouter une note | Add a note
+noReminder | Pas de rappel récurrent | No recurring reminder
+noReminderShort | Sans rappel | No reminder
+freqNever | Aucun rappel | No reminder
+noReminderHelp | Pas de rappel : ce contact n'apparaîtra jamais dans « Garder le contact ». | No reminder: this contact will never show up in “Keep in touch”.
+addAsFriend | Ajouter en ami SeeU | Add as SeeU friend
+friendRequestSentShort | Demande envoyée | Request sent

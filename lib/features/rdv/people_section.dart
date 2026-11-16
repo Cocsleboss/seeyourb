@@ -144,11 +144,41 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
     } else {
       trailing = Pill(tr.rsvpAccepted, tone: Tone.green);
     }
+    // Not a SeeU friend yet: add them from here (or answer their request).
+    final friendship = (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.userId == p.userId).firstOrNull;
+    final sentRequest = friendship != null && !friendship.accepted && !friendship.incoming;
+    final receivedRequest = friendship != null && !friendship.accepted && friendship.incoming;
+    Widget? addFriend;
+    if (!me && !p.isFriend && friendship?.accepted != true && p.username != null && !sentRequest) {
+      final busy = _busy == 'friend-${p.userId}';
+      addFriend = IconButton(
+        tooltip: receivedRequest ? tr.rsvpAccept : tr.addAsFriend,
+        visualDensity: VisualDensity.compact,
+        onPressed: _busy != null
+            ? null
+            : () => _run(
+                  'friend-${p.userId}',
+                  () => receivedRequest
+                      ? ref.read(apiProvider).respondFriendRequest(friendship.friendshipId, true)
+                      : ref.read(apiProvider).sendFriendRequest(p.username!),
+                  receivedRequest ? tr.nowFriendsWith(p.name) : tr.requestSentTo(p.name),
+                ),
+        icon: busy
+            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+            : Icon(receivedRequest ? LucideIcons.userCheck : LucideIcons.userPlus, size: 20, color: c.brandText),
+      );
+    }
     return _PersonTile(
       avatar: FriendAvatar(name: contact?.name ?? p.name, path: contact?.photoPath, size: 40, isFriend: p.isFriend, seeu: true, userId: p.userId),
       title: me ? tr.you : (contact?.name ?? p.name),
-      subtitle: cancellable ? tr.invitationPending : (p.username == null ? null : handle(p.username)),
-      trailing: trailing,
+      subtitle: cancellable
+          ? tr.invitationPending
+          : [
+              if (p.username != null) handle(p.username),
+              if (sentRequest) tr.friendRequestSentShort,
+              if (receivedRequest) tr.requestReceivedShort,
+            ].join(' · ').ifNotEmpty,
+      trailing: addFriend == null ? trailing : Row(mainAxisSize: MainAxisSize.min, children: [trailing, addFriend]),
       onTap: contact == null || me ? null : () => context.push('/contacts/${contact.id}'),
     );
   }
@@ -288,4 +318,9 @@ class _AddPeopleState extends ConsumerState<_AddPeople> {
           icon: LucideIcons.check, full: true, onAsync: _picked.isEmpty ? null : () => _add(all)),
     ]);
   }
+}
+
+
+extension on String {
+  String? get ifNotEmpty => isEmpty ? null : this;
 }

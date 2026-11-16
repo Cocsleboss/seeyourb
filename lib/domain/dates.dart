@@ -40,13 +40,14 @@ DateTime addFrequency(DateTime day, int value, FrequencyUnit unit) => switch (un
       FrequencyUnit.weeks => DateTime(day.year, day.month, day.day + 7 * value),
       FrequencyUnit.months => addMonths(day, value),
       FrequencyUnit.years => addMonths(day, 12 * value),
+      FrequencyUnit.never => noDueDate,
     };
 
 /* ------------------------------------------------------------------ */
 /*  Due dates                                                          */
 /* ------------------------------------------------------------------ */
 
-enum DueKind { overdue, today, soon, ok }
+enum DueKind { overdue, today, soon, ok, none }
 
 class DueInfo {
   const DueInfo({required this.kind, required this.days, required this.label, required this.short, required this.dueDate});
@@ -70,7 +71,13 @@ DateTime effectiveDueDate(HasDue c) {
   return c.nextDueDate;
 }
 
+/// Due date of a contact without recurring reminder.
+final noDueDate = DateTime(9999, 12, 31);
+
 DueInfo dueInfo(HasDue c) {
+  if (!c.nextDueDate.isBefore(noDueDate)) {
+    return DueInfo(kind: DueKind.none, days: 1 << 30, dueDate: noDueDate, label: tr.noReminder, short: tr.noReminderShort);
+  }
   final due = effectiveDueDate(c);
   final days = daysFromToday(due);
   if (days < 0) {
@@ -126,6 +133,7 @@ String frequencyLabel(int value, FrequencyUnit unit) => switch (unit) {
       FrequencyUnit.weeks => tr.everyWeeks(value),
       FrequencyUnit.months => tr.everyMonths(value),
       FrequencyUnit.years => tr.everyYears(value),
+      FrequencyUnit.never => tr.noReminder,
     };
 
 String unitLabel(FrequencyUnit unit, int value) => switch (unit) {
@@ -133,6 +141,7 @@ String unitLabel(FrequencyUnit unit, int value) => switch (unit) {
       FrequencyUnit.weeks => tr.unitWeeks(value),
       FrequencyUnit.months => tr.unitMonths(value),
       FrequencyUnit.years => tr.unitYears(value),
+      FrequencyUnit.never => tr.freqNever,
     };
 
 /* ------------------------------------------------------------------ */

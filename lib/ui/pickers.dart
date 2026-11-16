@@ -24,7 +24,7 @@ class _FrequencyPickerState extends State<FrequencyPicker> {
   late bool _custom = !_isPreset(widget.value, widget.unit);
   late final _number = TextEditingController(text: '${widget.value}');
 
-  static bool _isPreset(int v, FrequencyUnit u) => frequencyPresets.any((f) => f.value == v && f.unit == u);
+  static bool _isPreset(int v, FrequencyUnit u) => u == FrequencyUnit.never || frequencyPresets.any((f) => f.value == v && f.unit == u);
 
   @override
   void didUpdateWidget(FrequencyPicker old) {
@@ -52,7 +52,18 @@ class _FrequencyPickerState extends State<FrequencyPicker> {
             _number.text = '${f.value}';
             widget.onChanged(f.value, f.unit);
           }),
-        AppChip(tr.freqCustom, selected: _custom, onTap: () => setState(() => _custom = true)),
+        AppChip(tr.freqCustom, selected: _custom, onTap: () {
+          setState(() => _custom = true);
+          if (widget.unit == FrequencyUnit.never) widget.onChanged(1, FrequencyUnit.months);
+        }),
+        // No recurring reminder for this person.
+        AppChip(tr.freqNever,
+            icon: LucideIcons.bellOff,
+            selected: !_custom && widget.unit == FrequencyUnit.never,
+            onTap: () {
+              setState(() => _custom = false);
+              widget.onChanged(1, FrequencyUnit.never);
+            }),
       ]),
       if (_custom) ...[
         const SizedBox(height: 10),
@@ -70,7 +81,7 @@ class _FrequencyPickerState extends State<FrequencyPicker> {
           Expanded(
             child: AppDropdown<FrequencyUnit>(
               value: widget.unit,
-              items: [for (final u in FrequencyUnit.values) (u, unitLabel(u, widget.value))],
+              items: [for (final u in FrequencyUnit.values.where((u) => u != FrequencyUnit.never)) (u, unitLabel(u, widget.value))],
               onChanged: (u) => widget.onChanged(widget.value, u),
             ),
           ),

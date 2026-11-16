@@ -1829,5 +1829,11 @@
   },
   "myNotes": "Mes notes",
   "notesOnlyYou": "Visibles par vous seul, même si le rendez-vous est partagé.",
-  "addNote": "Ajouter une note"
+  "addNote": "Ajouter une note",
+  "noReminder": "Pas de rappel récurrent",
+  "noReminderShort": "Sans rappel",
+  "freqNever": "Aucun rappel",
+  "noReminderHelp": "Pas de rappel : ce contact n'apparaîtra jamais dans « Garder le contact ».",
+  "addAsFriend": "Ajouter en ami SeeU",
+  "friendRequestSentShort": "Demande envoyée"
 }

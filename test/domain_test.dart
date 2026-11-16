@@ -248,4 +248,12 @@ void main() {
     expect(normalizeLink('chez moi'), isNull);
     expect(normalizeLink('abc'), isNull);
   });
+
+  test('no recurring reminder: never due, never overdue, not in keep in touch', () {
+    final c = contact('Sans rappel', due: noDueDate);
+    expect(dueInfo(c).kind, DueKind.none);
+    expect(overdueCount([c]), 0);
+    expect(toRecontact([c]), isEmpty);
+    expect(frequencyLabel(1, FrequencyUnit.never), isNotEmpty);
+  });
 }

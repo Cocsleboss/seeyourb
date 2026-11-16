@@ -295,7 +295,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               InfoBox(
                 child: Text.rich(TextSpan(children: [
                   TextSpan(text: frequencyLabel(_freqValue < 1 ? 1 : _freqValue, _freqUnit), style: const TextStyle(fontWeight: FontWeight.w600)),
-                  TextSpan(text: ' · ${tr.nextDueInline(formatDateLong(next))}'),
+                  if (_freqUnit != FrequencyUnit.never) TextSpan(text: ' · ${tr.nextDueInline(formatDateLong(next))}'),
                 ])),
               ),
             ]),

@@ -827,5 +827,11 @@
   "peopleAdded": "{n, plural, =1{1 person added} other{{n} people added}}",
   "myNotes": "My notes",
   "notesOnlyYou": "Only you can see them, even if the event is shared.",
-  "addNote": "Add a note"
+  "addNote": "Add a note",
+  "noReminder": "No recurring reminder",
+  "noReminderShort": "No reminder",
+  "freqNever": "No reminder",
+  "noReminderHelp": "No reminder: this contact will never show up in “Keep in touch”.",
+  "addAsFriend": "Add as SeeU friend",
+  "friendRequestSentShort": "Request sent"
 }

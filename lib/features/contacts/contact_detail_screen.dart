@@ -152,7 +152,8 @@ class _Body extends ConsumerWidget {
             DueBadge(contact, large: true),
             const SizedBox(height: 12),
             InfoLine(tr.lastMeeting, contact.lastMeetingDate == null ? tr.notRecordedYet : formatDateLong(contact.lastMeetingDate!)),
-            InfoLine(tr.nextDue, '${formatDateLong(effectiveDueDate(contact))}${snoozed ? ' ${tr.snoozedSuffix}' : ''}'),
+            if (contact.frequencyUnit != FrequencyUnit.never)
+              InfoLine(tr.nextDue, '${formatDateLong(effectiveDueDate(contact))}${snoozed ? ' ${tr.snoozedSuffix}' : ''}'),
             // Tappable: change the frequency without opening the whole form.
             InkWell(
               onTap: () => showFrequencySheet(context, contact),

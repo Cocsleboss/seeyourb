@@ -3130,4 +3130,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addNote => 'Add a note';
+
+  @override
+  String get noReminder => 'No recurring reminder';
+
+  @override
+  String get noReminderShort => 'No reminder';
+
+  @override
+  String get freqNever => 'No reminder';
+
+  @override
+  String get noReminderHelp =>
+      'No reminder: this contact will never show up in “Keep in touch”.';
+
+  @override
+  String get addAsFriend => 'Add as SeeU friend';
+
+  @override
+  String get friendRequestSentShort => 'Request sent';
 }

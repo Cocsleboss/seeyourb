@@ -15,6 +15,7 @@ node run.mjs /tmp/seeu-pg/db $T/00_stubs.sql $M/20261115000001_init.sql \
   $T/40_event_guests.sql $M/20261119000007_leave_event.sql $T/50_leave_event.sql \
   $M/20261120000008_profiles_places_friends.sql $T/60_profiles_places_friends.sql $M/20261120000009_no_emails.sql \
   $M/20261121000010_event_status.sql $T/70_event_status.sql \
+  $M/20261122000011_no_reminder.sql $T/80_no_reminder.sql \
   $T/30_availability_guests.sql
 ```
 

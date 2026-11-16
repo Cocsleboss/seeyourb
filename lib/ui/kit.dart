@@ -494,6 +494,7 @@ Tone dueTone(DueKind k) => switch (k) {
   DueKind.today => Tone.orange,
   DueKind.soon => Tone.amber,
   DueKind.ok => Tone.green,
+  DueKind.none => Tone.gray,
 };
 
 class DueBadge extends StatelessWidget {

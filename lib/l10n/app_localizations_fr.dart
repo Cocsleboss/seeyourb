@@ -3210,4 +3210,23 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addNote => 'Ajouter une note';
+
+  @override
+  String get noReminder => 'Pas de rappel récurrent';
+
+  @override
+  String get noReminderShort => 'Sans rappel';
+
+  @override
+  String get freqNever => 'Aucun rappel';
+
+  @override
+  String get noReminderHelp =>
+      'Pas de rappel : ce contact n\'apparaîtra jamais dans « Garder le contact ».';
+
+  @override
+  String get addAsFriend => 'Ajouter en ami SeeU';
+
+  @override
+  String get friendRequestSentShort => 'Demande envoyée';
 }

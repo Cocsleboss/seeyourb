@@ -7,7 +7,10 @@ enum FrequencyUnit {
   days,
   weeks,
   months,
-  years;
+  years,
+
+  /// No recurring reminder (the contact is never "due").
+  never;
 
   static FrequencyUnit parse(String? s) =>
       FrequencyUnit.values.firstWhere((u) => u.name == s, orElse: () => FrequencyUnit.months);
@@ -192,7 +195,8 @@ class Contact implements HasDue {
         lastMeetingDate: _day(j['last_meeting_date']),
         frequencyValue: j['frequency_value'] as int,
         frequencyUnit: FrequencyUnit.parse(j['frequency_unit'] as String?),
-        nextDueDate: parseDay(j['next_due_date'] as String),
+        // No reminder: the server has no due date; "far away" keeps lists simple.
+        nextDueDate: j['next_due_date'] == null ? noDueDate : parseDay(j['next_due_date'] as String),
         snoozeUntil: _day(j['snooze_until']),
         seeSoon: (j['see_soon'] as bool?) ?? false,
         linkedUserId: j['linked_user_id'] as String?,
@@ -958,6 +962,7 @@ class FrequencyPreset {
         FrequencyUnit.weeks => tr.nWeeks(value),
         FrequencyUnit.months => tr.nMonths(value),
         FrequencyUnit.years => tr.nYears(value),
+        FrequencyUnit.never => tr.freqNever,
       };
 }
 
