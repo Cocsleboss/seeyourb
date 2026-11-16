@@ -142,7 +142,11 @@ class _Body extends ConsumerWidget {
 
   void _openMaps(String location) {
     final q = Uri.encodeComponent(location);
-    final uri = Platform.isIOS ? Uri.parse('https://maps.apple.com/?q=$q') : Uri.parse('geo:0,0?q=$q');
+    if (rdv.event?.lat != null && rdv.event?.lng != null) {
+      openInMaps(rdv.event!.lat!, rdv.event!.lng!, location);
+      return;
+    }
+    final uri = Platform.isIOS ? Uri.parse('maps://?q=$q') : Uri.parse('geo:0,0?q=$q');
     launchUrl(uri, mode: LaunchMode.externalApplication).catchError((_) =>
         launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=$q'), mode: LaunchMode.externalApplication));
   }

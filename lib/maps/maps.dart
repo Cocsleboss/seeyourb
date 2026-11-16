@@ -97,16 +97,22 @@ IconData placeIcon(String? kind) => switch (kind) {
     };
 
 /// Opens the place in the phone's maps app (Apple Plans / Google Maps…).
+/// iOS: the maps:// scheme opens Plans directly (an https link went through
+/// the system's link handling and only logged a sandbox error).
 Future<void> openInMaps(double lat, double lng, String label) async {
   final q = Uri.encodeComponent(label);
-  final primary = Platform.isIOS
-      ? Uri.parse('https://maps.apple.com/?ll=$lat,$lng&q=$q')
-      : Uri.parse('geo:$lat,$lng?q=$lat,$lng($q)');
-  final ok = await launchUrl(primary, mode: LaunchMode.externalApplication).catchError((_) => false);
-  if (!ok) {
-    await launchUrl(Uri.parse('https://www.openstreetmap.org/?mlat=$lat&mlon=$lng#map=17/$lat/$lng'),
-        mode: LaunchMode.externalApplication);
+  final tries = Platform.isIOS
+      ? [
+          Uri.parse('maps://?ll=$lat,$lng&q=$q'),
+          Uri.parse('https://maps.apple.com/?ll=$lat,$lng&q=$q'),
+        ]
+      : [Uri.parse('geo:$lat,$lng?q=$lat,$lng($q)')];
+  for (final uri in tries) {
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication).catchError((_) => false);
+    if (ok) return;
   }
+  await launchUrl(Uri.parse('https://www.openstreetmap.org/?mlat=$lat&mlon=$lng#map=17/$lat/$lng'), mode: LaunchMode.externalApplication)
+      .catchError((_) => false);
 }
 
 /// Base map: OSM tiles + attribution; [children] add markers.

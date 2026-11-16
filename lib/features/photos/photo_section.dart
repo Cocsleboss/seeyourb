@@ -77,14 +77,7 @@ class _PhotoSectionState extends ConsumerState<PhotoSection> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final photos = widget.photos.value ?? const <Photo>[];
-    // Uploader names: me, my friends, then the event's participants.
-    final me = ref.watch(profileProvider)?.id;
-    final names = <String, String>{
-      if (widget.eventId != null)
-        for (final p in ref.watch(participantsProvider(widget.eventId!)).value ?? const <Participant>[]) p.userId: p.name,
-      for (final f in ref.watch(friendsProvider).value ?? const <Friend>[]) f.userId: f.displayName,
-    };
-    final showAuthors = widget.eventId != null;
+
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       SectionTitle(
         widget.title,
@@ -107,29 +100,7 @@ class _PhotoSectionState extends ConsumerState<PhotoSection> {
           children: [
             for (var i = 0; i < _uploading; i++) _PendingTile(),
             for (var i = 0; i < photos.length; i++)
-              Stack(fit: StackFit.expand, children: [
-                GestureDetector(
-                  onTap: () => openPhotoViewer(context, photos, i),
-                  child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].previewPath, cacheWidth: 360)),
-                ),
-                if (showAuthors)
-                  Positioned(
-                    right: 5,
-                    bottom: 5,
-                    // Tap: a small tip with the full name.
-                    child: Tooltip(
-                      triggerMode: TooltipTriggerMode.tap,
-                      showDuration: const Duration(seconds: 2),
-                      message: photos[i].userId == me ? tr.you : (names[photos[i].userId] ?? 'SeeU'),
-                      child: Avatar(
-                        name: names[photos[i].userId] ?? (photos[i].userId == me ? ref.read(profileProvider)?.name ?? '?' : '?'),
-                        userId: photos[i].userId,
-                        size: 24,
-                        ring: Colors.white,
-                      ),
-                    ),
-                  ),
-              ]),
+              PhotoTile(photos: photos, index: i, eventId: widget.eventId),
           ],
         ),
     ]);
@@ -238,5 +209,50 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
           Align(alignment: Alignment.centerRight, child: Padding(padding: const EdgeInsets.all(8), child: arrow(LucideIcons.chevronRight, 1))),
       ]),
     );
+  }
+}
+
+
+/// A photo in a grid. In a shared event ([eventId] set), the uploader's small
+/// avatar sits bottom-right; tapping it shows their name.
+class PhotoTile extends ConsumerWidget {
+  const PhotoTile({super.key, required this.photos, required this.index, this.eventId});
+  final List<Photo> photos;
+  final int index;
+  final String? eventId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final p = photos[index];
+    final me = ref.watch(profileProvider);
+    String? name;
+    if (eventId != null) {
+      name = p.userId == me?.id
+          ? tr.you
+          : (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.userId == p.userId).firstOrNull?.displayName ??
+              (ref.watch(participantsProvider(eventId!)).value ?? const <Participant>[]).where((x) => x.userId == p.userId).firstOrNull?.name;
+    }
+    return Stack(fit: StackFit.expand, children: [
+      GestureDetector(
+        onTap: () => openPhotoViewer(context, photos, index),
+        child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(p.previewPath, cacheWidth: 360)),
+      ),
+      if (eventId != null)
+        Positioned(
+          right: 5,
+          bottom: 5,
+          child: Tooltip(
+            triggerMode: TooltipTriggerMode.tap,
+            showDuration: const Duration(seconds: 2),
+            message: name ?? 'SeeU',
+            child: Avatar(
+              name: p.userId == me?.id ? (me?.name ?? '?') : (name ?? '?'),
+              userId: p.userId,
+              size: 24,
+              ring: Colors.white,
+            ),
+          ),
+        ),
+    ]);
   }
 }

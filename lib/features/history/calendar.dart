@@ -237,10 +237,7 @@ class _DayEvent extends ConsumerWidget {
           crossAxisSpacing: 6,
           children: [
             for (var i = 0; i < photos.length; i++)
-              GestureDetector(
-                onTap: () => openPhotoViewer(context, photos, i),
-                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].previewPath, cacheWidth: 360)),
-              ),
+              PhotoTile(photos: photos, index: i, eventId: rdv.isShared ? rdv.eventId : null),
           ],
         ),
       ],
