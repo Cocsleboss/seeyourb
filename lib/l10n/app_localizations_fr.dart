@@ -3076,4 +3076,66 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get optionalShort => 'Facultatif';
+
+  @override
+  String get toFixTitle => 'À fixer';
+
+  @override
+  String get toFixHelp =>
+      'Date pas encore choisie : répondez aux créneaux, l\'organisateur fixe ensuite la date.';
+
+  @override
+  String answeredCount(int n, int nTotal) {
+    return '$n/$nTotal ont répondu';
+  }
+
+  @override
+  String get bestShort => 'Meilleur :';
+
+  @override
+  String yourTurnToAnswer(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'À vous de répondre · $n créneaux',
+      one: 'À vous de répondre · 1 créneau',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String availabilitySentShort(int nYes, int nMaybe) {
+    return 'Dispos envoyées · $nYes oui, $nMaybe peut-être';
+  }
+
+  @override
+  String nSlots(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n créneaux',
+      one: '1 créneau',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get proposedSlotsThatDay => 'Créneaux proposés ce jour';
+
+  @override
+  String get youProposed => 'Proposé par vous';
+
+  @override
+  String get notAnswered => 'Pas répondu';
+
+  @override
+  String heldDayWarning(String title, String time) {
+    return 'Vous êtes disponible ce jour-là pour un créneau de « $title » ($time), dont la date n\'est pas encore fixée.';
+  }
+
+  @override
+  String get legendFixed => 'date fixée';
+
+  @override
+  String get legendProposed => 'créneau proposé (date à choisir)';
 }

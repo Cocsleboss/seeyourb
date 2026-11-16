@@ -797,5 +797,18 @@
   "contactFromFriendBanner": "Card linked to your SeeU friend {name}: you'll share events and photos, and their profile picture is used.",
   "manageContacts": "Manage contacts",
   "quickBirthday": "Birthday",
-  "optionalShort": "Optional"
+  "optionalShort": "Optional",
+  "toFixTitle": "To be scheduled",
+  "toFixHelp": "Date not chosen yet: answer the slots, then the organizer sets the date.",
+  "answeredCount": "{n}/{nTotal} answered",
+  "bestShort": "Best:",
+  "yourTurnToAnswer": "{n, plural, =1{Your turn to answer · 1 slot} other{Your turn to answer · {n} slots}}",
+  "availabilitySentShort": "Availability sent · {nYes} yes, {nMaybe} maybe",
+  "nSlots": "{n, plural, =1{1 slot} other{{n} slots}}",
+  "proposedSlotsThatDay": "Proposed slots that day",
+  "youProposed": "You proposed",
+  "notAnswered": "Not answered",
+  "heldDayWarning": "You're available that day for a slot of “{title}” ({time}), whose date isn't set yet.",
+  "legendFixed": "date set",
+  "legendProposed": "proposed slot (date to choose)"
 }

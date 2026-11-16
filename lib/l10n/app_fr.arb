@@ -1734,5 +1734,62 @@
   },
   "manageContacts": "Gérer mes contacts",
   "quickBirthday": "Anniversaire",
-  "optionalShort": "Facultatif"
+  "optionalShort": "Facultatif",
+  "toFixTitle": "À fixer",
+  "toFixHelp": "Date pas encore choisie : répondez aux créneaux, l'organisateur fixe ensuite la date.",
+  "answeredCount": "{n}/{nTotal} ont répondu",
+  "@answeredCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "nTotal": {
+        "type": "int"
+      }
+    }
+  },
+  "bestShort": "Meilleur :",
+  "yourTurnToAnswer": "{n, plural, =1{À vous de répondre · 1 créneau} other{À vous de répondre · {n} créneaux}}",
+  "@yourTurnToAnswer": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "availabilitySentShort": "Dispos envoyées · {nYes} oui, {nMaybe} peut-être",
+  "@availabilitySentShort": {
+    "placeholders": {
+      "nYes": {
+        "type": "int"
+      },
+      "nMaybe": {
+        "type": "int"
+      }
+    }
+  },
+  "nSlots": "{n, plural, =1{1 créneau} other{{n} créneaux}}",
+  "@nSlots": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "proposedSlotsThatDay": "Créneaux proposés ce jour",
+  "youProposed": "Proposé par vous",
+  "notAnswered": "Pas répondu",
+  "heldDayWarning": "Vous êtes disponible ce jour-là pour un créneau de « {title} » ({time}), dont la date n'est pas encore fixée.",
+  "@heldDayWarning": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "legendFixed": "date fixée",
+  "legendProposed": "créneau proposé (date à choisir)"
 }

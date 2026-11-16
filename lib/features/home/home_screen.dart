@@ -20,6 +20,7 @@ import '../friends/invite_card.dart';
 import '../rdv/status_actions.dart';
 import 'push_banner.dart';
 import 'agenda_calendar.dart';
+import 'to_fix.dart';
 import '../friends/add_friend_sheet.dart';
 import 'feed_section.dart';
 import '../../ads/ads.dart';
@@ -205,26 +206,32 @@ class _Agenda extends ConsumerWidget {
     final now = DateTime.now();
     final plannedList = planned.value ?? const <Rendezvous>[];
     final toConfirm = plannedList.where((r) => r.needsConfirmation(now)).toList();
-    // Events still choosing their date stay here even once their earliest slot has passed.
-    // …and the ones happening right now ("En cours").
-    final upcoming = plannedList.where((r) => r.phase(now) == RdvPhase.upcoming || r.phase(now) == RdvPhase.now).toList();
+    // Fixed dates only (upcoming or happening now). Events still choosing their
+    // date never borrow one: they're in "À fixer".
+    final upcoming =
+        plannedList.where((r) => !r.slotsOpen && (r.phase(now) == RdvPhase.upcoming || r.phase(now) == RdvPhase.now)).toList();
+    final toFixAll = plannedList.where((r) => r.slotsOpen && r.eventId != null).toList();
+    final held = heldDays(ref, plannedList);
     final due = toRecontact(contacts);
     final bdaysToday = birthdaysToday(contacts);
     final bdaysWeek = birthdaysThisWeek(contacts);
     final overdue = overdueCount(contacts);
     final filter = ref.watch(agendaFilterProvider);
-    final hasGuest = upcoming.any((r) => !r.isOrganizer);
+    final hasGuest = [...upcoming, ...toFixAll].any((r) => !r.isOrganizer);
+    bool keep(Rendezvous r) => switch (hasGuest ? filter : AgendaFilter.all) {
+          AgendaFilter.all => true,
+          AgendaFilter.mine => r.isOrganizer,
+          AgendaFilter.invited => !r.isOrganizer,
+        };
+    final toFix = toFixAll.where(keep).toList();
     final pickedDay = ref.watch(agendaDayProvider);
     // A picked day shows exactly what its dots count: every planned event that
     // day (even one already started / to confirm), not only the upcoming ones.
     final base = pickedDay == null
         ? upcoming
         : plannedList.where((r) => !r.slotsOpen && dayOf(r.appointmentAt) == pickedDay).toList();
-    final shown = switch (hasGuest ? filter : AgendaFilter.all) {
-      AgendaFilter.all => base,
-      AgendaFilter.mine => base.where((r) => r.isOrganizer).toList(),
-      AgendaFilter.invited => base.where((r) => !r.isOrganizer).toList(),
-    };
+    final shown = base.where(keep).toList();
+    final heldPicked = pickedDay == null ? null : held[pickedDay];
 
     return [
       // 4. Birthdays today
@@ -235,7 +242,7 @@ class _Agenda extends ConsumerWidget {
       _StatsStrip(stats: [
         _Stat(icon: LucideIcons.users, tone: Tone.brand, value: contacts.length, label: tr.statContacts(contacts.length), onTap: () => context.go('/contacts')),
         _Stat(icon: LucideIcons.alarmClock, tone: overdue > 0 ? Tone.red : Tone.gray, value: overdue, label: tr.statOverdue, onTap: () => context.go('/contacts')),
-        _Stat(icon: LucideIcons.calendarDays, tone: Tone.green, value: upcoming.length, label: tr.statUpcoming),
+        _Stat(icon: LucideIcons.calendarDays, tone: Tone.green, value: upcoming.length + toFixAll.length, label: tr.statUpcoming),
       ]),
 
       // 6. To confirm
@@ -308,7 +315,7 @@ class _Agenda extends ConsumerWidget {
 
       // 9. Next rendezvous, with the week / month calendar
       SectionTitle(tr.nextRdvs),
-      AgendaCalendar(planned: plannedList),
+      AgendaCalendar(planned: plannedList, held: held),
       const SizedBox(height: 12),
       if (pickedDay != null)
         Padding(
@@ -330,7 +337,7 @@ class _Agenda extends ConsumerWidget {
         ErrorCard(error: planned.error!, onRetry: () => ref.invalidate(plannedRdvProvider))
       else if (!planned.hasValue)
         const SkeletonList(rows: 2)
-      else if (upcoming.isEmpty)
+      else if (upcoming.isEmpty && toFixAll.isEmpty)
         AppCard(
           child: Column(children: [
             Text(tr.noRdvPlanned, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.text)),
@@ -351,7 +358,19 @@ class _Agenda extends ConsumerWidget {
                 AppChip(label, selected: filter == f, onTap: () => ref.read(agendaFilterProvider.notifier).set(f)),
             ]),
           ),
-        if (shown.isEmpty)
+        // Not dated yet: their own amber block, on top, never mixed with dates.
+        if (pickedDay == null && toFix.isNotEmpty) ...[
+          Row(children: [
+            Icon(LucideIcons.calendarClock, size: 15, color: c.tone(Tone.amber).text),
+            const SizedBox(width: 6),
+            Text('${tr.toFixTitle.toUpperCase()} (${toFix.length})',
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: c.tone(Tone.amber).text)),
+          ]),
+          const SizedBox(height: 8),
+          for (final r in toFix) ToFixCard(key: ValueKey('fix-${r.id}'), rdv: r),
+          const SizedBox(height: 10),
+        ],
+        if (shown.isEmpty && (pickedDay != null || toFix.isEmpty) && heldPicked == null)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(pickedDay != null ? tr.nothingThatDay : filter == AgendaFilter.mine ? tr.noMineUpcoming : tr.noInvitedUpcoming,
@@ -362,6 +381,7 @@ class _Agenda extends ConsumerWidget {
           RowsCard(children: [for (final r in list) RdvRow(rdv: r, showStatus: false, dayLabel: false, showOwner: true)]),
           const SizedBox(height: 8),
         ],
+        if (heldPicked != null) ProposedThatDay(held: heldPicked),
         if (shown.length > _maxUpcoming)
           Padding(
             padding: const EdgeInsets.only(top: 4),

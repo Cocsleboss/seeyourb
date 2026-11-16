@@ -13,6 +13,7 @@ import '../../data/providers.dart';
 import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../ui/kit.dart';
+import 'to_fix.dart';
 
 /// Day picked in the calendar (null: all upcoming events).
 final agendaDayProvider = NotifierProvider<AgendaDayNotifier, DateTime?>(AgendaDayNotifier.new);
@@ -26,7 +27,10 @@ class AgendaDayNotifier extends Notifier<DateTime?> {
 DateTime _monday(DateTime d) => dayOf(d).subtract(Duration(days: (d.weekday + 6) % 7));
 
 class AgendaCalendar extends ConsumerStatefulWidget {
-  const AgendaCalendar({super.key, required this.planned});
+  const AgendaCalendar({super.key, required this.planned, this.held = const {}});
+
+  /// Proposed days of events still choosing their date (hollow rings).
+  final Map<DateTime, HeldDay> held;
 
   /// My planned events (upcoming and not yet confirmed).
   final List<Rendezvous> planned;
@@ -106,6 +110,7 @@ class _AgendaCalendarState extends ConsumerState<AgendaCalendar> {
       final isSel = selected == d;
       final outside = _month && d.month != _anchor.month;
       final nComing = coming[d] ?? 0;
+      final hold = widget.held[d];
       final nPast = past[d] ?? 0;
       final fg = isSel
           ? Colors.white
@@ -117,7 +122,7 @@ class _AgendaCalendarState extends ConsumerState<AgendaCalendar> {
       return Expanded(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => _tap(d, nPast > 0 || nComing > 0),
+          onTap: () => _tap(d, nPast > 0 || nComing > 0 || hold != null),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
             child: Container(
@@ -142,6 +147,17 @@ class _AgendaCalendarState extends ConsumerState<AgendaCalendar> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isSel ? Colors.white : (i < nComing && !isPast ? Palette.brand600 : c.textSubtle),
+                        ),
+                      ),
+                    // proposed slot (date not fixed): hollow ring, colored by my answer
+                    if (hold != null && !isPast)
+                      Container(
+                        width: 6,
+                        height: 6,
+                        margin: const EdgeInsets.symmetric(horizontal: 1),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: isSel ? Colors.white : heldColor(c, hold.answer), width: 1.5),
                         ),
                       ),
                   ]),
@@ -187,6 +203,23 @@ class _AgendaCalendarState extends ConsumerState<AgendaCalendar> {
         ]),
         const SizedBox(height: 2),
         for (var row = 0; row < days.length ~/ 7; row++) Row(children: [for (final d in days.skip(row * 7).take(7)) cell(d)]),
+        // Legend, only when proposed slots are in view.
+        if (days.any((d) => widget.held.containsKey(d) && !d.isBefore(t)))
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
+            child: Row(children: [
+              Container(width: 6, height: 6, decoration: BoxDecoration(shape: BoxShape.circle, color: Palette.brand600)),
+              const SizedBox(width: 5),
+              Text(tr.legendFixed, style: TextStyle(fontSize: 11.5, color: c.textMuted)),
+              const SizedBox(width: 12),
+              Container(
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: c.tone(Tone.amber).solid, width: 1.5))),
+              const SizedBox(width: 5),
+              Flexible(child: Text(tr.legendProposed, style: TextStyle(fontSize: 11.5, color: c.textMuted))),
+            ]),
+          ),
       ]),
     );
   }

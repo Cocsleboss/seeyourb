@@ -2997,4 +2997,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get optionalShort => 'Optional';
+
+  @override
+  String get toFixTitle => 'To be scheduled';
+
+  @override
+  String get toFixHelp =>
+      'Date not chosen yet: answer the slots, then the organizer sets the date.';
+
+  @override
+  String answeredCount(int n, int nTotal) {
+    return '$n/$nTotal answered';
+  }
+
+  @override
+  String get bestShort => 'Best:';
+
+  @override
+  String yourTurnToAnswer(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Your turn to answer · $n slots',
+      one: 'Your turn to answer · 1 slot',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String availabilitySentShort(int nYes, int nMaybe) {
+    return 'Availability sent · $nYes yes, $nMaybe maybe';
+  }
+
+  @override
+  String nSlots(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n slots',
+      one: '1 slot',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get proposedSlotsThatDay => 'Proposed slots that day';
+
+  @override
+  String get youProposed => 'You proposed';
+
+  @override
+  String get notAnswered => 'Not answered';
+
+  @override
+  String heldDayWarning(String title, String time) {
+    return 'You\'re available that day for a slot of “$title” ($time), whose date isn\'t set yet.';
+  }
+
+  @override
+  String get legendFixed => 'date set';
+
+  @override
+  String get legendProposed => 'proposed slot (date to choose)';
 }

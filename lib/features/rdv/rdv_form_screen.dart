@@ -21,6 +21,7 @@ import '../../ui/rows.dart';
 import '../../ui/scaffold.dart';
 import '../../maps/place_field.dart';
 import '../events/event_widgets.dart';
+import '../home/to_fix.dart';
 import '../misc/fallback_screens.dart';
 
 const maxSlots = 10;
@@ -374,6 +375,18 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                 ),
               ]),
 
+            // A day I'm holding for an event that's still choosing its date.
+            if (!_multi)
+              Builder(builder: (_) {
+                final warning = heldWarning(
+                    heldDays(ref, ref.watch(plannedRdvProvider).value ?? const <Rendezvous>[]), _date,
+                    exceptRdv: widget.existing?.id);
+                if (warning == null) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: InfoBox(tone: Tone.amber, child: Text(warning, style: const TextStyle(fontSize: 13.5, height: 1.35))),
+                );
+              }),
             // 3. Title, place, description
             LabeledField(
               label: tr.titleOptional,

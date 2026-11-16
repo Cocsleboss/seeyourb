@@ -131,3 +131,16 @@ manageContacts | Gérer mes contacts | Manage contacts
 # Review round 6
 quickBirthday | Anniversaire | Birthday
 optionalShort | Facultatif | Optional
+toFixTitle | À fixer | To be scheduled
+toFixHelp | Date pas encore choisie : répondez aux créneaux, l'organisateur fixe ensuite la date. | Date not chosen yet: answer the slots, then the organizer sets the date.
+answeredCount | {n}/{nTotal} ont répondu | {n}/{nTotal} answered
+bestShort | Meilleur : | Best:
+yourTurnToAnswer | {n, plural, =1{À vous de répondre · 1 créneau} other{À vous de répondre · {n} créneaux}} | {n, plural, =1{Your turn to answer · 1 slot} other{Your turn to answer · {n} slots}}
+availabilitySentShort | Dispos envoyées · {nYes} oui, {nMaybe} peut-être | Availability sent · {nYes} yes, {nMaybe} maybe
+nSlots | {n, plural, =1{1 créneau} other{{n} créneaux}} | {n, plural, =1{1 slot} other{{n} slots}}
+proposedSlotsThatDay | Créneaux proposés ce jour | Proposed slots that day
+youProposed | Proposé par vous | You proposed
+notAnswered | Pas répondu | Not answered
+heldDayWarning | Vous êtes disponible ce jour-là pour un créneau de « {title} » ({time}), dont la date n'est pas encore fixée. | You're available that day for a slot of “{title}” ({time}), whose date isn't set yet.
+legendFixed | date fixée | date set
+legendProposed | créneau proposé (date à choisir) | proposed slot (date to choose)

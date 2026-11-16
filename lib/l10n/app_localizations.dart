@@ -4885,6 +4885,84 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Facultatif'**
   String get optionalShort;
+
+  /// No description provided for @toFixTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À fixer'**
+  String get toFixTitle;
+
+  /// No description provided for @toFixHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date pas encore choisie : répondez aux créneaux, l\'organisateur fixe ensuite la date.'**
+  String get toFixHelp;
+
+  /// No description provided for @answeredCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n}/{nTotal} ont répondu'**
+  String answeredCount(int n, int nTotal);
+
+  /// No description provided for @bestShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur :'**
+  String get bestShort;
+
+  /// No description provided for @yourTurnToAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{À vous de répondre · 1 créneau} other{À vous de répondre · {n} créneaux}}'**
+  String yourTurnToAnswer(int n);
+
+  /// No description provided for @availabilitySentShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dispos envoyées · {nYes} oui, {nMaybe} peut-être'**
+  String availabilitySentShort(int nYes, int nMaybe);
+
+  /// No description provided for @nSlots.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 créneau} other{{n} créneaux}}'**
+  String nSlots(int n);
+
+  /// No description provided for @proposedSlotsThatDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créneaux proposés ce jour'**
+  String get proposedSlotsThatDay;
+
+  /// No description provided for @youProposed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposé par vous'**
+  String get youProposed;
+
+  /// No description provided for @notAnswered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas répondu'**
+  String get notAnswered;
+
+  /// No description provided for @heldDayWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes disponible ce jour-là pour un créneau de « {title} » ({time}), dont la date n\'est pas encore fixée.'**
+  String heldDayWarning(String title, String time);
+
+  /// No description provided for @legendFixed.
+  ///
+  /// In fr, this message translates to:
+  /// **'date fixée'**
+  String get legendFixed;
+
+  /// No description provided for @legendProposed.
+  ///
+  /// In fr, this message translates to:
+  /// **'créneau proposé (date à choisir)'**
+  String get legendProposed;
 }
 
 class _AppLocalizationsDelegate
