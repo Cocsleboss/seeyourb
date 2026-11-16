@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme.dart';
@@ -32,7 +33,9 @@ const _maxDays = 10;
 /// Home sections: my agenda, friends' events, public events.
 enum HomeSection { agenda, friends, explore }
 
-final homeSectionProvider = NotifierProvider<HomeSectionNotifier, HomeSection>(HomeSectionNotifier.new);
+final homeSectionProvider = NotifierProvider<HomeSectionNotifier, HomeSection>(
+  HomeSectionNotifier.new,
+);
 
 class HomeSectionNotifier extends Notifier<HomeSection> {
   @override
@@ -43,12 +46,46 @@ class HomeSectionNotifier extends Notifier<HomeSection> {
 /// Filter of "Prochains rendez-vous": all, organized by me, where I'm a guest.
 enum AgendaFilter { all, mine, invited }
 
-final agendaFilterProvider = NotifierProvider<AgendaFilterNotifier, AgendaFilter>(AgendaFilterNotifier.new);
+final agendaFilterProvider =
+    NotifierProvider<AgendaFilterNotifier, AgendaFilter>(
+      AgendaFilterNotifier.new,
+    );
 
 class AgendaFilterNotifier extends Notifier<AgendaFilter> {
   @override
   AgendaFilter build() => AgendaFilter.all;
   void set(AgendaFilter f) => state = f;
+}
+
+/// Home sections folded by tapping their title (kept on this phone).
+final homeCollapsedProvider = NotifierProvider<HomeCollapsed, Set<String>>(
+  HomeCollapsed.new,
+);
+
+class HomeCollapsed extends Notifier<Set<String>> {
+  static const _key = 'home.collapsed';
+
+  @override
+  Set<String> build() {
+    _load();
+    return const {};
+  }
+
+  Future<void> _load() async {
+    try {
+      final saved = (await SharedPreferences.getInstance()).getStringList(_key);
+      if (saved != null) state = saved.toSet();
+    } catch (_) {}
+  }
+
+  void toggle(String section) {
+    state = state.contains(section)
+        ? ({...state}..remove(section))
+        : {...state, section};
+    SharedPreferences.getInstance()
+        .then((p) => p.setStringList(_key, state.toList()))
+        .catchError((_) => false);
+  }
 }
 
 class HomeScreen extends ConsumerWidget {
@@ -63,20 +100,49 @@ class HomeScreen extends ConsumerWidget {
 
     final header = Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(profile == null ? tr.greetingAlone(greeting(now)) : tr.greetingName(greeting(now), profile.firstName),
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: c.text, height: 1.15)),
-            const SizedBox(height: 4),
-            Text(formatDayMonth(now), style: TextStyle(fontSize: 17, color: c.textMuted)),
-          ]),
-        ),
-        AppIconButton(icon: LucideIcons.settings, tooltip: tr.settings, onPressed: () => context.go('/settings')),
-      ]),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profile == null
+                      ? tr.greetingAlone(greeting(now))
+                      : tr.greetingName(greeting(now), profile.firstName),
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    color: c.text,
+                    height: 1.15,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  formatDayMonth(now),
+                  style: TextStyle(fontSize: 17, color: c.textMuted),
+                ),
+              ],
+            ),
+          ),
+          AppIconButton(
+            icon: LucideIcons.settings,
+            tooltip: tr.settings,
+            onPressed: () => context.go('/settings'),
+          ),
+        ],
+      ),
     );
 
-    final top = [header, const SizedBox(height: 16), HomeSectionPicker(value: section, onChanged: ref.read(homeSectionProvider.notifier).set)];
+    final top = [
+      header,
+      const SizedBox(height: 16),
+      HomeSectionPicker(
+        value: section,
+        onChanged: ref.read(homeSectionProvider.notifier).set,
+      ),
+    ];
 
     return AppScaffold(
       fab: FloatingActionButton(
@@ -106,7 +172,11 @@ class HomeScreen extends ConsumerWidget {
 
 /// Three big tabs with icons at the top of Home.
 class HomeSectionPicker extends StatelessWidget {
-  const HomeSectionPicker({super.key, required this.value, required this.onChanged});
+  const HomeSectionPicker({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
   final HomeSection value;
   final ValueChanged<HomeSection> onChanged;
 
@@ -129,34 +199,76 @@ class HomeSectionPicker extends StatelessWidget {
                 color: selected ? t.solid : c.card,
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: selected ? t.solid : c.border),
-                boxShadow: selected ? [BoxShadow(color: t.solid.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))] : null,
+                boxShadow: selected
+                    ? [
+                        BoxShadow(
+                          color: t.solid.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
               ),
-              child: Column(children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(color: selected ? Colors.white.withValues(alpha: 0.2) : t.bg, shape: BoxShape.circle),
-                  child: Icon(icon, size: 21, color: selected ? Colors.white : t.fg),
-                ),
-                const SizedBox(height: 6),
-                Text(label,
+              child: Column(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : t.bg,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 21,
+                      color: selected ? Colors.white : t.fg,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: selected ? Colors.white : c.text)),
-              ]),
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                      color: selected ? Colors.white : c.text,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       );
     }
 
-    return Row(children: [
-      item(HomeSection.agenda, LucideIcons.calendarHeart, tr.homeAgenda, Tone.brand),
-      const SizedBox(width: 8),
-      item(HomeSection.friends, LucideIcons.partyPopper, tr.homeFriends, Tone.violet),
-      const SizedBox(width: 8),
-      item(HomeSection.explore, LucideIcons.compass, tr.homeExplore, Tone.green),
-    ]);
+    return Row(
+      children: [
+        item(
+          HomeSection.agenda,
+          LucideIcons.calendarHeart,
+          tr.homeAgenda,
+          Tone.brand,
+        ),
+        const SizedBox(width: 8),
+        item(
+          HomeSection.friends,
+          LucideIcons.partyPopper,
+          tr.homeFriends,
+          Tone.violet,
+        ),
+        const SizedBox(width: 8),
+        item(
+          HomeSection.explore,
+          LucideIcons.compass,
+          tr.homeExplore,
+          Tone.green,
+        ),
+      ],
+    );
   }
 }
 
@@ -168,12 +280,16 @@ class _Agenda extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final contacts = ref.watch(contactsProvider);
     final planned = ref.watch(plannedRdvProvider);
-    final invites = ref.watch(incomingInvitesProvider).value ?? const <IncomingInvite>[];
+    final invites =
+        ref.watch(incomingInvitesProvider).value ?? const <IncomingInvite>[];
 
     Future<void> refresh() async {
       refreshData(ref);
       ref.invalidate(pushPermissionProvider);
-      await Future.wait([ref.read(contactsProvider.future), ref.read(plannedRdvProvider.future)]);
+      await Future.wait([
+        ref.read(contactsProvider.future),
+        ref.read(plannedRdvProvider.future),
+      ]);
     }
 
     return PageList(
@@ -184,15 +300,25 @@ class _Agenda extends ConsumerWidget {
         const PushBanner(),
         if (invites.isNotEmpty) ...[
           SectionTitle(tr.invitationsReceived(invites.length)),
-          for (final i in invites) Padding(padding: const EdgeInsets.only(bottom: 10), child: InviteCard(invite: i)),
+          for (final i in invites)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: InviteCard(invite: i),
+            ),
         ],
         if (contacts.hasError && !contacts.hasValue)
           Padding(
             padding: const EdgeInsets.only(top: 16),
-            child: ErrorCard(error: contacts.error!, onRetry: () => ref.invalidate(contactsProvider)),
+            child: ErrorCard(
+              error: contacts.error!,
+              onRetry: () => ref.invalidate(contactsProvider),
+            ),
           )
         else if (!contacts.hasValue)
-          const Padding(padding: EdgeInsets.only(top: 16), child: SkeletonList(rows: 5))
+          const Padding(
+            padding: EdgeInsets.only(top: 16),
+            child: SkeletonList(rows: 5),
+          )
         else if (contacts.requireValue.isEmpty)
           const _Welcome()
         else
@@ -201,16 +327,31 @@ class _Agenda extends ConsumerWidget {
     );
   }
 
-  List<Widget> _dashboard(BuildContext context, WidgetRef ref, List<Contact> contacts, AsyncValue<List<Rendezvous>> planned) {
+  List<Widget> _dashboard(
+    BuildContext context,
+    WidgetRef ref,
+    List<Contact> contacts,
+    AsyncValue<List<Rendezvous>> planned,
+  ) {
     final c = context.colors;
     final now = DateTime.now();
     final plannedList = planned.value ?? const <Rendezvous>[];
-    final toConfirm = plannedList.where((r) => r.needsConfirmation(now)).toList();
+    final toConfirm = plannedList
+        .where((r) => r.needsConfirmation(now))
+        .toList();
     // Fixed dates only (upcoming or happening now). Events still choosing their
     // date never borrow one: they're in "À fixer".
-    final upcoming =
-        plannedList.where((r) => !r.slotsOpen && (r.phase(now) == RdvPhase.upcoming || r.phase(now) == RdvPhase.now)).toList();
-    final toFixAll = plannedList.where((r) => r.slotsOpen && r.eventId != null).toList();
+    final upcoming = plannedList
+        .where(
+          (r) =>
+              !r.slotsOpen &&
+              (r.phase(now) == RdvPhase.upcoming ||
+                  r.phase(now) == RdvPhase.now),
+        )
+        .toList();
+    final toFixAll = plannedList
+        .where((r) => r.slotsOpen && r.eventId != null)
+        .toList();
     final held = heldDays(ref, plannedList);
     final due = toRecontact(contacts);
     final bdaysToday = birthdaysToday(contacts);
@@ -219,204 +360,401 @@ class _Agenda extends ConsumerWidget {
     final filter = ref.watch(agendaFilterProvider);
     final hasGuest = [...upcoming, ...toFixAll].any((r) => !r.isOrganizer);
     bool keep(Rendezvous r) => switch (hasGuest ? filter : AgendaFilter.all) {
-          AgendaFilter.all => true,
-          AgendaFilter.mine => r.isOrganizer,
-          AgendaFilter.invited => !r.isOrganizer,
-        };
+      AgendaFilter.all => true,
+      AgendaFilter.mine => r.isOrganizer,
+      AgendaFilter.invited => !r.isOrganizer,
+    };
     final toFix = toFixAll.where(keep).toList();
+    final collapsed = ref.watch(homeCollapsedProvider);
+    final keepHidden = collapsed.contains('keep');
+    final upcomingHidden = collapsed.contains('upcoming');
     final pickedDay = ref.watch(agendaDayProvider);
     // A picked day shows exactly what its dots count: every planned event that
     // day (even one already started / to confirm), not only the upcoming ones.
     final base = pickedDay == null
         ? upcoming
-        : plannedList.where((r) => !r.slotsOpen && dayOf(r.appointmentAt) == pickedDay).toList();
+        : plannedList
+              .where((r) => !r.slotsOpen && dayOf(r.appointmentAt) == pickedDay)
+              .toList();
     final shown = base.where(keep).toList();
     // Amber header only if one of them waits on me.
-    final toFixHeaderColor = toFix.any((r) => toFixNeedsMe(r, ref.watch(slotsProvider(r.eventId!)).value))
+    final toFixHeaderColor =
+        toFix.any(
+          (r) => toFixNeedsMe(r, ref.watch(slotsProvider(r.eventId!)).value),
+        )
         ? c.tone(Tone.amber).text
         : c.textMuted;
     // Timeline: day → fixed events + proposed slots (of events kept by the filter).
     final today0 = today();
-    final byDay = <DateTime, (List<Rendezvous>, List<(Rendezvous, EventSlot)>)>{};
+    final byDay =
+        <DateTime, (List<Rendezvous>, List<(Rendezvous, EventSlot)>)>{};
     for (final r in shown) {
-      (byDay[dayOf(r.appointmentAt)] ??= (<Rendezvous>[], <(Rendezvous, EventSlot)>[])).$1.add(r);
+      (byDay[dayOf(r.appointmentAt)] ??= (
+        <Rendezvous>[],
+        <(Rendezvous, EventSlot)>[],
+      )).$1.add(r);
     }
     for (final MapEntry(key: d, value: h) in held.entries) {
       if (pickedDay != null ? d != pickedDay : d.isBefore(today0)) continue;
       final items = h.items.where((x) => keep(x.$1)).toList();
       if (items.isEmpty) continue;
-      (byDay[d] ??= (<Rendezvous>[], <(Rendezvous, EventSlot)>[])).$2.addAll(items);
+      (byDay[d] ??= (
+        <Rendezvous>[],
+        <(Rendezvous, EventSlot)>[],
+      )).$2.addAll(items);
     }
     final timeline = [
       for (final d in byDay.keys.toList()..sort())
-        (d, byDay[d]!.$1..sort((a, b) => a.appointmentAt.compareTo(b.appointmentAt)), byDay[d]!.$2),
+        (
+          d,
+          byDay[d]!.$1
+            ..sort((a, b) => a.appointmentAt.compareTo(b.appointmentAt)),
+          byDay[d]!.$2,
+        ),
     ];
 
     return [
       // 4. Birthdays today
-      for (final b in bdaysToday) Padding(padding: const EdgeInsets.only(top: 16), child: _BirthdayCard(b)),
+      for (final b in bdaysToday)
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: _BirthdayCard(b),
+        ),
 
       // 5. Counters
       const SizedBox(height: 20),
-      _StatsStrip(stats: [
-        _Stat(icon: LucideIcons.users, tone: Tone.brand, value: contacts.length, label: tr.statContacts(contacts.length), onTap: () => context.go('/contacts')),
-        _Stat(icon: LucideIcons.alarmClock, tone: overdue > 0 ? Tone.red : Tone.gray, value: overdue, label: tr.statOverdue, onTap: () => context.go('/contacts')),
-        _Stat(icon: LucideIcons.calendarDays, tone: Tone.green, value: upcoming.length + toFixAll.length, label: tr.statUpcoming),
-      ]),
+      _StatsStrip(
+        stats: [
+          _Stat(
+            icon: LucideIcons.users,
+            tone: Tone.brand,
+            value: contacts.length,
+            label: tr.statContacts(contacts.length),
+            onTap: () => context.go('/contacts'),
+          ),
+          _Stat(
+            icon: LucideIcons.alarmClock,
+            tone: overdue > 0 ? Tone.red : Tone.gray,
+            value: overdue,
+            label: tr.statOverdue,
+            onTap: () => context.go('/contacts'),
+          ),
+          _Stat(
+            icon: LucideIcons.calendarDays,
+            tone: Tone.green,
+            value: upcoming.length + toFixAll.length,
+            label: tr.statUpcoming,
+          ),
+        ],
+      ),
 
       // 6. To confirm
       if (toConfirm.isNotEmpty) ...[
         SectionTitle(tr.didTheyHappen),
-        RowsCard(children: [for (final r in toConfirm) RdvRow(rdv: r, showStatus: false, footer: RdvStatusActions(rdv: r))]),
+        RowsCard(
+          children: [
+            for (final r in toConfirm)
+              RdvRow(
+                rdv: r,
+                showStatus: false,
+                footer: RdvStatusActions(rdv: r),
+              ),
+          ],
+        ),
       ],
 
       // 7. Keep in touch: people to see regularly (frequency), nothing planned yet.
       // Deliberately explained: these are reminders, not events.
       SectionTitle(
         tr.toReconnect,
-        padding: const EdgeInsets.only(top: 24, bottom: 2),
-        action: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (due.length > _maxDue)
-            TextButton(
-              onPressed: () => context.go('/contacts'),
-              child: Text(tr.seeAllN(due.length), style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
+        count: keepHidden && due.isNotEmpty ? due.length : null,
+        collapsed: keepHidden,
+        onToggle: () => ref.read(homeCollapsedProvider.notifier).toggle('keep'),
+        padding: EdgeInsets.only(top: 24, bottom: keepHidden ? 4 : 2),
+        action: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (due.length > _maxDue)
+              TextButton(
+                onPressed: () => context.go('/contacts'),
+                child: Text(
+                  tr.seeAllN(due.length),
+                  style: TextStyle(
+                    color: c.brandText,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            AppIconButton(
+              icon: LucideIcons.plus,
+              tooltip: tr.addSeeSoon,
+              color: c.brandText,
+              onPressed: () => showSeeSoonSheet(
+                context,
+                excludeIds: due.map((x) => x.id).toSet(),
+              ),
             ),
-          AppIconButton(
-            icon: LucideIcons.plus,
-            tooltip: tr.addSeeSoon,
-            color: c.brandText,
-            onPressed: () => showSeeSoonSheet(context, excludeIds: due.map((x) => x.id).toSet()),
+          ],
+        ),
+      ),
+      if (!keepHidden) ...[
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(LucideIcons.repeat, size: 15, color: c.textMuted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  tr.keepInTouchHelp,
+                  style: TextStyle(
+                    color: c.textMuted,
+                    fontSize: 13.5,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ]),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(LucideIcons.repeat, size: 15, color: c.textMuted),
-          const SizedBox(width: 6),
-          Expanded(child: Text(tr.keepInTouchHelp, style: TextStyle(color: c.textMuted, fontSize: 13.5, height: 1.35))),
-        ]),
-      ),
-      if (due.isEmpty)
-        AppCard(
-          color: c.tone(Tone.green).bg,
-          borderColor: c.tone(Tone.green).bg,
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(tr.allUpToDate, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: c.tone(Tone.green).fg)),
-            const SizedBox(height: 4),
-            Text(
-              tr.allUpToDateMessage,
-              style: TextStyle(color: c.tone(Tone.green).fg.withValues(alpha: 0.85), fontSize: 14.5, height: 1.35),
+        ),
+        if (due.isEmpty)
+          AppCard(
+            color: c.tone(Tone.green).bg,
+            borderColor: c.tone(Tone.green).bg,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tr.allUpToDate,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: c.tone(Tone.green).fg,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  tr.allUpToDateMessage,
+                  style: TextStyle(
+                    color: c.tone(Tone.green).fg.withValues(alpha: 0.85),
+                    fontSize: 14.5,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ),
-          ]),
-        )
-      else
-        RowsCard(children: [for (final x in due.take(_maxDue)) _DueRow(x)]),
+          )
+        else
+          RowsCard(children: [for (final x in due.take(_maxDue)) _DueRow(x)]),
+      ],
 
       // 8. Birthdays this week
       if (bdaysWeek.isNotEmpty) ...[
         SectionTitle(tr.birthdaysThisWeek),
-        RowsCard(children: [
-          for (final (x, b) in bdaysWeek)
-            ContactRow(
-              contact: x,
-              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                Icon(LucideIcons.cake, size: 16, color: c.tone(Tone.pink).text),
-                const SizedBox(width: 4),
-                Text(
-                  '${tr.inNDays(b.days)}${b.showAge ? ' · ${tr.nYearsOld(b.age)}' : ''}',
-                  style: TextStyle(color: c.tone(Tone.pink).text, fontWeight: FontWeight.w600, fontSize: 13.5),
+        RowsCard(
+          children: [
+            for (final (x, b) in bdaysWeek)
+              ContactRow(
+                contact: x,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      LucideIcons.cake,
+                      size: 16,
+                      color: c.tone(Tone.pink).text,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${tr.inNDays(b.days)}${b.showAge ? ' · ${tr.nYearsOld(b.age)}' : ''}',
+                      style: TextStyle(
+                        color: c.tone(Tone.pink).text,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.5,
+                      ),
+                    ),
+                  ],
                 ),
-              ]),
-            ),
-        ]),
+              ),
+          ],
+        ),
       ],
 
       // 9. Next rendezvous, with the week / month calendar
-      SectionTitle(tr.nextRdvs),
-      AgendaCalendar(planned: plannedList, held: held),
-      const SizedBox(height: 12),
-      if (pickedDay != null)
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: InputChip(
-              label: Text(capitalize(formatDayMonth(pickedDay))),
-              labelStyle: TextStyle(color: c.tone(Tone.brand).fg, fontWeight: FontWeight.w600),
-              backgroundColor: c.tone(Tone.brand).bg,
-              side: BorderSide.none,
-              shape: const StadiumBorder(),
-              deleteIcon: Icon(LucideIcons.x, size: 16, color: c.tone(Tone.brand).fg),
-              onDeleted: () => ref.read(agendaDayProvider.notifier).set(null),
-            ),
-          ),
-        ),
-      if (planned.hasError && !planned.hasValue)
-        ErrorCard(error: planned.error!, onRetry: () => ref.invalidate(plannedRdvProvider))
-      else if (!planned.hasValue)
-        const SkeletonList(rows: 2)
-      else if (upcoming.isEmpty && toFixAll.isEmpty)
-        AppCard(
-          child: Column(children: [
-            Text(tr.noRdvPlanned, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: c.text)),
-            const SizedBox(height: 4),
-            Text(tr.noRdvPlannedMessage,
-                textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
-            const SizedBox(height: 12),
-            AppButton(tr.plan, icon: LucideIcons.calendarPlus, variant: ButtonVariant.secondary, onPressed: () => context.push('/rdv/new')),
-          ]),
-        )
-      else ...[
-        // Only useful once some events are someone else's.
-        if (hasGuest)
+      SectionTitle(
+        tr.nextRdvs,
+        count: upcomingHidden && (upcoming.length + toFixAll.length) > 0
+            ? upcoming.length + toFixAll.length
+            : null,
+        collapsed: upcomingHidden,
+        onToggle: () =>
+            ref.read(homeCollapsedProvider.notifier).toggle('upcoming'),
+      ),
+      if (!upcomingHidden) ...[
+        AgendaCalendar(planned: plannedList, held: held),
+        const SizedBox(height: 12),
+        if (pickedDay != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
-            child: ChipWrap(children: [
-              for (final (f, label) in [(AgendaFilter.all, tr.filterAll), (AgendaFilter.mine, tr.filterMine), (AgendaFilter.invited, tr.filterInvited)])
-                AppChip(label, selected: filter == f, onTap: () => ref.read(agendaFilterProvider.notifier).set(f)),
-            ]),
-          ),
-        // Not dated yet: their own amber block, on top, never mixed with dates.
-        if (pickedDay == null && toFix.isNotEmpty) ...[
-          Row(children: [
-            Icon(LucideIcons.calendarClock, size: 15, color: toFixHeaderColor),
-            const SizedBox(width: 6),
-            Text('${tr.toFixTitle.toUpperCase()} (${toFix.length})',
-                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: toFixHeaderColor)),
-          ]),
-          const SizedBox(height: 8),
-          for (final r in toFix) ToFixCard(key: ValueKey('fix-${r.id}'), rdv: r),
-          const SizedBox(height: 10),
-        ],
-        if (timeline.isEmpty && (pickedDay != null || toFix.isEmpty))
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(pickedDay != null ? tr.nothingThatDay : filter == AgendaFilter.mine ? tr.noMineUpcoming : tr.noInvitedUpcoming,
-                textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
-          ),
-        // One timeline by day (today first): that day's fixed events, then its proposed slots.
-        for (final (i, (day, fixed, proposed)) in timeline.take(_maxDays).indexed) ...[
-          Overline(relativeDayLabel(day)),
-          if (fixed.isNotEmpty)
-            RowsCard(children: [for (final r in fixed) RdvRow(rdv: r, showStatus: false, dayLabel: false, showOwner: true)]),
-          if (proposed.isNotEmpty) ProposedSlotRows(items: proposed),
-          const SizedBox(height: 10),
-          // Ad high in the list: right after the first day.
-          if (i == 0) const AdTile(AdPlacement.homeAgenda, padding: EdgeInsets.only(bottom: 14)),
-        ],
-        if (timeline.length > _maxDays)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              tr.moreRdvs(timeline.skip(_maxDays).fold(0, (n, d) => n + d.$2.length + d.$3.length)),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: c.textMuted, fontSize: 14),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: InputChip(
+                label: Text(capitalize(formatDayMonth(pickedDay))),
+                labelStyle: TextStyle(
+                  color: c.tone(Tone.brand).fg,
+                  fontWeight: FontWeight.w600,
+                ),
+                backgroundColor: c.tone(Tone.brand).bg,
+                side: BorderSide.none,
+                shape: const StadiumBorder(),
+                deleteIcon: Icon(
+                  LucideIcons.x,
+                  size: 16,
+                  color: c.tone(Tone.brand).fg,
+                ),
+                onDeleted: () => ref.read(agendaDayProvider.notifier).set(null),
+              ),
             ),
           ),
+        if (planned.hasError && !planned.hasValue)
+          ErrorCard(
+            error: planned.error!,
+            onRetry: () => ref.invalidate(plannedRdvProvider),
+          )
+        else if (!planned.hasValue)
+          const SkeletonList(rows: 2)
+        else if (upcoming.isEmpty && toFixAll.isEmpty)
+          AppCard(
+            child: Column(
+              children: [
+                Text(
+                  tr.noRdvPlanned,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: c.text,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  tr.noRdvPlannedMessage,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: c.textMuted, fontSize: 14.5),
+                ),
+                const SizedBox(height: 12),
+                AppButton(
+                  tr.plan,
+                  icon: LucideIcons.calendarPlus,
+                  variant: ButtonVariant.secondary,
+                  onPressed: () => context.push('/rdv/new'),
+                ),
+              ],
+            ),
+          )
+        else ...[
+          // Only useful once some events are someone else's.
+          if (hasGuest)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: ChipWrap(
+                children: [
+                  for (final (f, label) in [
+                    (AgendaFilter.all, tr.filterAll),
+                    (AgendaFilter.mine, tr.filterMine),
+                    (AgendaFilter.invited, tr.filterInvited),
+                  ])
+                    AppChip(
+                      label,
+                      selected: filter == f,
+                      onTap: () =>
+                          ref.read(agendaFilterProvider.notifier).set(f),
+                    ),
+                ],
+              ),
+            ),
+          // Not dated yet: their own amber block, on top, never mixed with dates.
+          if (pickedDay == null && toFix.isNotEmpty) ...[
+            Row(
+              children: [
+                Icon(
+                  LucideIcons.calendarClock,
+                  size: 15,
+                  color: toFixHeaderColor,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '${tr.toFixTitle.toUpperCase()} (${toFix.length})',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                    color: toFixHeaderColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            for (final r in toFix)
+              ToFixCard(key: ValueKey('fix-${r.id}'), rdv: r),
+            const SizedBox(height: 10),
+          ],
+          if (timeline.isEmpty && (pickedDay != null || toFix.isEmpty))
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                pickedDay != null
+                    ? tr.nothingThatDay
+                    : filter == AgendaFilter.mine
+                    ? tr.noMineUpcoming
+                    : tr.noInvitedUpcoming,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: c.textMuted, fontSize: 14.5),
+              ),
+            ),
+          // One timeline by day (today first): that day's fixed events, then its proposed slots.
+          for (final (i, (day, fixed, proposed))
+              in timeline.take(_maxDays).indexed) ...[
+            Overline(relativeDayLabel(day)),
+            if (fixed.isNotEmpty)
+              RowsCard(
+                children: [
+                  for (final r in fixed)
+                    RdvRow(
+                      rdv: r,
+                      showStatus: false,
+                      dayLabel: false,
+                      showOwner: true,
+                    ),
+                ],
+              ),
+            if (proposed.isNotEmpty) ProposedSlotRows(items: proposed),
+            const SizedBox(height: 10),
+            // Ad high in the list: right after the first day.
+            if (i == 0)
+              const AdTile(
+                AdPlacement.homeAgenda,
+                padding: EdgeInsets.only(bottom: 14),
+              ),
+          ],
+          if (timeline.length > _maxDays)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                tr.moreRdvs(
+                  timeline
+                      .skip(_maxDays)
+                      .fold(0, (n, d) => n + d.$2.length + d.$3.length),
+                ),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: c.textMuted, fontSize: 14),
+              ),
+            ),
+        ],
       ],
-      // No dated event: the ad stays at the bottom.
-      if (planned.hasValue && timeline.isEmpty) const AdTile(AdPlacement.homeAgenda),
+      // No dated event (or section folded): the ad stays at the bottom.
+      if (planned.hasValue && (timeline.isEmpty || upcomingHidden))
+        const AdTile(AdPlacement.homeAgenda),
     ];
   }
 }
@@ -425,7 +763,9 @@ class _Welcome extends ConsumerWidget {
   const _Welcome();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final friends = (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.accepted).toList();
+    final friends = (ref.watch(friendsProvider).value ?? const <Friend>[])
+        .where((f) => f.accepted)
+        .toList();
     // SeeU friends waiting for a card: send to Contacts, where they're set up.
     final toSetUp = friends.isNotEmpty;
     return Padding(
@@ -434,18 +774,32 @@ class _Welcome extends ConsumerWidget {
         child: EmptyState(
           icon: LucideIcons.heartHandshake,
           title: toSetUp ? tr.welcomeFriendsTitle : tr.welcomeTitle,
-          message: toSetUp ? tr.welcomeFriendsMessage(friends.length) : tr.welcomeMessage,
+          message: toSetUp
+              ? tr.welcomeFriendsMessage(friends.length)
+              : tr.welcomeMessage,
           actions: [
             if (toSetUp)
-              AppButton(tr.manageContacts,
-                  icon: LucideIcons.users, size: ButtonSize.lg, onPressed: () => context.go('/contacts')),
-            AppButton(tr.addFirstContact,
-                icon: LucideIcons.userPlus,
-                size: toSetUp ? ButtonSize.md : ButtonSize.lg,
-                variant: toSetUp ? ButtonVariant.secondary : ButtonVariant.primary,
-                onPressed: () => context.push('/contacts/new')),
-            AppButton(tr.addSeeuFriend,
-                icon: LucideIcons.userSearch, variant: ButtonVariant.secondary, onPressed: () => showAddFriendSheet(context)),
+              AppButton(
+                tr.manageContacts,
+                icon: LucideIcons.users,
+                size: ButtonSize.lg,
+                onPressed: () => context.go('/contacts'),
+              ),
+            AppButton(
+              tr.addFirstContact,
+              icon: LucideIcons.userPlus,
+              size: toSetUp ? ButtonSize.md : ButtonSize.lg,
+              variant: toSetUp
+                  ? ButtonVariant.secondary
+                  : ButtonVariant.primary,
+              onPressed: () => context.push('/contacts/new'),
+            ),
+            AppButton(
+              tr.addSeeuFriend,
+              icon: LucideIcons.userSearch,
+              variant: ButtonVariant.secondary,
+              onPressed: () => showAddFriendSheet(context),
+            ),
           ],
         ),
       ),
@@ -462,21 +816,39 @@ class _StatsStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return Container(
-      decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: c.secondaryFill,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: IntrinsicHeight(
-        child: Row(children: [
-          for (var i = 0; i < stats.length; i++) ...[
-            if (i > 0) VerticalDivider(width: 1, thickness: 1, indent: 12, endIndent: 12, color: c.border),
-            Expanded(child: stats[i]),
+        child: Row(
+          children: [
+            for (var i = 0; i < stats.length; i++) ...[
+              if (i > 0)
+                VerticalDivider(
+                  width: 1,
+                  thickness: 1,
+                  indent: 12,
+                  endIndent: 12,
+                  color: c.border,
+                ),
+              Expanded(child: stats[i]),
+            ],
           ],
-        ]),
+        ),
       ),
     );
   }
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.icon, required this.tone, required this.value, required this.label, this.onTap});
+  const _Stat({
+    required this.icon,
+    required this.tone,
+    required this.value,
+    required this.label,
+    this.onTap,
+  });
   final IconData icon;
   final Tone tone;
   final int value;
@@ -492,15 +864,34 @@ class _Stat extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-        child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(icon, size: 18, color: t.text),
-            const SizedBox(width: 6),
-            Text('$value', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: tone == Tone.red ? t.text : c.text, height: 1.1)),
-          ]),
-          const SizedBox(height: 2),
-          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: c.textMuted)),
-        ]),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 18, color: t.text),
+                const SizedBox(width: 6),
+                Text(
+                  '$value',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: tone == Tone.red ? t.text : c.text,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: c.textMuted),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -518,46 +909,83 @@ class _BirthdayCard extends StatelessWidget {
     return AppCard(
       color: pink.bg,
       borderColor: pink.bg,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        InkWell(
-          onTap: () => context.push('/contacts/${contact.id}'),
-          child: Row(children: [
-            Avatar(name: contact.name, path: contact.photoPath, size: 44, seeu: contact.linkedUserId != null, userId: contact.linkedUserId),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(tr.birthdayOf(contact.name),
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: pink.fg)),
-                const SizedBox(height: 2),
-                Text('${b.showAge ? '${tr.turnsToday(b.age)} ' : ''}${tr.wishThem}',
-                    style: TextStyle(color: pink.fg.withValues(alpha: 0.85), fontSize: 14)),
-              ]),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: () => context.push('/contacts/${contact.id}'),
+            child: Row(
+              children: [
+                Avatar(
+                  name: contact.name,
+                  path: contact.photoPath,
+                  size: 44,
+                  seeu: contact.linkedUserId != null,
+                  userId: contact.linkedUserId,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tr.birthdayOf(contact.name),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: pink.fg,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${b.showAge ? '${tr.turnsToday(b.age)} ' : ''}${tr.wishThem}',
+                        style: TextStyle(
+                          color: pink.fg.withValues(alpha: 0.85),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ]),
-        ),
-        const SizedBox(height: 12),
-        Row(children: [
-          if (contact.phone != null) ...[
-            Expanded(
-              child: AppButton(tr.messageShort,
-                  icon: LucideIcons.messageCircle,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              if (contact.phone != null) ...[
+                Expanded(
+                  child: AppButton(
+                    tr.messageShort,
+                    icon: LucideIcons.messageCircle,
+                    size: ButtonSize.sm,
+                    variant: ButtonVariant.secondary,
+                    full: true,
+                    onPressed: () => launchUrl(
+                      Uri(
+                        scheme: 'sms',
+                        path: contact.phone!.replaceAll(RegExp(r'\s+'), ''),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: AppButton(
+                  tr.plan,
+                  icon: LucideIcons.calendarPlus,
                   size: ButtonSize.sm,
                   variant: ButtonVariant.secondary,
                   full: true,
-                  onPressed: () => launchUrl(Uri(scheme: 'sms', path: contact.phone!.replaceAll(RegExp(r'\s+'), '')))),
-            ),
-            const SizedBox(width: 8),
-          ],
-          Expanded(
-            child: AppButton(tr.plan,
-                icon: LucideIcons.calendarPlus,
-                size: ButtonSize.sm,
-                variant: ButtonVariant.secondary,
-                full: true,
-                onPressed: () => context.push('/rdv/new?contact=${contact.id}')),
+                  onPressed: () =>
+                      context.push('/rdv/new?contact=${contact.id}'),
+                ),
+              ),
+            ],
           ),
-        ]),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -570,55 +998,75 @@ class _DueRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final marked = onlyMarked(contact);
-    return Column(children: [
-      ContactRow(contact: contact),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-        // "Vu" is short: less room for it. Narrow screens: labels without icons.
-        child: LayoutBuilder(builder: (context, box) {
-          final icons = box.maxWidth > 360;
-          return Row(children: [
-            Expanded(
-              flex: 4,
-              child: AppButton(tr.plan,
-                  icon: icons ? LucideIcons.calendarPlus : null,
-                  size: ButtonSize.sm,
-                  full: true,
-                  onPressed: () => context.push('/rdv/new?contact=${contact.id}')),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 3,
-              child: AppButton(tr.seen,
-                  icon: icons ? LucideIcons.check : null,
-                  size: ButtonSize.sm,
-                  variant: ButtonVariant.secondary,
-                  full: true,
-                  onPressed: () => showMarkSeenSheet(context, contact)),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 4,
-              child: marked
-                  ? AppButton(tr.remove,
-                      icon: icons ? LucideIcons.starOff : null,
+    return Column(
+      children: [
+        ContactRow(contact: contact),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+          // "Vu" is short: less room for it. Narrow screens: labels without icons.
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final icons = box.maxWidth > 360;
+              return Row(
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: AppButton(
+                      tr.plan,
+                      icon: icons ? LucideIcons.calendarPlus : null,
                       size: ButtonSize.sm,
-                      variant: ButtonVariant.secondary,
-                      full: true, onPressed: () async {
-                      final ok = await guard(() => ref.read(apiProvider).setSeeSoon(contact.id, false),
-                          success: tr.removedFromList(contact.name));
-                      if (ok != null) refreshData(ref);
-                    })
-                  : AppButton(tr.snooze,
-                      icon: icons ? LucideIcons.clock : null,
+                      full: true,
+                      onPressed: () =>
+                          context.push('/rdv/new?contact=${contact.id}'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 3,
+                    child: AppButton(
+                      tr.seen,
+                      icon: icons ? LucideIcons.check : null,
                       size: ButtonSize.sm,
                       variant: ButtonVariant.secondary,
                       full: true,
-                      onPressed: () => showSnoozeSheet(context, contact)),
-            ),
-          ]);
-        }),
-      ),
-    ]);
+                      onPressed: () => showMarkSeenSheet(context, contact),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 4,
+                    child: marked
+                        ? AppButton(
+                            tr.remove,
+                            icon: icons ? LucideIcons.starOff : null,
+                            size: ButtonSize.sm,
+                            variant: ButtonVariant.secondary,
+                            full: true,
+                            onPressed: () async {
+                              final ok = await guard(
+                                () => ref
+                                    .read(apiProvider)
+                                    .setSeeSoon(contact.id, false),
+                                success: tr.removedFromList(contact.name),
+                              );
+                              if (ok != null) refreshData(ref);
+                            },
+                          )
+                        : AppButton(
+                            tr.snooze,
+                            icon: icons ? LucideIcons.clock : null,
+                            size: ButtonSize.sm,
+                            variant: ButtonVariant.secondary,
+                            full: true,
+                            onPressed: () => showSnoozeSheet(context, contact),
+                          ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }

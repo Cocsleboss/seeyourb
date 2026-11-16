@@ -329,8 +329,14 @@ class SectionTitle extends StatelessWidget {
     this.action,
     this.count,
     this.padding = const EdgeInsets.only(top: 24, bottom: 10),
+    this.collapsed,
+    this.onToggle,
   });
   final String title;
+
+  /// Collapsible section: arrow after the title, tap the title to toggle.
+  final bool? collapsed;
+  final VoidCallback? onToggle;
   final Widget? action;
   final int? count;
   final EdgeInsetsGeometry padding;
@@ -338,33 +344,38 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    Widget label = Text.rich(
+      TextSpan(children: [
+        TextSpan(text: title),
+        if (count != null) TextSpan(text: ' ($count)', style: TextStyle(color: c.textMuted, fontWeight: FontWeight.w500)),
+      ]),
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: c.text),
+    );
+    if (collapsed != null) {
+      label = InkWell(
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Flexible(child: label),
+            const SizedBox(width: 6),
+            AnimatedRotation(
+              turns: collapsed! ? -0.25 : 0,
+              duration: const Duration(milliseconds: 180),
+              child: Icon(LucideIcons.chevronDown, size: 20, color: c.textMuted),
+            ),
+          ]),
+        ),
+      );
+    }
     return Padding(
       padding: padding,
       child: Row(
         children: [
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: title),
-                  if (count != null)
-                    TextSpan(
-                      text: ' ($count)',
-                      style: TextStyle(
-                        color: c.textMuted,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                ],
-              ),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: c.text,
-              ),
-            ),
-          ),
-          ?action,
+          Expanded(child: collapsed == null ? label : Align(alignment: Alignment.centerLeft, child: label)),
+          // Hidden section: its actions go too.
+          if (collapsed != true) ?action,
         ],
       ),
     );

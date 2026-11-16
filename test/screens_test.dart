@@ -15,6 +15,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:seeu/ads/ads.dart';
 import 'package:seeu/core/i18n.dart';
 import 'package:seeu/data/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:seeu/core/theme.dart';
 import 'package:seeu/data/providers.dart';
@@ -295,6 +296,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
 void main() {
   setUpAll(() async {
     await initializeDateFormatting();
+    SharedPreferences.setMockInitialValues({});
     fakeApi = _FakeApi();
     PackageInfo.setMockInitialValues(
         appName: 'SeeU', packageName: 'com.seeuapp.mobile', version: '1.0.0', buildNumber: '1', buildSignature: '', installerStore: null);
@@ -386,6 +388,28 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('home: tapping a section title folds / unfolds it', (tester) async {
+    applyLanguage('fr');
+    tester.view.physicalSize = const Size(1170, 7200);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(app('/', Brightness.light, const []));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    final help = find.textContaining('Rappels selon la fréquence');
+    expect(help, findsOneWidget);
+    await tester.tap(find.textContaining('Garder le contact', findRichText: true));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(help, findsNothing);
+    expect(find.text('Mois'), findsOneWidget);
+    await tester.tap(find.textContaining('Prochains rendez-vous', findRichText: true));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Mois'), findsNothing);
+    await tester.tap(find.textContaining('Garder le contact', findRichText: true));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(help, findsOneWidget);
   });
 
   // French in light + dark, English in light (catches longer strings overflowing).
