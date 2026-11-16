@@ -119,19 +119,20 @@ class _PendingTile extends StatelessWidget {
   }
 }
 
-void openPhotoViewer(BuildContext context, List<Photo> photos, int index) {
+void openPhotoViewer(BuildContext context, List<Photo> photos, int index, {String? eventId}) {
   Navigator.of(context, rootNavigator: true).push(PageRouteBuilder(
     opaque: false,
     barrierColor: Colors.black,
-    pageBuilder: (_, _, _) => PhotoViewer(photos: photos, initial: index),
+    pageBuilder: (_, _, _) => PhotoViewer(photos: photos, initial: index, eventId: eventId),
     transitionsBuilder: (_, a, _, child) => FadeTransition(opacity: a, child: child),
   ));
 }
 
 class PhotoViewer extends ConsumerStatefulWidget {
-  const PhotoViewer({super.key, required this.photos, required this.initial});
+  const PhotoViewer({super.key, required this.photos, required this.initial, this.eventId});
   final List<Photo> photos;
   final int initial;
+  final String? eventId;
   @override
   ConsumerState<PhotoViewer> createState() => _PhotoViewerState();
 }
@@ -204,6 +205,28 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
             ]),
           ),
         ),
+        // Who added it, bottom-left.
+        if (_photos.isNotEmpty)
+          Positioned(
+            left: 16,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
+                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(99)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    PhotoAuthorBadge(photo: _photos[_index], eventId: widget.eventId, size: 28),
+                    const SizedBox(width: 8),
+                    Text(photoAuthorName(ref, _photos[_index], eventId: widget.eventId) ?? 'SeeU',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                  ]),
+                ),
+              ),
+            ),
+          ),
         if (_index > 0) Align(alignment: Alignment.centerLeft, child: Padding(padding: const EdgeInsets.all(8), child: arrow(LucideIcons.chevronLeft, -1))),
         if (_index < _photos.length - 1)
           Align(alignment: Alignment.centerRight, child: Padding(padding: const EdgeInsets.all(8), child: arrow(LucideIcons.chevronRight, 1))),
@@ -213,46 +236,57 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
 }
 
 
-/// A photo in a grid. In a shared event ([eventId] set), the uploader's small
-/// avatar sits bottom-right; tapping it shows their name.
-class PhotoTile extends ConsumerWidget {
+/// Who added a photo: "Vous", a friend's name, or (in an event) a participant's.
+String? photoAuthorName(WidgetRef ref, Photo p, {String? eventId}) {
+  final me = ref.watch(profileProvider);
+  if (p.userId == me?.id) return tr.you;
+  return (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.userId == p.userId).firstOrNull?.displayName ??
+      (eventId == null
+          ? null
+          : (ref.watch(participantsProvider(eventId)).value ?? const <Participant>[]).where((x) => x.userId == p.userId).firstOrNull?.name);
+}
+
+/// The uploader's small avatar; tap → a tip with their name.
+class PhotoAuthorBadge extends ConsumerWidget {
+  const PhotoAuthorBadge({super.key, required this.photo, this.eventId, this.size = 24});
+  final Photo photo;
+  final String? eventId;
+  final double size;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final me = ref.watch(profileProvider);
+    final name = photoAuthorName(ref, photo, eventId: eventId);
+    return Tooltip(
+      triggerMode: TooltipTriggerMode.tap,
+      showDuration: const Duration(seconds: 2),
+      message: name ?? 'SeeU',
+      child: Avatar(
+        name: photo.userId == me?.id ? (me?.name ?? '?') : (name ?? '?'),
+        userId: photo.userId,
+        size: size,
+        ring: Colors.white,
+      ),
+    );
+  }
+}
+
+/// A photo in a grid, with its uploader's avatar bottom-right (every photo).
+class PhotoTile extends StatelessWidget {
   const PhotoTile({super.key, required this.photos, required this.index, this.eventId});
   final List<Photo> photos;
   final int index;
   final String? eventId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final p = photos[index];
-    final me = ref.watch(profileProvider);
-    String? name;
-    if (eventId != null) {
-      name = p.userId == me?.id
-          ? tr.you
-          : (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.userId == p.userId).firstOrNull?.displayName ??
-              (ref.watch(participantsProvider(eventId!)).value ?? const <Participant>[]).where((x) => x.userId == p.userId).firstOrNull?.name;
-    }
     return Stack(fit: StackFit.expand, children: [
       GestureDetector(
-        onTap: () => openPhotoViewer(context, photos, index),
+        onTap: () => openPhotoViewer(context, photos, index, eventId: eventId),
         child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(p.previewPath, cacheWidth: 360)),
       ),
-      if (eventId != null)
-        Positioned(
-          right: 5,
-          bottom: 5,
-          child: Tooltip(
-            triggerMode: TooltipTriggerMode.tap,
-            showDuration: const Duration(seconds: 2),
-            message: name ?? 'SeeU',
-            child: Avatar(
-              name: p.userId == me?.id ? (me?.name ?? '?') : (name ?? '?'),
-              userId: p.userId,
-              size: 24,
-              ring: Colors.white,
-            ),
-          ),
-        ),
+      Positioned(right: 5, bottom: 5, child: PhotoAuthorBadge(photo: p, eventId: eventId)),
     ]);
   }
 }

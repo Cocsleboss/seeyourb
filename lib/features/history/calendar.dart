@@ -134,6 +134,19 @@ class _DayCell extends StatelessWidget {
       body = Stack(fit: StackFit.expand, children: [
         StorageImage(photo.previewPath, cacheWidth: 200),
         Align(alignment: Alignment.topLeft, child: Padding(padding: const EdgeInsets.all(5), child: number)),
+        // Who added the photo (tiny; tapping the cell still opens the day).
+        Positioned(
+          left: 4,
+          bottom: 4,
+          child: IgnorePointer(
+            child: Consumer(builder: (context, ref, _) {
+              final me = ref.watch(profileProvider);
+              final name = photoAuthorName(ref, photo);
+              return Avatar(
+                  name: photo.userId == me?.id ? (me?.name ?? '?') : (name ?? '?'), userId: photo.userId, size: 18, ring: Colors.white);
+            }),
+          ),
+        ),
         if (rdvs.length > 1)
           Positioned(
             right: 4,
