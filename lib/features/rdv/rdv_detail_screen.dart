@@ -295,6 +295,7 @@ class _Body extends ConsumerWidget {
           title: rdv.isShared ? tr.sharedPhotos : tr.photos,
           photos: photos,
           rdvId: rdv.id,
+          eventId: rdv.isShared ? rdv.eventId : null,
           emptyText: public && !rdv.isOrganizer
               ? tr.photosEmptyPublicMember
               : rdv.isShared

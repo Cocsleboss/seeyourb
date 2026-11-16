@@ -40,7 +40,11 @@ Future<List<XFile>> pickPhotos(BuildContext context, {bool multiple = true}) asy
 }
 
 class PhotoSection extends ConsumerStatefulWidget {
-  const PhotoSection({super.key, required this.title, required this.photos, this.contactId, this.rdvId, this.emptyText, this.canAdd = true});
+  const PhotoSection(
+      {super.key, required this.title, required this.photos, this.contactId, this.rdvId, this.emptyText, this.canAdd = true, this.eventId});
+
+  /// Shared event: each photo shows who added it (small avatar, name on tap).
+  final String? eventId;
   final String title;
   final AsyncValue<List<Photo>> photos;
   final String? contactId;
@@ -73,6 +77,14 @@ class _PhotoSectionState extends ConsumerState<PhotoSection> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final photos = widget.photos.value ?? const <Photo>[];
+    // Uploader names: me, my friends, then the event's participants.
+    final me = ref.watch(profileProvider)?.id;
+    final names = <String, String>{
+      if (widget.eventId != null)
+        for (final p in ref.watch(participantsProvider(widget.eventId!)).value ?? const <Participant>[]) p.userId: p.name,
+      for (final f in ref.watch(friendsProvider).value ?? const <Friend>[]) f.userId: f.displayName,
+    };
+    final showAuthors = widget.eventId != null;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       SectionTitle(
         widget.title,
@@ -95,10 +107,29 @@ class _PhotoSectionState extends ConsumerState<PhotoSection> {
           children: [
             for (var i = 0; i < _uploading; i++) _PendingTile(),
             for (var i = 0; i < photos.length; i++)
-              GestureDetector(
-                onTap: () => openPhotoViewer(context, photos, i),
-                child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].previewPath, cacheWidth: 360)),
-              ),
+              Stack(fit: StackFit.expand, children: [
+                GestureDetector(
+                  onTap: () => openPhotoViewer(context, photos, i),
+                  child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(photos[i].previewPath, cacheWidth: 360)),
+                ),
+                if (showAuthors)
+                  Positioned(
+                    right: 5,
+                    bottom: 5,
+                    // Tap: a small tip with the full name.
+                    child: Tooltip(
+                      triggerMode: TooltipTriggerMode.tap,
+                      showDuration: const Duration(seconds: 2),
+                      message: photos[i].userId == me ? tr.you : (names[photos[i].userId] ?? 'SeeU'),
+                      child: Avatar(
+                        name: names[photos[i].userId] ?? (photos[i].userId == me ? ref.read(profileProvider)?.name ?? '?' : '?'),
+                        userId: photos[i].userId,
+                        size: 24,
+                        ring: Colors.white,
+                      ),
+                    ),
+                  ),
+              ]),
           ],
         ),
     ]);
