@@ -231,6 +231,10 @@ class _Agenda extends ConsumerWidget {
         ? upcoming
         : plannedList.where((r) => !r.slotsOpen && dayOf(r.appointmentAt) == pickedDay).toList();
     final shown = base.where(keep).toList();
+    // Amber header only if one of them waits on me.
+    final toFixHeaderColor = toFix.any((r) => toFixNeedsMe(r, ref.watch(slotsProvider(r.eventId!)).value))
+        ? c.tone(Tone.amber).text
+        : c.textMuted;
     final heldPicked = pickedDay == null ? null : held[pickedDay];
 
     return [
@@ -361,10 +365,10 @@ class _Agenda extends ConsumerWidget {
         // Not dated yet: their own amber block, on top, never mixed with dates.
         if (pickedDay == null && toFix.isNotEmpty) ...[
           Row(children: [
-            Icon(LucideIcons.calendarClock, size: 15, color: c.tone(Tone.amber).text),
+            Icon(LucideIcons.calendarClock, size: 15, color: toFixHeaderColor),
             const SizedBox(width: 6),
             Text('${tr.toFixTitle.toUpperCase()} (${toFix.length})',
-                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: c.tone(Tone.amber).text)),
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: toFixHeaderColor)),
           ]),
           const SizedBox(height: 8),
           for (final r in toFix) ToFixCard(key: ValueKey('fix-${r.id}'), rdv: r),

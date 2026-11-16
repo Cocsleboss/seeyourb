@@ -144,3 +144,6 @@ notAnswered | Pas répondu | Not answered
 heldDayWarning | Vous êtes disponible ce jour-là pour un créneau de « {title} » ({time}), dont la date n'est pas encore fixée. | You're available that day for a slot of “{title}” ({time}), whose date isn't set yet.
 legendFixed | date fixée | date set
 legendProposed | créneau proposé (date à choisir) | proposed slot (date to choose)
+waitingForOrganizer | En attente de l'organisateur pour fixer la date | Waiting for the organizer to set the date
+waitingForAnswers | En attente des réponses | Waiting for answers
+yourTurnToChoose | À vous de choisir la date | Your turn to pick the date

@@ -3138,4 +3138,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get legendProposed => 'créneau proposé (date à choisir)';
+
+  @override
+  String get waitingForOrganizer =>
+      'En attente de l\'organisateur pour fixer la date';
+
+  @override
+  String get waitingForAnswers => 'En attente des réponses';
+
+  @override
+  String get yourTurnToChoose => 'À vous de choisir la date';
 }

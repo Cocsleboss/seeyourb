@@ -39,11 +39,59 @@ Map<DateTime, HeldDay> heldDays(WidgetRef ref, List<Rendezvous> planned) {
   return out;
 }
 
+/// Ring color = my answer: yes green, maybe amber, no red, not answered grey.
 Color heldColor(AppColors c, SlotAnswer? a) => switch (a) {
       SlotAnswer.yes => c.tone(Tone.green).solid,
       SlotAnswer.maybe => c.tone(Tone.amber).solid,
-      _ => c.textSubtle,
+      SlotAnswer.no => c.tone(Tone.red).solid,
+      null => c.textSubtle,
     };
+
+/// Legend ring: one third green, amber, red ("colored by your answer").
+class TriRing extends StatelessWidget {
+  const TriRing({super.key, this.size = 9});
+  final double size;
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return CustomPaint(
+      size: Size.square(size),
+      painter: _TriRingPainter([c.tone(Tone.green).solid, c.tone(Tone.amber).solid, c.tone(Tone.red).solid]),
+    );
+  }
+}
+
+class _TriRingPainter extends CustomPainter {
+  _TriRingPainter(this.colors);
+  final List<Color> colors;
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 1.8;
+    final rect = Offset.zero & size;
+    final r = rect.deflate(stroke / 2);
+    const third = 2 * 3.14159265 / 3;
+    for (var i = 0; i < 3; i++) {
+      canvas.drawArc(r, -3.14159265 / 2 + i * third, third, false,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = stroke
+            ..color = colors[i]);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_TriRingPainter old) => old.colors != colors;
+}
+
+/// Does this event wait on me? Member: not answered yet. Organizer: everyone
+/// answered (time to pick the date).
+bool toFixNeedsMe(Rendezvous rdv, List<EventSlot>? slots) {
+  if (slots == null) return !rdv.isOrganizer;
+  if (!rdv.isOrganizer) return slots.every((s) => s.myAnswer == null);
+  final voters = slots.isEmpty ? 0 : slots.map((s) => s.yes + s.maybe + s.no).reduce((a, b) => a > b ? a : b);
+  final others = (rdv.event?.memberCount ?? 1) - 1;
+  return others > 0 && voters >= others;
+}
 
 /// One event to fix. Deliberately unlike a fixed event row: amber frame,
 /// "?" calendar instead of a date, "Date à choisir" tag, and my status.
@@ -54,8 +102,10 @@ class ToFixCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
-    final amber = c.tone(Tone.amber);
     final slots = ref.watch(slotsProvider(rdv.eventId!)).value;
+    // Amber only while it's on me (answer / choose the date); grey while I wait.
+    final needsMe = toFixNeedsMe(rdv, slots);
+    final amber = needsMe ? c.tone(Tone.amber) : c.tone(Tone.gray);
 
     Widget status;
     if (slots == null) {
@@ -65,9 +115,11 @@ class ToFixCard extends ConsumerWidget {
       final others = (rdv.event?.memberCount ?? 1) - 1;
       final best = bestSlots(slots);
       status = _StatusLine(
-        icon: LucideIcons.users,
-        color: c.textMuted,
+        icon: needsMe ? LucideIcons.calendarCheck : LucideIcons.hourglass,
+        color: needsMe ? c.tone(Tone.amber).text : c.textMuted,
+        bold: needsMe,
         text: [
+          if (needsMe) tr.yourTurnToChoose else tr.waitingForAnswers,
           tr.answeredCount(voters, others < voters ? voters : others),
           if (best.length == 1) '${tr.bestShort} ${formatDayMonth(best.first.startsAt)}',
         ].join(' · '),
@@ -77,7 +129,11 @@ class ToFixCard extends ConsumerWidget {
     } else {
       final yes = slots.where((s) => s.myAnswer == SlotAnswer.yes).length;
       final maybe = slots.where((s) => s.myAnswer == SlotAnswer.maybe).length;
-      status = _StatusLine(icon: LucideIcons.circleCheck, color: c.tone(Tone.green).text, text: tr.availabilitySentShort(yes, maybe));
+      status = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        _StatusLine(icon: LucideIcons.circleCheck, color: c.tone(Tone.green).text, text: tr.availabilitySentShort(yes, maybe)),
+        const SizedBox(height: 2),
+        _StatusLine(icon: LucideIcons.hourglass, color: c.textMuted, text: tr.waitingForOrganizer),
+      ]);
     }
 
     return Padding(
@@ -117,7 +173,7 @@ class ToFixCard extends ConsumerWidget {
                   ]),
                   const SizedBox(height: 3),
                   Row(children: [
-                    Pill(tr.dateToChoose, tone: Tone.amber, icon: LucideIcons.calendarClock),
+                    Pill(tr.dateToChoose, tone: needsMe ? Tone.amber : Tone.gray, icon: LucideIcons.calendarClock),
                     if (slots != null) ...[
                       const SizedBox(width: 6),
                       Text(tr.nSlots(slots.length), style: TextStyle(fontSize: 12.5, color: c.textMuted)),
@@ -143,12 +199,12 @@ class _StatusLine extends StatelessWidget {
   final String text;
   final bool bold;
   @override
-  Widget build(BuildContext context) => Row(children: [
-        Icon(icon, size: 14, color: color),
+  Widget build(BuildContext context) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(padding: const EdgeInsets.only(top: 2), child: Icon(icon, size: 14, color: color)),
         const SizedBox(width: 5),
         Expanded(
           child: Text(text,
-              maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: color, fontWeight: bold ? FontWeight.w700 : FontWeight.w500)),
+              maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: color, fontWeight: bold ? FontWeight.w700 : FontWeight.w500)),
         ),
       ]);
 }
@@ -167,7 +223,7 @@ class ProposedThatDay extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
           child: Material(
-            color: c.tone(Tone.amber).bg.withValues(alpha: c.isDark ? 0.25 : 0.45),
+            color: c.secondaryFill,
             borderRadius: BorderRadius.circular(12),
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
@@ -175,7 +231,7 @@ class ProposedThatDay extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Row(children: [
-                  Icon(LucideIcons.calendarClock, size: 18, color: c.tone(Tone.amber).text),
+                  Icon(LucideIcons.calendarClock, size: 18, color: heldColor(c, r.isOrganizer ? SlotAnswer.yes : s.myAnswer)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text('${formatTime(s.startsAt)} · ${r.displayTitle}',

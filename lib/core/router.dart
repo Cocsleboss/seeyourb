@@ -63,7 +63,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/complete-profile', builder: (_, _) => const CompleteProfileScreen()),
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => shell,
+        // One outer Scaffold: the four tabs' own Scaffolds become nested, so a
+        // toast is shown once (it was shown in every tab kept alive, which
+        // crashed with "multiple heroes share the same tag").
+        builder: (context, state, shell) => Scaffold(resizeToAvoidBottomInset: false, body: shell),
         branches: [
           StatefulShellBranch(routes: [tab('/', const HomeScreen())]),
           StatefulShellBranch(routes: [

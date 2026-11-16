@@ -3059,4 +3059,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legendProposed => 'proposed slot (date to choose)';
+
+  @override
+  String get waitingForOrganizer => 'Waiting for the organizer to set the date';
+
+  @override
+  String get waitingForAnswers => 'Waiting for answers';
+
+  @override
+  String get yourTurnToChoose => 'Your turn to pick the date';
 }

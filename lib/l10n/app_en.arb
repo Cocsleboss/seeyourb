@@ -810,5 +810,8 @@
   "notAnswered": "Not answered",
   "heldDayWarning": "You're available that day for a slot of “{title}” ({time}), whose date isn't set yet.",
   "legendFixed": "date set",
-  "legendProposed": "proposed slot (date to choose)"
+  "legendProposed": "proposed slot (date to choose)",
+  "waitingForOrganizer": "Waiting for the organizer to set the date",
+  "waitingForAnswers": "Waiting for answers",
+  "yourTurnToChoose": "Your turn to pick the date"
 }

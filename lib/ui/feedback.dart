@@ -16,6 +16,11 @@ final rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
 /// Root navigator (go_router), for dialogs opened outside a widget context.
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Each toast gets its own key: Flutter tags a floating SnackBar's Hero with its
+/// content, and two toasts with identical content during a page transition
+/// crashed with "multiple heroes share the same tag".
+int _toastSeq = 0;
+
 void showToast(String message, {ToastKind kind = ToastKind.success}) {
   final messenger = rootMessengerKey.currentState;
   if (messenger == null) return;
@@ -32,7 +37,7 @@ void showToast(String message, {ToastKind kind = ToastKind.success}) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 90),
       duration: Duration(milliseconds: kind == ToastKind.error ? 4000 : 2500),
-      content: Row(children: [
+      content: Row(key: ValueKey('toast-${_toastSeq++}'), children: [
         Icon(icon, color: Colors.white, size: 20),
         const SizedBox(width: 10),
         Expanded(child: Text(message, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15))),

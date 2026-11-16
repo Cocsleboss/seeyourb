@@ -282,39 +282,54 @@ class SegmentedControl<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final index = options.indexWhere((o) => o.$1 == value).clamp(0, options.length - 1);
+    final n = options.length;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(14)),
-      child: Row(
-        children: [
-          for (final (v, label) in options)
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => onChanged(v),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    // Fade to a transparent version of the SAME color: fading to
-                    // Colors.transparent (transparent black) flashes grey.
-                    color: (c.isDark ? Palette.gray900 : Colors.white).withValues(alpha: v == value ? 1 : 0),
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: v == value && !c.isDark ? const [BoxShadow(color: Color(0x1A000000), blurRadius: 3, offset: Offset(0, 1))] : null,
-                  ),
-                  child: Text(label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+      child: SizedBox(
+        height: 36,
+        child: Stack(children: [
+          // One white "thumb" that slides under the selected option (no fading
+          // fill over a shadow, which used to flash grey).
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment(n == 1 ? 0 : -1 + 2 * index / (n - 1), 0),
+            child: FractionallySizedBox(
+              widthFactor: 1 / n,
+              heightFactor: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: c.isDark ? Palette.gray900 : Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: c.isDark ? null : const [BoxShadow(color: Color(0x1A000000), blurRadius: 3, offset: Offset(0, 1))],
+                ),
+              ),
+            ),
+          ),
+          Row(children: [
+            for (final (v, label) in options)
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onChanged(v),
+                  child: Center(
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 150),
                       style: TextStyle(
                         fontSize: 14.5,
                         fontWeight: v == value ? FontWeight.w600 : FontWeight.w500,
                         color: v == value ? c.text : c.textMuted,
-                      )),
+                        fontFamily: DefaultTextStyle.of(context).style.fontFamily,
+                      ),
+                      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ),
+                  ),
                 ),
               ),
-            ),
-        ],
+          ]),
+        ]),
       ),
     );
   }

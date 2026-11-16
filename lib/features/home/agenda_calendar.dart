@@ -212,10 +212,7 @@ class _AgendaCalendarState extends ConsumerState<AgendaCalendar> {
               const SizedBox(width: 5),
               Text(tr.legendFixed, style: TextStyle(fontSize: 11.5, color: c.textMuted)),
               const SizedBox(width: 12),
-              Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: c.tone(Tone.amber).solid, width: 1.5))),
+              const TriRing(),
               const SizedBox(width: 5),
               Flexible(child: Text(tr.legendProposed, style: TextStyle(fontSize: 11.5, color: c.textMuted))),
             ]),

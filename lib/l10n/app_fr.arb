@@ -1791,5 +1791,8 @@
     }
   },
   "legendFixed": "date fixée",
-  "legendProposed": "créneau proposé (date à choisir)"
+  "legendProposed": "créneau proposé (date à choisir)",
+  "waitingForOrganizer": "En attente de l'organisateur pour fixer la date",
+  "waitingForAnswers": "En attente des réponses",
+  "yourTurnToChoose": "À vous de choisir la date"
 }

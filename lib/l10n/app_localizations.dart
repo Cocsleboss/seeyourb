@@ -4963,6 +4963,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'créneau proposé (date à choisir)'**
   String get legendProposed;
+
+  /// No description provided for @waitingForOrganizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de l\'organisateur pour fixer la date'**
+  String get waitingForOrganizer;
+
+  /// No description provided for @waitingForAnswers.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente des réponses'**
+  String get waitingForAnswers;
+
+  /// No description provided for @yourTurnToChoose.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vous de choisir la date'**
+  String get yourTurnToChoose;
 }
 
 class _AppLocalizationsDelegate
