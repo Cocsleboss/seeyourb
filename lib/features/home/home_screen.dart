@@ -396,12 +396,14 @@ class _Agenda extends ConsumerWidget {
                 textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
           ),
         // One timeline by day (today first): that day's fixed events, then its proposed slots.
-        for (final (day, fixed, proposed) in timeline.take(_maxDays)) ...[
+        for (final (i, (day, fixed, proposed)) in timeline.take(_maxDays).indexed) ...[
           Overline(relativeDayLabel(day)),
           if (fixed.isNotEmpty)
             RowsCard(children: [for (final r in fixed) RdvRow(rdv: r, showStatus: false, dayLabel: false, showOwner: true)]),
           if (proposed.isNotEmpty) ProposedSlotRows(items: proposed),
           const SizedBox(height: 10),
+          // Ad high in the list: right after the first day.
+          if (i == 0) const AdTile(AdPlacement.homeAgenda, padding: EdgeInsets.only(bottom: 14)),
         ],
         if (timeline.length > _maxDays)
           Padding(
@@ -413,7 +415,8 @@ class _Agenda extends ConsumerWidget {
             ),
           ),
       ],
-      const AdTile(AdPlacement.homeAgenda),
+      // No dated event: the ad stays at the bottom.
+      if (planned.hasValue && timeline.isEmpty) const AdTile(AdPlacement.homeAgenda),
     ];
   }
 }
