@@ -150,3 +150,4 @@ yourTurnToChoose | À vous de choisir la date | Your turn to pick the date
 yourAnswerShort | Votre réponse : | Your answer:
 dateConfirmedBy | Date à confirmer par {name} | Date to be confirmed by {name}
 dateYouSet | Vous fixez la date | You set the date
+proposedSlot | Créneau proposé | Proposed slot

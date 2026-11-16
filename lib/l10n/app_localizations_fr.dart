@@ -3159,4 +3159,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dateYouSet => 'Vous fixez la date';
+
+  @override
+  String get proposedSlot => 'Créneau proposé';
 }

@@ -27,7 +27,7 @@ import '../../ads/ads.dart';
 import '../../core/i18n.dart';
 
 const _maxDue = 8;
-const _maxUpcoming = 10;
+const _maxDays = 10;
 
 /// Home sections: my agenda, friends' events, public events.
 enum HomeSection { agenda, friends, explore }
@@ -235,7 +235,22 @@ class _Agenda extends ConsumerWidget {
     final toFixHeaderColor = toFix.any((r) => toFixNeedsMe(r, ref.watch(slotsProvider(r.eventId!)).value))
         ? c.tone(Tone.amber).text
         : c.textMuted;
-    final heldPicked = pickedDay == null ? null : held[pickedDay];
+    // Timeline: day → fixed events + proposed slots (of events kept by the filter).
+    final today0 = today();
+    final byDay = <DateTime, (List<Rendezvous>, List<(Rendezvous, EventSlot)>)>{};
+    for (final r in shown) {
+      (byDay[dayOf(r.appointmentAt)] ??= (<Rendezvous>[], <(Rendezvous, EventSlot)>[])).$1.add(r);
+    }
+    for (final MapEntry(key: d, value: h) in held.entries) {
+      if (pickedDay != null ? d != pickedDay : d.isBefore(today0)) continue;
+      final items = h.items.where((x) => keep(x.$1)).toList();
+      if (items.isEmpty) continue;
+      (byDay[d] ??= (<Rendezvous>[], <(Rendezvous, EventSlot)>[])).$2.addAll(items);
+    }
+    final timeline = [
+      for (final d in byDay.keys.toList()..sort())
+        (d, byDay[d]!.$1..sort((a, b) => a.appointmentAt.compareTo(b.appointmentAt)), byDay[d]!.$2),
+    ];
 
     return [
       // 4. Birthdays today
@@ -374,23 +389,25 @@ class _Agenda extends ConsumerWidget {
           for (final r in toFix) ToFixCard(key: ValueKey('fix-${r.id}'), rdv: r),
           const SizedBox(height: 10),
         ],
-        if (shown.isEmpty && (pickedDay != null || toFix.isEmpty) && heldPicked == null)
+        if (timeline.isEmpty && (pickedDay != null || toFix.isEmpty))
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(pickedDay != null ? tr.nothingThatDay : filter == AgendaFilter.mine ? tr.noMineUpcoming : tr.noInvitedUpcoming,
                 textAlign: TextAlign.center, style: TextStyle(color: c.textMuted, fontSize: 14.5)),
           ),
-        for (final (day, list) in groupOrdered(shown.take(_maxUpcoming), (Rendezvous r) => dayOf(r.appointmentAt))) ...[
+        // One timeline by day (today first): that day's fixed events, then its proposed slots.
+        for (final (day, fixed, proposed) in timeline.take(_maxDays)) ...[
           Overline(relativeDayLabel(day)),
-          RowsCard(children: [for (final r in list) RdvRow(rdv: r, showStatus: false, dayLabel: false, showOwner: true)]),
-          const SizedBox(height: 8),
+          if (fixed.isNotEmpty)
+            RowsCard(children: [for (final r in fixed) RdvRow(rdv: r, showStatus: false, dayLabel: false, showOwner: true)]),
+          if (proposed.isNotEmpty) ProposedSlotRows(items: proposed),
+          const SizedBox(height: 10),
         ],
-        if (heldPicked != null) ProposedThatDay(held: heldPicked),
-        if (shown.length > _maxUpcoming)
+        if (timeline.length > _maxDays)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              tr.moreRdvs(shown.length - _maxUpcoming),
+              tr.moreRdvs(timeline.skip(_maxDays).fold(0, (n, d) => n + d.$2.length + d.$3.length)),
               textAlign: TextAlign.center,
               style: TextStyle(color: c.textMuted, fontSize: 14),
             ),

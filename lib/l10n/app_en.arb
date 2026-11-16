@@ -816,5 +816,6 @@
   "yourTurnToChoose": "Your turn to pick the date",
   "yourAnswerShort": "Your answer:",
   "dateConfirmedBy": "Date to be confirmed by {name}",
-  "dateYouSet": "You set the date"
+  "dateYouSet": "You set the date",
+  "proposedSlot": "Proposed slot"
 }

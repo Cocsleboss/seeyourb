@@ -3079,4 +3079,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateYouSet => 'You set the date';
+
+  @override
+  String get proposedSlot => 'Proposed slot';
 }

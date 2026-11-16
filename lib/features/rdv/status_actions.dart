@@ -63,22 +63,27 @@ class _RdvStatusActionsState extends ConsumerState<RdvStatusActions> {
             onPressed: _busy == null ? () => _set(RdvStatus.planifie) : null),
       );
     }
-    return Row(children: [
-      Expanded(
-        child: AppButton(tr.statusSetDone,
-            icon: LucideIcons.check,
-            variant: ButtonVariant.success,
-            full: true,
-            loading: _busy == RdvStatus.valide,
-            onPressed: _busy == null ? () => _set(RdvStatus.valide) : null),
-      ),
-      const SizedBox(width: 10),
-      // "Annuler" at its natural width: the main action gets the rest.
-      AppButton(tr.statusSetCancelled,
+    // "Annuler" at its natural width, icon only when the row is narrow
+    // (e.g. inside a card on Home): the main action keeps its full label.
+    return LayoutBuilder(builder: (context, box) {
+      final narrow = box.maxWidth < 340;
+      final cancel = AppButton(narrow ? '' : tr.statusSetCancelled,
           icon: LucideIcons.x,
           variant: ButtonVariant.outline,
           loading: _busy == RdvStatus.annule,
-          onPressed: _busy == null ? () => _set(RdvStatus.annule) : null),
-    ]);
+          onPressed: _busy == null ? () => _set(RdvStatus.annule) : null);
+      return Row(children: [
+        Expanded(
+          child: AppButton(tr.statusSetDone,
+              icon: LucideIcons.check,
+              variant: ButtonVariant.success,
+              full: true,
+              loading: _busy == RdvStatus.valide,
+              onPressed: _busy == null ? () => _set(RdvStatus.valide) : null),
+        ),
+        const SizedBox(width: 10),
+        narrow ? Tooltip(message: tr.statusSetCancelled, child: cancel) : cancel,
+      ]);
+    });
   }
 }

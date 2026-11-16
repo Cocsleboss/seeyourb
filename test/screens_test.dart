@@ -335,7 +335,7 @@ void main() {
     'login': ('/login', const []),
   };
 
-  testWidgets('agenda: picking a proposed-slot day shows "Créneaux proposés ce jour" on first load', (tester) async {
+  testWidgets('agenda: proposed slots show under their day, with or without a picked day', (tester) async {
     applyLanguage('fr');
     tester.view.physicalSize = const Size(1170, 7200);
     tester.view.devicePixelRatio = 3;
@@ -346,11 +346,25 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pump(const Duration(milliseconds: 300));
+    // No day picked: proposed slots are in the timeline, under their day
+    // (lazy list: scroll down to them).
+    final proposed = find.text('Créneau proposé');
+    for (var i = 0; i < 20 && proposed.evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -400));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(proposed, findsWidgets);
+    if (autoUpdateGoldenFiles) await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/agenda_timeline_light.png'));
+    for (var i = 0; i < 20 && find.text('Mois').evaluate().isEmpty; i++) {
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 400));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    // Picking one of those days keeps it.
     await tester.tap(find.text('Mois'));
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('24'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Créneaux proposés ce jour'.toUpperCase()), findsOneWidget);
+    expect(find.text('Créneau proposé'), findsOneWidget);
   });
 
   // French in light + dark, English in light (catches longer strings overflowing).

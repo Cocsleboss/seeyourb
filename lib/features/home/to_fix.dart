@@ -217,36 +217,42 @@ class _StatusLine extends StatelessWidget {
       ]);
 }
 
-/// Picked day with proposed slots: "Créneaux proposés ce jour" + my answer.
-class ProposedThatDay extends StatelessWidget {
-  const ProposedThatDay({super.key, required this.held});
-  final HeldDay held;
+/// Proposed slots of one day, shown under that day's fixed events: lighter
+/// rows with the "?" calendar, "Créneau proposé" and my answer.
+class ProposedSlotRows extends StatelessWidget {
+  const ProposedSlotRows({super.key, required this.items});
+  final List<(Rendezvous, EventSlot)> items;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final sorted = [...items]..sort((a, b) => a.$2.startsAt.compareTo(b.$2.startsAt));
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Overline(tr.proposedSlotsThatDay),
-      for (final (r, s) in held.items)
+      for (final (r, s) in sorted)
         Padding(
-          padding: const EdgeInsets.only(bottom: 6),
+          padding: const EdgeInsets.only(top: 6),
           child: Material(
             color: c.secondaryFill,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             child: InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               onTap: () => context.push('/rdv/${r.id}'),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                 child: Row(children: [
-                  Icon(LucideIcons.calendarClock, size: 18, color: heldColor(c, r.isOrganizer ? SlotAnswer.yes : s.myAnswer)),
-                  const SizedBox(width: 8),
+                  Icon(LucideIcons.calendarClock, size: 20, color: heldColor(c, r.isOrganizer ? SlotAnswer.yes : s.myAnswer)),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: Text('${formatTime(s.startsAt)} · ${r.displayTitle}',
-                        maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('${formatTime(s.startsAt)} · ${r.displayTitle}',
+                          maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+                      const SizedBox(height: 1),
+                      Text(tr.proposedSlot, style: TextStyle(fontSize: 12, color: c.textMuted)),
+                    ]),
                   ),
+                  const SizedBox(width: 8),
                   if (!r.isOrganizer) ...[
-                    Text(tr.yourAnswerShort, style: TextStyle(fontSize: 12.5, color: c.textMuted)),
+                    Text(tr.yourAnswerShort, style: TextStyle(fontSize: 12, color: c.textMuted)),
                     const SizedBox(width: 6),
                   ],
                   _AnswerPill(r.isOrganizer ? null : s.myAnswer, organizer: r.isOrganizer),

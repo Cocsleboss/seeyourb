@@ -1804,5 +1804,6 @@
       }
     }
   },
-  "dateYouSet": "Vous fixez la date"
+  "dateYouSet": "Vous fixez la date",
+  "proposedSlot": "Créneau proposé"
 }

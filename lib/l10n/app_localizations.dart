@@ -4999,6 +4999,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vous fixez la date'**
   String get dateYouSet;
+
+  /// No description provided for @proposedSlot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créneau proposé'**
+  String get proposedSlot;
 }
 
 class _AppLocalizationsDelegate
