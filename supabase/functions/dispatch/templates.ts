@@ -102,6 +102,16 @@ const fr: Record<string, (c: Ctx) => Rendered> = {
       body: [str(c.p.title), when(c.p.at, c), str(c.p.location) ? `📍 ${c.p.location}` : null].filter(Boolean).join(" · "),
     };
   },
+  rdv_check: ({ p }) => {
+    const title = str(p.title) ?? "Votre rendez-vous";
+    return p.again
+      ? { title: `${title} : toujours prévu ?`, body: "Confirmez qu'il a lieu ou annulez-le. Sans réponse, il sera marqué comme passé demain." }
+      : { title: `${title} a-t-il lieu ?`, body: "C'est l'heure ! Marquez-le comme passé, ou annulez-le s'il n'a pas lieu." };
+  },
+  rdv_auto_done: ({ p }) => ({
+    title: `${str(p.title) ?? "Votre rendez-vous"} marqué comme passé`,
+    body: "Sans réponse de votre part, il a été considéré comme ayant eu lieu. Vous pouvez le modifier dans l'historique.",
+  }),
   rdv_followup: (c) => {
     const who = list(c.p.names);
     return {
@@ -174,6 +184,16 @@ const en: Record<string, (c: Ctx) => Rendered> = {
       body: [str(c.p.title), when(c.p.at, c), str(c.p.location) ? `📍 ${c.p.location}` : null].filter(Boolean).join(" · "),
     };
   },
+  rdv_check: ({ p }) => {
+    const title = str(p.title) ?? "Your event";
+    return p.again
+      ? { title: `${title}: still on?`, body: "Confirm it's happening or cancel it. Without an answer, it'll be marked as happened tomorrow." }
+      : { title: `Is ${title} happening?`, body: "It's time! Mark it as happened, or cancel it if it's not taking place." };
+  },
+  rdv_auto_done: ({ p }) => ({
+    title: `${str(p.title) ?? "Your event"} marked as happened`,
+    body: "Without an answer from you, it was considered as having happened. You can change it in the history.",
+  }),
   rdv_followup: (c) => {
     const who = list(c.p.names);
     return {
