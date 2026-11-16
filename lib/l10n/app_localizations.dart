@@ -4873,6 +4873,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Gérer mes contacts'**
   String get manageContacts;
+
+  /// No description provided for @quickBirthday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anniversaire'**
+  String get quickBirthday;
+
+  /// No description provided for @optionalShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Facultatif'**
+  String get optionalShort;
 }
 
 class _AppLocalizationsDelegate

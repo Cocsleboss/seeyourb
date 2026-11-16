@@ -215,13 +215,16 @@ class _Agenda extends ConsumerWidget {
     final filter = ref.watch(agendaFilterProvider);
     final hasGuest = upcoming.any((r) => !r.isOrganizer);
     final pickedDay = ref.watch(agendaDayProvider);
+    // A picked day shows exactly what its dots count: every planned event that
+    // day (even one already started / to confirm), not only the upcoming ones.
+    final base = pickedDay == null
+        ? upcoming
+        : plannedList.where((r) => !r.slotsOpen && dayOf(r.appointmentAt) == pickedDay).toList();
     final shown = switch (hasGuest ? filter : AgendaFilter.all) {
-      AgendaFilter.all => upcoming,
-      AgendaFilter.mine => upcoming.where((r) => r.isOrganizer).toList(),
-      AgendaFilter.invited => upcoming.where((r) => !r.isOrganizer).toList(),
-    }
-        .where((r) => pickedDay == null || (!r.slotsOpen && dayOf(r.appointmentAt) == pickedDay))
-        .toList();
+      AgendaFilter.all => base,
+      AgendaFilter.mine => base.where((r) => r.isOrganizer).toList(),
+      AgendaFilter.invited => base.where((r) => !r.isOrganizer).toList(),
+    };
 
     return [
       // 4. Birthdays today

@@ -9,6 +9,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/i18n.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
+import '../../domain/dates.dart';
 import '../../domain/models.dart';
 import '../../domain/selectors.dart';
 import '../../domain/text.dart';
@@ -44,6 +45,7 @@ class _FriendToContactCardState extends ConsumerState<FriendToContactCard> {
   _Tab? _tab;
   FrequencyPreset _freq = _quickPresets[2];
   String? _category;
+  DateTime? _birthday;
   final _q = TextEditingController();
   String? _busy;
 
@@ -61,6 +63,7 @@ class _FriendToContactCardState extends ConsumerState<FriendToContactCard> {
             categories: [?_category],
             frequencyValue: _freq.value,
             frequencyUnit: _freq.unit,
+            birthday: _birthday,
             linkedUserId: f.userId,
           )),
       success: tr.friendNowContact(f.displayName),
@@ -141,7 +144,7 @@ class _FriendToContactCardState extends ConsumerState<FriendToContactCard> {
           dense: true,
           leading: Avatar(name: x.name, path: x.photoPath, size: 36, seeu: false),
           title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
-          subtitle: ContactKindLine(linkedUserId: null, categories: x.categoryLabel),
+          subtitle: ContactKindLine(linkedUserId: null, categories: x.categories),
           trailing: AppButton(tr.link,
               icon: LucideIcons.link2, size: ButtonSize.sm, loading: _busy == x.id, onPressed: _busy == null ? () => _link(x) : null),
         ),
@@ -173,8 +176,20 @@ class _FriendToContactCardState extends ConsumerState<FriendToContactCard> {
       Text(tr.quickCategory, style: TextStyle(color: c.textMuted, fontSize: 12.5, fontWeight: FontWeight.w600)),
       const SizedBox(height: 6),
       Wrap(spacing: 6, runSpacing: 6, children: [
-        for (final cat in categorySuggestions) chip(cat, _category == cat, () => setState(() => _category = _category == cat ? null : cat)),
+        for (final cat in categorySuggestions)
+          CategoryTag(cat, selected: _category == cat, onTap: () => setState(() => _category = _category == cat ? null : cat)),
       ]),
+      const SizedBox(height: 10),
+      Text(tr.quickBirthday, style: TextStyle(color: c.textMuted, fontSize: 12.5, fontWeight: FontWeight.w600)),
+      const SizedBox(height: 6),
+      DateField(
+        value: _birthday,
+        last: today(),
+        clearable: true,
+        compact: true,
+        placeholder: tr.optionalShort,
+        onChanged: (d) => setState(() => _birthday = d),
+      ),
       const SizedBox(height: 12),
       Row(children: [
         Expanded(
@@ -190,7 +205,8 @@ class _FriendToContactCardState extends ConsumerState<FriendToContactCard> {
                       linkedUsername: f.username,
                       frequencyValue: _freq.value,
                       frequencyUnit: _freq.unit,
-                      categories: [?_category]))),
+                      categories: [?_category],
+                      birthday: _birthday))),
         ),
         const SizedBox(width: 8),
         Expanded(child: AppButton(tr.createContactShort, icon: LucideIcons.check, size: ButtonSize.sm, full: true, onAsync: _create)),

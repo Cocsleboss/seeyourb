@@ -2991,4 +2991,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageContacts => 'Manage contacts';
+
+  @override
+  String get quickBirthday => 'Birthday';
+
+  @override
+  String get optionalShort => 'Optional';
 }

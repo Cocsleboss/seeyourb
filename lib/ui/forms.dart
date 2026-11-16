@@ -297,7 +297,9 @@ class SegmentedControl<T> extends StatelessWidget {
                   height: 36,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: v == value ? (c.isDark ? Palette.gray900 : Colors.white) : Colors.transparent,
+                    // Fade to a transparent version of the SAME color: fading to
+                    // Colors.transparent (transparent black) flashes grey.
+                    color: (c.isDark ? Palette.gray900 : Colors.white).withValues(alpha: v == value ? 1 : 0),
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: v == value && !c.isDark ? const [BoxShadow(color: Color(0x1A000000), blurRadius: 3, offset: Offset(0, 1))] : null,
                   ),

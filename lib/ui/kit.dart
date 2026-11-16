@@ -720,3 +720,71 @@ class AsyncBody<T> extends StatelessWidget {
     return SkeletonList(rows: skeletonRows);
   }
 }
+
+
+/// A contact category, always drawn the same way: a small colored box with a
+/// tag icon (color fixed per category name), so it reads as "category".
+Tone categoryTone(String name) {
+  const tones = [Tone.violet, Tone.green, Tone.amber, Tone.pink, Tone.orange, Tone.brand];
+  final key = normalizeText(name);
+  var h = 0;
+  for (final u in key.codeUnits) {
+    h = (h * 31 + u) & 0x7fffffff;
+  }
+  return tones[h % tones.length];
+}
+
+class CategoryTag extends StatelessWidget {
+  const CategoryTag(this.name, {super.key, this.large = false, this.selected, this.onTap});
+  final String name;
+  final bool large;
+
+  /// Picker mode: null = plain tag; true / false = selectable.
+  final bool? selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final t = c.tone(categoryTone(name));
+    final picking = selected != null;
+    final on = selected ?? true;
+    final fs = large ? 14.5 : (picking ? 13.5 : 11.5);
+    final tag = AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      padding: EdgeInsets.symmetric(horizontal: large || picking ? 10 : 6, vertical: large || picking ? 6 : 2),
+      decoration: BoxDecoration(
+        color: on ? t.bg : t.bg.withValues(alpha: 0),
+        borderRadius: BorderRadius.circular(large || picking ? 10 : 6),
+        border: Border.all(color: on ? t.solid.withValues(alpha: 0.35) : c.border),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(picking && on ? LucideIcons.check : LucideIcons.tag, size: fs, color: on ? t.fg : c.textMuted),
+        SizedBox(width: large || picking ? 5 : 3),
+        Flexible(
+          child: Text(name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: fs, fontWeight: FontWeight.w600, color: on ? t.fg : c.textMuted, height: 1.2)),
+        ),
+      ]),
+    );
+    return onTap == null ? tag : Pressable(onTap: onTap, scale: 0.95, child: tag);
+  }
+}
+
+/// Up to [max] category tags on one line, then "+n".
+class CategoryTags extends StatelessWidget {
+  const CategoryTags(this.names, {super.key, this.max = 2});
+  final List<String> names;
+  final int max;
+  @override
+  Widget build(BuildContext context) {
+    final shown = names.take(max).toList();
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      for (final n in shown) ...[Flexible(child: CategoryTag(n)), const SizedBox(width: 4)],
+      if (names.length > max)
+        Text('+${names.length - max}', style: TextStyle(fontSize: 11.5, color: context.colors.textMuted, fontWeight: FontWeight.w600)),
+    ]);
+  }
+}

@@ -129,7 +129,7 @@ class _Body extends ConsumerWidget {
             alignment: WrapAlignment.center,
             spacing: 6,
             runSpacing: 6,
-            children: [for (final cat in contact.categories) Pill(cat, large: true)],
+            children: [for (final cat in contact.categories) CategoryTag(cat, large: true)],
           ),
         ],
         if (contact.linkedUserId != null) ...[

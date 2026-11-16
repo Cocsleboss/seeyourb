@@ -171,7 +171,16 @@ final contactProvider = Provider.family<AsyncValue<Contact?>, String>((ref, id) 
 
 final plannedRdvProvider = FutureProvider<List<Rendezvous>>((ref) => _api(ref).listPlannedRdv());
 final historyProvider = FutureProvider<List<Rendezvous>>((ref) => _api(ref).listHistory());
-final rdvProvider = FutureProvider.family<Rendezvous?, String>((ref, id) => _api(ref).getRdv(id));
+/// One event of my agenda. Shown at once from the lists already loaded (agenda,
+/// history, a contact's events), then refreshed from the server.
+final rdvProvider = StreamProvider.family<Rendezvous?, String>((ref, id) async* {
+  Rendezvous? cached;
+  for (final list in [ref.read(plannedRdvProvider).value, ref.read(historyProvider).value]) {
+    cached ??= list?.where((r) => r.id == id).firstOrNull;
+  }
+  if (cached != null) yield cached;
+  yield await _api(ref).getRdv(id);
+});
 
 /// Validated / cancelled rendezvous of a month (key: first day of the month).
 final historyMonthProvider = FutureProvider.family<List<Rendezvous>, DateTime>(

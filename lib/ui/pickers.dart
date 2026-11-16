@@ -128,7 +128,7 @@ class _CategoryPickerState extends State<CategoryPicker> {
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       ChipWrap(children: [
-        for (final c in options) AppChip(c, selected: _has(c), onTap: () => _toggle(c)),
+        for (final c in options) CategoryTag(c, selected: _has(c), onTap: () => _toggle(c)),
         AppChip(tr.categoryOther, icon: LucideIcons.plus, selected: _adding, onTap: () => setState(() => _adding = !_adding)),
       ]),
       if (_adding) ...[

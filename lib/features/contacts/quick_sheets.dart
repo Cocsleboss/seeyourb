@@ -198,7 +198,7 @@ class _SeeSoonState extends ConsumerState<_SeeSoon> {
                     enabled: _busyId == null,
                     leading: Avatar(name: x.name, path: x.photoPath, size: 40, seeu: x.linkedUserId != null, userId: x.linkedUserId),
                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
-                    subtitle: ContactKindLine(linkedUserId: x.linkedUserId, categories: x.categoryLabel, fontSize: 13),
+                    subtitle: ContactKindLine(linkedUserId: x.linkedUserId, categories: x.categories, fontSize: 13),
                     trailing: _busyId == x.id
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                         : Icon(LucideIcons.star, color: c.tone(Tone.violet).text, size: 20),

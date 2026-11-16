@@ -137,14 +137,19 @@ class PushService {
   }
 
   /// "Désactiver" on this device, and before signing out.
+  /// Stops pushes to this device. Kept short (sign out must feel instant):
+  /// the server call is capped, Firebase's own cleanup runs in the background.
   Future<void> unregister(Api api) async {
     if (!available) return;
-    final token = _token ?? await FirebaseMessaging.instance.getToken().catchError((_) => null);
-    if (token != null) await api.unregisterDevice(token).catchError((_) {});
+    final token = _token ??
+        await FirebaseMessaging.instance.getToken().timeout(const Duration(seconds: 2), onTimeout: () => null).catchError((_) => null);
+    if (token != null) {
+      await api.unregisterDevice(token).timeout(const Duration(seconds: 3)).catchError((_) {});
+    }
     await _tokenSub?.cancel();
     _tokenSub = null;
     _token = null;
-    await FirebaseMessaging.instance.deleteToken().catchError((_) {});
+    unawaited(FirebaseMessaging.instance.deleteToken().catchError((_) {}));
   }
 
   /// Is this device currently registered?

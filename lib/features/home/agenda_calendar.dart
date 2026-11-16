@@ -76,6 +76,8 @@ class _AgendaCalendarState extends ConsumerState<AgendaCalendar> {
     for (final r in history) {
       if (r.status != RdvStatus.valide) continue;
       final d = dayOf(r.appointmentAt);
+      // Today and later: dots = what the list shows when the day is picked.
+      if (!d.isBefore(t)) continue;
       past[d] = (past[d] ?? 0) + 1;
     }
 

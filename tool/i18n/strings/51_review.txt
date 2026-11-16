@@ -127,3 +127,7 @@ helpLinkTitle | Les deux, liés | Both, linked
 helpLinkText | Liez la fiche d'un contact à son compte SeeU : vous gardez vos rappels et notes, et vos rendez-vous avec lui sont partagés. | Link a contact's card to their SeeU account: you keep your reminders and notes, and your events with them are shared.
 contactFromFriendBanner | Fiche liée à votre ami SeeU {name} : vous partagerez rendez-vous et photos, et sa photo de profil est utilisée. | Card linked to your SeeU friend {name}: you'll share events and photos, and their profile picture is used.
 manageContacts | Gérer mes contacts | Manage contacts
+
+# Review round 6
+quickBirthday | Anniversaire | Birthday
+optionalShort | Facultatif | Optional

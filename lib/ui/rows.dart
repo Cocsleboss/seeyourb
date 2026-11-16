@@ -48,6 +48,10 @@ class ContactRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 13.5, color: c.textMuted),
               ),
+              if (contact.categories.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                CategoryTags(contact.categories, max: 3),
+              ],
             ]),
           ),
           const SizedBox(width: 8),
@@ -253,9 +257,9 @@ class InfoLine extends StatelessWidget {
 /// Under a contact's name, everywhere a contact is listed: whether they're a
 /// SeeU friend (handshake + @username) or not on SeeU, then their categories.
 class ContactKindLine extends ConsumerWidget {
-  const ContactKindLine({super.key, required this.linkedUserId, this.categories, this.fontSize = 12.5});
+  const ContactKindLine({super.key, required this.linkedUserId, this.categories = const [], this.fontSize = 12.5});
   final String? linkedUserId;
-  final String? categories;
+  final List<String> categories;
   final double fontSize;
 
   @override
@@ -265,22 +269,30 @@ class ContactKindLine extends ConsumerWidget {
     final username = linkedUserId == null
         ? null
         : (ref.watch(friendsProvider).value ?? const <Friend>[]).where((f) => f.userId == linkedUserId).firstOrNull?.username;
-    return Text.rich(
-      TextSpan(children: [
-        if (linkedUserId != null) ...[
-          WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: Padding(padding: const EdgeInsets.only(right: 4), child: Icon(LucideIcons.heartHandshake, size: fontSize + 1, color: c.brandText)),
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Row(children: [
+        Flexible(
+          child: Text.rich(
+            TextSpan(children: [
+              if (linkedUserId != null) ...[
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                      padding: const EdgeInsets.only(right: 4), child: Icon(LucideIcons.heartHandshake, size: fontSize + 1, color: c.brandText)),
+                ),
+                TextSpan(text: tr.seeuFriendShort, style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
+                if (username != null) TextSpan(text: ' ${handle(username)}'),
+              ] else
+                TextSpan(text: tr.notOnSeeu),
+            ]),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: style,
           ),
-          TextSpan(text: tr.seeuFriendShort, style: TextStyle(color: c.brandText, fontWeight: FontWeight.w600)),
-          if (username != null) TextSpan(text: ' ${handle(username)}'),
-        ] else
-          TextSpan(text: tr.notOnSeeu),
-        if (categories != null && categories!.isNotEmpty) TextSpan(text: ' · $categories'),
+        ),
+        if (categories.isNotEmpty) ...[const SizedBox(width: 6), Flexible(child: CategoryTags(categories))],
       ]),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: style,
     );
   }
 }

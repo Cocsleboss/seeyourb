@@ -795,5 +795,7 @@
   "helpLinkTitle": "Both, linked",
   "helpLinkText": "Link a contact's card to their SeeU account: you keep your reminders and notes, and your events with them are shared.",
   "contactFromFriendBanner": "Card linked to your SeeU friend {name}: you'll share events and photos, and their profile picture is used.",
-  "manageContacts": "Manage contacts"
+  "manageContacts": "Manage contacts",
+  "quickBirthday": "Birthday",
+  "optionalShort": "Optional"
 }

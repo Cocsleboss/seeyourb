@@ -312,7 +312,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                                     shape: const RoundedRectangleBorder(),
                                     secondary: FriendAvatar(name: x.name, path: x.photoPath, size: 38, isFriend: x.linkedUserId != null, userId: x.linkedUserId),
                                     title: Text(x.name, style: TextStyle(fontWeight: FontWeight.w500, color: c.text)),
-                                    subtitle: ContactKindLine(linkedUserId: x.linkedUserId, categories: x.categoryLabel),
+                                    subtitle: ContactKindLine(linkedUserId: x.linkedUserId, categories: x.categories),
                                   );
                                 },
                               ),

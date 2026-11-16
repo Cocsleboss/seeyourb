@@ -3070,4 +3070,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get manageContacts => 'Gérer mes contacts';
+
+  @override
+  String get quickBirthday => 'Anniversaire';
+
+  @override
+  String get optionalShort => 'Facultatif';
 }

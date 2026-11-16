@@ -257,7 +257,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
             NotificationEntry(id: 'n', kind: 'due_digest', title: 'Marie est à recontacter', body: 'Marie (en retard de 9 j)', channel: 'push', createdAt: d(0, 8)),
           ]),
       pushPermissionProvider.overrideWith((ref) async => PushPermission.notDetermined),
-      rdvProvider.overrideWith((ref, id) async => [...planned, ...history].where((r) => r.id == id).firstOrNull),
+      rdvProvider.overrideWith((ref, id) => Stream.value([...planned, ...history].where((r) => r.id == id).firstOrNull)),
       contactRdvsProvider.overrideWith((ref, id) async => [...planned, ...history].where((r) => r.contacts.any((c) => c.id == id)).toList()),
       contactPhotosProvider.overrideWith((ref, id) async => const <Photo>[]),
       sharedRdvPhotosProvider.overrideWith((ref, id) async => const <Photo>[]),

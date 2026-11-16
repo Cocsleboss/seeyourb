@@ -58,7 +58,7 @@ class RsvpSelector extends StatelessWidget {
                 duration: const Duration(milliseconds: 150),
                 height: 40,
                 decoration: BoxDecoration(
-                  color: r == value ? c.tone(rsvpTone(r)).solid : Colors.transparent,
+                  color: c.tone(rsvpTone(r)).solid.withValues(alpha: r == value ? 1 : 0),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [

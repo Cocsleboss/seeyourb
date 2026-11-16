@@ -25,7 +25,8 @@ import '../../core/i18n.dart';
 /// Values to prefill a new contact (e.g. from a SeeU friend).
 class ContactPrefill {
   const ContactPrefill(
-      {this.name, this.email, this.linkedUserId, this.linkedUsername, this.frequencyValue, this.frequencyUnit, this.categories});
+      {this.name, this.email, this.linkedUserId, this.linkedUsername, this.frequencyValue, this.frequencyUnit, this.categories, this.birthday});
+  final DateTime? birthday;
   final String? name;
   final String? email;
   final String? linkedUserId;
@@ -99,7 +100,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _lastMeeting = e?.lastMeetingDate;
     _freqValue = e?.frequencyValue ?? p?.frequencyValue ?? 1;
     _freqUnit = e?.frequencyUnit ?? p?.frequencyUnit ?? FrequencyUnit.months;
-    _birthday = e?.birthday;
+    _birthday = e?.birthday ?? p?.birthday;
   }
 
   @override
