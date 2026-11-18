@@ -349,6 +349,8 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
                   _error = null;
                 }),
               ),
+              // room between the switch and the "Date / Heure" or "Créneaux proposés" title below
+              const SizedBox(height: 18),
             ],
             if (_multi)
               _SlotsEditor(
