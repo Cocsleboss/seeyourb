@@ -179,7 +179,12 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
               if (receivedRequest) tr.requestReceivedShort,
             ].join(' · ').ifNotEmpty,
       trailing: addFriend == null ? trailing : Row(mainAxisSize: MainAxisSize.min, children: [trailing, addFriend]),
-      onTap: contact == null || me ? null : () => context.push('/contacts/${contact.id}'),
+      // My contact card if I have one, else their SeeU profile (even if I don't know them).
+      onTap: me
+          ? null
+          : contact != null
+              ? () => context.push('/contacts/${contact.id}')
+              : (p.username != null ? () => context.push('/u/${p.username}') : null),
     );
   }
 

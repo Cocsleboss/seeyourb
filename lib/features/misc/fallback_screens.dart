@@ -99,3 +99,34 @@ class MissingItem extends StatelessWidget {
     );
   }
 }
+
+/// The account was suspended by a moderator: nothing else is usable.
+class BannedScreen extends ConsumerWidget {
+  const BannedScreen({super.key});
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const SeeULogo(size: 56),
+              const SizedBox(height: 20),
+              Icon(LucideIcons.shieldAlert, size: 40, color: c.tone(Tone.red).text),
+              const SizedBox(height: 12),
+              Text(tr.bannedTitle, textAlign: TextAlign.center, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: c.text)),
+              const SizedBox(height: 10),
+              Text(tr.bannedMessage, textAlign: TextAlign.center, style: TextStyle(fontSize: 15.5, color: c.text, height: 1.4)),
+              const SizedBox(height: 10),
+              Text(tr.bannedHelp, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: c.textMuted, height: 1.4)),
+              const SizedBox(height: 24),
+              AppButton(tr.signOut, icon: LucideIcons.logOut, variant: ButtonVariant.outline, onAsync: () => ref.read(supabaseProvider).auth.signOut()),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}

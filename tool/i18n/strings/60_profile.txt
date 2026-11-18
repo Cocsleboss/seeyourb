@@ -1,0 +1,100 @@
+# Public profile, profile pages, city & travel hints, reports, bans (step 1)
+publicProfileTitle | Profil public et partage | Public profile & sharing
+publicProfileRowSub | Votre lien, ce que les autres voient, vos événements publics | Your link, what others see, your public events
+myProfileLink | Votre lien de profil | Your profile link
+myProfileLinkHelp | Partagez-le sur Instagram, WhatsApp, Messenger… Il ouvre votre profil dans SeeU, ou propose d'installer l'app. | Share it on Instagram, WhatsApp, Messenger… It opens your profile in SeeU, or offers to install the app.
+copyLink | Copier le lien | Copy link
+linkCopied | Lien copié | Link copied
+showQrCode | QR code | QR code
+qrCodeTitle | Votre QR code SeeU | Your SeeU QR code
+qrCodeHelp | Faites-le scanner : votre profil s'ouvre, prêt à vous ajouter en ami. | Let people scan it: your profile opens, ready to add you as a friend.
+shareProfileText | Retrouvez-moi sur SeeU : @{username}\n{link} | Find me on SeeU: @{username}\n{link}
+shareMyProfile | Partager mon profil | Share my profile
+publicProfileToggle | Profil public | Public profile
+publicProfileToggleSub | Une page web, visible par tous ceux qui ont le lien, avec seulement les informations choisies ci-dessous. | A web page anyone with the link can see, with only the information chosen below.
+publicProfileOffInfo | Désactivé : votre lien ouvre toujours SeeU, mais il n'y a pas de page publique. | Off: your link still opens SeeU, but there is no public page.
+publicFieldsTitle | Informations visibles | Visible information
+publicFieldAvatar | Photo de profil | Profile picture
+publicFieldName | Nom affiché | Display name
+publicFieldCity | Ville de résidence | City
+publicFieldBio | Bio | Bio
+publicFieldsHelp | Votre @pseudo est toujours visible : c'est l'adresse de la page. Votre e-mail et vos contacts ne le sont jamais. | Your @username is always visible: it's the page address. Your email and contacts never are.
+publicEventsTitle | Événements affichés | Events shown
+publicEventsNone | Aucun | None
+publicEventsSelected | Choisis | Chosen
+publicEventsAll | Tous | All
+publicEventsHelp | Seulement des événements publics (organisés ou rejoints). Les événements privés ou entre amis n'apparaissent jamais. | Public events only (organized or joined). Private and friends events never appear.
+publicEventsPick | Événements à afficher | Events to show
+noPublicEventsYet | Aucun événement public à venir, organisé ou rejoint. | No upcoming public events, organized or joined.
+inAppVisibilityTitle | Dans l'app | In the app
+inAppVisibilityHelp | Les membres SeeU voient toujours votre nom, votre @pseudo et votre photo (comme dans la recherche). Vos amis voient aussi votre bio et vos événements « Entre amis ». | SeeU members always see your name, @username and picture (as in search). Your friends also see your bio and your “Friends” events.
+friendsSeeCity | Mes amis voient ma ville | My friends see my city
+friendsSeeCitySub | Pour vous suggérer l'un à l'autre quand vous passez dans la ville de l'autre. | So you're suggested to each other when visiting each other's city.
+previewMyProfile | Voir mon profil | See my profile
+cityLabel | Ville de résidence | City you live in
+cityHint | Rechercher une ville | Search a city
+cityHelp | Sert à vous suggérer qui voir quand vous voyagez. | Used to suggest who to see when you travel.
+bioLabel | Bio | Bio
+bioHint | Quelques mots sur vous | A few words about you
+contactCityLabel | Ville | City
+contactCityHelp | Là où cette personne habite : SeeU vous le rappellera quand vous irez par là. | Where this person lives: SeeU reminds you when you go there.
+livesIn | Habite à {city} | Lives in {city}
+userProfileTitle | Profil | Profile
+profileNotFound | Profil introuvable | Profile not found
+profileNotFoundMessage | Ce profil n'existe pas ou n'est plus disponible. | This profile doesn't exist or is no longer available.
+requestSentButton | Demande envoyée | Request sent
+acceptRequest | Accepter sa demande | Accept their request
+alreadyFriends | Vous êtes amis sur SeeU | You're friends on SeeU
+addToMyContacts | Ajouter à mes contacts | Add to my contacts
+seeContactCard | Voir sa fiche contact | See their contact card
+mutualFriends | {n, plural, =1{1 ami en commun} other{{n} amis en commun}} | {n, plural, =1{1 mutual friend} other{{n} mutual friends}}
+theirEvents | Prochains événements | Upcoming events
+noVisibleEvents | Aucun événement visible pour l'instant. | No visible events for now.
+thisIsYou | C'est votre profil, tel que vos amis le voient. | This is your profile, as your friends see it.
+editMyProfile | Modifier | Edit
+seeSeeuProfile | Voir son profil SeeU | See their SeeU profile
+roleOrganizer | Organise | Organizing
+roleGoing | Participe | Going
+report | Signaler | Report
+reportPerson | Signaler {name} | Report {name}
+reportEvent | Signaler l'événement | Report this event
+reportMessage | Signaler ce message | Report this message
+reportPhoto | Signaler cette photo | Report this photo
+reportSub | Votre signalement reste anonyme : la personne ne saura pas que c'est vous. | Your report stays anonymous: the person won't know it was you.
+reportReason | Motif | Reason
+reasonSpam | Spam ou publicité | Spam or advertising
+reasonHarassment | Harcèlement ou intimidation | Harassment or bullying
+reasonInappropriate | Contenu inapproprié | Inappropriate content
+reasonFakeProfile | Faux profil | Fake profile
+reasonOther | Autre | Other
+reportComment | Commentaire (facultatif) | Comment (optional)
+reportCommentHint | Ce qui s'est passé, en quelques mots | What happened, in a few words
+reportAlsoBlock | Bloquer aussi cette personne | Also block this person
+sendReport | Envoyer le signalement | Send report
+reportSent | Merci, notre équipe va examiner ce signalement. | Thank you, our team will review this report.
+bannedTitle | Compte suspendu | Account suspended
+bannedMessage | Ce compte SeeU a été suspendu pour non-respect des règles d'utilisation. Il ne peut plus être utilisé. | This SeeU account was suspended for breaking the rules of use. It can no longer be used.
+bannedHelp | Si vous pensez qu'il s'agit d'une erreur, contactez le support SeeU. | If you think this is a mistake, contact SeeU support.
+errAccountBanned | Ce compte a été suspendu. | This account has been suspended.
+errForbiddenField | Ce champ ne peut pas être modifié. | This field can't be changed.
+errTooManyReports | Trop de signalements aujourd'hui. Réessayez demain. | Too many reports today. Try again tomorrow.
+errReportTarget | Ce contenu n'existe plus ou n'est plus visible. | This content no longer exists or isn't visible anymore.
+errReportSelf | Vous ne pouvez pas vous signaler vous-même. | You can't report yourself.
+pendingProfileBanner | Créez votre compte (ou connectez-vous) pour retrouver @{username} sur SeeU. | Create your account (or sign in) to find @{username} on SeeU.
+pendingEventBanner | Créez votre compte (ou connectez-vous) pour voir cet événement. | Create your account (or sign in) to see this event.
+travelCardTitle | Vous pourriez les voir sur place | You could see them while there
+travelCardSub | Ils habitent près de ce lieu, loin de chez vous. | They live near this place, far from your home.
+travelRow | {city} · {km} km | {city} · {km} km
+travelFormHint | {name} habite à {city} : vous pourriez vous voir pendant votre séjour. | {name} lives in {city}: you could meet during your stay.
+travelFormHintMany | {name} et {n, plural, =1{1 autre personne} other{{n} autres personnes}} habitent dans le coin : de quoi se voir pendant votre séjour. | {name} and {n, plural, =1{1 other person} other{{n} other people}} live around there: a chance to meet during your stay.
+travelSetCity | Ajoutez votre ville de résidence (Réglages → Profil) pour savoir qui vous pourriez voir en voyage. | Add the city you live in (Settings → Profile) to see who you could meet when travelling.
+notifyTravel | Suggestions en voyage | Travel suggestions
+notifyTravelSub | Quelques jours avant un événement loin de chez vous : qui habite sur place. | A few days before an event far from home: who lives there.
+kindTravelNearby | Suggestion en voyage | Travel suggestion
+showOnProfile | Afficher sur mon profil public | Show on my public profile
+showOnProfileSub | Visible sur votre page publique (événements affichés : « Choisis »). | Shown on your public page (events shown: “Chosen”).
+showOnProfileSubOff | Votre profil public n'affiche pas d'événements pour l'instant : Réglages → Profil public et partage. | Your public profile shows no events for now: Settings → Public profile & sharing.
+showOnProfileSubAll | Tous vos événements publics sont déjà affichés sur votre profil public. | All your public events are already shown on your public profile.
+shareEvent | Partager l'événement | Share event
+shareEventText | {title} sur SeeU\n{link} | {title} on SeeU\n{link}
+shareEventFriendsHint | Le lien s'ouvre pour vos amis SeeU (événement « Entre amis »). | The link opens for your SeeU friends (“Friends” event).

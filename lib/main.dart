@@ -6,12 +6,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app.dart';
 import 'core/config.dart';
 import 'core/i18n.dart';
+import 'core/links.dart';
 import 'core/push.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
   await LanguageChoice.load();
+  await PendingLink.load();
   applyLanguage(LanguageChoice.initial ?? systemLanguage());
 
   // Without config the app still starts and the login screen explains what is missing.

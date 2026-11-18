@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/i18n.dart';
+import 'travel_hint.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../domain/dates.dart';
@@ -411,12 +412,16 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             LabeledField(
               label: tr.placeOptional,
               icon: LucideIcons.mapPin,
-              child: PlaceField(
-                controller: _location,
-                lat: _lat,
-                lng: _lng,
-                onPlace: (p) => setState(() => (_lat = p?.lat, _lng = p?.lng)),
-              ),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                PlaceField(
+                  controller: _location,
+                  lat: _lat,
+                  lng: _lng,
+                  onPlace: (p) => setState(() => (_lat = p?.lat, _lng = p?.lng)),
+                ),
+                // Far from home: who lives there ("you could see them during your stay")
+                if (_lat != null && _lng != null) TravelFormHint(lat: _lat!, lng: _lng!, eventId: widget.existing?.eventId),
+              ]),
             ),
             LabeledField(
               label: tr.linkLabel,

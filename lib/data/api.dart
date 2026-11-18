@@ -106,6 +106,23 @@ class Api {
     return res == true;
   }
 
+  /// Another user's page (or mine) as I may see it; null = not found / not visible.
+  Future<UserProfile?> getUserProfile(String username) async {
+    final res = await sb.rpc('get_user_profile', params: {'p_username': username});
+    return res == null ? null : UserProfile.fromJson(Map<String, dynamic>.from(res as Map));
+  }
+
+  /// What the public web page shows for this username (null: disabled / unknown).
+  Future<Map<String, dynamic>?> getPublicProfile(String username) async {
+    final res = await sb.rpc('get_public_profile', params: {'p_username': username});
+    return res == null ? null : Map<String, dynamic>.from(res as Map);
+  }
+
+  /// Activity for the statistics: a new session after 30 min without activity,
+  /// otherwise the current one is extended. Never blocks the user.
+  Future<void> touchSession(String platform, String version) =>
+      sb.rpc('touch_session', params: {'p_platform': platform, 'p_version': version});
+
   /* ------------------------------ Contacts ----------------------------- */
 
   Future<List<Contact>> listContacts() async {
@@ -328,6 +345,22 @@ class Api {
 
   Future<void> chooseSlot(String slotId) => sb.rpc('choose_event_slot', params: {'p_slot': slotId});
 
+  /// My public event shown (or not) on my public profile ("Choisis" mode).
+  Future<void> setShowOnProfile(String rdvId, bool show) =>
+      sb.from('rendezvous').update({'show_on_profile': show}).eq('id', rdvId);
+
+  /// Friends and contacts living near a place far from my home ("you could see…").
+  /// Empty when the server function isn't deployed yet.
+  Future<List<NearbyPerson>> peopleNear(double lat, double lng, {String? eventId}) async {
+    try {
+      final rows = await sb.rpc('people_near', params: {'p_lat': lat, 'p_lng': lng, 'p_event': eventId}) as List;
+      return rows.map((r) => NearbyPerson.fromJson(r as Map<String, dynamic>)).toList();
+    } on PostgrestException catch (e) {
+      if (e.code == 'PGRST202' || e.code == '42883') return const [];
+      rethrow;
+    }
+  }
+
   /* -------------------------------- Chat ------------------------------- */
 
   /// Latest messages first.
@@ -388,6 +421,19 @@ class Api {
   }
 
   Future<void> blockUser(String userId) => sb.rpc('block_user', params: {'p_user': userId});
+
+  /// Reports a person, or something of theirs (the most specific target wins:
+  /// message, photo, event). Anonymous for the reported person.
+  Future<void> report(ReportReason reason,
+          {String? comment, String? userId, String? eventId, String? photoId, String? messageId}) =>
+      sb.rpc('report_content', params: {
+        'p_reason': reason.value,
+        'p_comment': (comment == null || comment.trim().isEmpty) ? null : comment.trim(),
+        'p_user': userId,
+        'p_event': eventId,
+        'p_photo': photoId,
+        'p_message': messageId,
+      });
   Future<void> unblockUser(String userId) => sb.rpc('unblock_user', params: {'p_user': userId});
 
   Future<List<BlockedUser>> listBlocked() async {

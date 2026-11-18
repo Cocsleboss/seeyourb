@@ -125,10 +125,15 @@ class _EventChatState extends ConsumerState<EventChat> {
               }));
           if (ok != null && mounted) setState(() => _messages.removeWhere((x) => x.id == m.id));
         }, danger: true)
-      else
+      else ...[
+        ModerationAction(LucideIcons.flag, tr.reportMessage,
+            () => showReportSheet(context, ref, title: tr.reportMessage, messageId: m.id, userId: m.userId, name: m.authorName, onBlocked: () {
+                  if (mounted) _load();
+                })),
         ...personActions(context, ref, userId: m.userId, name: m.authorName, muted: false, onBlocked: () {
           if (mounted) _load();
         }),
+      ],
     ]);
     if (!mine && mounted) _load();
   }

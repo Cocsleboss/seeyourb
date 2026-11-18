@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'i18n.dart';
@@ -12,9 +13,27 @@ class AppException implements Exception {
   String toString() => message;
 }
 
+/// Set when the server says this account is suspended ("seeu:banned", or
+/// "user is banned" at sign-in): the session then shows the suspended screen.
+final accountBanned = ValueNotifier<bool>(false);
+
+/// True for the server's "this account is suspended" answers.
+bool isBannedError(Object error) {
+  final msg = switch (error) {
+    PostgrestException e => e.message,
+    AuthException e => '${e.message} ${e.code ?? ''}',
+    _ => error.toString(),
+  }.toLowerCase();
+  return msg.contains('seeu:banned') || msg.contains('user is banned') || msg.contains('user_banned');
+}
+
 /// Turns any error into a short message for toasts and error cards.
 String errorMessage(Object error) {
   if (error is AppException) return error.message;
+  if (isBannedError(error)) {
+    accountBanned.value = true;
+    return tr.errAccountBanned;
+  }
   if (error is AuthException) return translateAuthError(error.message);
   if (error is PostgrestException) return translateDbError(error.message);
   if (error is StorageException) return translateDbError(error.message);
@@ -69,6 +88,11 @@ String? _serverMessage(String msg) {
     'chat_read_only' => tr.errChatReadOnly,
     'photos_organizer_only' => tr.errPhotosOrganizerOnly,
     'not_participant' => tr.errNotParticipant,
+    'banned' => tr.errAccountBanned,
+    'forbidden_field' => tr.errForbiddenField,
+    'too_many_reports' => tr.errTooManyReports,
+    'report_target_not_found' => tr.errReportTarget,
+    'report_self' => tr.errReportSelf,
     null => null,
     _ => tr.errGeneric,
   };
@@ -91,6 +115,7 @@ String translateDbError(String msg) {
 
 String translateAuthError(String msg) {
   final m = msg.toLowerCase();
+  if (m.contains('banned')) return tr.errAccountBanned;
   if (m.contains('invalid login credentials') || m.contains('invalid_credentials')) return tr.errBadCredentials;
   if (m.contains('email not confirmed')) return tr.errEmailNotConfirmed;
   if (m.contains('already registered') || m.contains('already been registered') || m.contains('user_already_exists')) {

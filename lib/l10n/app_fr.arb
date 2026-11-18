@@ -1320,9 +1320,9 @@
   "contactsBroadcastHint": "Tous vos amis SeeU seront prévenus et pourront le rejoindre.",
   "publicPhotosHint": "Événement public : vous seul pourrez publier des annonces et des photos.",
   "publicReserved": "Réservé aux organisateurs vérifiés pour l'instant.",
-  "visPrivateHelp": "Seulement les amis que vous invitez.",
+  "visPrivateHelp": "Par défaut. Seulement les personnes que vous invitez ; jamais sur votre profil ni dans Explorer.",
   "visContactsHelp": "Tous vos amis SeeU le voient et peuvent le rejoindre.",
-  "visPublicHelp": "Tout le monde peut le voir et le rejoindre.",
+  "visPublicHelp": "Tout le monde peut le voir et le rejoindre sans invitation, y compris depuis votre profil public.",
   "slotsLabel": "Créneaux proposés",
   "slotsHint": "Chaque participant indique s'il est disponible ; vous choisissez ensuite le meilleur créneau.",
   "addSlot": "Ajouter un créneau",
@@ -1835,5 +1835,182 @@
   "freqNever": "Aucun rappel",
   "noReminderHelp": "Pas de rappel : ce contact n'apparaîtra jamais dans « Garder le contact ».",
   "addAsFriend": "Ajouter en ami SeeU",
-  "friendRequestSentShort": "Demande envoyée"
+  "friendRequestSentShort": "Demande envoyée",
+  "publicProfileTitle": "Profil public et partage",
+  "publicProfileRowSub": "Votre lien, ce que les autres voient, vos événements publics",
+  "myProfileLink": "Votre lien de profil",
+  "myProfileLinkHelp": "Partagez-le sur Instagram, WhatsApp, Messenger… Il ouvre votre profil dans SeeU, ou propose d'installer l'app.",
+  "copyLink": "Copier le lien",
+  "linkCopied": "Lien copié",
+  "showQrCode": "QR code",
+  "qrCodeTitle": "Votre QR code SeeU",
+  "qrCodeHelp": "Faites-le scanner : votre profil s'ouvre, prêt à vous ajouter en ami.",
+  "shareProfileText": "Retrouvez-moi sur SeeU : @{username}\n{link}",
+  "@shareProfileText": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "shareMyProfile": "Partager mon profil",
+  "publicProfileToggle": "Profil public",
+  "publicProfileToggleSub": "Une page web, visible par tous ceux qui ont le lien, avec seulement les informations choisies ci-dessous.",
+  "publicProfileOffInfo": "Désactivé : votre lien ouvre toujours SeeU, mais il n'y a pas de page publique.",
+  "publicFieldsTitle": "Informations visibles",
+  "publicFieldAvatar": "Photo de profil",
+  "publicFieldName": "Nom affiché",
+  "publicFieldCity": "Ville de résidence",
+  "publicFieldBio": "Bio",
+  "publicFieldsHelp": "Votre @pseudo est toujours visible : c'est l'adresse de la page. Votre e-mail et vos contacts ne le sont jamais.",
+  "publicEventsTitle": "Événements affichés",
+  "publicEventsNone": "Aucun",
+  "publicEventsSelected": "Choisis",
+  "publicEventsAll": "Tous",
+  "publicEventsHelp": "Seulement des événements publics (organisés ou rejoints). Les événements privés ou entre amis n'apparaissent jamais.",
+  "publicEventsPick": "Événements à afficher",
+  "noPublicEventsYet": "Aucun événement public à venir, organisé ou rejoint.",
+  "inAppVisibilityTitle": "Dans l'app",
+  "inAppVisibilityHelp": "Les membres SeeU voient toujours votre nom, votre @pseudo et votre photo (comme dans la recherche). Vos amis voient aussi votre bio et vos événements « Entre amis ».",
+  "friendsSeeCity": "Mes amis voient ma ville",
+  "friendsSeeCitySub": "Pour vous suggérer l'un à l'autre quand vous passez dans la ville de l'autre.",
+  "previewMyProfile": "Voir mon profil",
+  "cityLabel": "Ville de résidence",
+  "cityHint": "Rechercher une ville",
+  "cityHelp": "Sert à vous suggérer qui voir quand vous voyagez.",
+  "bioLabel": "Bio",
+  "bioHint": "Quelques mots sur vous",
+  "contactCityLabel": "Ville",
+  "contactCityHelp": "Là où cette personne habite : SeeU vous le rappellera quand vous irez par là.",
+  "livesIn": "Habite à {city}",
+  "@livesIn": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "userProfileTitle": "Profil",
+  "profileNotFound": "Profil introuvable",
+  "profileNotFoundMessage": "Ce profil n'existe pas ou n'est plus disponible.",
+  "requestSentButton": "Demande envoyée",
+  "acceptRequest": "Accepter sa demande",
+  "alreadyFriends": "Vous êtes amis sur SeeU",
+  "addToMyContacts": "Ajouter à mes contacts",
+  "seeContactCard": "Voir sa fiche contact",
+  "mutualFriends": "{n, plural, =1{1 ami en commun} other{{n} amis en commun}}",
+  "@mutualFriends": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "theirEvents": "Prochains événements",
+  "noVisibleEvents": "Aucun événement visible pour l'instant.",
+  "thisIsYou": "C'est votre profil, tel que vos amis le voient.",
+  "editMyProfile": "Modifier",
+  "seeSeeuProfile": "Voir son profil SeeU",
+  "roleOrganizer": "Organise",
+  "roleGoing": "Participe",
+  "report": "Signaler",
+  "reportPerson": "Signaler {name}",
+  "@reportPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportEvent": "Signaler l'événement",
+  "reportMessage": "Signaler ce message",
+  "reportPhoto": "Signaler cette photo",
+  "reportSub": "Votre signalement reste anonyme : la personne ne saura pas que c'est vous.",
+  "reportReason": "Motif",
+  "reasonSpam": "Spam ou publicité",
+  "reasonHarassment": "Harcèlement ou intimidation",
+  "reasonInappropriate": "Contenu inapproprié",
+  "reasonFakeProfile": "Faux profil",
+  "reasonOther": "Autre",
+  "reportComment": "Commentaire (facultatif)",
+  "reportCommentHint": "Ce qui s'est passé, en quelques mots",
+  "reportAlsoBlock": "Bloquer aussi cette personne",
+  "sendReport": "Envoyer le signalement",
+  "reportSent": "Merci, notre équipe va examiner ce signalement.",
+  "bannedTitle": "Compte suspendu",
+  "bannedMessage": "Ce compte SeeU a été suspendu pour non-respect des règles d'utilisation. Il ne peut plus être utilisé.",
+  "bannedHelp": "Si vous pensez qu'il s'agit d'une erreur, contactez le support SeeU.",
+  "errAccountBanned": "Ce compte a été suspendu.",
+  "errForbiddenField": "Ce champ ne peut pas être modifié.",
+  "errTooManyReports": "Trop de signalements aujourd'hui. Réessayez demain.",
+  "errReportTarget": "Ce contenu n'existe plus ou n'est plus visible.",
+  "errReportSelf": "Vous ne pouvez pas vous signaler vous-même.",
+  "pendingProfileBanner": "Créez votre compte (ou connectez-vous) pour retrouver @{username} sur SeeU.",
+  "@pendingProfileBanner": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "pendingEventBanner": "Créez votre compte (ou connectez-vous) pour voir cet événement.",
+  "travelCardTitle": "Vous pourriez les voir sur place",
+  "travelCardSub": "Ils habitent près de ce lieu, loin de chez vous.",
+  "travelRow": "{city} · {km} km",
+  "@travelRow": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "travelFormHint": "{name} habite à {city} : vous pourriez vous voir pendant votre séjour.",
+  "@travelFormHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "travelFormHintMany": "{name} et {n, plural, =1{1 autre personne} other{{n} autres personnes}} habitent dans le coin : de quoi se voir pendant votre séjour.",
+  "@travelFormHintMany": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "travelSetCity": "Ajoutez votre ville de résidence (Réglages → Profil) pour savoir qui vous pourriez voir en voyage.",
+  "notifyTravel": "Suggestions en voyage",
+  "notifyTravelSub": "Quelques jours avant un événement loin de chez vous : qui habite sur place.",
+  "kindTravelNearby": "Suggestion en voyage",
+  "showOnProfile": "Afficher sur mon profil public",
+  "showOnProfileSub": "Visible sur votre page publique (événements affichés : « Choisis »).",
+  "showOnProfileSubOff": "Votre profil public n'affiche pas d'événements pour l'instant : Réglages → Profil public et partage.",
+  "showOnProfileSubAll": "Tous vos événements publics sont déjà affichés sur votre profil public.",
+  "shareEvent": "Partager l'événement",
+  "shareEventText": "{title} sur SeeU\n{link}",
+  "@shareEventText": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "shareEventFriendsHint": "Le lien s'ouvre pour vos amis SeeU (événement « Entre amis »)."
 }

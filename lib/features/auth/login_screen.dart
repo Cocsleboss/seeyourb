@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/config.dart';
 import '../../core/errors.dart';
+import '../../core/links.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../domain/text.dart';
@@ -25,7 +26,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  _Mode _mode = _Mode.login;
+  /// Arriving from a shared link (profile, event): most likely a new user.
+  _Mode _mode = PendingLink.current == null ? _Mode.login : _Mode.signup;
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _name = TextEditingController();
@@ -46,6 +48,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   String get _cleanEmail => _email.text.trim().toLowerCase();
+
+  /// "Créez votre compte pour retrouver @andrea…" when a shared link is waiting.
+  String? _pendingBanner() => switch (PendingLink.current) {
+        LinkTarget(kind: LinkKind.profile || LinkKind.friendSearch, :final value) => tr.pendingProfileBanner(value),
+        LinkTarget(kind: LinkKind.event) => tr.pendingEventBanner,
+        null => null,
+      };
 
   bool get _valid => switch (_mode) {
         _Mode.login => isValidEmail(_cleanEmail) && _password.text.isNotEmpty,
@@ -133,6 +142,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: TextStyle(fontSize: 16, color: c.textMuted),
                   ),
                   const SizedBox(height: 28),
+                  if (_pendingBanner() case final text?) ...[
+                    InfoBox(
+                      child: Row(children: [
+                        Icon(LucideIcons.link, size: 18, color: c.brandText),
+                        const SizedBox(width: 10),
+                        Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
+                      ]),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                   if (!Config.isConfigured) _configMissing(c) else _sent != null ? _sentCard(c) : _form(c),
                 ],
               ),

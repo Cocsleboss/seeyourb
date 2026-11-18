@@ -28,6 +28,9 @@ import 'package:seeu/features/contacts/contact_form_screen.dart';
 import 'package:seeu/features/contacts/contacts_screen.dart';
 import 'package:seeu/features/events/event_preview_screen.dart';
 import 'package:seeu/features/history/calendar.dart';
+import 'package:seeu/features/misc/fallback_screens.dart';
+import 'package:seeu/features/profile/public_profile_settings_screen.dart';
+import 'package:seeu/features/profile/user_profile_screen.dart';
 import 'package:seeu/features/settings/moderation_screen.dart';
 import 'package:seeu/ui/scaffold.dart';
 import 'package:seeu/features/history/history_screen.dart';
@@ -41,7 +44,20 @@ import 'package:seeu/features/settings/settings_screen.dart';
 final now = DateTime(2026, 11, 14, 20, 15);
 DateTime d(int daysFromNow, [int h = 12, int m = 0]) => DateTime(now.year, now.month, now.day + daysFromNow, h, m);
 
-final me = Profile(id: 'me', email: 'arthur@example.com', displayName: 'Arthur', username: 'arthur', timezone: 'Europe/Brussels');
+final me = Profile(
+  id: 'me',
+  email: 'arthur@example.com',
+  displayName: 'Arthur',
+  username: 'arthur',
+  timezone: 'Europe/Brussels',
+  bio: 'Toujours partant pour un matcha.',
+  homeCity: 'Paris',
+  homeCountry: 'France',
+  homeLat: 48.8566,
+  homeLng: 2.3522,
+  publicProfile: true,
+  publicEvents: PublicEventsMode.selected,
+);
 
 Contact contact(String id, String name,
         {List<String> categories = const [], int? last = -10, int value = 1, FrequencyUnit unit = FrequencyUnit.months, bool seeSoon = false, String? linked, DateTime? birthday, String? phone}) =>
@@ -126,6 +142,42 @@ final events = {
   's': feedEvent('s', 'Soirée poker', org: 'me', orgName: 'Arthur', vis: EventVisibility.private, myRdv: 'r3', mine: true),
   'v': feedEvent('v', 'Week-end au ski', org: 'me', orgName: 'Arthur', slots: true, myRdv: 'r5', mine: true),
 };
+
+final userProfiles = {
+  'cocsi_bucci': UserProfile(
+    userId: 'u-andrea',
+    username: 'cocsi_bucci',
+    displayName: 'Cocsi_bucci',
+    bio: 'Brunchs, jeux de société et longues balades.',
+    city: 'Bruxelles',
+    country: 'Belgique',
+    relation: ProfileRelation.friends,
+    friendshipId: 'f1',
+    contactId: 'andrea',
+    mutualFriends: 3,
+    events: [
+      ProfileEvent(id: 't', title: 'Brunch', startsAt: d(6, 11), visibility: EventVisibility.contacts, going: 3, isOrganizer: true, myRdvId: 'r4', myRsvp: Rsvp.pending),
+      ProfileEvent(id: 'w', title: 'Concert jazz au parc', location: 'Parc de Bruxelles', startsAt: d(12, 20), going: 120, organizerName: 'Brussels Jazz'),
+    ],
+  ),
+  'lea.m': UserProfile(
+    userId: 'u-lea',
+    username: 'lea.m',
+    displayName: 'Léa',
+    relation: ProfileRelation.none,
+    mutualFriends: 1,
+    publicProfile: true,
+    events: [ProfileEvent(id: 'p2', title: 'Marché de Noël solidaire', location: 'Place Flagey', startsAt: d(20, 19), going: 48, organizerName: 'Asbl Entraide')],
+  ),
+  'bob': UserProfile(userId: 'u-bob', username: 'bob', displayName: 'Bob', relation: ProfileRelation.received, friendshipId: 'f2'),
+  'arthur': UserProfile(
+      userId: 'me', username: 'arthur', displayName: 'Arthur', bio: 'Toujours partant pour un matcha.', city: 'Paris', country: 'France', relation: ProfileRelation.self),
+};
+
+final nearby = [
+  NearbyPerson(isFriend: true, userId: 'u-tom', username: 'tom', name: 'Tom', city: 'Bruxelles', km: 2),
+  NearbyPerson(isFriend: false, contactId: 'marie', name: 'Marie Dupont', city: 'Ixelles', km: 4),
+];
 
 final participants = [
   Participant(userId: 'me', name: 'Arthur', username: 'arthur', role: 'organizer'),
@@ -242,6 +294,9 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
     GoRoute(path: '/event/:id', builder: (_, s) => EventPreviewScreen(id: s.pathParameters['id']!)),
     GoRoute(path: '/settings/moderation', builder: (_, _) => const ModerationScreen()),
     GoRoute(path: '/rdv/:id', builder: (_, s) => RdvDetailScreen(id: s.pathParameters['id']!)),
+    GoRoute(path: '/u/:username', builder: (_, s) => UserProfileScreen(username: s.pathParameters['username']!)),
+    GoRoute(path: '/settings/public-profile', builder: (_, _) => const PublicProfileSettingsScreen()),
+    GoRoute(path: '/banned', builder: (_, _) => const BannedScreen()),
     ...extra,
   ]);
   final colors = brightness == Brightness.dark ? AppColors.dark : AppColors.light;
@@ -278,6 +333,8 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
           ]),
       blockedProvider.overrideWith((ref) async => [BlockedUser(userId: 'u-y', name: 'Spammeur', username: 'spam42')]),
       avatarUrlProvider.overrideWith((ref, id) async => null),
+      userProfileProvider.overrideWith((ref, username) async => userProfiles[username]),
+      peopleNearProvider.overrideWith((ref, k) async => nearby),
       mapsEnabledProvider.overrideWithValue(false),
       apiProvider.overrideWithValue(fakeApi),
       ...overrides,
@@ -338,6 +395,15 @@ void main() {
     'settings': ('/settings', const []),
     'moderation': ('/settings/moderation', const []),
     'login': ('/login', const []),
+    'user_profile_friend': ('/u/cocsi_bucci', const []),
+    'user_profile_stranger': ('/u/lea.m', const []),
+    'user_profile_request': ('/u/bob', const []),
+    'user_profile_me': ('/u/arthur', const []),
+    'user_profile_missing': ('/u/nobody', const []),
+    'public_profile_settings': ('/settings/public-profile', const []),
+    'public_profile_settings_tall': ('/settings/public-profile', const []),
+    'banned': ('/banned', const []),
+    'event_preview_participants_tall': ('/event/e2', const []),
   };
 
   testWidgets('agenda: proposed slots show under their day, with or without a picked day', (tester) async {

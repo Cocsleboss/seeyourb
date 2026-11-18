@@ -205,7 +205,7 @@ class _Body extends ConsumerWidget {
         _FriendSection(contact: contact),
 
         // 4. Information
-        if (contact.phone != null || contact.email != null || contact.notes != null || contact.birthday != null) ...[
+        if (contact.phone != null || contact.email != null || contact.notes != null || contact.birthday != null || contact.cityLabel != null) ...[
           SectionTitle(tr.information),
           AppCard(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -218,6 +218,7 @@ class _Body extends ConsumerWidget {
               if (contact.email != null)
                 _InfoAction(icon: LucideIcons.mail, text: contact.email!, onTap: () => launchUrl(Uri(scheme: 'mailto', path: contact.email))),
               if (contact.birthday != null) _InfoAction(icon: LucideIcons.cake, text: tr.bornOn(formatDateLong(contact.birthday!))),
+              if (contact.cityLabel != null) _InfoAction(icon: LucideIcons.mapPin, text: tr.livesIn(contact.cityLabel!)),
               if (contact.notes != null) _InfoAction(icon: LucideIcons.stickyNote, text: contact.notes!),
             ]),
           ),
@@ -347,6 +348,15 @@ class _FriendSectionState extends ConsumerState<_FriendSection> {
           const SizedBox(height: 4),
           Text(tr.friendCanShare,
               style: TextStyle(color: c.textMuted, fontSize: 13.5)),
+          if (friend?.username != null) ...[
+            const SizedBox(height: 10),
+            AppButton(tr.seeSeeuProfile,
+                icon: LucideIcons.circleUser,
+                variant: ButtonVariant.secondary,
+                size: ButtonSize.sm,
+                full: true,
+                onPressed: () => context.push('/u/${friend!.username}')),
+          ],
           const SizedBox(height: 12),
           Row(children: [
             Expanded(

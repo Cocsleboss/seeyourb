@@ -36,9 +36,9 @@ shareSlotsHelp | Vos amis reçoivent les créneaux et indiquent leurs disponibil
 contactsBroadcastHint | Tous vos amis SeeU seront prévenus et pourront le rejoindre. | All your SeeU friends will be notified and can join.
 publicPhotosHint | Événement public : vous seul pourrez publier des annonces et des photos. | Public event: only you can post announcements and photos.
 publicReserved | Réservé aux organisateurs vérifiés pour l'instant. | Only for verified organizers for now.
-visPrivateHelp | Seulement les amis que vous invitez. | Only the friends you invite.
+visPrivateHelp | Par défaut. Seulement les personnes que vous invitez ; jamais sur votre profil ni dans Explorer. | Default. Only the people you invite; never on your profile or in Explore.
 visContactsHelp | Tous vos amis SeeU le voient et peuvent le rejoindre. | All your SeeU friends see it and can join.
-visPublicHelp | Tout le monde peut le voir et le rejoindre. | Anyone can see and join it.
+visPublicHelp | Tout le monde peut le voir et le rejoindre sans invitation, y compris depuis votre profil public. | Anyone can see and join it without an invitation, including from your public profile.
 slotsLabel | Créneaux proposés | Suggested timeslots
 slotsHint | Chaque participant indique s'il est disponible ; vous choisissez ensuite le meilleur créneau. | Each participant says if they're available; then you pick the best timeslot.
 addSlot | Ajouter un créneau | Add a timeslot

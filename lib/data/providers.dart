@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/errors.dart';
 import '../core/i18n.dart';
 import '../domain/models.dart';
 import 'api.dart';
@@ -29,7 +30,15 @@ class SessionController extends ChangeNotifier {
       if (data.event == AuthChangeEvent.passwordRecovery) passwordRecovery = true;
       _onSession(data.session);
     }, onError: (Object e) => debugPrint('auth: $e'));
+    accountBanned.addListener(_onBanned);
     _onSession(_sb.auth.currentSession);
+  }
+
+  void _onBanned() {
+    if (accountBanned.value && signedIn && !banned) {
+      banned = true;
+      notifyListeners();
+    }
   }
 
   final SupabaseClient _sb;
@@ -44,6 +53,10 @@ class SessionController extends ChangeNotifier {
   /// Opened from a password-reset email: show the "Nouveau mot de passe" screen.
   bool passwordRecovery = false;
 
+  /// The server refused this account (suspended by a moderator).
+  bool banned = false;
+  bool get isBanned => signedIn && (banned || profile?.bannedAt != null);
+
   String? get userId => session?.user.id;
   bool get signedIn => session != null;
   bool get needsUsername => signedIn && profile != null && (profile!.username == null || profile!.username!.isEmpty);
@@ -57,6 +70,8 @@ class SessionController extends ChangeNotifier {
       profile = null;
       _loadedFor = null;
       passwordRecovery = false;
+      banned = false;
+      accountBanned.value = false;
       notifyListeners();
       return;
     }
@@ -78,6 +93,7 @@ class SessionController extends ChangeNotifier {
       _loadedFor = id;
     } catch (e) {
       profileError = e;
+      if (isBannedError(e)) banned = true;
     } finally {
       profileLoading = false;
       notifyListeners();
@@ -108,6 +124,7 @@ class SessionController extends ChangeNotifier {
 
   @override
   void dispose() {
+    accountBanned.removeListener(_onBanned);
     _sub.cancel();
     super.dispose();
   }
@@ -209,6 +226,13 @@ final canCreatePublicProvider = FutureProvider<bool>((ref) => _api(ref).canCreat
 final mutesProvider = FutureProvider<List<MuteEntry>>((ref) => _api(ref).listMutes());
 final blockedProvider = FutureProvider<List<BlockedUser>>((ref) => _api(ref).listBlocked());
 
+/// Someone's profile page (/u/:username); null = not found / not visible to me.
+final userProfileProvider = FutureProvider.family<UserProfile?, String>((ref, username) => _api(ref).getUserProfile(username));
+
+/// "You could see them while there": people living near a place far from my home.
+final peopleNearProvider = FutureProvider.family<List<NearbyPerson>, ({double lat, double lng, String? eventId})>(
+    (ref, k) => _api(ref).peopleNear(k.lat, k.lng, eventId: k.eventId));
+
 /// Signed URL of a private photo (valid 1 h, cached ~50 min).
 final signedUrlProvider = FutureProvider.family<String, String>((ref, path) async {
   final link = ref.keepAlive();
@@ -273,6 +297,8 @@ void refreshData(WidgetRef ref) {
   ref.invalidate(mutesProvider);
   ref.invalidate(blockedProvider);
   ref.invalidate(avatarUrlProvider);
+  ref.invalidate(userProfileProvider);
+  ref.invalidate(peopleNearProvider);
 }
 
 void refreshDataFromContainer(ProviderContainer c) {
@@ -295,4 +321,6 @@ void refreshDataFromContainer(ProviderContainer c) {
   c.invalidate(eventGuestsProvider);
   c.invalidate(slotsProvider);
   c.invalidate(chatPreviewProvider);
+  c.invalidate(userProfileProvider);
+  c.invalidate(peopleNearProvider);
 }

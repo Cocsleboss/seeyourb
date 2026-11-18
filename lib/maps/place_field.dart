@@ -13,7 +13,11 @@ import '../ui/kit.dart';
 import 'maps.dart';
 
 class PlaceField extends ConsumerStatefulWidget {
-  const PlaceField({super.key, required this.controller, required this.lat, required this.lng, required this.onPlace, this.hint});
+  const PlaceField(
+      {super.key, required this.controller, required this.lat, required this.lng, required this.onPlace, this.hint, this.cities = false});
+
+  /// City of residence: towns only, no "chez moi / visio" shortcuts, small map.
+  final bool cities;
   final TextEditingController controller;
   final double? lat;
   final double? lng;
@@ -42,7 +46,7 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
   void _onChanged(String v) {
     if (widget.lat != null) widget.onPlace(null);
     _debounce?.cancel();
-    if (v.trim().length < 3) {
+    if (v.trim().length < (widget.cities ? 2 : 3)) {
       setState(() {
         _results = const [];
         _searching = false;
@@ -55,7 +59,7 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
     _debounce = Timer(const Duration(milliseconds: 450), () async {
       try {
         final near = await ref.read(searchBiasProvider.future).catchError((_) => null);
-        final r = await ref.read(placeSearchProvider).search(v, lang: lang, near: near);
+        final r = await ref.read(placeSearchProvider).search(v, lang: lang, near: near, cities: widget.cities);
         if (mounted && seq == _seq) setState(() => (_results = r, _failed = false));
       } catch (_) {
         if (mounted && seq == _seq) setState(() => (_results = const [], _failed = true));
@@ -132,7 +136,7 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
             : null,
       ),
       // Places that aren't addresses: one tap.
-      if (widget.controller.text.isEmpty)
+      if (widget.controller.text.isEmpty && !widget.cities)
         Padding(
           padding: const EdgeInsets.only(top: 8),
           child: Wrap(spacing: 6, runSpacing: 6, children: [
@@ -192,7 +196,7 @@ class _PlaceFieldState extends ConsumerState<PlaceField> {
         ),
       if (picked) ...[
         const SizedBox(height: 8),
-        PlaceMapCard(lat: widget.lat!, lng: widget.lng!, label: widget.controller.text, height: 130),
+        PlaceMapCard(lat: widget.lat!, lng: widget.lng!, label: widget.controller.text, height: widget.cities ? 100 : 130),
       ],
     ]);
   }

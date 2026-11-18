@@ -26,11 +26,12 @@ import '../../ui/kit.dart';
 import '../../ui/scaffold.dart';
 import '../auth/username_field.dart';
 import 'my_avatar.dart';
-import '../friends/friend_sheets.dart';
+import '../profile/share_profile.dart';
 import '../home/push_banner.dart';
 import '../../core/i18n.dart';
 import '../../ads/ads.dart';
 import '../../ui/language.dart';
+import '../../maps/place_field.dart';
 
 String kindLabel(String kind) => switch (kind) {
       'due_digest' => tr.kindDueDigest,
@@ -48,6 +49,7 @@ String kindLabel(String kind) => switch (kind) {
       'event_join' => tr.kindEventJoin,
       'event_message' => tr.kindEventMessage,
       'event_announcement' => tr.kindEventAnnouncement,
+      'travel_nearby' => tr.kindTravelNearby,
       _ => kind,
     };
 
@@ -100,6 +102,11 @@ class _ProfileSection extends ConsumerStatefulWidget {
 class _ProfileSectionState extends ConsumerState<_ProfileSection> {
   late final _name = TextEditingController(text: widget.profile.displayName ?? '');
   late final _username = TextEditingController(text: widget.profile.username ?? '');
+  late final _bio = TextEditingController(text: widget.profile.bio ?? '');
+  late final _city = TextEditingController(text: widget.profile.homeCity ?? '');
+  late String? _country = widget.profile.homeCountry;
+  late double? _lat = widget.profile.homeLat;
+  late double? _lng = widget.profile.homeLng;
   late DateTime? _birthday = widget.profile.birthday;
   UsernameStatus _status = UsernameStatus.available;
   bool _busy = false;
@@ -108,13 +115,18 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
   void dispose() {
     _name.dispose();
     _username.dispose();
+    _bio.dispose();
+    _city.dispose();
     super.dispose();
   }
 
   bool get _changed =>
       _name.text.trim() != (widget.profile.displayName ?? '') ||
       _username.text != (widget.profile.username ?? '') ||
-      _birthday != widget.profile.birthday;
+      _birthday != widget.profile.birthday ||
+      _bio.text.trim() != (widget.profile.bio ?? '') ||
+      _city.text.trim() != (widget.profile.homeCity ?? '') ||
+      _lat != widget.profile.homeLat;
 
   bool get _valid => _name.text.trim().isNotEmpty && _status == UsernameStatus.available;
 
@@ -125,6 +137,11 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
         'display_name': _name.text.trim(),
         if (widget.profile.username == null) 'username': _username.text,
         'birthday': _birthday == null ? null : dayIso(_birthday!),
+        'bio': _bio.text.trim().isEmpty ? null : _bio.text.trim(),
+        'home_city': _city.text.trim().isEmpty ? null : _city.text.trim(),
+        'home_country': _city.text.trim().isEmpty ? null : _country,
+        'home_lat': _city.text.trim().isEmpty ? null : _lat,
+        'home_lng': _city.text.trim().isEmpty ? null : _lng,
       }),
       success: tr.profileUpdated,
     );
@@ -161,11 +178,41 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
             hint: tr.birthDateFriendsHint,
             child: DateField(value: _birthday, last: today(), clearable: true, onChanged: (d) => setState(() => _birthday = d)),
           ),
+          LabeledField(
+            label: tr.cityLabel,
+            hint: tr.cityHelp,
+            child: PlaceField(
+              cities: true,
+              controller: _city,
+              lat: _lat,
+              lng: _lng,
+              hint: tr.cityHint,
+              onPlace: (r) => setState(() {
+                _lat = r?.lat;
+                _lng = r?.lng;
+                _country = r?.country;
+                if (r?.city != null) _city.text = r!.city!;
+              }),
+            ),
+          ),
+          LabeledField(
+            label: tr.bioLabel,
+            child: AppTextField(controller: _bio, hint: tr.bioHint, maxLines: 3, maxLength: 300, onChanged: (_) => setState(() {})),
+          ),
           AppButton(tr.save, full: true, loading: _busy, onPressed: _changed && _valid ? _save : null),
           if (p.username != null) ...[
             const SizedBox(height: 10),
-            AppButton(tr.shareMyHandle,
-                icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareMyHandle(p.username!)),
+            AppButton(tr.shareMyProfile,
+                icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareProfile(p.username!)),
+            const SizedBox(height: 10),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+              leading: Icon(LucideIcons.globe, color: context.colors.brandText),
+              title: Text(tr.publicProfileTitle, style: TextStyle(fontWeight: FontWeight.w600, color: context.colors.text)),
+              subtitle: Text(tr.publicProfileRowSub, style: TextStyle(color: context.colors.textMuted, fontSize: 13.5)),
+              trailing: Icon(LucideIcons.chevronRight, color: context.colors.textMuted),
+              onTap: () => context.push('/settings/public-profile'),
+            ),
           ],
           const SizedBox(height: 16),
           _ReadOnly(label: tr.timezone, value: p.timezone, hint: tr.timezoneHint),
@@ -290,6 +337,12 @@ class _NotificationSectionState extends ConsumerState<_NotificationSection> {
             subtitle: tr.emailRemindersSub,
             value: p.notifyEmail,
             onChanged: (v) => _set('notify_email', v),
+          ),
+          ToggleRow(
+            title: tr.notifyTravel,
+            subtitle: tr.notifyTravelSub,
+            value: p.notifyTravel,
+            onChanged: (v) => _set('notify_travel', v),
           ),
           const SizedBox(height: 12),
           LabeledField(

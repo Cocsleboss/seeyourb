@@ -11,6 +11,7 @@ import '../../domain/models.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
 import '../../core/i18n.dart';
+import '../events/moderation.dart';
 
 /// Picks images resized to 1600 px max (long side) at ~80 % JPEG quality.
 Future<List<XFile>> pickPhotos(BuildContext context, {bool multiple = true}) async {
@@ -200,6 +201,19 @@ class _PhotoViewerState extends ConsumerState<PhotoViewer> {
               ),
               if (mine)
                 IconButton(tooltip: tr.delete, onPressed: _delete, icon: const Icon(LucideIcons.trash2, color: Colors.white, size: 24))
+              else if (_photos.isNotEmpty)
+                IconButton(
+                  tooltip: tr.reportPhoto,
+                  onPressed: () {
+                    final photo = _photos[_index];
+                    showReportSheet(context, ref,
+                        title: tr.reportPhoto,
+                        photoId: photo.id,
+                        userId: photo.userId,
+                        name: photoAuthorName(ref, photo, eventId: widget.eventId));
+                  },
+                  icon: const Icon(LucideIcons.flag, color: Colors.white, size: 22),
+                )
               else
                 const SizedBox(width: 48),
             ]),

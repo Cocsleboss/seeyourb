@@ -23,6 +23,8 @@ import '../photos/photo_section.dart';
 import '../../maps/maps.dart';
 import 'people_section.dart';
 import 'status_actions.dart';
+import 'travel_hint.dart';
+import '../profile/share_profile.dart';
 import '../events/chat.dart';
 import '../events/event_widgets.dart';
 import '../events/moderation.dart';
@@ -67,12 +69,19 @@ class RdvDetailScreen extends ConsumerWidget {
             icon: LucideIcons.ellipsis,
             tooltip: tr.moreActions,
             onPressed: () => showModerationSheet(context, title: rdv.displayTitle, actions: [
+              // a link others can open: public events, and "friends" ones for the organizer's friends
+              if (rdv.visibility != EventVisibility.private && rdv.status != RdvStatus.annule)
+                ModerationAction(LucideIcons.share2, tr.shareEvent, () => shareEvent(event.id, rdv.displayTitle)),
               event.mutedEvent
                   ? ModerationAction(LucideIcons.bell, tr.unmuteEvent, () => setEventMuted(ref, event.id, false))
                   : ModerationAction(LucideIcons.bellOff, tr.muteEvent, () => setEventMuted(ref, event.id, true)),
-              if (!rdv.isOrganizer)
+              if (!rdv.isOrganizer) ...[
+                ModerationAction(LucideIcons.flag, tr.reportEvent,
+                    () => showReportSheet(context, ref, title: tr.reportEvent, eventId: event.id, userId: event.organizerId, name: event.organizerName,
+                        onBlocked: () => leavePage(context))),
                 ...personActions(context, ref,
                     userId: event.organizerId, name: event.organizerName, muted: event.mutedOrganizer, onBlocked: () => leavePage(context)),
+              ],
             ]),
           ),
       ],
@@ -249,11 +258,16 @@ class _Body extends ConsumerWidget {
             ],
             if (event != null && !rdv.isOrganizer) ...[
               const SizedBox(height: 10),
-              Row(children: [
-                Avatar(name: event.organizerName, size: 24, userId: event.organizerId),
-                const SizedBox(width: 8),
-                Expanded(child: Text(tr.organizedBy(event.organizerName), style: TextStyle(fontSize: 15, color: c.text))),
-              ]),
+              InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: event.organizerUsername == null ? null : () => context.push('/u/${event.organizerUsername}'),
+                child: Row(children: [
+                  Avatar(name: event.organizerName, size: 24, userId: event.organizerId),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(tr.organizedBy(event.organizerName), style: TextStyle(fontSize: 15, color: c.text))),
+                  if (event.organizerUsername != null) Icon(LucideIcons.chevronRight, size: 18, color: c.textMuted),
+                ]),
+              ),
             ],
             if (rdv.event?.description != null) ...[
               const SizedBox(height: 10),
@@ -269,6 +283,13 @@ class _Body extends ConsumerWidget {
             ],
           ]),
         ),
+
+        // 2a. Far from home: who lives there
+        TravelHintCard(rdv: rdv),
+
+        // 2a'. My public event on my public profile
+        if (public && rdv.eventId != null && rdv.status == RdvStatus.planifie && (rdv.rsvp == null || rdv.rsvp == Rsvp.accepted))
+          _ShowOnProfileRow(rdv: rdv),
 
         // 2b. Timeslot poll
         if (rdv.slotsOpen && rdv.eventId != null)
@@ -392,6 +413,53 @@ class _RsvpCardState extends ConsumerState<_RsvpCard> {
 
 
 /// "Mes notes (personnel)": only for me, editable in place.
+class _ShowOnProfileRow extends ConsumerStatefulWidget {
+  const _ShowOnProfileRow({required this.rdv});
+  final Rendezvous rdv;
+  @override
+  ConsumerState<_ShowOnProfileRow> createState() => _ShowOnProfileRowState();
+}
+
+class _ShowOnProfileRowState extends ConsumerState<_ShowOnProfileRow> {
+  late bool _value = widget.rdv.showOnProfile;
+
+  Future<void> _set(bool v) async {
+    setState(() => _value = v);
+    final ok = await guard(() async {
+      await ref.read(apiProvider).setShowOnProfile(widget.rdv.id, v);
+      return true;
+    });
+    if (!mounted) return;
+    if (ok == null) {
+      setState(() => _value = !v);
+    } else {
+      ref.invalidate(plannedRdvProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final me = ref.watch(profileProvider);
+    final mode = (me?.publicProfile ?? false) ? (me?.publicEvents ?? PublicEventsMode.none) : PublicEventsMode.none;
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: AppCard(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: ToggleRow(
+          title: tr.showOnProfile,
+          subtitle: switch (mode) {
+            PublicEventsMode.all => tr.showOnProfileSubAll,
+            PublicEventsMode.selected => tr.showOnProfileSub,
+            PublicEventsMode.none => tr.showOnProfileSubOff,
+          },
+          value: mode == PublicEventsMode.all || _value,
+          onChanged: mode == PublicEventsMode.all ? null : _set,
+        ),
+      ),
+    );
+  }
+}
+
 class _NotesSection extends ConsumerWidget {
   const _NotesSection({required this.rdv});
   final Rendezvous rdv;

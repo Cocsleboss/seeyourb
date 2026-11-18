@@ -2309,14 +2309,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Réservé aux organisateurs vérifiés pour l\'instant.';
 
   @override
-  String get visPrivateHelp => 'Seulement les amis que vous invitez.';
+  String get visPrivateHelp =>
+      'Par défaut. Seulement les personnes que vous invitez ; jamais sur votre profil ni dans Explorer.';
 
   @override
   String get visContactsHelp =>
       'Tous vos amis SeeU le voient et peuvent le rejoindre.';
 
   @override
-  String get visPublicHelp => 'Tout le monde peut le voir et le rejoindre.';
+  String get visPublicHelp =>
+      'Tout le monde peut le voir et le rejoindre sans invitation, y compris depuis votre profil public.';
 
   @override
   String get slotsLabel => 'Créneaux proposés';
@@ -3229,4 +3231,356 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get friendRequestSentShort => 'Demande envoyée';
+
+  @override
+  String get publicProfileTitle => 'Profil public et partage';
+
+  @override
+  String get publicProfileRowSub =>
+      'Votre lien, ce que les autres voient, vos événements publics';
+
+  @override
+  String get myProfileLink => 'Votre lien de profil';
+
+  @override
+  String get myProfileLinkHelp =>
+      'Partagez-le sur Instagram, WhatsApp, Messenger… Il ouvre votre profil dans SeeU, ou propose d\'installer l\'app.';
+
+  @override
+  String get copyLink => 'Copier le lien';
+
+  @override
+  String get linkCopied => 'Lien copié';
+
+  @override
+  String get showQrCode => 'QR code';
+
+  @override
+  String get qrCodeTitle => 'Votre QR code SeeU';
+
+  @override
+  String get qrCodeHelp =>
+      'Faites-le scanner : votre profil s\'ouvre, prêt à vous ajouter en ami.';
+
+  @override
+  String shareProfileText(String username, String link) {
+    return 'Retrouvez-moi sur SeeU : @$username\n$link';
+  }
+
+  @override
+  String get shareMyProfile => 'Partager mon profil';
+
+  @override
+  String get publicProfileToggle => 'Profil public';
+
+  @override
+  String get publicProfileToggleSub =>
+      'Une page web, visible par tous ceux qui ont le lien, avec seulement les informations choisies ci-dessous.';
+
+  @override
+  String get publicProfileOffInfo =>
+      'Désactivé : votre lien ouvre toujours SeeU, mais il n\'y a pas de page publique.';
+
+  @override
+  String get publicFieldsTitle => 'Informations visibles';
+
+  @override
+  String get publicFieldAvatar => 'Photo de profil';
+
+  @override
+  String get publicFieldName => 'Nom affiché';
+
+  @override
+  String get publicFieldCity => 'Ville de résidence';
+
+  @override
+  String get publicFieldBio => 'Bio';
+
+  @override
+  String get publicFieldsHelp =>
+      'Votre @pseudo est toujours visible : c\'est l\'adresse de la page. Votre e-mail et vos contacts ne le sont jamais.';
+
+  @override
+  String get publicEventsTitle => 'Événements affichés';
+
+  @override
+  String get publicEventsNone => 'Aucun';
+
+  @override
+  String get publicEventsSelected => 'Choisis';
+
+  @override
+  String get publicEventsAll => 'Tous';
+
+  @override
+  String get publicEventsHelp =>
+      'Seulement des événements publics (organisés ou rejoints). Les événements privés ou entre amis n\'apparaissent jamais.';
+
+  @override
+  String get publicEventsPick => 'Événements à afficher';
+
+  @override
+  String get noPublicEventsYet =>
+      'Aucun événement public à venir, organisé ou rejoint.';
+
+  @override
+  String get inAppVisibilityTitle => 'Dans l\'app';
+
+  @override
+  String get inAppVisibilityHelp =>
+      'Les membres SeeU voient toujours votre nom, votre @pseudo et votre photo (comme dans la recherche). Vos amis voient aussi votre bio et vos événements « Entre amis ».';
+
+  @override
+  String get friendsSeeCity => 'Mes amis voient ma ville';
+
+  @override
+  String get friendsSeeCitySub =>
+      'Pour vous suggérer l\'un à l\'autre quand vous passez dans la ville de l\'autre.';
+
+  @override
+  String get previewMyProfile => 'Voir mon profil';
+
+  @override
+  String get cityLabel => 'Ville de résidence';
+
+  @override
+  String get cityHint => 'Rechercher une ville';
+
+  @override
+  String get cityHelp => 'Sert à vous suggérer qui voir quand vous voyagez.';
+
+  @override
+  String get bioLabel => 'Bio';
+
+  @override
+  String get bioHint => 'Quelques mots sur vous';
+
+  @override
+  String get contactCityLabel => 'Ville';
+
+  @override
+  String get contactCityHelp =>
+      'Là où cette personne habite : SeeU vous le rappellera quand vous irez par là.';
+
+  @override
+  String livesIn(String city) {
+    return 'Habite à $city';
+  }
+
+  @override
+  String get userProfileTitle => 'Profil';
+
+  @override
+  String get profileNotFound => 'Profil introuvable';
+
+  @override
+  String get profileNotFoundMessage =>
+      'Ce profil n\'existe pas ou n\'est plus disponible.';
+
+  @override
+  String get requestSentButton => 'Demande envoyée';
+
+  @override
+  String get acceptRequest => 'Accepter sa demande';
+
+  @override
+  String get alreadyFriends => 'Vous êtes amis sur SeeU';
+
+  @override
+  String get addToMyContacts => 'Ajouter à mes contacts';
+
+  @override
+  String get seeContactCard => 'Voir sa fiche contact';
+
+  @override
+  String mutualFriends(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n amis en commun',
+      one: '1 ami en commun',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get theirEvents => 'Prochains événements';
+
+  @override
+  String get noVisibleEvents => 'Aucun événement visible pour l\'instant.';
+
+  @override
+  String get thisIsYou => 'C\'est votre profil, tel que vos amis le voient.';
+
+  @override
+  String get editMyProfile => 'Modifier';
+
+  @override
+  String get seeSeeuProfile => 'Voir son profil SeeU';
+
+  @override
+  String get roleOrganizer => 'Organise';
+
+  @override
+  String get roleGoing => 'Participe';
+
+  @override
+  String get report => 'Signaler';
+
+  @override
+  String reportPerson(String name) {
+    return 'Signaler $name';
+  }
+
+  @override
+  String get reportEvent => 'Signaler l\'événement';
+
+  @override
+  String get reportMessage => 'Signaler ce message';
+
+  @override
+  String get reportPhoto => 'Signaler cette photo';
+
+  @override
+  String get reportSub =>
+      'Votre signalement reste anonyme : la personne ne saura pas que c\'est vous.';
+
+  @override
+  String get reportReason => 'Motif';
+
+  @override
+  String get reasonSpam => 'Spam ou publicité';
+
+  @override
+  String get reasonHarassment => 'Harcèlement ou intimidation';
+
+  @override
+  String get reasonInappropriate => 'Contenu inapproprié';
+
+  @override
+  String get reasonFakeProfile => 'Faux profil';
+
+  @override
+  String get reasonOther => 'Autre';
+
+  @override
+  String get reportComment => 'Commentaire (facultatif)';
+
+  @override
+  String get reportCommentHint => 'Ce qui s\'est passé, en quelques mots';
+
+  @override
+  String get reportAlsoBlock => 'Bloquer aussi cette personne';
+
+  @override
+  String get sendReport => 'Envoyer le signalement';
+
+  @override
+  String get reportSent => 'Merci, notre équipe va examiner ce signalement.';
+
+  @override
+  String get bannedTitle => 'Compte suspendu';
+
+  @override
+  String get bannedMessage =>
+      'Ce compte SeeU a été suspendu pour non-respect des règles d\'utilisation. Il ne peut plus être utilisé.';
+
+  @override
+  String get bannedHelp =>
+      'Si vous pensez qu\'il s\'agit d\'une erreur, contactez le support SeeU.';
+
+  @override
+  String get errAccountBanned => 'Ce compte a été suspendu.';
+
+  @override
+  String get errForbiddenField => 'Ce champ ne peut pas être modifié.';
+
+  @override
+  String get errTooManyReports =>
+      'Trop de signalements aujourd\'hui. Réessayez demain.';
+
+  @override
+  String get errReportTarget =>
+      'Ce contenu n\'existe plus ou n\'est plus visible.';
+
+  @override
+  String get errReportSelf => 'Vous ne pouvez pas vous signaler vous-même.';
+
+  @override
+  String pendingProfileBanner(String username) {
+    return 'Créez votre compte (ou connectez-vous) pour retrouver @$username sur SeeU.';
+  }
+
+  @override
+  String get pendingEventBanner =>
+      'Créez votre compte (ou connectez-vous) pour voir cet événement.';
+
+  @override
+  String get travelCardTitle => 'Vous pourriez les voir sur place';
+
+  @override
+  String get travelCardSub =>
+      'Ils habitent près de ce lieu, loin de chez vous.';
+
+  @override
+  String travelRow(String city, String km) {
+    return '$city · $km km';
+  }
+
+  @override
+  String travelFormHint(String name, String city) {
+    return '$name habite à $city : vous pourriez vous voir pendant votre séjour.';
+  }
+
+  @override
+  String travelFormHintMany(String name, int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n autres personnes',
+      one: '1 autre personne',
+    );
+    return '$name et $_temp0 habitent dans le coin : de quoi se voir pendant votre séjour.';
+  }
+
+  @override
+  String get travelSetCity =>
+      'Ajoutez votre ville de résidence (Réglages → Profil) pour savoir qui vous pourriez voir en voyage.';
+
+  @override
+  String get notifyTravel => 'Suggestions en voyage';
+
+  @override
+  String get notifyTravelSub =>
+      'Quelques jours avant un événement loin de chez vous : qui habite sur place.';
+
+  @override
+  String get kindTravelNearby => 'Suggestion en voyage';
+
+  @override
+  String get showOnProfile => 'Afficher sur mon profil public';
+
+  @override
+  String get showOnProfileSub =>
+      'Visible sur votre page publique (événements affichés : « Choisis »).';
+
+  @override
+  String get showOnProfileSubOff =>
+      'Votre profil public n\'affiche pas d\'événements pour l\'instant : Réglages → Profil public et partage.';
+
+  @override
+  String get showOnProfileSubAll =>
+      'Tous vos événements publics sont déjà affichés sur votre profil public.';
+
+  @override
+  String get shareEvent => 'Partager l\'événement';
+
+  @override
+  String shareEventText(String title, String link) {
+    return '$title sur SeeU\n$link';
+  }
+
+  @override
+  String get shareEventFriendsHint =>
+      'Le lien s\'ouvre pour vos amis SeeU (événement « Entre amis »).';
 }

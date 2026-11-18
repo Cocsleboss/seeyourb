@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/config.dart';
+import '../../core/links.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../domain/models.dart';
@@ -18,11 +19,10 @@ import '../contacts/contact_form_screen.dart';
 import 'add_friend_sheet.dart';
 import '../../core/i18n.dart';
 
-/// "Ajoute-moi sur SeeU : @andrea" + a link opening the Friends tab, search prefilled.
-Future<void> shareMyHandle(String username) {
-  final link = '${Config.shareLinkBase}/friends?q=${Uri.encodeComponent(username)}';
-  return SharePlus.instance.share(ShareParams(text: tr.shareHandleText(username, link)));
-}
+/// "Ajoute-moi sur SeeU : @andrea" + the link to my profile (opens it in the app,
+/// or the website for people without the app).
+Future<void> shareMyHandle(String username) =>
+    SharePlus.instance.share(ShareParams(text: tr.shareHandleText(username, profileLink(username))));
 
 Future<void> shareAppLink() => SharePlus.instance.share(ShareParams(
       text: tr.shareAppText(Config.appDownloadUrl),

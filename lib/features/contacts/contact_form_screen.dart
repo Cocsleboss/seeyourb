@@ -18,6 +18,7 @@ import '../../ui/kit.dart';
 import '../../ui/pickers.dart';
 import '../../domain/selectors.dart';
 import '../../ui/scaffold.dart';
+import '../../maps/place_field.dart';
 import '../misc/fallback_screens.dart';
 import '../photos/photo_section.dart';
 import '../../core/i18n.dart';
@@ -25,8 +26,23 @@ import '../../core/i18n.dart';
 /// Values to prefill a new contact (e.g. from a SeeU friend).
 class ContactPrefill {
   const ContactPrefill(
-      {this.name, this.email, this.linkedUserId, this.linkedUsername, this.frequencyValue, this.frequencyUnit, this.categories, this.birthday});
+      {this.name,
+      this.email,
+      this.linkedUserId,
+      this.linkedUsername,
+      this.frequencyValue,
+      this.frequencyUnit,
+      this.categories,
+      this.birthday,
+      this.city,
+      this.country,
+      this.request});
   final DateTime? birthday;
+  final String? city;
+  final String? country;
+
+  /// Someone seen on SeeU who isn't a friend yet: a request is sent with the card.
+  final FriendLinkChoice? request;
   final String? name;
   final String? email;
   final String? linkedUserId;
@@ -74,6 +90,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   late final TextEditingController _phone;
   late final TextEditingController _email;
   late final TextEditingController _notes;
+  late final TextEditingController _city;
+  String? _country;
+  double? _lat;
+  double? _lng;
   late List<String> _categories;
   DateTime? _lastMeeting;
   late int _freqValue;
@@ -96,6 +116,11 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _phone = TextEditingController(text: e?.phone ?? '');
     _email = TextEditingController(text: e?.email ?? p?.email ?? '');
     _notes = TextEditingController(text: e?.notes ?? '');
+    _city = TextEditingController(text: e?.city ?? p?.city ?? '');
+    _country = e?.country ?? p?.country;
+    _lat = e?.lat;
+    _lng = e?.lng;
+    _link = p?.request;
     _categories = [...?(e?.categories ?? p?.categories)];
     _lastMeeting = e?.lastMeetingDate;
     _freqValue = e?.frequencyValue ?? p?.frequencyValue ?? 1;
@@ -105,7 +130,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
 
   @override
   void dispose() {
-    for (final c in [_name, _phone, _email, _notes]) {
+    for (final c in [_name, _phone, _email, _notes, _city]) {
       c.dispose();
     }
     super.dispose();
@@ -144,6 +169,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
       frequencyValue: _freqValue,
       frequencyUnit: _freqUnit,
       linkedUserId: widget.prefill?.linkedUserId ?? (_link?.isFriend == true ? _link!.userId : null),
+      city: _city.text,
+      country: _city.text.trim().isEmpty ? null : _country,
+      lat: _city.text.trim().isEmpty ? null : _lat,
+      lng: _city.text.trim().isEmpty ? null : _lng,
     );
     final request = widget.existing == null && _link != null && !_link!.isFriend ? _link : null;
     final existing = widget.existing;
@@ -325,6 +354,24 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
           LabeledField(
             label: tr.birthday,
             child: DateField(value: _birthday, last: today(), clearable: true, onChanged: (d) => setState(() => _birthday = d)),
+          ),
+          LabeledField(
+            label: tr.contactCityLabel,
+            icon: LucideIcons.mapPin,
+            hint: tr.contactCityHelp,
+            child: PlaceField(
+              cities: true,
+              controller: _city,
+              lat: _lat,
+              lng: _lng,
+              hint: tr.cityHint,
+              onPlace: (p) => setState(() {
+                _lat = p?.lat;
+                _lng = p?.lng;
+                _country = p?.country;
+                if (p?.city != null) _city.text = p!.city!;
+              }),
+            ),
           ),
           LabeledField(
             label: tr.notes,

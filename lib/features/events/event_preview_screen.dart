@@ -20,6 +20,7 @@ import '../rdv/rsvp.dart';
 import '../../maps/maps.dart';
 import 'event_widgets.dart';
 import 'moderation.dart';
+import '../profile/share_profile.dart';
 
 class EventPreviewScreen extends ConsumerWidget {
   const EventPreviewScreen({super.key, required this.id});
@@ -47,9 +48,14 @@ class EventPreviewScreen extends ConsumerWidget {
             icon: LucideIcons.ellipsis,
             tooltip: tr.moreActions,
             onPressed: () => showModerationSheet(context, title: e.displayTitle, actions: [
+              if (e.visibility != EventVisibility.private && e.status != RdvStatus.annule)
+                ModerationAction(LucideIcons.share2, tr.shareEvent, () => shareEvent(e.id, e.displayTitle)),
               e.mutedEvent
                   ? ModerationAction(LucideIcons.bell, tr.unmuteEvent, () => setEventMuted(ref, e.id, false))
                   : ModerationAction(LucideIcons.bellOff, tr.muteEvent, () => setEventMuted(ref, e.id, true)),
+              ModerationAction(LucideIcons.flag, tr.reportEvent,
+                  () => showReportSheet(context, ref, title: tr.reportEvent, eventId: e.id, userId: e.organizerId, name: e.organizerName,
+                      onBlocked: () => leavePage(context))),
               ...personActions(context, ref,
                   userId: e.organizerId, name: e.organizerName, muted: e.mutedOrganizer, onBlocked: () => leavePage(context)),
             ]),
@@ -132,23 +138,29 @@ class _PreviewState extends ConsumerState<_Preview> {
               EventLinkRow(e.link!),
             ],
             const SizedBox(height: 14),
-            Row(children: [
-              Avatar(name: e.organizerName, size: 36, userId: e.organizerId),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(tr.organizedBy(e.organizerName), style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
-                  if (e.organizerUsername != null) Text(handle(e.organizerUsername), style: TextStyle(color: c.textMuted, fontSize: 13.5)),
-                ]),
-              ),
-              Pill(tr.nGoing(e.going), icon: LucideIcons.users),
-            ]),
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: e.organizerUsername == null ? null : () => context.push('/u/${e.organizerUsername}'),
+              child: Row(children: [
+                Avatar(name: e.organizerName, size: 36, userId: e.organizerId),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(tr.organizedBy(e.organizerName), style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+                    if (e.organizerUsername != null) Text(handle(e.organizerUsername), style: TextStyle(color: c.textMuted, fontSize: 13.5)),
+                  ]),
+                ),
+                Pill(tr.nGoing(e.going), icon: LucideIcons.users),
+              ]),
+            ),
             if (e.description != null) ...[
               const SizedBox(height: 14),
               Text(e.description!, style: TextStyle(fontSize: 15, color: c.text, height: 1.45)),
             ],
           ]),
         ),
+        // Who's going: tap someone to see their profile (and add them).
+        _ParticipantsPreview(event: e),
         const SizedBox(height: 16),
         if (e.status == RdvStatus.annule)
           InfoBox(tone: Tone.red, child: Text(tr.eventCancelledInfo))
@@ -168,5 +180,43 @@ class _PreviewState extends ConsumerState<_Preview> {
         if (e.visibility == EventVisibility.public) const AdTile(AdPlacement.publicEvent, padding: EdgeInsets.only(top: 24)),
       ],
     );
+  }
+}
+
+/// Up to 8 people going (organizer first); tap → their profile.
+class _ParticipantsPreview extends ConsumerWidget {
+  const _ParticipantsPreview({required this.event});
+  final FeedEvent event;
+  static const _max = 8;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final me = ref.watch(userIdProvider);
+    final people = (ref.watch(participantsProvider(event.id)).value ?? const <Participant>[])
+        .where((p) => p.userId != me && !p.isOrganizer)
+        .toList();
+    if (people.isEmpty) return const SizedBox.shrink();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      SectionTitle(tr.participants, count: people.length),
+      RowsCard(children: [
+        for (final p in people.take(_max))
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            leading: Avatar(name: p.name, size: 38, userId: p.userId),
+            title: Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: c.text)),
+            subtitle: p.username == null ? null : Text(handle(p.username), style: TextStyle(color: c.textMuted, fontSize: 13)),
+            trailing: p.role == 'pending'
+                ? const TentativePill()
+                : (p.isFriend ? Tooltip(message: tr.alreadyFriends, child: Icon(LucideIcons.userCheck, size: 20, color: c.brandText)) : null),
+            onTap: p.username == null ? null : () => context.push('/u/${p.username}'),
+          ),
+        if (people.length > _max)
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Text(tr.andNMore(people.length - _max), textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+          ),
+      ]),
+    ]);
   }
 }

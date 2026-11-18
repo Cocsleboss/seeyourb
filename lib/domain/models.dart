@@ -73,9 +73,40 @@ class Profile {
     this.dueLeadDays = 0,
     this.rdvReminderMinutes = 30,
     this.avatarPath,
+    this.bio,
+    this.homeCity,
+    this.homeCountry,
+    this.homeLat,
+    this.homeLng,
+    this.publicProfile = false,
+    this.publicFields = const {PublicField.avatar, PublicField.name},
+    this.publicEvents = PublicEventsMode.none,
+    this.friendsSeeCity = true,
+    this.notifyTravel = true,
+    this.bannedAt,
   });
 
   final String id;
+
+  final String? bio;
+
+  /// City of residence (picked from the place search: coordinates for travel hints).
+  final String? homeCity;
+  final String? homeCountry;
+  final double? homeLat;
+  final double? homeLng;
+
+  /// Public web page (/u/username) and what it shows.
+  final bool publicProfile;
+  final Set<PublicField> publicFields;
+  final PublicEventsMode publicEvents;
+
+  /// My SeeU friends see my city (and get travel suggestions about me).
+  final bool friendsSeeCity;
+  final bool notifyTravel;
+
+  /// Suspended by a moderator: the app only shows the "account suspended" screen.
+  final DateTime? bannedAt;
 
   /// SeeU profile picture (public "avatars" bucket).
   final String? avatarPath;
@@ -112,7 +143,23 @@ class Profile {
         dailyHour: (j['daily_hour'] as int?) ?? 8,
         dueLeadDays: (j['due_lead_days'] as int?) ?? 0,
         rdvReminderMinutes: (j['rdv_reminder_minutes'] as int?) ?? 30,
+        bio: _str(j['bio']),
+        homeCity: _str(j['home_city']),
+        homeCountry: _str(j['home_country']),
+        homeLat: (j['home_lat'] as num?)?.toDouble(),
+        homeLng: (j['home_lng'] as num?)?.toDouble(),
+        publicProfile: (j['public_profile'] as bool?) ?? false,
+        publicFields: j['public_fields'] is List ? PublicField.parseAll(j['public_fields'] as List) : const {PublicField.avatar, PublicField.name},
+        publicEvents: PublicEventsMode.parse(j['public_events'] as String?),
+        friendsSeeCity: (j['friends_see_city'] as bool?) ?? true,
+        notifyTravel: (j['notify_travel'] as bool?) ?? true,
+        bannedAt: _ts(j['banned_at']),
       );
+
+  bool get hasHome => homeLat != null && homeLng != null;
+
+  /// "Lyon, France"
+  String? get homeLabel => placeLabel(homeCity, homeCountry);
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -127,6 +174,36 @@ class Profile {
         'due_lead_days': dueLeadDays,
         'rdv_reminder_minutes': rdvReminderMinutes,
       };
+}
+
+/// What the public profile page shows (the @username always).
+enum PublicField {
+  avatar,
+  name,
+  city,
+  bio;
+
+  static Set<PublicField> parseAll(List<dynamic> raw) => {
+        for (final v in raw)
+          for (final f in values)
+            if (f.name == v) f,
+      };
+}
+
+/// Which of my public events the public profile lists.
+enum PublicEventsMode {
+  none,
+  selected,
+  all;
+
+  static PublicEventsMode parse(String? s) => values.where((v) => v.name == s).firstOrNull ?? none;
+}
+
+/// "Lyon, France" (either part may be missing).
+String? placeLabel(String? city, String? country) {
+  final parts = [?_str(city), ?_str(country)];
+  if (parts.length == 2 && parts[0].toLowerCase() == parts[1].toLowerCase()) parts.removeLast();
+  return parts.isEmpty ? null : parts.join(', ');
 }
 
 /// Anything that has a due date (contacts, light contacts for computations).
@@ -155,11 +232,21 @@ class Contact implements HasDue {
     this.linkedUserId,
     this.createdAt,
     this.addedOn,
+    this.city,
+    this.country,
+    this.lat,
+    this.lng,
   });
 
   final String id;
   final String userId;
   final String name;
+
+  /// Where they live (for travel hints).
+  final String? city;
+  final String? country;
+  final double? lat;
+  final double? lng;
   final String? photoPath;
   final List<String> categories;
   final String? phone;
@@ -202,7 +289,13 @@ class Contact implements HasDue {
         linkedUserId: j['linked_user_id'] as String?,
         createdAt: _ts(j['created_at']),
         addedOn: _day(j['added_on']),
+        city: _str(j['city']),
+        country: _str(j['country']),
+        lat: (j['lat'] as num?)?.toDouble(),
+        lng: (j['lng'] as num?)?.toDouble(),
       );
+
+  String? get cityLabel => placeLabel(city, country);
 
   ContactLite get lite => ContactLite(id: id, name: name, photoPath: photoPath, categories: categories, linkedUserId: linkedUserId);
 
@@ -223,8 +316,16 @@ class ContactInput {
     this.frequencyValue = 1,
     this.frequencyUnit = FrequencyUnit.months,
     this.linkedUserId,
+    this.city,
+    this.country,
+    this.lat,
+    this.lng,
   });
 
+  String? city;
+  String? country;
+  double? lat;
+  double? lng;
   String name;
   List<String> categories;
   String? phone;
@@ -247,6 +348,10 @@ class ContactInput {
         'frequency_value': frequencyValue,
         'frequency_unit': frequencyUnit.name,
         'linked_user_id': ?linkedUserId,
+        'city': _str(city),
+        'country': _str(country),
+        'lat': lat,
+        'lng': lng,
       };
 }
 
@@ -322,8 +427,11 @@ class Rendezvous {
     this.chatReadAt,
     this.contacts = const [],
     this.photos = const [],
+    this.showOnProfile = false,
   });
 
+  /// A public event I'm in, listed on my public profile ("Choisis" mode).
+  final bool showOnProfile;
   final String id;
   final String userId;
   final String? title;
@@ -393,6 +501,7 @@ class Rendezvous {
       chatReadAt: _ts(j['chat_read_at']),
       contacts: contacts,
       photos: photos,
+      showOnProfile: (j['show_on_profile'] as bool?) ?? false,
     );
   }
 }
@@ -975,3 +1084,154 @@ const frequencyPresets = [
   FrequencyPreset(6, FrequencyUnit.months),
   FrequencyPreset(1, FrequencyUnit.years),
 ];
+
+
+/* ------------------------------------------------------------------ */
+/*  Profile pages, travel hints, reports                              */
+/* ------------------------------------------------------------------ */
+
+/// My relation to someone whose profile I open.
+enum ProfileRelation { self, none, friends, sent, received }
+
+/// An event listed on a profile (public ones, and for friends the ones they open to friends).
+class ProfileEvent {
+  ProfileEvent({
+    required this.id,
+    this.title,
+    this.location,
+    required this.startsAt,
+    this.slotsOpen = false,
+    this.visibility = EventVisibility.public,
+    this.going = 1,
+    this.isOrganizer = false,
+    this.organizerName = 'SeeU',
+    this.myRdvId,
+    this.myRsvp,
+  });
+  final String id;
+  final String? title;
+  final String? location;
+  final DateTime startsAt;
+  final bool slotsOpen;
+  final EventVisibility visibility;
+  final int going;
+
+  /// The profile's owner organizes it (else: is going).
+  final bool isOrganizer;
+  final String organizerName;
+  final String? myRdvId;
+  final Rsvp? myRsvp;
+
+  String get displayTitle => title ?? tr.eventBy(organizerName);
+
+  /// Where a tap goes: my copy when I'm in, the preview otherwise.
+  String get path => myRdvId != null && myRsvp != Rsvp.declined ? '/rdv/$myRdvId' : '/event/$id';
+
+  factory ProfileEvent.fromJson(Map<String, dynamic> j) => ProfileEvent(
+        id: j['id'] as String,
+        title: _str(j['title']),
+        location: _str(j['location']),
+        startsAt: DateTime.parse(j['starts_at'] as String).toLocal(),
+        slotsOpen: (j['slots_open'] as bool?) ?? false,
+        visibility: EventVisibility.parse(j['visibility'] as String? ?? 'public'),
+        going: (j['going'] as int?) ?? 1,
+        isOrganizer: j['role'] == 'organizer',
+        organizerName: (j['organizer_name'] as String?) ?? 'SeeU',
+        myRdvId: j['my_rdv_id'] as String?,
+        myRsvp: Rsvp.parse(j['my_rsvp'] as String?),
+      );
+}
+
+/// Another SeeU user's page as I may see it (get_user_profile).
+class UserProfile {
+  UserProfile({
+    required this.userId,
+    required this.username,
+    required this.displayName,
+    this.avatarPath,
+    this.bio,
+    this.city,
+    this.country,
+    this.relation = ProfileRelation.none,
+    this.friendshipId,
+    this.contactId,
+    this.publicProfile = false,
+    this.mutualFriends = 0,
+    this.events = const [],
+  });
+  final String userId;
+  final String username;
+  final String displayName;
+  final String? avatarPath;
+  final String? bio;
+  final String? city;
+  final String? country;
+  final ProfileRelation relation;
+  final String? friendshipId;
+
+  /// My contact card linked to them.
+  final String? contactId;
+  final bool publicProfile;
+  final int mutualFriends;
+  final List<ProfileEvent> events;
+
+  bool get isMe => relation == ProfileRelation.self;
+  String? get cityLabel => placeLabel(city, country);
+
+  factory UserProfile.fromJson(Map<String, dynamic> j) => UserProfile(
+        userId: j['user_id'] as String,
+        username: j['username'] as String,
+        displayName: (j['display_name'] as String?) ?? j['username'] as String,
+        avatarPath: j['avatar_path'] as String?,
+        bio: _str(j['bio']),
+        city: _str(j['city']),
+        country: _str(j['country']),
+        relation: ProfileRelation.values.where((r) => r.name == j['relation']).firstOrNull ?? ProfileRelation.none,
+        friendshipId: j['friendship_id'] as String?,
+        contactId: j['contact_id'] as String?,
+        publicProfile: (j['public_profile'] as bool?) ?? false,
+        mutualFriends: (j['mutual_friends'] as int?) ?? 0,
+        events: [for (final e in (j['events'] as List?) ?? const []) ProfileEvent.fromJson(e as Map<String, dynamic>)],
+      );
+}
+
+/// A friend or contact living near a place far from my home (people_near).
+class NearbyPerson {
+  NearbyPerson({required this.isFriend, this.userId, this.username, this.contactId, required this.name, this.city, required this.km});
+  final bool isFriend;
+  final String? userId;
+  final String? username;
+  final String? contactId;
+  final String name;
+  final String? city;
+  final int km;
+
+  factory NearbyPerson.fromJson(Map<String, dynamic> j) => NearbyPerson(
+        isFriend: j['kind'] == 'friend',
+        userId: j['user_id'] as String?,
+        username: j['username'] as String?,
+        contactId: j['contact_id'] as String?,
+        name: (j['name'] as String?) ?? 'SeeU',
+        city: _str(j['city']),
+        km: (j['km'] as num?)?.round() ?? 0,
+      );
+}
+
+/// Closed list of report reasons (same values as the database).
+enum ReportReason {
+  spam,
+  harassment,
+  inappropriate,
+  fakeProfile,
+  other;
+
+  String get value => this == fakeProfile ? 'fake_profile' : name;
+
+  String get label => switch (this) {
+        spam => tr.reasonSpam,
+        harassment => tr.reasonHarassment,
+        inappropriate => tr.reasonInappropriate,
+        fakeProfile => tr.reasonFakeProfile,
+        other => tr.reasonOther,
+      };
+}

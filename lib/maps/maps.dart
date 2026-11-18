@@ -26,7 +26,11 @@ const _tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 final mapsEnabledProvider = Provider<bool>((ref) => true);
 
 class PlaceResult {
-  const PlaceResult({required this.name, this.address, required this.lat, required this.lng, this.kind, this.km});
+  const PlaceResult({required this.name, this.address, required this.lat, required this.lng, this.kind, this.km, this.city, this.country});
+
+  /// Town of the place (for a city search: the city itself) and its country.
+  final String? city;
+  final String? country;
 
   /// Distance from where I am (when known).
   final double? km;
@@ -43,7 +47,8 @@ class PlaceResult {
 }
 
 abstract class PlaceSearch {
-  Future<List<PlaceResult>> search(String query, {required String lang, LatLng? near});
+  /// [cities]: towns and cities only (city of residence).
+  Future<List<PlaceResult>> search(String query, {required String lang, LatLng? near, bool cities = false});
 }
 
 class PhotonPlaceSearch implements PlaceSearch {
@@ -51,12 +56,13 @@ class PhotonPlaceSearch implements PlaceSearch {
   final http.Client _client;
 
   @override
-  Future<List<PlaceResult>> search(String query, {required String lang, LatLng? near}) async {
+  Future<List<PlaceResult>> search(String query, {required String lang, LatLng? near, bool cities = false}) async {
     final q = query.trim();
-    if (q.length < 3) return const [];
+    if (q.length < (cities ? 2 : 3)) return const [];
     final uri = Uri.https('photon.komoot.io', '/api/', {
       'q': q,
       'limit': '7',
+      if (cities) 'layer': 'city',
       // Photon knows de / en / fr / it
       'lang': const {'fr', 'en', 'de', 'it'}.contains(lang) ? lang : 'en',
       // Prefer results around [near] (city scale); far ones still come after.
@@ -79,6 +85,8 @@ class PhotonPlaceSearch implements PlaceSearch {
       out.add(PlaceResult(
         name: name,
         address: address,
+        city: cities ? name : (p['city'] ?? p['town'] ?? p['village']) as String?,
+        country: p['country'] as String?,
         lat: (coords[1] as num).toDouble(),
         lng: (coords[0] as num).toDouble(),
         kind: p['osm_value'] as String?,

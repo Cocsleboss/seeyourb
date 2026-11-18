@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:seeu/core/i18n.dart';
+import 'package:seeu/core/links.dart';
 import 'package:seeu/domain/contact_import.dart';
 import 'package:seeu/domain/dates.dart';
 import 'package:seeu/domain/models.dart';
@@ -255,5 +256,72 @@ void main() {
     expect(overdueCount([c]), 0);
     expect(toRecontact([c]), isEmpty);
     expect(frequencyLabel(1, FrequencyUnit.never), isNotEmpty);
+  });
+
+  test('share links: profile and event targets, kept through sign-up', () {
+    expect(profileLink('andrea'), endsWith('/u/andrea'));
+    expect(eventLink('0f8c2d3e-1111-4222-8333-944445555666'), endsWith('/e/0f8c2d3e-1111-4222-8333-944445555666'));
+    final p = LinkTarget.parse(Uri.parse('https://seeu.app/u/Andrea'))!;
+    expect((p.kind, p.value, p.location), (LinkKind.profile, 'andrea', '/u/andrea'));
+    expect(LinkTarget.parse(Uri.parse('seeu://app/u/marie.d'))!.value, 'marie.d');
+    final e = LinkTarget.parse(Uri.parse('https://seeu.app/e/0F8C2D3E-1111-4222-8333-944445555666'))!;
+    expect((e.kind, e.location), (LinkKind.event, '/event/0f8c2d3e-1111-4222-8333-944445555666'));
+    expect(LinkTarget.parse(Uri(path: '/event/0f8c2d3e-1111-4222-8333-944445555666'))!.kind, LinkKind.event);
+    expect(LinkTarget.parse(Uri.parse('/friends?q=%40tom'))!.location, '/friends?q=tom');
+    // anything else is not remembered
+    expect(LinkTarget.parse(Uri.parse('/u/a')), isNull); // too short for a username
+    expect(LinkTarget.parse(Uri.parse('/e/not-an-id')), isNull);
+    expect(LinkTarget.parse(Uri.parse('/settings')), isNull);
+    expect(LinkTarget.parse(Uri.parse('/u/andrea/extra')), isNull);
+  });
+
+  test('profile privacy settings: parsed with safe defaults', () {
+    final empty = Profile.fromJson({'id': 'u'});
+    expect(empty.publicProfile, isFalse);
+    expect(empty.publicFields, {PublicField.avatar, PublicField.name});
+    expect(empty.publicEvents, PublicEventsMode.none);
+    expect(empty.friendsSeeCity, isTrue);
+    expect(empty.hasHome, isFalse);
+    final p = Profile.fromJson({
+      'id': 'u',
+      'public_profile': true,
+      'public_fields': ['city', 'bio', 'email'],
+      'public_events': 'selected',
+      'home_city': 'Lyon',
+      'home_country': 'France',
+      'home_lat': 45.76,
+      'home_lng': 4.84,
+      'banned_at': '2026-11-18T10:00:00Z',
+    });
+    expect(p.publicFields, {PublicField.city, PublicField.bio}); // unknown values ignored
+    expect(p.publicEvents, PublicEventsMode.selected);
+    expect((p.hasHome, p.homeLabel), (true, 'Lyon, France'));
+    expect(p.bannedAt, isNotNull);
+    expect(placeLabel('Bruxelles', null), 'Bruxelles');
+    expect(placeLabel('Singapore', 'Singapore'), 'Singapore');
+    expect(placeLabel(' ', null), isNull);
+  });
+
+  test('user profile page: relation, visible fields and events', () {
+    final u = UserProfile.fromJson({
+      'user_id': 'u2',
+      'username': 'marie',
+      'display_name': 'Marie',
+      'city': 'Lyon',
+      'relation': 'received',
+      'friendship_id': 'f1',
+      'mutual_friends': 2,
+      'events': [
+        {'id': 'e1', 'title': 'Concert', 'starts_at': '2026-12-01T19:00:00Z', 'visibility': 'public', 'role': 'organizer', 'going': 12},
+        {'id': 'e2', 'starts_at': '2026-12-02T19:00:00Z', 'visibility': 'contacts', 'role': 'going', 'organizer_name': 'Tom', 'my_rdv_id': 'r9', 'my_rsvp': 'accepted'},
+      ],
+    });
+    expect((u.relation, u.isMe, u.cityLabel, u.mutualFriends), (ProfileRelation.received, false, 'Lyon', 2));
+    expect(u.events.first.isOrganizer, isTrue);
+    expect(u.events.first.path, '/event/e1');
+    expect(u.events.last.path, '/rdv/r9'); // already in my agenda: my copy
+    expect(u.events.last.visibility, EventVisibility.contacts);
+    expect(ReportReason.fakeProfile.value, 'fake_profile');
+    expect(NearbyPerson.fromJson({'kind': 'friend', 'name': 'Eli', 'city': 'Paris', 'km': 3}).isFriend, isTrue);
   });
 }

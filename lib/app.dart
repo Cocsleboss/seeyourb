@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/activity.dart';
 import 'core/errors.dart';
 import 'core/i18n.dart';
 import 'core/push.dart';
@@ -41,7 +42,13 @@ class _SeeUAppState extends ConsumerState<SeeUApp> with WidgetsBindingObserver {
     final push = PushService.instance;
     _subs.add(push.onOpen.listen(_open));
     _subs.add(push.onReceived.listen((_) => _refresh()));
-    _lifecycle = AppLifecycleListener(onResume: _refresh);
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        _refresh();
+        ActivityTracker.instance.resumed();
+      },
+      onHide: ActivityTracker.instance.paused,
+    );
     // Email links (sign-up confirmation, magic link, password reset) that fail would
     // otherwise just bring the app to the front: say what went wrong.
     _subs.add(Supabase.instance.client.auth.onAuthStateChange.listen((_) {}, onError: (Object e) {
@@ -81,8 +88,10 @@ class _SeeUAppState extends ConsumerState<SeeUApp> with WidgetsBindingObserver {
     if (uid != null && uid != _registeredFor) {
       _registeredFor = uid;
       PushService.instance.register(ref.read(apiProvider));
-    } else if (uid == null) {
+      ActivityTracker.instance.start(ref.read(apiProvider));
+    } else if (uid == null && _registeredFor != null) {
       _registeredFor = null;
+      ActivityTracker.instance.stop();
     }
   }
 
@@ -102,6 +111,7 @@ class _SeeUAppState extends ConsumerState<SeeUApp> with WidgetsBindingObserver {
       s.cancel();
     }
     ref.read(sessionProvider).removeListener(_onSession);
+    ActivityTracker.instance.stop();
     _lifecycle.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();

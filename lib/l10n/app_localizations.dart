@@ -3635,7 +3635,7 @@ abstract class AppLocalizations {
   /// No description provided for @visPrivateHelp.
   ///
   /// In fr, this message translates to:
-  /// **'Seulement les amis que vous invitez.'**
+  /// **'Par défaut. Seulement les personnes que vous invitez ; jamais sur votre profil ni dans Explorer.'**
   String get visPrivateHelp;
 
   /// No description provided for @visContactsHelp.
@@ -3647,7 +3647,7 @@ abstract class AppLocalizations {
   /// No description provided for @visPublicHelp.
   ///
   /// In fr, this message translates to:
-  /// **'Tout le monde peut le voir et le rejoindre.'**
+  /// **'Tout le monde peut le voir et le rejoindre sans invitation, y compris depuis votre profil public.'**
   String get visPublicHelp;
 
   /// No description provided for @slotsLabel.
@@ -5101,6 +5101,600 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Demande envoyée'**
   String get friendRequestSentShort;
+
+  /// No description provided for @publicProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil public et partage'**
+  String get publicProfileTitle;
+
+  /// No description provided for @publicProfileRowSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre lien, ce que les autres voient, vos événements publics'**
+  String get publicProfileRowSub;
+
+  /// No description provided for @myProfileLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre lien de profil'**
+  String get myProfileLink;
+
+  /// No description provided for @myProfileLinkHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagez-le sur Instagram, WhatsApp, Messenger… Il ouvre votre profil dans SeeU, ou propose d\'installer l\'app.'**
+  String get myProfileLinkHelp;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le lien'**
+  String get copyLink;
+
+  /// No description provided for @linkCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien copié'**
+  String get linkCopied;
+
+  /// No description provided for @showQrCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'QR code'**
+  String get showQrCode;
+
+  /// No description provided for @qrCodeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre QR code SeeU'**
+  String get qrCodeTitle;
+
+  /// No description provided for @qrCodeHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faites-le scanner : votre profil s\'ouvre, prêt à vous ajouter en ami.'**
+  String get qrCodeHelp;
+
+  /// No description provided for @shareProfileText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouvez-moi sur SeeU : @{username}\n{link}'**
+  String shareProfileText(String username, String link);
+
+  /// No description provided for @shareMyProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager mon profil'**
+  String get shareMyProfile;
+
+  /// No description provided for @publicProfileToggle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil public'**
+  String get publicProfileToggle;
+
+  /// No description provided for @publicProfileToggleSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une page web, visible par tous ceux qui ont le lien, avec seulement les informations choisies ci-dessous.'**
+  String get publicProfileToggleSub;
+
+  /// No description provided for @publicProfileOffInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivé : votre lien ouvre toujours SeeU, mais il n\'y a pas de page publique.'**
+  String get publicProfileOffInfo;
+
+  /// No description provided for @publicFieldsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations visibles'**
+  String get publicFieldsTitle;
+
+  /// No description provided for @publicFieldAvatar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil'**
+  String get publicFieldAvatar;
+
+  /// No description provided for @publicFieldName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom affiché'**
+  String get publicFieldName;
+
+  /// No description provided for @publicFieldCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville de résidence'**
+  String get publicFieldCity;
+
+  /// No description provided for @publicFieldBio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bio'**
+  String get publicFieldBio;
+
+  /// No description provided for @publicFieldsHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre @pseudo est toujours visible : c\'est l\'adresse de la page. Votre e-mail et vos contacts ne le sont jamais.'**
+  String get publicFieldsHelp;
+
+  /// No description provided for @publicEventsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements affichés'**
+  String get publicEventsTitle;
+
+  /// No description provided for @publicEventsNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun'**
+  String get publicEventsNone;
+
+  /// No description provided for @publicEventsSelected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis'**
+  String get publicEventsSelected;
+
+  /// No description provided for @publicEventsAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get publicEventsAll;
+
+  /// No description provided for @publicEventsHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seulement des événements publics (organisés ou rejoints). Les événements privés ou entre amis n\'apparaissent jamais.'**
+  String get publicEventsHelp;
+
+  /// No description provided for @publicEventsPick.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements à afficher'**
+  String get publicEventsPick;
+
+  /// No description provided for @noPublicEventsYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun événement public à venir, organisé ou rejoint.'**
+  String get noPublicEventsYet;
+
+  /// No description provided for @inAppVisibilityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans l\'app'**
+  String get inAppVisibilityTitle;
+
+  /// No description provided for @inAppVisibilityHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les membres SeeU voient toujours votre nom, votre @pseudo et votre photo (comme dans la recherche). Vos amis voient aussi votre bio et vos événements « Entre amis ».'**
+  String get inAppVisibilityHelp;
+
+  /// No description provided for @friendsSeeCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes amis voient ma ville'**
+  String get friendsSeeCity;
+
+  /// No description provided for @friendsSeeCitySub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour vous suggérer l\'un à l\'autre quand vous passez dans la ville de l\'autre.'**
+  String get friendsSeeCitySub;
+
+  /// No description provided for @previewMyProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon profil'**
+  String get previewMyProfile;
+
+  /// No description provided for @cityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville de résidence'**
+  String get cityLabel;
+
+  /// No description provided for @cityHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une ville'**
+  String get cityHint;
+
+  /// No description provided for @cityHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sert à vous suggérer qui voir quand vous voyagez.'**
+  String get cityHelp;
+
+  /// No description provided for @bioLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bio'**
+  String get bioLabel;
+
+  /// No description provided for @bioHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques mots sur vous'**
+  String get bioHint;
+
+  /// No description provided for @contactCityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville'**
+  String get contactCityLabel;
+
+  /// No description provided for @contactCityHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Là où cette personne habite : SeeU vous le rappellera quand vous irez par là.'**
+  String get contactCityHelp;
+
+  /// No description provided for @livesIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Habite à {city}'**
+  String livesIn(String city);
+
+  /// No description provided for @userProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil'**
+  String get userProfileTitle;
+
+  /// No description provided for @profileNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil introuvable'**
+  String get profileNotFound;
+
+  /// No description provided for @profileNotFoundMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce profil n\'existe pas ou n\'est plus disponible.'**
+  String get profileNotFoundMessage;
+
+  /// No description provided for @requestSentButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée'**
+  String get requestSentButton;
+
+  /// No description provided for @acceptRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter sa demande'**
+  String get acceptRequest;
+
+  /// No description provided for @alreadyFriends.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes amis sur SeeU'**
+  String get alreadyFriends;
+
+  /// No description provided for @addToMyContacts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à mes contacts'**
+  String get addToMyContacts;
+
+  /// No description provided for @seeContactCard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir sa fiche contact'**
+  String get seeContactCard;
+
+  /// No description provided for @mutualFriends.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 ami en commun} other{{n} amis en commun}}'**
+  String mutualFriends(int n);
+
+  /// No description provided for @theirEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochains événements'**
+  String get theirEvents;
+
+  /// No description provided for @noVisibleEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun événement visible pour l\'instant.'**
+  String get noVisibleEvents;
+
+  /// No description provided for @thisIsYou.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est votre profil, tel que vos amis le voient.'**
+  String get thisIsYou;
+
+  /// No description provided for @editMyProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get editMyProfile;
+
+  /// No description provided for @seeSeeuProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir son profil SeeU'**
+  String get seeSeeuProfile;
+
+  /// No description provided for @roleOrganizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organise'**
+  String get roleOrganizer;
+
+  /// No description provided for @roleGoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participe'**
+  String get roleGoing;
+
+  /// No description provided for @report.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler'**
+  String get report;
+
+  /// No description provided for @reportPerson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler {name}'**
+  String reportPerson(String name);
+
+  /// No description provided for @reportEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler l\'événement'**
+  String get reportEvent;
+
+  /// No description provided for @reportMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler ce message'**
+  String get reportMessage;
+
+  /// No description provided for @reportPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signaler cette photo'**
+  String get reportPhoto;
+
+  /// No description provided for @reportSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre signalement reste anonyme : la personne ne saura pas que c\'est vous.'**
+  String get reportSub;
+
+  /// No description provided for @reportReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Motif'**
+  String get reportReason;
+
+  /// No description provided for @reasonSpam.
+  ///
+  /// In fr, this message translates to:
+  /// **'Spam ou publicité'**
+  String get reasonSpam;
+
+  /// No description provided for @reasonHarassment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Harcèlement ou intimidation'**
+  String get reasonHarassment;
+
+  /// No description provided for @reasonInappropriate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu inapproprié'**
+  String get reasonInappropriate;
+
+  /// No description provided for @reasonFakeProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux profil'**
+  String get reasonFakeProfile;
+
+  /// No description provided for @reasonOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get reasonOther;
+
+  /// No description provided for @reportComment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commentaire (facultatif)'**
+  String get reportComment;
+
+  /// No description provided for @reportCommentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui s\'est passé, en quelques mots'**
+  String get reportCommentHint;
+
+  /// No description provided for @reportAlsoBlock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer aussi cette personne'**
+  String get reportAlsoBlock;
+
+  /// No description provided for @sendReport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer le signalement'**
+  String get sendReport;
+
+  /// No description provided for @reportSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Merci, notre équipe va examiner ce signalement.'**
+  String get reportSent;
+
+  /// No description provided for @bannedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte suspendu'**
+  String get bannedTitle;
+
+  /// No description provided for @bannedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte SeeU a été suspendu pour non-respect des règles d\'utilisation. Il ne peut plus être utilisé.'**
+  String get bannedMessage;
+
+  /// No description provided for @bannedHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si vous pensez qu\'il s\'agit d\'une erreur, contactez le support SeeU.'**
+  String get bannedHelp;
+
+  /// No description provided for @errAccountBanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte a été suspendu.'**
+  String get errAccountBanned;
+
+  /// No description provided for @errForbiddenField.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce champ ne peut pas être modifié.'**
+  String get errForbiddenField;
+
+  /// No description provided for @errTooManyReports.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de signalements aujourd\'hui. Réessayez demain.'**
+  String get errTooManyReports;
+
+  /// No description provided for @errReportTarget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce contenu n\'existe plus ou n\'est plus visible.'**
+  String get errReportTarget;
+
+  /// No description provided for @errReportSelf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous ne pouvez pas vous signaler vous-même.'**
+  String get errReportSelf;
+
+  /// No description provided for @pendingProfileBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez votre compte (ou connectez-vous) pour retrouver @{username} sur SeeU.'**
+  String pendingProfileBanner(String username);
+
+  /// No description provided for @pendingEventBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez votre compte (ou connectez-vous) pour voir cet événement.'**
+  String get pendingEventBanner;
+
+  /// No description provided for @travelCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pourriez les voir sur place'**
+  String get travelCardTitle;
+
+  /// No description provided for @travelCardSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ils habitent près de ce lieu, loin de chez vous.'**
+  String get travelCardSub;
+
+  /// No description provided for @travelRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'{city} · {km} km'**
+  String travelRow(String city, String km);
+
+  /// No description provided for @travelFormHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} habite à {city} : vous pourriez vous voir pendant votre séjour.'**
+  String travelFormHint(String name, String city);
+
+  /// No description provided for @travelFormHintMany.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} et {n, plural, =1{1 autre personne} other{{n} autres personnes}} habitent dans le coin : de quoi se voir pendant votre séjour.'**
+  String travelFormHintMany(String name, int n);
+
+  /// No description provided for @travelSetCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez votre ville de résidence (Réglages → Profil) pour savoir qui vous pourriez voir en voyage.'**
+  String get travelSetCity;
+
+  /// No description provided for @notifyTravel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suggestions en voyage'**
+  String get notifyTravel;
+
+  /// No description provided for @notifyTravelSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques jours avant un événement loin de chez vous : qui habite sur place.'**
+  String get notifyTravelSub;
+
+  /// No description provided for @kindTravelNearby.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suggestion en voyage'**
+  String get kindTravelNearby;
+
+  /// No description provided for @showOnProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher sur mon profil public'**
+  String get showOnProfile;
+
+  /// No description provided for @showOnProfileSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visible sur votre page publique (événements affichés : « Choisis »).'**
+  String get showOnProfileSub;
+
+  /// No description provided for @showOnProfileSubOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre profil public n\'affiche pas d\'événements pour l\'instant : Réglages → Profil public et partage.'**
+  String get showOnProfileSubOff;
+
+  /// No description provided for @showOnProfileSubAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous vos événements publics sont déjà affichés sur votre profil public.'**
+  String get showOnProfileSubAll;
+
+  /// No description provided for @shareEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager l\'événement'**
+  String get shareEvent;
+
+  /// No description provided for @shareEventText.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} sur SeeU\n{link}'**
+  String shareEventText(String title, String link);
+
+  /// No description provided for @shareEventFriendsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le lien s\'ouvre pour vos amis SeeU (événement « Entre amis »).'**
+  String get shareEventFriendsHint;
 }
 
 class _AppLocalizationsDelegate
