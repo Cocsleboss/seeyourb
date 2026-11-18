@@ -2,7 +2,10 @@
 
 Supabase Postgres, project **SeeU** (`klqzmegiydmwtmxfguvl`). This page describes the
 `public` schema as deployed (generated from production's catalog on 2026-11-16, after
-migration `0011`), plus the storage buckets, jobs and the main flows.
+migration `0011`), plus the storage buckets, jobs and the main flows. Migrations `0012`–`0014`
+(moderation & activity, public profiles, travel hints; written 2026-11-18, **not applied to
+production yet**) are included below and marked *(0012)*, *(0013)*, *(0014)*.
+The website's entry point is [`API_SITE.md`](API_SITE.md).
 Source of truth: [`supabase/migrations/`](../supabase/migrations) (applied in order);
 SQL scenario tests: [`supabase/tests/`](../supabase/tests/README.md).
 
@@ -54,6 +57,12 @@ flowchart LR
     user_mutes
     user_blocks
     public_event_creators
+    reports
+    admins
+    admin_actions
+  end
+  subgraph Activity
+    app_sessions
   end
   contacts --> contact_rendezvous
   contacts --> photos
@@ -66,6 +75,8 @@ flowchart LR
 - **Events**: one `events` row holds what's shared; each participant has their own
   `rendezvous` copy (notes, RSVP, which of their contacts take part).
 - **Notifications**: an outbox table filled by triggers and jobs, delivered by an Edge Function.
+- **Moderation** *(0012)*: reports from the app, admins (website), bans, a log of admin actions.
+- **Activity** *(0012)*: app sessions and `profiles.last_seen_at`, for the admin statistics.
 
 ## 4. Entity–relationship diagram
 
@@ -91,6 +102,19 @@ erDiagram
         date birthday
         text locale
         text avatar_path
+        timestamptz banned_at
+        text banned_reason
+        timestamptz last_seen_at
+        text bio
+        text home_city
+        text home_country
+        float8 home_lat
+        float8 home_lng
+        boolean public_profile
+        text_array public_fields
+        text public_events
+        boolean friends_see_city
+        boolean notify_travel
     }
     contacts {
         uuid id PK
@@ -113,6 +137,10 @@ erDiagram
         uuid linked_user_id FK
         date added_on
         text_array categories
+        text city
+        text country
+        float8 lat
+        float8 lng
     }
     events {
         uuid id PK
@@ -150,6 +178,8 @@ erDiagram
         uuid event_id FK
         text rsvp
         timestamptz chat_read_at
+        boolean show_on_profile
+        boolean travel_hint_sent
     }
     contact_rendezvous {
         uuid contact_id PK, FK
@@ -250,6 +280,46 @@ erDiagram
         text note
         timestamptz created_at
     }
+    reports {
+        uuid id PK
+        uuid reporter_id FK
+        uuid reported_user_id FK
+        text target_type
+        uuid event_id FK
+        uuid photo_id FK
+        uuid message_id FK
+        text reason
+        text comment
+        jsonb snapshot
+        text status
+        text admin_note
+        uuid reviewed_by FK
+        timestamptz reviewed_at
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    admins {
+        uuid user_id PK, FK
+        text note
+        timestamptz created_at
+    }
+    admin_actions {
+        uuid id PK
+        uuid admin_id FK
+        text action
+        uuid target_user FK
+        uuid report_id FK
+        jsonb details
+        timestamptz created_at
+    }
+    app_sessions {
+        uuid id PK
+        uuid user_id FK
+        timestamptz started_at
+        timestamptz last_seen_at
+        text platform
+        text app_version
+    }
     events |o--o{ rendezvous : "event_id"
     contacts ||--o{ contact_rendezvous : "contact_id"
     rendezvous ||--o{ contact_rendezvous : "rendezvous_id"
@@ -263,6 +333,10 @@ erDiagram
     rendezvous |o--o{ photos : "rendezvous_id"
     contacts |o--o{ photos : "contact_id"
     events |o--o{ user_mutes : "event_id"
+    events |o--o{ reports : "event_id"
+    photos |o--o{ reports : "photo_id"
+    event_messages |o--o{ reports : "message_id"
+    reports |o--o{ admin_actions : "report_id"
 ```
 
 | Table | Columns referencing `auth.users(id)` |
@@ -283,6 +357,10 @@ erDiagram
 | `user_mutes` | `user_id` (on delete cascade), `target_user` (on delete cascade) |
 | `user_blocks` | `blocked_id` (on delete cascade), `blocker_id` (on delete cascade) |
 | `public_event_creators` | `user_id` (on delete cascade) |
+| `reports` | `reporter_id` (on delete set null), `reported_user_id` (on delete cascade), `reviewed_by` (on delete set null) |
+| `admins` | `user_id` (on delete cascade) |
+| `admin_actions` | `admin_id` (on delete set null), `target_user` (on delete set null) |
+| `app_sessions` | `user_id` (on delete cascade) |
 
 ## 5. Tables
 
@@ -308,6 +386,17 @@ One row per account (same `id` as `auth.users`), created by the `handle_new_user
 | `birthday` | date | yes |  |  |
 | `locale` | text | no | `'fr'` |  |
 | `avatar_path` | text | yes |  |  |
+| `banned_at` | timestamptz | yes |  | *(0012)* set by `admin_ban_user`: the account is suspended |
+| `banned_reason` | text | yes |  | *(0012)* ≤ 500, never shown to the user |
+| `last_seen_at` | timestamptz | yes |  | *(0012)* last activity (`touch_session`) |
+| `bio` | text | yes |  | *(0013)* ≤ 300 |
+| `home_city` / `home_country` | text | yes |  | *(0013)* city of residence (≤ 120 / ≤ 80) |
+| `home_lat` / `home_lng` | float8 | yes |  | *(0013)* both or neither |
+| `public_profile` | boolean | no | `false` | *(0013)* public web page `/u/<username>` on |
+| `public_fields` | text[] | no | `'{avatar,name}'` | *(0013)* subset of `avatar`, `name`, `city`, `bio` |
+| `public_events` | text | no | `'none'` | *(0013)* `none` \| `selected` \| `all` (public events only) |
+| `friends_see_city` | boolean | no | `true` | *(0013)* friends see my city (and get travel hints about me) |
+| `notify_travel` | boolean | no | `true` | *(0014)* "Suggestions en voyage" push |
 
 - Unique index `idx_profiles_username` on `(username)`
 - Check: `(((daily_hour >= 0) AND (daily_hour <= 23)))`
@@ -315,8 +404,11 @@ One row per account (same `id` as `auth.users`), created by the `handle_new_user
 - Check: `(((rdv_reminder_minutes >= 5) AND (rdv_reminder_minutes <= 1440)))`
 - Check: `((username ~ '^[a-z0-9][a-z0-9_.]{2,19}$'::text))`
 - Check: `((locale ~ '^[a-z]{2}$'::text))`
+- Checks *(0012–0013)*: `profiles_banned_reason_length`, `profiles_bio_length`, `profiles_home_length`, `profiles_home_coords`, `profiles_public_fields`, `profiles_public_events`
+- Indexes *(0012)*: `idx_profiles_last_seen`, `idx_profiles_created`, `idx_profiles_banned` (partial)
 - RLS: `profiles_insert_own` (insert), `profiles_select_own` (select), `profiles_update_own` (update)
-- Triggers: `trg_profiles_birthday`, `trg_profiles_check_tz`, `trg_profiles_updated`, `trg_profiles_username_fixed`
+- Triggers: `trg_profiles_birthday`, `trg_profiles_check_tz`, `trg_profiles_updated`, `trg_profiles_username_fixed`,
+  `trg_profiles_guard_server_fields` *(0012: `banned_*`, `last_seen_at`, `created_at` can't be changed through the API → `seeu:forbidden_field`)*
 
 ### `contacts`
 
@@ -344,6 +436,8 @@ My private address book: one card per person I want to keep seeing. `next_due_da
 | `linked_user_id` | uuid | yes |  | FK → `auth.users.id` (on delete set null) |
 | `added_on` | date | no | `CURRENT_DATE` |  |
 | `categories` | text[] | no | `'{}'[]` |  |
+| `city` / `country` | text | yes |  | *(0014)* where this person lives |
+| `lat` / `lng` | float8 | yes |  | *(0014)* both or neither (`contacts_coords`) |
 
 - Unique index `idx_contacts_linked_user` on `(user_id, linked_user_id)` where `(linked_user_id IS NOT NULL)`
 - Check: `((cardinality(categories) <= 10))`
@@ -405,6 +499,8 @@ My copy of an event ("rendez-vous"): every participant has their own row, holdin
 | `event_id` | uuid | yes |  | FK → `events.id` (on delete set null) |
 | `rsvp` | text | yes |  |  |
 | `chat_read_at` | timestamptz | yes |  |  |
+| `show_on_profile` | boolean | no | `false` | *(0013)* show this public event on my public profile ("Choisis" mode) |
+| `travel_hint_sent` | boolean | no | `false` | *(0014)* travel hint pushed; reset when the date or place changes |
 
 - Unique index `idx_rdv_event_user` on `(event_id, user_id)` where `(event_id IS NOT NULL)`
 - Check: `((rsvp = ANY (ARRAY['pending'::text, 'accepted'::text, 'declined'::text])))`
@@ -622,6 +718,52 @@ Who may publish **public** events. No app access: managed in the SQL editor (see
 
 - RLS: enabled, **no policy** (no direct app access; only through functions)
 
+### `reports` *(0012)*
+
+A report from the app: a person, or one of their events, photos or chat messages. The
+reported person is derived from the target; a `snapshot` keeps what was reported.
+Reporters see their own reports, never others'; only admins handle them.
+
+| Column | Type | Null | Default | Key / notes |
+| --- | --- | --- | --- | --- |
+| `id` | uuid | no | `gen_random_uuid()` | **PK** |
+| `reporter_id` | uuid | yes |  | FK → `auth.users.id` (on delete set null) |
+| `reported_user_id` | uuid | no |  | FK → `auth.users.id` (on delete cascade) |
+| `target_type` | text | no | `'user'` | `user` \| `event` \| `photo` \| `message` |
+| `event_id` / `photo_id` / `message_id` | uuid | yes |  | FK → `events` / `photos` / `event_messages` (on delete set null) |
+| `reason` | text | no |  | `spam` \| `harassment` \| `inappropriate` \| `fake_profile` \| `other` |
+| `comment` | text | yes |  | ≤ 1000 |
+| `snapshot` | jsonb | no | `'{}'` | reported person + content at report time |
+| `status` | text | no | `'pending'` | `pending` \| `reviewed` \| `dismissed` \| `actioned` |
+| `admin_note` | text | yes |  | ≤ 2000, admins only |
+| `reviewed_by` | uuid | yes |  | FK → `auth.users.id` (on delete set null) |
+| `reviewed_at`, `created_at`, `updated_at` | timestamptz | | | |
+
+- Indexes: `idx_reports_status (status, created_at desc)`, `idx_reports_reported`, `idx_reports_reporter`
+- RLS: `reports_select_own` (select), `reports_insert_own` (insert). Column privileges: reporters
+  read `id, reporter_id, reported_user_id, target_type, event_id, photo_id, message_id, reason, comment, status, created_at`
+  (never `admin_note`, `snapshot`, `reviewed_by`); no update / delete.
+- Triggers: `trg_reports_before_insert` (target visible to the reporter, reported person from the target,
+  snapshot, status forced to `pending`, max 20 a day → `seeu:too_many_reports`), `trg_reports_updated`
+
+### `admins` *(0012)*
+
+Who may use the admin website. Managed in the SQL editor (see [`API_SITE.md`](API_SITE.md) §3).
+Columns `user_id` (**PK**, FK → `auth.users`), `note`, `created_at`. RLS enabled, no policy, no grants.
+
+### `admin_actions` *(0012)*
+
+Log of every admin action, written by the admin RPCs: `id`, `admin_id`, `action`
+(`ban` \| `unban` \| `report_status` \| `report_note`), `target_user`, `report_id`, `details` (jsonb:
+reason, from/to status, note), `created_at`. RLS enabled, no policy, no grants (read with `admin_list_actions`).
+
+### `app_sessions` *(0012)*
+
+One row per app session (foreground with gaps under 30 minutes), written by `touch_session()`.
+Columns `id`, `user_id`, `started_at`, `last_seen_at`, `platform` (`android` \| `ios` \| `web` \| `other`),
+`app_version`. Indexes on `(user_id, last_seen_at desc)`, `started_at`, `last_seen_at`.
+RLS: `app_sessions_select_own`; no insert / update / delete for clients. Purged after 400 days (`seeu-purge-sessions`).
+
 ## 6. Functions
 
 App-callable (granted to `authenticated`, called with `supabase.rpc(...)`):
@@ -633,14 +775,31 @@ App-callable (granted to `authenticated`, called with `supabase.rpc(...)`):
 | Events | `save_event(jsonb)`, `get_event`, `list_feed_events`, `join_event`, `list_event_participants`, `list_event_guests`, `send_rdv_invite`, `respond_rdv_invite`, `list_rdv_invites`, `list_shared_rdv_photos` |
 | Timeslots | `list_event_slots`, `vote_slot`, `submit_availability`, `choose_event_slot` |
 | Chat | `list_event_messages` (posting is a plain insert, checked by RLS) |
-| Moderation | `block_user`, `unblock_user`, `list_blocked_users`, `list_mutes`, `can_create_public_events` |
+| Moderation | `block_user`, `unblock_user`, `list_blocked_users`, `list_mutes`, `can_create_public_events`, `report_content(reason, comment?, user?, event?, photo?, message?)` *(0012)* |
+| Profiles *(0013)* | `get_user_profile(username)`: another user's page as I may see it (relation, visible fields, events; never a private event) |
+| Travel *(0014)* | `people_near(lat, lng, event?)`: friends / contacts living ≤ 40 km from a place ≥ 40 km from my home |
+| Activity *(0012)* | `touch_session(platform, version)` |
+
+Website (see [`API_SITE.md`](API_SITE.md)):
+
+| Area | Functions |
+| --- | --- |
+| Public, granted to `anon` *(0013)* | `get_public_profile(username)`, `get_public_event(id)` |
+| Admin, role checked by `require_admin()` *(0012)* | `is_admin`, `admin_stats`, `admin_stats_daily`, `admin_list_reports`, `admin_get_report`, `admin_update_report`, `admin_ban_user`, `admin_unban_user`, `admin_search_users`, `admin_get_user`, `admin_list_actions`, `admin_can_read_reported_photo` (storage policy) |
 
 Internal (revoked from the app; used by triggers, jobs and other functions):
 `save_event_core`, `apply_event_guest_option`, `set_event_slots`, `refresh_event_counts`,
 `send_rdv_invite_as`, `link_contact_internal`, `copy_contact_for`, `ensure_friend_contact`,
 `block_user_core`, `are_friends`, `is_blocked`, `is_muted`, `display_name_of`, `user_tz`,
 `event_params`, `enqueue_notification`, `request_dispatch`, `dispatch_if_pending`,
-`broadcast_event`, `run_reminders`, `run_event_checks`.
+`broadcast_event`, `run_reminders`, `run_event_checks`; *(0012–0014)* `is_banned`, `require_admin`,
+`set_auth_ban`, `public_profile_events`, `people_near_for`, `distance_km`, `run_travel_hints`.
+
+Since 0012, `is_blocked(a, b)` is also true when either account is **banned**: a ban hides the
+account everywhere a block does (search, feeds, events, participants, avatars, notifications,
+friend requests); `list_friends` leaves banned accounts out too.
+`seeu_pre_request()` is PostgREST's `db_pre_request` hook (set on the `authenticator` role):
+every request of a banned account fails with `seeu:banned`.
 
 Trigger functions (the `trg_*` listed per table) keep copies in sync, maintain counters and
 queue notifications.
@@ -649,7 +808,7 @@ queue notifications.
 
 | Bucket | Public | Max size | Path | Access |
 | --- | --- | --- | --- | --- |
-| `photos` | no | 10 MB | `<user_id>/<random>.jpg` (+ thumbnail) | Owner read/write; participants of a shared event read its photos (`photos_storage_select_shared`); the app uses signed URLs (1 h) |
+| `photos` | no | 10 MB | `<user_id>/<random>.jpg` (+ thumbnail) | Owner read/write; participants of a shared event read its photos (`photos_storage_select_shared`); admins read reported photos (`photos_storage_select_reported`, 0012); the app uses signed URLs (1 h) |
 | `avatars` | yes | 2 MB | `<user_id>/<random>.jpg` | Anyone with the (unguessable) URL reads; only the owner writes, lists, deletes |
 
 ## 8. Jobs and realtime
@@ -659,6 +818,8 @@ queue notifications.
 | `seeu-dispatch` | every minute | `dispatch_if_pending()`: wakes the `dispatch` Edge Function if notifications wait |
 | `seeu-reminders` | every 10 min | `run_reminders()`: event reminders, daily digest of contacts to see, birthdays |
 | `seeu-event-checks` | every 10 min | `run_event_checks()`: "is it happening?" to the organizer at the start and 4 h later, auto "happened" after 24 h |
+| `seeu-travel-hints` *(0014)* | hourly (`:05`) | `run_travel_hints()`: at each user's daily hour, one push 12 h – 4 days before an event ≥ 40 km from home where friends / contacts live |
+| `seeu-purge-sessions` *(0012)* | daily 03:17 | deletes `app_sessions` older than 400 days |
 
 Realtime publication `supabase_realtime`: `event_messages` (live chat).
 
@@ -711,6 +872,40 @@ flowchart LR
   F -.->|no device| E[Email fallback]
   F -->|status sent| N
 ```
+
+### Report, review, ban *(0012)*
+
+```mermaid
+sequenceDiagram
+  actor U as User (app)
+  actor A as Admin (website)
+  participant DB as Postgres
+  U->>DB: report_content(reason, comment, target)
+  DB->>DB: trg_reports_before_insert: target visible? snapshot, status pending
+  A->>DB: admin_list_reports('pending') / admin_get_report(id)
+  A->>DB: admin_update_report(id, 'reviewed', note)
+  A->>DB: admin_ban_user(user, reason, report)
+  DB->>DB: profiles.banned_at, auth.users.banned_until, sessions revoked
+  DB->>DB: admin_actions (report_status, ban)
+  Note over DB: is_blocked() now true for that account → hidden everywhere;<br/>seeu_pre_request refuses its requests (seeu:banned)
+```
+
+### Public profile *(0013)*
+
+```mermaid
+flowchart LR
+  L["https://site/u/andrea"] -->|app installed| APP["/u/andrea → get_user_profile"]
+  L -->|browser| SITE["website → get_public_profile (anon)"]
+  SITE -->|public_profile off / banned| NF[profile not found]
+  SITE -->|on| F["public_fields + public events<br/>(public_events: none / selected / all)"]
+```
+
+### Travel hint *(0014)*
+
+An event (organized or joined) whose place is ≥ 40 km from my home: the event page and the
+form show the friends (city shared with friends or public) and contacts (city on my card) living
+≤ 40 km from it, except those already in the event; `run_travel_hints()` pushes it once, a few
+days before.
 
 ## 10. Changing the schema
 

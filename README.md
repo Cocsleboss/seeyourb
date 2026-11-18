@@ -121,7 +121,10 @@ flutter test test/screens_test.dart --update-goldens   # also writes screenshots
 ```
 
 The SQL is validated against a throw-away PostgreSQL 17 (social flow, events and
-visibility, timeslots, chat RLS, mutes/blocks, reminders): see `supabase/tests/README.md`.
+visibility, timeslots, chat RLS, mutes/blocks, reminders, public profiles, travel hints,
+reports / admins / bans / statistics): see `supabase/tests/README.md`.
+
+The website (step 2) only uses the RPCs listed in [`docs/API_SITE.md`](docs/API_SITE.md).
 
 Translations: edit `tool/i18n/strings/*.txt`, then
 `python3 tool/i18n/build_arb.py && flutter gen-l10n`.
@@ -129,9 +132,10 @@ Translations: edit `tool/i18n/strings/*.txt`, then
 ## Before the first store release
 
 - **App id** is `com.seeuapp.mobile` on both platforms (`app.seeu` and `com.seeuapp.seeu` were already taken on Apple's side).
-- **Share links** use the `seeu://` scheme, which most messaging apps don't make clickable.
-  Set up a domain with Android App Links / iOS Universal Links and pass it as `SHARE_LINK_BASE`
-  (and `APP_DOWNLOAD_URL` for invitations to people without the app).
+- **Share links** (`/u/<username>`, `/e/<event id>`) use the `seeu://` scheme until the website
+  exists, and most messaging apps don't make it clickable. With the site's domain: set
+  `SHARE_LINK_BASE` (and `APP_DOWNLOAD_URL`), `seeu.linkHost` in `android/gradle.properties`, the
+  Associated Domains capability on iOS, and serve [`deeplinks/.well-known/`](deeplinks/README.md).
 - **Android signing**: replace the debug signing config in `android/app/build.gradle.kts`.
 - **Icons**: `flutter test tool/render_icon_test.dart && dart run flutter_launcher_icons`
   regenerates the launcher icons from the logo drawn in `lib/ui/logo.dart`. Afterwards check
