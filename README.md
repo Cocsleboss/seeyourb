@@ -137,6 +137,8 @@ Translations: edit `tool/i18n/strings/*.txt`, then
   the app also shows the `seeu://` test link. With the site's domain: set
   `WEBSITE_URL` (and `APP_DOWNLOAD_URL`), `seeu.linkHost` in `android/gradle.properties`, the
   Associated Domains capability on iOS, and serve [`deeplinks/.well-known/`](deeplinks/README.md).
+- **Test links**: set `"SHOW_APP_LINKS": false` in `config/env.json` for store builds (hides the
+  `seeu://` test links shown next to the https invitation and profile links).
 - **Android signing**: replace the debug signing config in `android/app/build.gradle.kts`.
 - **Icons**: `flutter test tool/render_icon_test.dart && dart run flutter_launcher_icons`
   regenerates the launcher icons from the logo drawn in `lib/ui/logo.dart`. Afterwards check

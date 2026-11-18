@@ -25,6 +25,9 @@ Choix techniques
 
 PARTIE 1 — Pages publiques
 --------------------------
+⚠ Mise à jour : docs/WEBSITE.md fait foi pour les pages publiques (adresses /@<username> et
+/j/<token>, bouton « Ajouter sur SeeU » = demande d'ami, événements publics masqués pour
+l'instant, ouverture de l'app via seeu://app/…). En cas de différence avec ce qui suit, suivre WEBSITE.md.
 1. Profil public : /u/<username>
    - Appelle la RPC publique de profil de l'étape 1.
    - Affiche uniquement les informations que l'utilisateur a rendues publiques (photo, nom, ville, bio…)
