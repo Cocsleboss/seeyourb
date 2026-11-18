@@ -33,6 +33,9 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Domain of the https share links (Android App Links): same host as SHARE_LINK_BASE.
+        // Change it in android/gradle.properties (seeu.linkHost) once the website's domain is chosen.
+        manifestPlaceholders["linkHost"] = (project.findProperty("seeu.linkHost") as String?) ?: "seeu.app"
     }
 
     buildTypes {
