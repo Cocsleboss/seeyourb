@@ -1,0 +1,90 @@
+ÉTAPE 2 / 2 — SITE WEB SeeU (pages publiques + interface administrateur)
+========================================================================
+
+Contexte
+--------
+L'étape 1 (app Flutter + backend Supabase) est terminée. Elle a créé tout le backend nécessaire :
+lis d'abord docs/API_SITE.md (RPC disponibles, champs renvoyés, fichiers deep link), puis docs/DATABASE.md.
+Le site ne doit utiliser QUE ces RPC / vues : n'ajoute pas d'accès direct aux tables. Si une donnée manque,
+ajoute une migration + RPC sécurisée (RLS / vérification admin) et mets la documentation à jour.
+
+Le site a deux parties :
+  1. Les pages publiques (accessibles sans compte ni app) — canal d'acquisition.
+  2. L'interface administrateur (protégée) — modération et statistiques.
+
+Choix techniques
+----------------
+- Crée le site dans un dossier dédié du dépôt (ex. web_site/ ou site/), indépendant de l'app Flutter.
+- Choisis une stack simple à héberger (ex. Next.js ou SvelteKit + supabase-js) et justifie-la en 3 lignes.
+- Pages publiques rendues côté serveur (SSR) pour que les aperçus de liens (Open Graph) fonctionnent
+  sur Instagram, WhatsApp, Messenger.
+- Clé anonyme Supabase côté navigateur ; jamais de clé service_role exposée au client.
+- Français par défaut, anglais prévu (même ton que l'app).
+- Mobile d'abord : la majorité des visiteurs arrivent depuis un téléphone.
+
+
+PARTIE 1 — Pages publiques
+--------------------------
+1. Profil public : /u/<username>
+   - Appelle la RPC publique de profil de l'étape 1.
+   - Affiche uniquement les informations que l'utilisateur a rendues publiques (photo, nom, ville, bio…)
+     et ses événements publics sélectionnés.
+   - Profil désactivé, inexistant ou banni → page « profil introuvable » (sans révéler la raison).
+   - Balises Open Graph / Twitter (nom, photo, description) pour un bel aperçu au partage.
+   - Bouton « Ajouter en contact » :
+       · app installée → ouvre l'app sur ce profil (deep link) ;
+       · app non installée → propose de télécharger l'app / créer un compte, en conservant la destination
+         (paramètre dans le lien de store / deferred deep link si possible, sinon lien de retour après
+         inscription) pour arriver directement sur ce profil une fois inscrit.
+2. Événement public : /e/<id ou code> (si l'étape 1 a mis les invitations en https)
+   - Même logique : aperçu de l'événement public, bouton Rejoindre → app ou inscription avec destination conservée.
+   - Un événement 'contacts' ou 'private' n'est jamais affiché ici.
+3. Fichiers deep link à servir
+   - /.well-known/assetlinks.json (Android App Links) et /.well-known/apple-app-site-association (iOS),
+     générés à l'étape 1 : servis avec le bon content-type, sans redirection.
+4. Page d'accueil minimale (/) : présentation de SeeU + liens de téléchargement.
+
+
+PARTIE 2 — Interface administrateur : /admin
+-------------------------------------------
+Accès
+- Connexion via Supabase Auth ; accès réservé aux comptes ayant le rôle admin (vérifié côté serveur
+  ET par les RPC admin de l'étape 1). Tout autre compte → 403.
+
+A. Dashboard (page d'accueil admin)
+   Affiche directement, sans requête manuelle, via la RPC admin_stats() :
+   - Sessions ouvertes aujourd'hui
+   - Nombre total d'utilisateurs inscrits
+   - Utilisateurs actifs aujourd'hui
+   - Nouveaux inscrits aujourd'hui
+   - Actifs 7 jours (WAU) et 30 jours (MAU)
+   - Signalements en attente
+   - Comptes bannis
+   - Sessions simultanées (approximation)
+   Présentation : une rangée de tuiles chiffrées + si possible une courbe des inscriptions / actifs
+   sur 30 jours. Structure le code pour pouvoir ajouter facilement d'autres métriques plus tard.
+
+B. Signalements
+   - Liste des signalements, filtre par statut (en attente par défaut), tri par date.
+   - Détail : qui signale, qui est signalé, motif, commentaire, cible (événement / photo / message) et
+     lien vers la fiche de l'utilisateur signalé ; nombre de signalements déjà reçus par cette personne.
+   - Actions : marquer traité / rejeté, ajouter une note admin, bannir l'utilisateur.
+
+C. Utilisateurs
+   - Recherche par username / nom.
+   - Fiche utilisateur avec les informations importantes d'un coup d'œil : date d'inscription, dernière
+     activité, statut (actif / banni), nombre d'amis, d'événements créés, signalements reçus et émis.
+   - Actions : bannir (avec motif obligatoire) / débannir. Confirmation avant chaque action.
+   - Journaliser les actions admin (qui, quoi, quand) — table admin_actions si elle n'existe pas.
+
+
+Points à vérifier en fin d'étape
+--------------------------------
+- Un signalement créé dans l'app apparaît bien dans /admin et son traitement met à jour son statut.
+- Un utilisateur banni depuis /admin est bloqué dans l'app et son profil public disparaît.
+- Un lien /u/<username> partagé sur WhatsApp affiche un aperçu, ouvre l'app si installée, sinon mène à
+  l'inscription puis au profil.
+- Aucun événement privé ni aucune donnée non autorisée n'est visible sur les pages publiques (tester avec
+  un compte qui a tout masqué).
+- Un compte non admin ne peut ni voir /admin ni appeler les RPC admin.
+- Rédige docs/SITE.md : lancement en local, variables d'environnement, déploiement, ajout d'une métrique.

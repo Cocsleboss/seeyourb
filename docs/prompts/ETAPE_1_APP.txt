@@ -1,0 +1,123 @@
+ÉTAPE 1 / 2 — APPLICATION SeeU (Flutter + Supabase)
+====================================================
+
+Contexte
+--------
+Tu continues le développement de l'app SeeU (dépôt actuel : Flutter dans lib/, Supabase dans supabase/,
+documentation dans docs/ — lis d'abord README.md, docs/DATABASE.md et docs/SETUP.md).
+Cette étape couvre TOUT ce qui touche l'application mobile ET le backend Supabase (tables, RLS, RPC).
+Le site web (pages publiques + interface administrateur) sera fait à l'étape 2 : il s'appuiera
+uniquement sur ce que tu exposes ici. Prévois donc le backend en conséquence, mais ne construis pas le site.
+
+Règles de travail
+-----------------
+- Avant chaque fonctionnalité, vérifie ce qui existe déjà (beaucoup de choses sont partiellement en place,
+  voir « Points de départ connus » ci-dessous). Réutilise, ne duplique pas.
+- Une migration SQL par lot cohérent, numérotée à la suite des existantes (dernière : 0011_no_reminder).
+- Toute nouvelle table : RLS activée, politiques explicites. Rien de privé ne doit fuiter.
+- Textes de l'UI dans lib/l10n/app_fr.arb ET app_en.arb.
+- Mets à jour docs/DATABASE.md à chaque changement de schéma.
+- Ajoute des tests (test/ et supabase/tests/) pour les règles de confidentialité et de visibilité.
+
+Points de départ connus (à vérifier dans le code)
+-------------------------------------------------
+- profiles.username existe déjà (unique, format ^[a-z0-9][a-z0-9_.]{2,19}$) → base naturelle du lien de profil.
+- events.visibility existe déjà avec 'private' | 'contacts' | 'public' (défaut 'private').
+- Config.shareLinkBase (lib/core/config.dart) existe, aujourd'hui 'seeu://app' ; le router gère déjà
+  les liens entrants (lib/core/router.dart, « Opens a path coming from a notification or a deep link »)
+  et « /friends?q=andrea » pour les liens partagés.
+- Ajout d'amis depuis les participants d'un événement : déjà fait (commit a8eb944) — à étendre, pas à refaire.
+- Aucune table de signalement, aucun bannissement, aucune ville de résidence n'existent encore.
+
+
+PARTIE A — Visibilité des événements (à clarifier en premier, le reste en dépend)
+--------------------------------------------------------------------------------
+Trois niveaux, à afficher clairement à la création/édition d'un événement :
+1. Public      ('public')   : tout le monde peut le voir et le rejoindre, y compris via le profil public.
+2. Amis        ('contacts') : tous mes amis SeeU peuvent le voir (et demander à le rejoindre / le rejoindre).
+3. Privé       ('private')  : restreint aux seules personnes invitées. Valeur par défaut.
+- Vérifie que la RLS events_select_visible respecte exactement ces règles et ajoute des tests.
+- Un événement privé ne doit JAMAIS apparaître sur un profil public ni dans une découverte.
+- Pour « public », ajoute la possibilité de rejoindre directement (sans invitation).
+
+
+PARTIE B — Profil public et lien de partage
+-------------------------------------------
+1. Lien unique par profil
+   - URL propre basée sur le username, ex. https://<domaine>/u/<username>
+     (le domaine sera celui du site de l'étape 2 ; garde-le configurable via SHARE_LINK_BASE).
+   - Écran « Mon profil » : bouton Copier le lien + bouton Partager (feuille de partage native :
+     Instagram, WhatsApp, Messenger, etc.), éventuellement un QR code.
+2. Paramètres de confidentialité du profil public (nouveaux réglages dans Paramètres)
+   - Profil public activé / désactivé.
+   - Choix des informations visibles : photo, nom affiché, ville de résidence, bio, etc.
+   - Choix des événements visibles : uniquement parmi les événements 'public' ; par défaut aucun n'est
+     exposé tant que l'utilisateur ne l'a pas choisi (ou option « afficher mes événements publics »).
+3. Backend pour le site (étape 2)
+   - Une RPC / vue publique (accessible avec la clé anonyme) du type get_public_profile(username) qui renvoie
+     UNIQUEMENT les champs autorisés par l'utilisateur + ses événements publics sélectionnés.
+     Jamais d'email, jamais de données de contacts, jamais d'événement 'contacts' ou 'private'.
+     Renvoie « introuvable » si le profil est désactivé ou le compte banni.
+4. Deep links (App Links Android / Universal Links iOS)
+   - Le lien https://<domaine>/u/<username> ouvre l'app directement sur le profil si elle est installée.
+   - Faire de même pour les liens d'invitation à un événement (ex. /e/<id ou code>) s'ils ne sont pas déjà en https.
+   - Conservation de la destination pendant l'inscription : si l'utilisateur n'est pas connecté,
+     mémoriser la destination (profil ou événement), passer par la connexion / création de compte,
+     puis rediriger automatiquement vers cette destination.
+   - Prévoir les fichiers nécessaires (assetlinks.json, apple-app-site-association) : les générer dans
+     le dépôt et documenter qu'ils devront être servis par le site à l'étape 2.
+5. Écran profil d'un autre utilisateur (dans l'app)
+   - Affiche les infos visibles + ses événements visibles pour moi.
+   - Bouton « Ajouter en contact / ami » directement depuis le profil.
+
+
+PARTIE C — Découverte et ajout de contacts
+------------------------------------------
+- Permettre de consulter le profil des participants des événements de mes amis, même si je ne les connais pas.
+  (Vérifie d'abord ce qui est déjà possible depuis la liste des participants — commit a8eb944.)
+- Depuis ce profil : ajouter la personne en contact / envoyer une demande d'ami.
+- Respecter la confidentialité : seules les infos que la personne a rendues visibles sont montrées.
+
+
+PARTIE D — Ville de résidence et rappel de voyage
+-------------------------------------------------
+- Ajouter la ville de résidence (+ pays, + coordonnées) sur le profil SeeU, et aussi sur les fiches contact
+  (pour les contacts qui n'ont pas de compte). Réutiliser le champ de lieu existant (lib/maps/place_field.dart).
+- Rappel « tu pourrais voir cette personne » : quand je crée un événement / rendez-vous (ou un voyage) dont
+  le lieu est dans une autre ville ou un autre pays que ma résidence, et qu'un de mes amis / contacts habite
+  là-bas (ou à proximité), proposer : « X habite à <ville>, tu pourrais le/la voir pendant ton séjour ».
+  - Suggestion dans l'app (et notification push si pertinent, en respectant les préférences de notification).
+  - Envisager un type simple « Voyage » (dates + destination) si les événements ne suffisent pas ; choisis
+    la solution la plus simple et explique ton choix.
+- La ville d'un ami n'est utilisée que si elle m'est visible (réglage de confidentialité de la partie B).
+
+
+PARTIE E — Signalement des utilisateurs (côté app + backend)
+-----------------------------------------------------------
+- Bouton « Signaler » sur le profil d'un utilisateur (et idéalement sur un événement / une photo / un message).
+- Formulaire : motif (liste fermée : spam, harcèlement, contenu inapproprié, faux profil, autre) + commentaire.
+- Nouvelle table reports : reporter_id, reported_user_id, cible optionnelle (event / photo / message),
+  motif, commentaire, statut ('pending' | 'reviewed' | 'dismissed' | 'actioned'), dates, note admin.
+  RLS : un utilisateur peut créer un signalement et voir les siens, jamais ceux des autres.
+- Bannissement : colonne banned_at / banned_reason sur profiles (ou table dédiée). Un compte banni ne peut
+  plus se connecter / utiliser l'app (message clair), et n'apparaît plus nulle part (profil public, recherche).
+- Rôle administrateur : table admins (ou claim) + fonctions RPC réservées aux admins (security definer,
+  vérification du rôle) pour : lister les signalements, changer leur statut, bannir / débannir, consulter
+  la fiche d'un utilisateur. Ces RPC seront appelées par le site de l'étape 2.
+- Métriques : prépare ce qu'il faut pour les statistiques de l'étape 2 — enregistrer l'activité
+  (ex. profiles.last_seen_at et/ou une table app_sessions avec début de session) depuis l'app,
+  et une RPC admin_stats() réservée aux admins qui renvoie : sessions ouvertes aujourd'hui, total inscrits,
+  actifs aujourd'hui, nouveaux inscrits aujourd'hui, actifs 7 j (WAU), actifs 30 j (MAU),
+  signalements en attente, comptes bannis, sessions simultanées (approximation : actifs dans les 5 dernières min).
+
+
+Critères de fin d'étape 1
+-------------------------
+- Les 3 niveaux de visibilité sont testés (aucun événement privé exposé).
+- Un lien de profil partagé ouvre l'app sur le bon profil ; non connecté → inscription → retour au profil.
+- La RPC publique de profil ne renvoie que les champs autorisés (testé).
+- Signaler un utilisateur crée une ligne dans reports ; un admin peut la lire via RPC, un non-admin non.
+- Un compte banni est bloqué.
+- admin_stats() renvoie toutes les métriques.
+- docs/DATABASE.md à jour + un court fichier docs/API_SITE.md qui liste précisément les RPC, les champs
+  renvoyés et les fichiers deep link à servir : c'est le document d'entrée de l'étape 2.
