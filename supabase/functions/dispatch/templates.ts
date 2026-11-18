@@ -142,6 +142,17 @@ const fr: Record<string, (c: Ctx) => Rendered> = {
   event_join: (c) => ({ title: `${c.p.name} vient à ${str(c.p.title) ?? "votre événement"} 🎉`, body: eventLine(c, { place: false }) }),
   event_message: (c) => ({ title: `${c.p.name} · ${str(c.p.title) ?? "Discussion"}`, body: String(c.p.text ?? "") }),
   event_announcement: (c) => ({ title: `📣 ${str(c.p.title) ?? c.p.name}`, body: String(c.p.text ?? "") }),
+  travel_nearby: (c) => {
+    const who = list(c.p.names);
+    const count = typeof c.p.count === "number" ? c.p.count : who.length;
+    const city = str(c.p.city);
+    const others = count - Math.min(who.length, 1);
+    const head = others > 0 ? `${who[0]} et ${others} autre${others > 1 ? "s" : ""}` : who[0] ?? "Quelqu'un";
+    return {
+      title: `📍 ${head} ${count > 1 ? "habitent" : "habite"} ${city ? `à ${city}` : "sur place"}`,
+      body: `${eventLine(c)}. L'occasion de se voir pendant votre séjour ?`,
+    };
+  },
 };
 
 const en: Record<string, (c: Ctx) => Rendered> = {
@@ -224,6 +235,17 @@ const en: Record<string, (c: Ctx) => Rendered> = {
   event_join: (c) => ({ title: `${c.p.name} is coming to ${str(c.p.title) ?? "your event"} 🎉`, body: eventLine(c, { place: false }) }),
   event_message: (c) => ({ title: `${c.p.name} · ${str(c.p.title) ?? "Chat"}`, body: String(c.p.text ?? "") }),
   event_announcement: (c) => ({ title: `📣 ${str(c.p.title) ?? c.p.name}`, body: String(c.p.text ?? "") }),
+  travel_nearby: (c) => {
+    const who = list(c.p.names);
+    const count = typeof c.p.count === "number" ? c.p.count : who.length;
+    const city = str(c.p.city);
+    const others = count - Math.min(who.length, 1);
+    const head = others > 0 ? `${who[0]} and ${others} other${others > 1 ? "s" : ""}` : who[0] ?? "Someone";
+    return {
+      title: `📍 ${head} ${count > 1 ? "live" : "lives"} ${city ? `in ${city}` : "there"}`,
+      body: `${eventLine(c)}. A chance to meet during your stay?`,
+    };
+  },
 };
 
 const templates: Record<Lang, Record<string, (c: Ctx) => Rendered>> = { fr, en };
