@@ -2900,18 +2900,6 @@ abstract class AppLocalizations {
   /// **'Planifier le rendez-vous'**
   String get planTheRdv;
 
-  /// No description provided for @createContactFirst.
-  ///
-  /// In fr, this message translates to:
-  /// **'Créez d\'abord un contact pour pouvoir planifier un rendez-vous.'**
-  String get createContactFirst;
-
-  /// No description provided for @createAContact.
-  ///
-  /// In fr, this message translates to:
-  /// **'Créer un contact'**
-  String get createAContact;
-
   /// No description provided for @date.
   ///
   /// In fr, this message translates to:
@@ -5300,12 +5288,6 @@ abstract class AppLocalizations {
   /// **'Personne pour l\'instant ? Après la création, vous pourrez partager un lien d\'invitation.'**
   String get withWhomPrivateHint;
 
-  /// No description provided for @noContactsShareLater.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore de contacts : créez l\'événement, puis partagez un lien d\'invitation.'**
-  String get noContactsShareLater;
-
   /// No description provided for @guestsCanInviteOnHelp.
   ///
   /// In fr, this message translates to:
@@ -5347,6 +5329,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Amis SeeU sans fiche'**
   String get groupFriendsNoCard;
+
+  /// No description provided for @copied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copié'**
+  String get copied;
+
+  /// No description provided for @withWhomEmptyPrivate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personne à ajouter pour l\'instant : une fois l\'événement créé, vous pourrez inviter avec un lien.'**
+  String get withWhomEmptyPrivate;
+
+  /// No description provided for @withWhomEmptyFriends.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos amis SeeU le verront et pourront le rejoindre. Vous pourrez aussi inviter avec un lien.'**
+  String get withWhomEmptyFriends;
 
   /// No description provided for @publicProfileTitle.
   ///

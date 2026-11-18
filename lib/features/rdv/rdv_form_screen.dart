@@ -258,20 +258,24 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             const SizedBox(height: 4),
           ],
 
-          // 1. My contacts taking part
+          // 1. Who takes part. Nobody in my list yet (often a new user): one
+          // short line, no "create a contact" detour; the invitation link
+          // comes right after creating the event.
           LabeledField(
             label: _contactsRequired ? tr.participants : tr.withWhomOptional,
             icon: LucideIcons.users,
             required: _contactsRequired,
-            hint: !_organizer ? null : (_visibility == EventVisibility.private ? tr.withWhomPrivateHint : tr.withWhomHint),
+            hint: !_organizer || widget.contacts.isEmpty
+                ? null
+                : (_visibility == EventVisibility.private ? tr.withWhomPrivateHint : tr.withWhomHint),
             error: _error == tr.chooseOneContact ? _error : null,
             child: widget.contacts.isEmpty
-                ? AppCard(
-                    child: Column(children: [
-                      Text(_organizer ? tr.noContactsShareLater : tr.createContactFirst, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
-                      const SizedBox(height: 12),
-                      AppButton(tr.createAContact, icon: LucideIcons.userPlus, onPressed: () => context.push('/contacts/new')),
-                    ]),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      _visibility == EventVisibility.contacts ? tr.withWhomEmptyFriends : tr.withWhomEmptyPrivate,
+                      style: TextStyle(color: c.textMuted, fontSize: 14.5, height: 1.4),
+                    ),
                   )
                 : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     if (selected.isNotEmpty) ...[

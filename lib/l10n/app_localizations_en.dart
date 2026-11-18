@@ -1832,12 +1832,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planTheRdv => 'Plan the event';
 
   @override
-  String get createContactFirst => 'Create a contact first to plan an event.';
-
-  @override
-  String get createAContact => 'Create a contact';
-
-  @override
   String get date => 'Date';
 
   @override
@@ -3275,10 +3269,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nobody yet? Once it\'s created, you can share an invitation link.';
 
   @override
-  String get noContactsShareLater =>
-      'No contacts yet: create the event, then share an invitation link.';
-
-  @override
   String get guestsCanInviteOnHelp =>
       'By inviting their SeeU friends, or with an invitation link.';
 
@@ -3304,6 +3294,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupFriendsNoCard => 'SeeU friends without a card';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get withWhomEmptyPrivate =>
+      'Nobody to add yet: once the event is created, you can invite people with a link.';
+
+  @override
+  String get withWhomEmptyFriends =>
+      'Your SeeU friends will see it and can join. You can also invite people with a link.';
 
   @override
   String get publicProfileTitle => 'Public profile & sharing';

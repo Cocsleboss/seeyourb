@@ -41,8 +41,6 @@ invitationsSentN | Invitations envoyées à {n} amis | Invitations sent to {n} f
 titleExample | Ex. Déjeuner, café, visio… | E.g. Lunch, coffee, video call…
 saveChanges | Enregistrer les modifications | Save changes
 planTheRdv | Planifier le rendez-vous | Plan the event
-createContactFirst | Créez d'abord un contact pour pouvoir planifier un rendez-vous. | Create a contact first to plan an event.
-createAContact | Créer un contact | Create a contact
 date | Date | Date
 time | Heure | Time
 titleOptional | Titre | Title

@@ -1149,8 +1149,6 @@
   "titleExample": "Ex. Déjeuner, café, visio…",
   "saveChanges": "Enregistrer les modifications",
   "planTheRdv": "Planifier le rendez-vous",
-  "createContactFirst": "Créez d'abord un contact pour pouvoir planifier un rendez-vous.",
-  "createAContact": "Créer un contact",
   "date": "Date",
   "time": "Heure",
   "titleOptional": "Titre",
@@ -1914,7 +1912,6 @@
     }
   },
   "withWhomPrivateHint": "Personne pour l'instant ? Après la création, vous pourrez partager un lien d'invitation.",
-  "noContactsShareLater": "Pas encore de contacts : créez l'événement, puis partagez un lien d'invitation.",
   "guestsCanInviteOnHelp": "En invitant leurs amis SeeU, ou avec un lien d'invitation.",
   "publicProfileOffInfo2": "Désactivé : pas de page web ni de lien. On peut vous ajouter depuis l'app SeeU, en cherchant @{username}.",
   "@publicProfileOffInfo2": {
@@ -1939,6 +1936,9 @@
   "friendNoCity": "Pas de ville indiquée",
   "friendNoCard": "ami SeeU, sans fiche",
   "groupFriendsNoCard": "Amis SeeU sans fiche",
+  "copied": "Copié",
+  "withWhomEmptyPrivate": "Personne à ajouter pour l'instant : une fois l'événement créé, vous pourrez inviter avec un lien.",
+  "withWhomEmptyFriends": "Vos amis SeeU le verront et pourront le rejoindre. Vous pourrez aussi inviter avec un lien.",
   "publicProfileTitle": "Profil public et partage",
   "publicProfileRowSub": "Votre lien, ce que les autres voient, vos événements publics",
   "myProfileLink": "Votre lien de profil",

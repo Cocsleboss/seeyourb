@@ -1869,13 +1869,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get planTheRdv => 'Planifier le rendez-vous';
 
   @override
-  String get createContactFirst =>
-      'Créez d\'abord un contact pour pouvoir planifier un rendez-vous.';
-
-  @override
-  String get createAContact => 'Créer un contact';
-
-  @override
   String get date => 'Date';
 
   @override
@@ -3356,10 +3349,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Personne pour l\'instant ? Après la création, vous pourrez partager un lien d\'invitation.';
 
   @override
-  String get noContactsShareLater =>
-      'Pas encore de contacts : créez l\'événement, puis partagez un lien d\'invitation.';
-
-  @override
   String get guestsCanInviteOnHelp =>
       'En invitant leurs amis SeeU, ou avec un lien d\'invitation.';
 
@@ -3385,6 +3374,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get groupFriendsNoCard => 'Amis SeeU sans fiche';
+
+  @override
+  String get copied => 'Copié';
+
+  @override
+  String get withWhomEmptyPrivate =>
+      'Personne à ajouter pour l\'instant : une fois l\'événement créé, vous pourrez inviter avec un lien.';
+
+  @override
+  String get withWhomEmptyFriends =>
+      'Vos amis SeeU le verront et pourront le rejoindre. Vous pourrez aussi inviter avec un lien.';
 
   @override
   String get publicProfileTitle => 'Profil public et partage';

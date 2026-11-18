@@ -186,14 +186,30 @@ class AppMap extends ConsumerWidget {
           maxZoom: 19,
         ),
         ...children,
-        // Attribution always visible (the policy forbids hiding it behind a toggle).
-        SimpleAttributionWidget(
-          source: const Text('OpenStreetMap'),
-          onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'), mode: LaunchMode.externalApplication),
-        ),
+        // Attribution always visible (the policy forbids hiding it behind a
+        // toggle). Our own: flutter_map's adds "flutter_map |" in front.
+        const _OsmAttribution(),
       ],
     );
   }
+}
+
+/// "© OpenStreetMap" bottom right, linking to the copyright page.
+class _OsmAttribution extends StatelessWidget {
+  const _OsmAttribution();
+
+  @override
+  Widget build(BuildContext context) => Align(
+        alignment: Alignment.bottomRight,
+        child: GestureDetector(
+          onTap: () => launchUrl(Uri.parse('https://www.openstreetmap.org/copyright'), mode: LaunchMode.externalApplication),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            color: const Color(0xCCFFFFFF),
+            child: const Text('© OpenStreetMap', style: TextStyle(fontSize: 11, color: Color(0xFF333333))),
+          ),
+        ),
+      );
 }
 
 /// Pin used on every map.

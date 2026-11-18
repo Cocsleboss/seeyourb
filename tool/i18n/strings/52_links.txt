@@ -32,7 +32,6 @@ removeFromEventTitle | Retirer {name} ? | Remove {name}?
 removeFromEventMessage | Cette personne ne fera plus partie de l'événement et ne pourra pas revenir avec un lien. Vous pourrez l'inviter à nouveau vous-même. | This person will no longer be part of the event and can't come back with a link. You can invite them again yourself.
 removedFromEventToast | {name} ne fait plus partie de l'événement | {name} is no longer part of the event
 withWhomPrivateHint | Personne pour l'instant ? Après la création, vous pourrez partager un lien d'invitation. | Nobody yet? Once it's created, you can share an invitation link.
-noContactsShareLater | Pas encore de contacts : créez l'événement, puis partagez un lien d'invitation. | No contacts yet: create the event, then share an invitation link.
 guestsCanInviteOnHelp | En invitant leurs amis SeeU, ou avec un lien d'invitation. | By inviting their SeeU friends, or with an invitation link.
 publicProfileOffInfo2 | Désactivé : pas de page web ni de lien. On peut vous ajouter depuis l'app SeeU, en cherchant @{username}. | Off: no web page and no link. People can add you from the SeeU app by searching @{username}.
 shareHandleNoLinkText | Ajoute-moi sur SeeU : @{username}\nL'app : {link} | Add me on SeeU: @{username}\nThe app: {link}
@@ -40,3 +39,6 @@ friendCityHelp | Celle de son compte SeeU, si elle la partage avec ses amis. | T
 friendNoCity | Pas de ville indiquée | No city given
 friendNoCard | ami SeeU, sans fiche | SeeU friend, no card
 groupFriendsNoCard | Amis SeeU sans fiche | SeeU friends without a card
+copied | Copié | Copied
+withWhomEmptyPrivate | Personne à ajouter pour l'instant : une fois l'événement créé, vous pourrez inviter avec un lien. | Nobody to add yet: once the event is created, you can invite people with a link.
+withWhomEmptyFriends | Vos amis SeeU le verront et pourront le rejoindre. Vous pourrez aussi inviter avec un lien. | Your SeeU friends will see it and can join. You can also invite people with a link.

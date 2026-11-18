@@ -3,7 +3,6 @@
 // only when the event lets them invite. Clear warning: whoever has the link
 // can join.
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,6 +13,7 @@ import '../../core/links.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../ui/feedback.dart';
+import '../../ui/copy_link.dart';
 import '../../ui/kit.dart';
 
 Future<void> showEventLinkSheet(BuildContext context, {required String eventId, required String title, required bool isOrganizer}) =>
@@ -83,11 +83,6 @@ class _EventLinkBodyState extends ConsumerState<_EventLinkBody> {
     });
   }
 
-  Future<void> _copy(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
-    showToast(tr.linkCopied);
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -123,13 +118,10 @@ class _EventLinkBodyState extends ConsumerState<_EventLinkBody> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       warning,
       const SizedBox(height: 14),
-      _LinkBox(link: link, onCopy: () => _copy(link)),
+      CopyLinkBox(link: link),
       const SizedBox(height: 12),
       Row(children: [
-        Expanded(
-          child: AppButton(tr.copyLink,
-              icon: LucideIcons.copy, variant: ButtonVariant.secondary, size: ButtonSize.sm, full: true, onPressed: () => _copy(link)),
-        ),
+        Expanded(child: CopyLinkButton(link: link)),
         const SizedBox(width: 8),
         Expanded(
           child: AppButton(tr.share,
@@ -141,11 +133,7 @@ class _EventLinkBodyState extends ConsumerState<_EventLinkBody> {
       ]),
       if (Config.showAppLinks) ...[
         const SizedBox(height: 16),
-        Text(tr.testAppLink, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: c.textMuted)),
-        const SizedBox(height: 6),
-        _LinkBox(link: appLink, onCopy: () => _copy(appLink), small: true),
-        const SizedBox(height: 4),
-        Text(tr.testAppLinkHelp, style: TextStyle(color: c.textSubtle, fontSize: 12, height: 1.35)),
+        TestAppLink(link: appLink),
       ],
       const SizedBox(height: 16),
       Row(children: [
@@ -166,40 +154,5 @@ class _EventLinkBodyState extends ConsumerState<_EventLinkBody> {
       const SizedBox(height: 8),
       Text(tr.newLinkHelp, style: TextStyle(color: c.textSubtle, fontSize: 12, height: 1.35)),
     ]);
-  }
-}
-
-class _LinkBox extends StatelessWidget {
-  const _LinkBox({required this.link, required this.onCopy, this.small = false});
-  final String link;
-  final VoidCallback onCopy;
-  final bool small;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Material(
-      color: c.secondaryFill,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onCopy,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(children: [
-            Icon(LucideIcons.link, size: small ? 16 : 18, color: c.brandText),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(link,
-                  maxLines: small ? 2 : 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: c.text, fontWeight: FontWeight.w500, fontSize: small ? 12.5 : 14.5)),
-            ),
-            const SizedBox(width: 6),
-            Icon(LucideIcons.copy, size: 16, color: c.textMuted),
-          ]),
-        ),
-      ),
-    );
   }
 }

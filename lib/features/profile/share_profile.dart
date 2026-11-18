@@ -1,7 +1,6 @@
 // Sharing my profile (and an event): copy the link, the phone's share sheet
 // (Instagram, WhatsApp, Messenger…), or a QR code to scan.
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,17 +10,13 @@ import '../../core/i18n.dart';
 import '../../core/links.dart';
 import '../../core/theme.dart';
 import '../../ui/feedback.dart';
+import '../../ui/copy_link.dart';
 import '../../ui/kit.dart';
 
 /// My profile: the https link when my public page is on; otherwise only my
 /// @username (people add me from the app) and where to get the app.
 Future<void> shareProfile(String username, {required bool public}) => SharePlus.instance.share(ShareParams(
     text: public ? tr.shareProfileText(username, profileLink(username)) : tr.shareHandleNoLinkText(username, Config.appDownloadUrl)));
-
-Future<void> copyProfileLink(String username) async {
-  await Clipboard.setData(ClipboardData(text: profileLink(username)));
-  showToast(tr.linkCopied);
-}
 
 Future<void> shareEvent(String eventId, String title) =>
     SharePlus.instance.share(ShareParams(text: tr.shareEventText(title, eventLink(eventId))));
@@ -75,25 +70,13 @@ class ProfileLinkCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(tr.myProfileLink, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15.5, color: c.text)),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(12)),
-          child: Row(children: [
-            Icon(LucideIcons.link, size: 18, color: c.brandText),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(profileLink(username),
-                  maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.text, fontWeight: FontWeight.w500)),
-            ),
-          ]),
-        ),
+        CopyLinkBox(link: profileLink(username)),
         const SizedBox(height: 6),
         Text(tr.myProfileLinkHelp, style: TextStyle(color: c.textMuted, fontSize: 13, height: 1.35)),
         const SizedBox(height: 12),
         Row(children: [
           Expanded(
-            child: AppButton(tr.copyLink,
-                icon: LucideIcons.copy, variant: ButtonVariant.secondary, size: ButtonSize.sm, full: true, onPressed: () => copyProfileLink(username)),
+            child: CopyLinkButton(link: profileLink(username)),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -105,25 +88,7 @@ class ProfileLinkCard extends StatelessWidget {
             icon: LucideIcons.qrCode, variant: ButtonVariant.secondary, size: ButtonSize.sm, full: true, onPressed: () => showProfileQr(context, username)),
         if (Config.showAppLinks) ...[
           const SizedBox(height: 14),
-          Text(tr.testAppLink, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: c.textMuted)),
-          const SizedBox(height: 6),
-          InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () async {
-              await Clipboard.setData(ClipboardData(text: profileAppLink(username)));
-              showToast(tr.linkCopied);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(12)),
-              child: Row(children: [
-                Expanded(child: Text(profileAppLink(username), style: TextStyle(color: c.text, fontSize: 12.5))),
-                Icon(LucideIcons.copy, size: 16, color: c.textMuted),
-              ]),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(tr.testAppLinkHelp, style: TextStyle(color: c.textSubtle, fontSize: 12, height: 1.35)),
+          TestAppLink(link: profileAppLink(username)),
         ],
       ]),
     );
