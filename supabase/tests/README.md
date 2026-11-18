@@ -16,9 +16,25 @@ node run.mjs /tmp/seeu-pg/db $T/00_stubs.sql $M/20261115000001_init.sql \
   $M/20261120000008_profiles_places_friends.sql $T/60_profiles_places_friends.sql $M/20261120000009_no_emails.sql \
   $M/20261121000010_event_status.sql $T/70_event_status.sql \
   $M/20261122000011_no_reminder.sql $T/80_no_reminder.sql \
-  $T/30_availability_guests.sql
+  $T/30_availability_guests.sql \
+  $M/20261123000012_moderation.sql $M/20261123000013_public_profiles.sql $M/20261123000014_travel_hints.sql \
+  $T/90_visibility_profiles.sql $T/91_travel_hints.sql $T/92_moderation.sql
 ```
 
+- `90_visibility_profiles.sql`: the three event visibility levels (RPCs and RLS), the public
+  profile (only allowed fields, never a private / friends event, nothing when off), the profile
+  page in the app, server-only profile columns.
+- `91_travel_hints.sql`: who lives near a place far from home, the hourly push (once, reset on a
+  new place, `notify_travel`).
+- `92_moderation.sql`: reports (own only, no admin columns), admin RPCs refused to others,
+  ban effects (hidden everywhere, requests refused), sessions and `admin_stats()`.
+
+Each file creates its own users; run 90 → 91 → 92 in that order (92 bans and unbans).
+
 `00_stubs.sql` fakes what Supabase provides (auth.uid(), storage, vault). pg_cron and
-pg_net must be available as (fake) extensions in the embedded server; any line
-printing `WRONG` or `NO ERROR` is a failed expectation.
+pg_net must be available as (fake) extensions in the embedded server: add `pg_net.control` /
+`pg_cron.control` + `--1.0.sql` scripts creating `net.http_post(...)` and `cron.job`,
+`cron.schedule(...)`, `cron.unschedule(...)` in
+`node_modules/@embedded-postgres/<platform>/native/share/postgresql/extension/`. Any line
+printing `WRONG` or `NO ERROR` is a failed expectation (`20_events_social` → `c_posts` prints
+`NO ERROR` because its insert selects no row; `c_posts_by_id` right after is the real check).
