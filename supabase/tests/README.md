@@ -18,7 +18,8 @@ node run.mjs /tmp/seeu-pg/db $T/00_stubs.sql $M/20261115000001_init.sql \
   $M/20261122000011_no_reminder.sql $T/80_no_reminder.sql \
   $T/30_availability_guests.sql \
   $M/20261123000012_moderation.sql $M/20261123000013_public_profiles.sql $M/20261123000014_travel_hints.sql \
-  $T/90_visibility_profiles.sql $T/91_travel_hints.sql $T/92_moderation.sql
+  $T/90_visibility_profiles.sql $T/91_travel_hints.sql $T/92_moderation.sql \
+  $M/20261124000015_event_links.sql $T/93_event_links.sql
 ```
 
 - `90_visibility_profiles.sql`: the three event visibility levels (RPCs and RLS), the public
@@ -29,7 +30,12 @@ node run.mjs /tmp/seeu-pg/db $T/00_stubs.sql $M/20261115000001_init.sql \
 - `92_moderation.sql`: reports (own only, no admin columns), admin RPCs refused to others,
   ban effects (hidden everywhere, requests refused), sessions and `admin_stats()`.
 
-Each file creates its own users; run 90 → 91 → 92 in that order (92 bans and unbans).
+- `93_event_links.sql`: invitation links (token format, preview for a stranger and for the
+  website, joining, organizer notified, renew / revoke, guests' links follow "guests can invite"),
+  removing a member (no way back by the link), a friend's page lists shared private events,
+  unfriending keeps the ex-friend as themselves in the event, cards default to no reminder.
+
+Each file creates its own users; run 90 → 91 → 92 → 93 in that order (92 bans and unbans).
 
 `00_stubs.sql` fakes what Supabase provides (auth.uid(), storage, vault). pg_cron and
 pg_net must be available as (fake) extensions in the embedded server: add `pg_net.control` /

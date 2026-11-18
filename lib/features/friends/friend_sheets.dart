@@ -21,8 +21,9 @@ import '../../core/i18n.dart';
 
 /// "Ajoute-moi sur SeeU : @andrea" + the link to my profile (opens it in the app,
 /// or the website for people without the app).
-Future<void> shareMyHandle(String username) =>
-    SharePlus.instance.share(ShareParams(text: tr.shareHandleText(username, profileLink(username))));
+/// (Without a public page, no link: only the @username and where to get the app.)
+Future<void> shareMyHandle(String username, {required bool public}) => SharePlus.instance.share(ShareParams(
+    text: public ? tr.shareHandleText(username, profileLink(username)) : tr.shareHandleNoLinkText(username, Config.appDownloadUrl)));
 
 Future<void> shareAppLink() => SharePlus.instance.share(ShareParams(
       text: tr.shareAppText(Config.appDownloadUrl),

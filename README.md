@@ -132,9 +132,10 @@ Translations: edit `tool/i18n/strings/*.txt`, then
 ## Before the first store release
 
 - **App id** is `com.seeuapp.mobile` on both platforms (`app.seeu` and `com.seeuapp.seeu` were already taken on Apple's side).
-- **Share links** (`/u/<username>`, `/e/<event id>`) use the `seeu://` scheme until the website
-  exists, and most messaging apps don't make it clickable. With the site's domain: set
-  `SHARE_LINK_BASE` (and `APP_DOWNLOAD_URL`), `seeu.linkHost` in `android/gradle.properties`, the
+- **Share links** (`https://<site>/@<username>`, `https://<site>/j/<token>`) point to the website
+  ([`docs/WEBSITE.md`](docs/WEBSITE.md)), which opens the app on `seeu://app/…`. Until the site exists,
+  the app also shows the `seeu://` test link. With the site's domain: set
+  `WEBSITE_URL` (and `APP_DOWNLOAD_URL`), `seeu.linkHost` in `android/gradle.properties`, the
   Associated Domains capability on iOS, and serve [`deeplinks/.well-known/`](deeplinks/README.md).
 - **Android signing**: replace the debug signing config in `android/app/build.gradle.kts`.
 - **Icons**: `flutter test tool/render_icon_test.dart && dart run flutter_launcher_icons`

@@ -1,12 +1,15 @@
-// Réglages → Profil public et partage: my profile link (copy, share, QR code),
-// the public web page on / off, what it shows, which public events, and
-// whether my friends see my city. Saved as soon as touched.
+// Réglages → Profil public et partage: the public web page on / off and what
+// it shows, then my profile link (copy, share, QR code; only with a public
+// page: otherwise people add me from the app, by @username), which public
+// events (hidden for now), and whether my friends see my city. Saved as soon
+// as touched.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/i18n.dart';
+import '../../core/features.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../domain/dates.dart';
@@ -79,14 +82,8 @@ class _PublicProfileSettingsScreenState extends ConsumerState<PublicProfileSetti
       title: tr.publicProfileTitle,
       back: true,
       body: PageList(children: [
+        // Public web page first: the link only exists when it's on.
         const SizedBox(height: 8),
-        ProfileLinkCard(username: p.username!),
-        const SizedBox(height: 10),
-        AppButton(tr.previewMyProfile,
-            icon: LucideIcons.eye, variant: ButtonVariant.ghost, full: true, onPressed: () => context.push('/u/${p.username}')),
-
-        // Public web page
-        const SizedBox(height: 14),
         AppCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             ToggleRow(
@@ -97,7 +94,7 @@ class _PublicProfileSettingsScreenState extends ConsumerState<PublicProfileSetti
             ),
             if (!on) ...[
               const SizedBox(height: 8),
-              InfoBox(child: Text(tr.publicProfileOffInfo, style: const TextStyle(fontSize: 13.5))),
+              InfoBox(child: Text(tr.publicProfileOffInfo2(p.username!), style: const TextStyle(fontSize: 13.5))),
             ],
             const Divider(height: 28),
             Text(tr.publicFieldsTitle, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: c.text)),
@@ -111,7 +108,17 @@ class _PublicProfileSettingsScreenState extends ConsumerState<PublicProfileSetti
           ]),
         ),
 
-        // Public events on it
+        // My link (https page on the website, which then opens the app)
+        if (on) ...[
+          const SizedBox(height: 14),
+          ProfileLinkCard(username: p.username!),
+        ],
+        const SizedBox(height: 10),
+        AppButton(tr.previewMyProfile,
+            icon: LucideIcons.eye, variant: ButtonVariant.ghost, full: true, onPressed: () => context.push('/u/${p.username}')),
+
+        // Public events on it (hidden for now, with public events)
+        if (Features.publicEvents) ...[
         SectionTitle(tr.publicEventsTitle),
         AppCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -149,6 +156,7 @@ class _PublicProfileSettingsScreenState extends ConsumerState<PublicProfileSetti
             ],
           ]),
         ),
+        ],
 
         // In the app
         SectionTitle(tr.inAppVisibilityTitle),

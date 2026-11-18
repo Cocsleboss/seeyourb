@@ -124,7 +124,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
     _categories = [...?(e?.categories ?? p?.categories)];
     _lastMeeting = e?.lastMeetingDate;
     _freqValue = e?.frequencyValue ?? p?.frequencyValue ?? 1;
-    _freqUnit = e?.frequencyUnit ?? p?.frequencyUnit ?? FrequencyUnit.months;
+    _freqUnit = e?.frequencyUnit ?? p?.frequencyUnit ?? FrequencyUnit.never; // new contacts: no recurring reminder by default
     _birthday = e?.birthday ?? p?.birthday;
   }
 
@@ -152,6 +152,10 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
 
   /// New contact: SeeU friend to link now, or someone to send a request to.
   FriendLinkChoice? _link;
+
+  /// The SeeU account this card is (or will be) linked to.
+  String? get _linkedUserId =>
+      widget.existing?.linkedUserId ?? widget.prefill?.linkedUserId ?? (_link?.isFriend == true ? _link!.userId : null);
 
   Future<void> _save() async {
     setState(() => _submitted = true);
@@ -355,6 +359,15 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
             label: tr.birthday,
             child: DateField(value: _birthday, last: today(), clearable: true, onChanged: (d) => setState(() => _birthday = d)),
           ),
+          // A SeeU friend: their own city (from their account), not editable here.
+          if (_linkedUserId != null)
+            LabeledField(
+              label: tr.contactCityLabel,
+              icon: LucideIcons.mapPin,
+              hint: tr.friendCityHelp,
+              child: _FriendCity(userId: _linkedUserId!),
+            )
+          else
           LabeledField(
             label: tr.contactCityLabel,
             icon: LucideIcons.mapPin,
@@ -384,3 +397,30 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
   }
 }
 
+
+
+/// Read-only city of a SeeU friend (as they share it with friends).
+class _FriendCity extends ConsumerWidget {
+  const _FriendCity({required this.userId});
+  final String userId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final city = ref.watch(friendCityProvider(userId));
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(14)),
+      child: Row(children: [
+        Icon(LucideIcons.lock, size: 16, color: c.textMuted),
+        const SizedBox(width: 10),
+        Expanded(
+          child: city.isLoading && !city.hasValue
+              ? Text('…', style: TextStyle(color: c.textMuted))
+              : Text(city.value ?? tr.friendNoCity,
+                  style: TextStyle(fontSize: 15.5, color: city.value == null ? c.textMuted : c.text)),
+        ),
+      ]),
+    );
+  }
+}

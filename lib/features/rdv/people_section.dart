@@ -19,6 +19,7 @@ import '../../ui/forms.dart';
 import '../../domain/selectors.dart';
 import '../../ui/rows.dart';
 import 'rsvp.dart';
+import '../events/event_share.dart';
 
 const _maxMembers = 50;
 
@@ -109,17 +110,31 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
           padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
           child: Text(tr.peopleLegend, style: TextStyle(color: c.textMuted, fontSize: 13, height: 1.4)),
         ),
-      // Add people: my contacts (friends get invited). Only where I may invite.
+      // Add people: my contacts (friends get invited), or a link anyone can use. Only where I may invite.
       if (canInvite) ...[
         const SizedBox(height: 10),
-        AppButton(tr.addPeople,
-            icon: LucideIcons.userPlus,
-            variant: ButtonVariant.secondary,
-            full: true,
-            onPressed: () => showAppSheet(context,
-                title: tr.addPeople,
-                subtitle: tr.addPeopleSub,
-                builder: (_) => _AddPeople(rdv: rdv, exclude: {...rdv.contacts.map((x) => x.id)}, memberIds: memberIds))),
+        Row(children: [
+          Expanded(
+            child: AppButton(tr.addPeople,
+                icon: LucideIcons.userPlus,
+                variant: ButtonVariant.secondary,
+                full: true,
+                onPressed: () => showAppSheet(context,
+                    title: tr.addPeople,
+                    subtitle: tr.addPeopleSub,
+                    builder: (_) => _AddPeople(rdv: rdv, exclude: {...rdv.contacts.map((x) => x.id)}, memberIds: memberIds))),
+          ),
+          if (eventId != null && !public) ...[
+            const SizedBox(width: 8),
+            Expanded(
+              child: AppButton(tr.inviteLinkShort,
+                  icon: LucideIcons.link,
+                  variant: ButtonVariant.secondary,
+                  full: true,
+                  onPressed: () => showEventLinkSheet(context, eventId: eventId, title: rdv.displayTitle, isOrganizer: rdv.isOrganizer)),
+            ),
+          ],
+        ]),
       ],
     ]);
   }
@@ -168,24 +183,54 @@ class _PeopleSectionState extends ConsumerState<PeopleSection> {
             : Icon(receivedRequest ? LucideIcons.userCheck : LucideIcons.userPlus, size: 20, color: c.brandText),
       );
     }
+    // My contact card if I have one, else their SeeU profile (even if I don't know them).
+    final VoidCallback? open = me
+        ? null
+        : contact != null
+            ? () => context.push('/contacts/${contact.id}')
+            : (p.username != null ? () => context.push('/u/${p.username}') : null);
+    final name = contact?.name ?? p.name;
     return _PersonTile(
-      avatar: FriendAvatar(name: contact?.name ?? p.name, path: contact?.photoPath, size: 40, isFriend: p.isFriend, seeu: true, userId: p.userId),
-      title: me ? tr.you : (contact?.name ?? p.name),
+      avatar: FriendAvatar(name: name, path: contact?.photoPath, size: 40, isFriend: p.isFriend, seeu: true, userId: p.userId),
+      title: me ? tr.you : name,
       subtitle: cancellable
           ? tr.invitationPending
           : [
-              if (p.username != null) handle(p.username),
+              if (p.viaLink) p.linkSharedBy == null ? tr.joinedViaLink : tr.joinedViaLinkOf(p.linkSharedBy!),
+              if (!p.viaLink && p.username != null) handle(p.username),
               if (sentRequest) tr.friendRequestSentShort,
               if (receivedRequest) tr.requestReceivedShort,
             ].join(' · ').ifNotEmpty,
-      trailing: addFriend == null ? trailing : Row(mainAxisSize: MainAxisSize.min, children: [trailing, addFriend]),
-      // My contact card if I have one, else their SeeU profile (even if I don't know them).
-      onTap: me
-          ? null
-          : contact != null
-              ? () => context.push('/contacts/${contact.id}')
-              : (p.username != null ? () => context.push('/u/${p.username}') : null),
+      // "add as friend" first, then the answer (going / à confirmer)
+      trailing: addFriend == null ? trailing : Row(mainAxisSize: MainAxisSize.min, children: [addFriend, const SizedBox(width: 4), trailing]),
+      // The organizer may also remove someone (e.g. who came by a link).
+      onTap: rdv.isOrganizer && !me && !p.isOrganizer && rdv.eventId != null ? () => _memberActions(p, name, open) : open,
     );
+  }
+
+  Future<void> _memberActions(Participant p, String name, VoidCallback? open) async {
+    final action = await showAppSheet<String>(
+      context,
+      title: name,
+      subtitle: p.viaLink ? (p.linkSharedBy == null ? tr.joinedViaLink : tr.joinedViaLinkOf(p.linkSharedBy!)) : null,
+      builder: (sheet) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        if (open != null)
+          AppButton(tr.seeProfile, icon: LucideIcons.user, variant: ButtonVariant.secondary, full: true, onPressed: () => Navigator.pop(sheet, 'open')),
+        const SizedBox(height: 8),
+        AppButton(tr.removeFromEvent, icon: LucideIcons.userMinus, variant: ButtonVariant.danger, full: true, onPressed: () => Navigator.pop(sheet, 'remove')),
+      ]),
+    );
+    if (!mounted) return;
+    if (action == 'open') return open?.call();
+    if (action != 'remove') return;
+    final ok = await confirmSheet(
+      context,
+      title: tr.removeFromEventTitle(name),
+      message: tr.removeFromEventMessage,
+      confirmLabel: tr.remove,
+    );
+    if (!ok || !mounted) return;
+    await _run('remove-${p.userId}', () => ref.read(apiProvider).removeEventMember(widget.rdv.eventId!, p.userId), tr.removedFromEventToast(name));
   }
 
   Widget _friendOutRow(AppColors c, ContactLite f, RdvInvitation? sent, bool canInvite) {

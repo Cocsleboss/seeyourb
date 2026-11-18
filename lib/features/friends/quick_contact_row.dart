@@ -20,6 +20,7 @@ import '../../ui/rows.dart';
 import '../contacts/contact_form_screen.dart';
 
 const _quickPresets = [
+  FrequencyPreset(1, FrequencyUnit.never), // default: no recurring reminder
   FrequencyPreset(1, FrequencyUnit.weeks),
   FrequencyPreset(2, FrequencyUnit.weeks),
   FrequencyPreset(1, FrequencyUnit.months),
@@ -43,7 +44,7 @@ class FriendToContactCard extends ConsumerStatefulWidget {
 
 class _FriendToContactCardState extends ConsumerState<FriendToContactCard> {
   _Tab? _tab;
-  FrequencyPreset _freq = _quickPresets[2];
+  FrequencyPreset _freq = _quickPresets[0];
   String? _category;
   DateTime? _birthday;
   final _q = TextEditingController();

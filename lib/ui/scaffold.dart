@@ -166,22 +166,32 @@ class AppScaffold extends StatelessWidget {
 
 /// Body padding used everywhere (16 px gutter).
 class PageList extends StatelessWidget {
-  const PageList({super.key, required this.children, this.onRefresh, this.controller, this.bottomPadding = 32});
+  const PageList({super.key, required this.children, this.onRefresh, this.controller, this.bottomPadding = 32, this.lazy = true});
   final List<Widget> children;
   final Future<void> Function()? onRefresh;
   final ScrollController? controller;
   final double bottomPadding;
 
+  /// false: every child is built and kept (a detail page made of a few sections
+  /// of changing height). A lazy list rebuilds sections scrolled out of view,
+  /// sometimes at another height, which made the page jump near the bottom.
+  final bool lazy;
+
   @override
   Widget build(BuildContext context) {
-    final list = ListView(
-      controller: controller,
-      physics: const AlwaysScrollableScrollPhysics(),
-      // Scrolling closes the keyboard (iOS has no key for it on multi-line fields).
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(16, 8, 16, bottomPadding),
-      children: children,
-    );
+    const physics = AlwaysScrollableScrollPhysics();
+    // Scrolling closes the keyboard (iOS has no key for it on multi-line fields).
+    const dismiss = ScrollViewKeyboardDismissBehavior.onDrag;
+    final padding = EdgeInsets.fromLTRB(16, 8, 16, bottomPadding);
+    final Widget list = lazy
+        ? ListView(controller: controller, physics: physics, keyboardDismissBehavior: dismiss, padding: padding, children: children)
+        : SingleChildScrollView(
+            controller: controller,
+            physics: physics,
+            keyboardDismissBehavior: dismiss,
+            padding: padding,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+          );
     if (onRefresh == null) return list;
     return RefreshIndicator(onRefresh: onRefresh!, color: Palette.brand600, child: list);
   }

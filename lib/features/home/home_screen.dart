@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import '../../core/features.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -95,7 +97,8 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final profile = ref.watch(profileProvider);
-    final section = ref.watch(homeSectionProvider);
+    final picked = ref.watch(homeSectionProvider);
+    final section = picked == HomeSection.explore && !Features.publicEvents ? HomeSection.agenda : picked;
     final now = clock();
 
     final header = Padding(
@@ -260,13 +263,16 @@ class HomeSectionPicker extends StatelessWidget {
           tr.homeFriends,
           Tone.violet,
         ),
-        const SizedBox(width: 8),
-        item(
-          HomeSection.explore,
-          LucideIcons.compass,
-          tr.homeExplore,
-          Tone.green,
-        ),
+        // Public events ("Explorer") are hidden for now.
+        if (Features.publicEvents) ...[
+          const SizedBox(width: 8),
+          item(
+            HomeSection.explore,
+            LucideIcons.compass,
+            tr.homeExplore,
+            Tone.green,
+          ),
+        ],
       ],
     );
   }

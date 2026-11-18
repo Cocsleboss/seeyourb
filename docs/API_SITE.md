@@ -5,8 +5,8 @@ Everything the website (public pages + admin) may use. It talks to Supabase with
 **Never** put the `service_role` key in the site. The site calls the RPCs below and
 nothing else: no direct table access (RLS would refuse most of it anyway).
 
-Defined in migrations `0012_moderation`, `0013_public_profiles`, `0014_travel_hints`;
-tested in `supabase/tests/90_*`, `91_*`, `92_*`. Database reference: [`DATABASE.md`](DATABASE.md).
+Defined in migrations `0012_moderation`, `0013_public_profiles`, `0014_travel_hints`,
+`0015_event_links`; tested in `supabase/tests/90_*` … `93_*`. Database reference: [`DATABASE.md`](DATABASE.md).
 
 ```js
 import { createClient } from '@supabase/supabase-js'
@@ -69,16 +69,38 @@ banned (a malformed id raises `22P02`: treat it as not found).
 
 Participants are never exposed to anonymous visitors.
 
+### `get_link_preview(p_token text) → jsonb | null` *(0015)*
+
+Page `/j/<token>`: an invitation link to an event (private or "Entre amis"). Whoever holds the
+link may join the event (in the app), so its basic details are shown to them. `null` when the
+token is unknown, revoked or replaced, or its creator may no longer invite (a guest after the
+organizer turned "guests can invite" off), or the organizer is banned.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `title`, `location`, `description` | text \| null | |
+| `starts_at` | timestamptz \| null | `null` while the date is being chosen (`slots_open`) |
+| `slots_open` | boolean | |
+| `status` | `planifie` \| `valide` \| `annule` | |
+| `going` | int | |
+| `organizer_name` | text | |
+| `organizer_avatar_path` | text \| null | public `avatars` bucket |
+
+Never returned: participants, ids, coordinates. Page behaviour: [`WEBSITE.md`](WEBSITE.md).
+
 ## 2. Links and deep links
 
 | URL | App route | Notes |
 | --- | --- | --- |
-| `https://<domain>/u/<username>` | `/u/:username` (profile page in the app) | "Copier le lien", "Partager", QR code in the app |
-| `https://<domain>/e/<event id>` | `/event/:id` (event preview, join) | shared from an event's ⋯ menu (public and "Entre amis" events) |
+| `https://<domain>/@<username>` | `/u/:username` (profile page in the app) | "Copier le lien", "Partager", QR code; only when the public profile is on |
+| `https://<domain>/j/<token>` | `/j/:token` (invitation: preview, join) | "Inviter avec un lien" on an event *(0015)* |
+| `https://<domain>/u/<username>` | `/u/:username` | older profile links: redirect to `/@<username>` |
+| `https://<domain>/e/<event id>` | `/event/:id` (event preview, join) | public events (hidden in the app for now) |
 | `https://<domain>/friends?q=<username>` | Contacts tab, friend search | older shares, still handled |
 
-- The app builds links from `SHARE_LINK_BASE` (`config/env.json`, no trailing slash):
-  today `seeu://app`; set it to `https://<domain>` once the site is live.
+- The app builds links from `WEBSITE_URL` (`config/env.json`, no trailing slash; the domain
+  isn't chosen yet). The site opens the app on the same path with the app's scheme:
+  `seeu://app/@andrea`, `seeu://app/j/<token>` (see [`WEBSITE.md`](WEBSITE.md)).
 - **App installed** (and the domain verified): the OS opens the app directly on that page.
 - **Signed out**: the app remembers the destination (2 days, survives a restart while
   confirming the email), opens the sign-up screen with a banner ("Créez votre compte pour
@@ -218,4 +240,6 @@ RPCs raise `seeu:<code>` in the message:
 
 ## 5. App-side RPCs (for reference, not for the site)
 
-`report_content`, `get_user_profile`, `people_near`, `touch_session`: see [`DATABASE.md`](DATABASE.md) §6.
+`report_content`, `get_user_profile`, `people_near`, `touch_session`; *(0015)* `create_event_link`,
+`get_my_event_link`, `revoke_event_link`, `get_event_by_link`, `join_event_by_link`,
+`remove_event_member`: see [`DATABASE.md`](DATABASE.md) §6.

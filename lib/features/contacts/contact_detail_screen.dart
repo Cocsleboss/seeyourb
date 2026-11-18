@@ -110,6 +110,8 @@ class _Body extends ConsumerWidget {
     final bday = nextBirthday(contact.birthday);
     final snoozed = contact.snoozeUntil != null && contact.snoozeUntil!.isAfter(contact.nextDueDate);
     final rdvs = ref.watch(contactRdvsProvider(contact.id));
+    // A SeeU friend: the city of their account (as they share it), not the card's.
+    final cityLabel = contact.linkedUserId != null ? ref.watch(friendCityProvider(contact.linkedUserId!)).value : contact.cityLabel;
     final photos = ref.watch(contactPhotosProvider(contact.id));
 
     return PageList(
@@ -205,7 +207,7 @@ class _Body extends ConsumerWidget {
         _FriendSection(contact: contact),
 
         // 4. Information
-        if (contact.phone != null || contact.email != null || contact.notes != null || contact.birthday != null || contact.cityLabel != null) ...[
+        if (contact.phone != null || contact.email != null || contact.notes != null || contact.birthday != null || cityLabel != null) ...[
           SectionTitle(tr.information),
           AppCard(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -218,7 +220,7 @@ class _Body extends ConsumerWidget {
               if (contact.email != null)
                 _InfoAction(icon: LucideIcons.mail, text: contact.email!, onTap: () => launchUrl(Uri(scheme: 'mailto', path: contact.email))),
               if (contact.birthday != null) _InfoAction(icon: LucideIcons.cake, text: tr.bornOn(formatDateLong(contact.birthday!))),
-              if (contact.cityLabel != null) _InfoAction(icon: LucideIcons.mapPin, text: tr.livesIn(contact.cityLabel!)),
+              if (cityLabel != null) _InfoAction(icon: LucideIcons.mapPin, text: tr.livesIn(cityLabel)),
               if (contact.notes != null) _InfoAction(icon: LucideIcons.stickyNote, text: contact.notes!),
             ]),
           ),

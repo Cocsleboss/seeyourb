@@ -27,6 +27,7 @@ import 'package:seeu/features/contacts/contact_detail_screen.dart';
 import 'package:seeu/features/contacts/contact_form_screen.dart';
 import 'package:seeu/features/contacts/contacts_screen.dart';
 import 'package:seeu/features/events/event_preview_screen.dart';
+import 'package:seeu/features/events/join_link_screen.dart';
 import 'package:seeu/features/history/calendar.dart';
 import 'package:seeu/features/misc/fallback_screens.dart';
 import 'package:seeu/features/profile/public_profile_settings_screen.dart';
@@ -297,6 +298,7 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
     GoRoute(path: '/u/:username', builder: (_, s) => UserProfileScreen(username: s.pathParameters['username']!)),
     GoRoute(path: '/settings/public-profile', builder: (_, _) => const PublicProfileSettingsScreen()),
     GoRoute(path: '/banned', builder: (_, _) => const BannedScreen()),
+    GoRoute(path: '/j/:token', builder: (_, s) => JoinLinkScreen(token: s.pathParameters['token']!)),
     ...extra,
   ]);
   final colors = brightness == Brightness.dark ? AppColors.dark : AppColors.light;
@@ -337,6 +339,21 @@ Widget app(String location, Brightness brightness, List<RouteBase> extra, {List 
       peopleNearProvider.overrideWith((ref, k) async => nearby),
       mapsEnabledProvider.overrideWithValue(false),
       apiProvider.overrideWithValue(fakeApi),
+      eventByLinkProvider.overrideWith((ref, token) async => token == 'bad'
+          ? null
+          : LinkedEvent(
+              eventId: 'e9',
+              title: 'Anniversaire surprise de Léa',
+              location: 'Chez Max, Ixelles',
+              description: 'Chut, c\'est une surprise ! Apportez un petit mot.',
+              startsAt: d(21, 20),
+              organizerId: 'u-andrea',
+              organizerName: 'Cocsi_bucci',
+              organizerUsername: 'cocsi_bucci',
+              sharedByName: token == 'shared' ? 'Tom Lefèvre' : null,
+              going: 6,
+              removed: token == 'removed',
+            )),
       ...overrides,
     ],
     child: MaterialApp.router(
@@ -404,6 +421,10 @@ void main() {
     'public_profile_settings_tall': ('/settings/public-profile', const []),
     'banned': ('/banned', const []),
     'event_preview_participants_tall': ('/event/e2', const []),
+    'join_link': ('/j/tok', const []),
+    'join_link_shared': ('/j/shared', const []),
+    'join_link_removed': ('/j/removed', const []),
+    'join_link_invalid': ('/j/bad', const []),
   };
 
   testWidgets('agenda: proposed slots show under their day, with or without a picked day', (tester) async {
@@ -477,6 +498,22 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(help, findsOneWidget);
   });
+
+  // Narrow phones (375 and 320 pt): event pages, pills and participants must fit.
+  for (final width in [375.0, 320.0]) {
+    for (final location in ['/rdv/r3', '/rdv/r4', '/rdv/r6', '/event/e2', '/j/shared', '/history/day/2026-11-13', '/contacts']) {
+      testWidgets('narrow ${width.toInt()} $location', (tester) async {
+        applyLanguage('fr');
+        tester.view.physicalSize = Size(width * 3, 7200);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(app(location, Brightness.light, const []));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
 
   // French in light + dark, English in light (catches longer strings overflowing).
   for (final (lang, brightness) in [('fr', Brightness.light), ('fr', Brightness.dark), ('en', Brightness.light)]) {

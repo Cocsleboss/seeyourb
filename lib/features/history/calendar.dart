@@ -232,28 +232,40 @@ class _DayEvent extends ConsumerWidget {
     final c = context.colors;
     final shared = rdv.isShared ? ref.watch(sharedRdvPhotosProvider(rdv.id)).value ?? const <Photo>[] : const <Photo>[];
     final photos = [...rdv.photos, ...shared]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      const SizedBox(height: 16),
-      RowsCard(children: [RdvRow(rdv: rdv, dayLabel: false)]),
-      if (rdv.notes != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
-          child: Text(rdv.notes!, style: TextStyle(color: c.text, fontSize: 15, height: 1.4)),
+    // The event and its photos in one card: small thumbnails right under the
+    // event, aligned right, hooked to it (no note above them).
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: AppCard(
+        padding: EdgeInsets.zero,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Radii.card),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            RdvRow(rdv: rdv, dayLabel: false),
+            if (photos.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 0, 12, 12),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Icon(LucideIcons.cornerDownRight, size: 18, color: c.textSubtle),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Wrap(alignment: WrapAlignment.end, spacing: 6, runSpacing: 6, children: [
+                      for (var i = 0; i < photos.length; i++)
+                        SizedBox(
+                          width: 64,
+                          height: 64,
+                          child: PhotoTile(photos: photos, index: i, eventId: rdv.isShared ? rdv.eventId : null, small: true),
+                        ),
+                    ]),
+                  ),
+                ]),
+              ),
+          ]),
         ),
-      if (photos.isNotEmpty) ...[
-        const SizedBox(height: 10),
-        GridView.count(
-          crossAxisCount: 3,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 6,
-          crossAxisSpacing: 6,
-          children: [
-            for (var i = 0; i < photos.length; i++)
-              PhotoTile(photos: photos, index: i, eventId: rdv.isShared ? rdv.eventId : null),
-          ],
-        ),
-      ],
-    ]);
+      ),
+    );
   }
 }

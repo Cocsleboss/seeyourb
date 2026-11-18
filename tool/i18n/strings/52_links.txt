@@ -1,0 +1,42 @@
+# Invitation links to events, removing a member, profile links
+inviteWithLink | Inviter avec un lien | Invite with a link
+inviteLinkShort | Lien d'invitation | Invite link
+inviteWithLinkHelp | Créez un lien à envoyer par WhatsApp, Messenger, SMS… à des personnes qui ne sont pas (encore) vos amis SeeU. | Create a link to send by WhatsApp, Messenger, text… to people who aren't (yet) your SeeU friends.
+linkAnyoneTitle | Toute personne qui a ce lien peut rejoindre l'événement | Anyone with this link can join the event
+linkAnyoneBody | Même sans être votre ami SeeU. Envoyez-le seulement aux personnes que vous voulez inviter : si elle circule, désactivez-le ou créez-en un nouveau. | Even without being your SeeU friend. Only send it to people you want to invite: if it gets passed around, disable it or create a new one.
+createLink | Créer le lien d'invitation | Create the invitation link
+newLink | Nouveau lien | New link
+newLinkHelp | Un nouveau lien remplace l'ancien, qui ne fonctionne plus. Les personnes déjà inscrites restent. | A new link replaces the old one, which stops working. People who already joined stay.
+linkRenewed | Nouveau lien créé : l'ancien ne fonctionne plus | New link created: the old one no longer works
+disableLink | Désactiver | Disable
+disableLinkTitle | Désactiver le lien ? | Disable the link?
+disableLinkMessage | Votre lien ne permettra plus de rejoindre l'événement. Les personnes déjà inscrites restent. | Your link will no longer let people join. People who already joined stay.
+disableLinkMessageOrganizer | Tous les liens de l'événement (aussi ceux partagés par les invités) ne permettront plus de le rejoindre. Les personnes déjà inscrites restent. | Every link to this event (also those shared by guests) will stop letting people join. People who already joined stay.
+linkDisabled | Lien désactivé | Link disabled
+shareInviteText | Je t'invite à « {title} » sur SeeU : {link} | You're invited to “{title}” on SeeU: {link}
+testAppLink | Lien de test (ouvre directement l'app) | Test link (opens the app directly)
+testAppLinkHelp | En attendant le site web : ce lien seeu:// ouvre SeeU sur ce téléphone, comme le fera la page web. | Until the website exists: this seeu:// link opens SeeU on this phone, as the web page will.
+linkInvalidTitle | Lien d'invitation invalide | Invalid invitation link
+invitedByLinkOf | {name} vous invite avec un lien | {name} invites you with a link
+imGoing | Je viens | I'm going
+joinByLinkHint | {name} sera prévenu·e. Vous retrouverez l'événement dans votre agenda. | {name} will be told. You'll find the event in your agenda.
+yourOwnEvent | C'est votre événement. | This is your event.
+removedFromEventInfo | L'organisateur vous a retiré de cet événement : ce lien ne vous permet plus de le rejoindre. | The organizer removed you from this event: this link no longer lets you join.
+errLinkInvalid | Ce lien d'invitation ne fonctionne plus. | This invitation link no longer works.
+errRemovedFromEvent | L'organisateur vous a retiré de cet événement. | The organizer removed you from this event.
+joinedViaLink | Venu·e avec le lien | Came with the link
+joinedViaLinkOf | Venu·e avec le lien de {name} | Came with {name}'s link
+seeProfile | Voir le profil | See profile
+removeFromEvent | Retirer de l'événement | Remove from the event
+removeFromEventTitle | Retirer {name} ? | Remove {name}?
+removeFromEventMessage | Cette personne ne fera plus partie de l'événement et ne pourra pas revenir avec un lien. Vous pourrez l'inviter à nouveau vous-même. | This person will no longer be part of the event and can't come back with a link. You can invite them again yourself.
+removedFromEventToast | {name} ne fait plus partie de l'événement | {name} is no longer part of the event
+withWhomPrivateHint | Personne pour l'instant ? Après la création, vous pourrez partager un lien d'invitation. | Nobody yet? Once it's created, you can share an invitation link.
+noContactsShareLater | Pas encore de contacts : créez l'événement, puis partagez un lien d'invitation. | No contacts yet: create the event, then share an invitation link.
+guestsCanInviteOnHelp | En invitant leurs amis SeeU, ou avec un lien d'invitation. | By inviting their SeeU friends, or with an invitation link.
+publicProfileOffInfo2 | Désactivé : pas de page web ni de lien. On peut vous ajouter depuis l'app SeeU, en cherchant @{username}. | Off: no web page and no link. People can add you from the SeeU app by searching @{username}.
+shareHandleNoLinkText | Ajoute-moi sur SeeU : @{username}\nL'app : {link} | Add me on SeeU: @{username}\nThe app: {link}
+friendCityHelp | Celle de son compte SeeU, si elle la partage avec ses amis. | The one on their SeeU account, if they share it with friends.
+friendNoCity | Pas de ville indiquée | No city given
+friendNoCard | ami SeeU, sans fiche | SeeU friend, no card
+groupFriendsNoCard | Amis SeeU sans fiche | SeeU friends without a card

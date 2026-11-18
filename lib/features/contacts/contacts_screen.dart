@@ -120,16 +120,26 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
     final nothingAtAll = all.isEmpty && friends.isEmpty;
 
     Widget row(Contact x) => ContactRow(contact: x, friend: x.linkedUserId == null ? null : friendByUser[x.linkedUserId]);
+    // SeeU friends without a card also stay in the list (to open them, or remove the friendship).
+    Widget friendRow(Friend f) => _PersonRow(
+          userId: f.userId,
+          name: f.displayName,
+          subtitle: '${handle(f.username)} · ${tr.friendNoCard}',
+          onTap: () => showFriendSheet(context, f),
+        );
 
     final sections = <Widget>[];
-    if (filtered.isEmpty && !nothingAtAll && all.isNotEmpty) {
+    if (filtered.isEmpty && unlinkedShown.isEmpty && !nothingAtAll && all.isNotEmpty) {
       sections.add(EmptyState(icon: LucideIcons.searchX, title: tr.noResults, message: tr.tryAnotherSearch));
     } else if (_sort == _Sort.name) {
-      final sorted = [...filtered]..sort((a, b) => compareNames(a.name, b.name));
+      final sorted = <(String, Widget)>[
+        for (final x in filtered) (x.name, row(x)),
+        for (final f in unlinkedShown) (f.displayName, friendRow(f)),
+      ]..sort((a, b) => compareNames(a.$1, b.$1));
       if (sorted.isNotEmpty) {
         sections
           ..add(const SizedBox(height: 14))
-          ..add(RowsCard(children: [for (final x in sorted) row(x)]));
+          ..add(RowsCard(children: [for (final x in sorted) x.$2]));
       }
     } else {
       final g = groupByDue(filtered);
@@ -138,6 +148,11 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         sections
           ..add(SectionTitle(title, count: list.length, padding: const EdgeInsets.only(top: 18, bottom: 8)))
           ..add(RowsCard(children: [for (final x in list) row(x)]));
+      }
+      if (unlinkedShown.isNotEmpty) {
+        sections
+          ..add(SectionTitle(tr.groupFriendsNoCard, count: unlinkedShown.length, padding: const EdgeInsets.only(top: 18, bottom: 8)))
+          ..add(RowsCard(children: [for (final f in unlinkedShown) friendRow(f)]));
       }
     }
 
@@ -346,16 +361,18 @@ class _AddButton extends StatelessWidget {
 }
 
 class _PersonRow extends StatelessWidget {
-  const _PersonRow({required this.name, required this.subtitle, this.trailing, this.userId});
+  const _PersonRow({required this.name, required this.subtitle, this.trailing, this.userId, this.onTap});
   final String? userId;
   final String name;
   final String subtitle;
   final Widget? trailing;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return InkWell(
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(children: [

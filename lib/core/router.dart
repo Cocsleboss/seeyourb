@@ -15,6 +15,7 @@ import '../features/contacts/import_screen.dart';
 import '../domain/dates.dart';
 import '../domain/models.dart';
 import '../features/events/event_preview_screen.dart';
+import '../features/events/join_link_screen.dart';
 import '../features/history/calendar.dart';
 import '../features/history/history_screen.dart';
 import '../features/home/home_screen.dart';
@@ -37,6 +38,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     final path = state.uri.path;
     // Auth email links (seeu://auth-callback?code=…) are handled by Supabase itself.
     if (path.isEmpty || path == '/auth-callback') return '/';
+    // Profile links: https://<site>/@andrea (and seeu://app/@andrea) → /u/andrea
+    if (path.startsWith('/@') && !path.substring(2).contains('/')) {
+      return '/u/${Uri.encodeComponent(Uri.decodeComponent(path.substring(2)).toLowerCase())}';
+    }
     // A shared link (profile, event, friend search) opened before signing in:
     // remembered, opened once the account is ready (sign-up included).
     if (!session.signedIn && !session.passwordRecovery && !_publicPaths.contains(path)) {
@@ -113,13 +118,15 @@ final routerProvider = Provider<GoRouter>((ref) {
               initialVisibility: s.uri.queryParameters['vis'] == null ? null : EventVisibility.parse(s.uri.queryParameters['vis']),
             )),
       ),
-      GoRoute(path: '/rdv/:id', pageBuilder: (_, s) => page(s, RdvDetailScreen(id: s.pathParameters['id']!))),
+      GoRoute(path: '/rdv/:id', pageBuilder: (_, s) => page(s, RdvDetailScreen(id: s.pathParameters['id']!, openShare: s.uri.queryParameters['share'] == '1'))),
       GoRoute(path: '/rdv/:id/edit', pageBuilder: (_, s) => page(s, RdvFormScreen(editId: s.pathParameters['id']))),
       // chat notifications: the chat is on the event page
       GoRoute(path: '/rdv/:id/chat', pageBuilder: (_, s) => page(s, RdvDetailScreen(id: s.pathParameters['id']!))),
       GoRoute(path: '/event/:id', pageBuilder: (_, s) => page(s, EventPreviewScreen(id: s.pathParameters['id']!))),
       // Shared links: https://<site>/e/<id> (event) and /u/<username> (profile)
       GoRoute(path: '/e/:id', redirect: (_, s) => '/event/${s.pathParameters['id']}'),
+      // Invitation link to an event: https://<site>/j/<token> or seeu://app/j/<token>
+      GoRoute(path: '/j/:token', pageBuilder: (_, s) => page(s, JoinLinkScreen(token: s.pathParameters['token']!))),
       GoRoute(path: '/u/:username', pageBuilder: (_, s) => page(s, UserProfileScreen(username: s.pathParameters['username']!))),
       GoRoute(path: '/settings/public-profile', pageBuilder: (_, s) => page(s, const PublicProfileSettingsScreen())),
       GoRoute(path: '/settings/moderation', pageBuilder: (_, s) => page(s, const ModerationScreen())),

@@ -52,7 +52,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   /// "Créez votre compte pour retrouver @andrea…" when a shared link is waiting.
   String? _pendingBanner() => switch (PendingLink.current) {
         LinkTarget(kind: LinkKind.profile || LinkKind.friendSearch, :final value) => tr.pendingProfileBanner(value),
-        LinkTarget(kind: LinkKind.event) => tr.pendingEventBanner,
+        LinkTarget(kind: LinkKind.event || LinkKind.eventInvite) => tr.pendingEventBanner,
         null => null,
       };
 

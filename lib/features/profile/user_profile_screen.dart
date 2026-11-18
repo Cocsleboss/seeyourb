@@ -118,7 +118,7 @@ class _BodyState extends ConsumerState<_Body> {
 
     final actions = <Widget>[
       switch (p.relation) {
-        ProfileRelation.self => AppButton(tr.shareMyProfile, icon: LucideIcons.share2, full: true, size: ButtonSize.lg, onPressed: () => shareProfile(p.username)),
+        ProfileRelation.self => AppButton(tr.shareMyProfile, icon: LucideIcons.share2, full: true, size: ButtonSize.lg, onPressed: () => shareProfile(p.username, public: p.publicProfile)),
         ProfileRelation.none => AppButton(tr.addAsFriend,
             icon: LucideIcons.userPlus,
             full: true,
@@ -153,7 +153,8 @@ class _BodyState extends ConsumerState<_Body> {
             loading: _busy == 'cancel',
             onPressed: busy ? null : () => _run('cancel', () => api.removeFriend(p.friendshipId!), tr.requestCancelled)),
       ],
-      if (!p.isMe) ...[
+      // Not friends yet: only "add as SeeU friend" (no contact card for a stranger).
+      if (!p.isMe && (p.contactId != null || p.relation == ProfileRelation.friends)) ...[
         const SizedBox(height: 10),
         if (p.contactId != null)
           AppButton(tr.seeContactCard,

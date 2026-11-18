@@ -24,7 +24,7 @@ Never by plain email / chat, never committed.
 
 | File | Put it at | Contains | Sensitivity |
 | --- | --- | --- | --- |
-| `env.json` | `config/env.json` (template: `config/env.example.json`) | Supabase URL, **publishable** key, deep-link settings | Low (the publishable key ships inside the app), but keep it out of git |
+| `env.json` | `config/env.json` (template: `config/env.example.json`) | Supabase URL, **publishable** key, website URL (`WEBSITE_URL`), deep-link settings | Low (the publishable key ships inside the app), but keep it out of git |
 | `google-services.json` | `android/app/` | Firebase Android client config | Low–medium |
 | `GoogleService-Info.plist` | `ios/Runner/` | Firebase iOS client config. **Required to build iOS** (the Xcode project references it) | Low–medium |
 

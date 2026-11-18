@@ -93,6 +93,8 @@ String? _serverMessage(String msg) {
     'too_many_reports' => tr.errTooManyReports,
     'report_target_not_found' => tr.errReportTarget,
     'report_self' => tr.errReportSelf,
+    'link_invalid' => tr.errLinkInvalid,
+    'removed_from_event' => tr.errRemovedFromEvent,
     null => null,
     _ => tr.errGeneric,
   };

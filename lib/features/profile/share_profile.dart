@@ -6,14 +6,17 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/config.dart';
 import '../../core/i18n.dart';
 import '../../core/links.dart';
 import '../../core/theme.dart';
 import '../../ui/feedback.dart';
 import '../../ui/kit.dart';
 
-Future<void> shareProfile(String username) =>
-    SharePlus.instance.share(ShareParams(text: tr.shareProfileText(username, profileLink(username))));
+/// My profile: the https link when my public page is on; otherwise only my
+/// @username (people add me from the app) and where to get the app.
+Future<void> shareProfile(String username, {required bool public}) => SharePlus.instance.share(ShareParams(
+    text: public ? tr.shareProfileText(username, profileLink(username)) : tr.shareHandleNoLinkText(username, Config.appDownloadUrl)));
 
 Future<void> copyProfileLink(String username) async {
   await Clipboard.setData(ClipboardData(text: profileLink(username)));
@@ -55,7 +58,7 @@ class _QrBody extends StatelessWidget {
       const SizedBox(height: 12),
       Text('@$username', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, color: c.text)),
       const SizedBox(height: 16),
-      AppButton(tr.share, icon: LucideIcons.share2, full: true, onPressed: () => shareProfile(username)),
+      AppButton(tr.share, icon: LucideIcons.share2, full: true, onPressed: () => shareProfile(username, public: true)),
     ]);
   }
 }
@@ -94,12 +97,34 @@ class ProfileLinkCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: AppButton(tr.share, icon: LucideIcons.share2, size: ButtonSize.sm, full: true, onPressed: () => shareProfile(username)),
+            child: AppButton(tr.share, icon: LucideIcons.share2, size: ButtonSize.sm, full: true, onPressed: () => shareProfile(username, public: true)),
           ),
         ]),
         const SizedBox(height: 8),
         AppButton(tr.showQrCode,
             icon: LucideIcons.qrCode, variant: ButtonVariant.secondary, size: ButtonSize.sm, full: true, onPressed: () => showProfileQr(context, username)),
+        if (Config.showAppLinks) ...[
+          const SizedBox(height: 14),
+          Text(tr.testAppLink, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: c.textMuted)),
+          const SizedBox(height: 6),
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () async {
+              await Clipboard.setData(ClipboardData(text: profileAppLink(username)));
+              showToast(tr.linkCopied);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(color: c.secondaryFill, borderRadius: BorderRadius.circular(12)),
+              child: Row(children: [
+                Expanded(child: Text(profileAppLink(username), style: TextStyle(color: c.text, fontSize: 12.5))),
+                Icon(LucideIcons.copy, size: 16, color: c.textMuted),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(tr.testAppLinkHelp, style: TextStyle(color: c.textSubtle, fontSize: 12, height: 1.35)),
+        ],
       ]),
     );
   }

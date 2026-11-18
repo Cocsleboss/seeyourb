@@ -203,7 +203,7 @@ class _ProfileSectionState extends ConsumerState<_ProfileSection> {
           if (p.username != null) ...[
             const SizedBox(height: 10),
             AppButton(tr.shareMyProfile,
-                icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareProfile(p.username!)),
+                icon: LucideIcons.share2, variant: ButtonVariant.secondary, full: true, onPressed: () => shareProfile(p.username!, public: p.publicProfile)),
             const SizedBox(height: 10),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 4),

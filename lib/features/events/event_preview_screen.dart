@@ -48,7 +48,7 @@ class EventPreviewScreen extends ConsumerWidget {
             icon: LucideIcons.ellipsis,
             tooltip: tr.moreActions,
             onPressed: () => showModerationSheet(context, title: e.displayTitle, actions: [
-              if (e.visibility != EventVisibility.private && e.status != RdvStatus.annule)
+              if (e.visibility == EventVisibility.public && e.status != RdvStatus.annule)
                 ModerationAction(LucideIcons.share2, tr.shareEvent, () => shareEvent(e.id, e.displayTitle)),
               e.mutedEvent
                   ? ModerationAction(LucideIcons.bell, tr.unmuteEvent, () => setEventMuted(ref, e.id, false))

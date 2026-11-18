@@ -16,8 +16,8 @@ notSentYet | non envoyé | not sent
 severalSlotsProposed | Plusieurs créneaux proposés | Several timeslots suggested
 giveAvailability | Indiquer mes disponibilités | Share my availability
 slotsInviteHint | Ouvrez l'événement pour répondre créneau par créneau. | Open the event to answer slot by slot.
-guestsCanInvite | Les invités peuvent inviter leurs amis | Guests can invite their friends
-guestsCanInviteHelp | Sinon, vous seul pouvez ajouter des participants. | Otherwise only you can add participants.
+guestsCanInvite | Les invités peuvent inviter d'autres personnes | Guests can invite other people
+guestsCanInviteHelp | Sinon, vous seul pouvez ajouter des participants ou partager un lien d'invitation. | Otherwise only you can add participants or share an invitation link.
 blockContactDeleted | Votre contact « {name} » sera aussi supprimé : plus de rappels pour le revoir. | Your contact “{name}” will be deleted too: no more catch-up reminders.
 blockedAndDeleted | {name} est bloqué(e) et son contact supprimé | {name} is blocked and their contact deleted
 demoAds | Publicités de démonstration | Demo ads

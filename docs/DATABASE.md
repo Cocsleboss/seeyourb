@@ -3,8 +3,9 @@
 Supabase Postgres, project **SeeU** (`klqzmegiydmwtmxfguvl`). This page describes the
 `public` schema as deployed (generated from production's catalog on 2026-11-16, after
 migration `0011`), plus the storage buckets, jobs and the main flows. Migrations `0012`–`0014`
-(moderation & activity, public profiles, travel hints; written 2026-11-18, **not applied to
-production yet**) are included below and marked *(0012)*, *(0013)*, *(0014)*.
+(moderation & activity, public profiles, travel hints; applied 2026-11-18) and `0015`
+(event invitation links, removing a member; written 2026-11-18) are included below and marked
+*(0012)* … *(0015)*.
 The website's entry point is [`API_SITE.md`](API_SITE.md).
 Source of truth: [`supabase/migrations/`](../supabase/migrations) (applied in order);
 SQL scenario tests: [`supabase/tests/`](../supabase/tests/README.md).
@@ -320,6 +321,20 @@ erDiagram
         text platform
         text app_version
     }
+    event_links {
+        text token PK
+        uuid event_id FK
+        uuid created_by FK
+        timestamptz created_at
+        timestamptz revoked_at
+        int join_count
+    }
+    event_removals {
+        uuid event_id PK, FK
+        uuid user_id PK, FK
+        uuid removed_by FK
+        timestamptz removed_at
+    }
     events |o--o{ rendezvous : "event_id"
     contacts ||--o{ contact_rendezvous : "contact_id"
     rendezvous ||--o{ contact_rendezvous : "rendezvous_id"
@@ -337,6 +352,8 @@ erDiagram
     photos |o--o{ reports : "photo_id"
     event_messages |o--o{ reports : "message_id"
     reports |o--o{ admin_actions : "report_id"
+    events ||--o{ event_links : "event_id"
+    events ||--o{ event_removals : "event_id"
 ```
 
 | Table | Columns referencing `auth.users(id)` |
@@ -426,7 +443,7 @@ My private address book: one card per person I want to keep seeing. `next_due_da
 | `notes` | text | yes |  |  |
 | `last_meeting_date` | date | yes |  |  |
 | `frequency_value` | integer | no |  |  |
-| `frequency_unit` | frequency_unit | no |  |  |
+| `frequency_unit` | frequency_unit | no | `'never'` *(0015)* | new cards: no recurring reminder by default |
 | `next_due_date` | date | yes |  | generated |
 | `snooze_until` | date | yes |  |  |
 | `notified_current_cycle` | boolean | no | `false` |  |
@@ -501,6 +518,7 @@ My copy of an event ("rendez-vous"): every participant has their own row, holdin
 | `chat_read_at` | timestamptz | yes |  |  |
 | `show_on_profile` | boolean | no | `false` | *(0013)* show this public event on my public profile ("Choisis" mode) |
 | `travel_hint_sent` | boolean | no | `false` | *(0014)* travel hint pushed; reset when the date or place changes |
+| `joined_via_link_of` | uuid | yes |  | *(0015)* FK → `auth.users.id` (on delete set null): joined with this person's invitation link |
 
 - Unique index `idx_rdv_event_user` on `(event_id, user_id)` where `(event_id IS NOT NULL)`
 - Check: `((rsvp = ANY (ARRAY['pending'::text, 'accepted'::text, 'declined'::text])))`
@@ -764,6 +782,31 @@ Columns `id`, `user_id`, `started_at`, `last_seen_at`, `platform` (`android` \| 
 `app_version`. Indexes on `(user_id, last_seen_at desc)`, `started_at`, `last_seen_at`.
 RLS: `app_sessions_select_own`; no insert / update / delete for clients. Purged after 400 days (`seeu-purge-sessions`).
 
+### `event_links` *(0015)*
+
+Invitation links: `https://<site>/j/<token>`. Anyone holding a valid token may join the event
+(private or "Entre amis"). One active link per (event, creator): unique index
+`event_links_one_active` on `(event_id, created_by)` where `revoked_at is null`.
+
+| Column | Type | Null | Default | Key / notes |
+| --- | --- | --- | --- | --- |
+| `token` | text | no |  | **PK**, 43 url-safe characters from two `gen_random_uuid()` (~244 random bits); check `^[A-Za-z0-9_-]{32,64}$` |
+| `event_id` | uuid | no |  | FK → `events.id` (on delete cascade) |
+| `created_by` | uuid | no |  | FK → `auth.users.id` (on delete cascade): the organizer, or a guest when `guests_can_invite` |
+| `created_at` | timestamptz | no | `now()` |  |
+| `revoked_at` | timestamptz | yes |  | disabled or replaced by a new link |
+| `join_count` | integer | no | `0` | people who joined with it |
+
+A link is valid while not revoked, the event isn't cancelled, and its creator may still invite
+(`can_share_event`: organizer, or a member while `guests_can_invite` is on). RLS on, **no policy**:
+only through the functions (the token is the secret).
+
+### `event_removals` *(0015)*
+
+People the organizer removed from an event (`remove_event_member`): they can't come back with a
+link nor from the friends feed (`seeu:removed_from_event`). The organizer inviting them again
+directly deletes the row. PK `(event_id, user_id)`; `removed_by`, `removed_at`. RLS on, no policy.
+
 ## 6. Functions
 
 App-callable (granted to `authenticated`, called with `supabase.rpc(...)`):
@@ -779,12 +822,13 @@ App-callable (granted to `authenticated`, called with `supabase.rpc(...)`):
 | Profiles *(0013)* | `get_user_profile(username)`: another user's page as I may see it (relation, visible fields, events; never a private event) |
 | Travel *(0014)* | `people_near(lat, lng, event?)`: friends / contacts living ≤ 40 km from a place ≥ 40 km from my home |
 | Activity *(0012)* | `touch_session(platform, version)` |
+| Invitation links *(0015)* | `create_event_link(event, new?)` (my link, created if needed; `new`: replace it), `get_my_event_link(event)`, `revoke_event_link(event, all?)` (`all`: organizer, every link), `get_event_by_link(token)` (what the link leads to, before joining), `join_event_by_link(token, 'accepted' \| 'pending')`, `remove_event_member(event, user)` (organizer) |
 
 Website (see [`API_SITE.md`](API_SITE.md)):
 
 | Area | Functions |
 | --- | --- |
-| Public, granted to `anon` *(0013)* | `get_public_profile(username)`, `get_public_event(id)` |
+| Public, granted to `anon` *(0013)* | `get_public_profile(username)`, `get_public_event(id)`; *(0015)* `get_link_preview(token)` |
 | Admin, role checked by `require_admin()` *(0012)* | `is_admin`, `admin_stats`, `admin_stats_daily`, `admin_list_reports`, `admin_get_report`, `admin_update_report`, `admin_ban_user`, `admin_unban_user`, `admin_search_users`, `admin_get_user`, `admin_list_actions`, `admin_can_read_reported_photo` (storage policy) |
 
 Internal (revoked from the app; used by triggers, jobs and other functions):
@@ -793,7 +837,17 @@ Internal (revoked from the app; used by triggers, jobs and other functions):
 `block_user_core`, `are_friends`, `is_blocked`, `is_muted`, `display_name_of`, `user_tz`,
 `event_params`, `enqueue_notification`, `request_dispatch`, `dispatch_if_pending`,
 `broadcast_event`, `run_reminders`, `run_event_checks`; *(0012–0014)* `is_banned`, `require_admin`,
-`set_auth_ban`, `public_profile_events`, `people_near_for`, `distance_km`, `run_travel_hints`.
+`set_auth_ban`, `public_profile_events`, `people_near_for`, `distance_km`, `run_travel_hints`;
+*(0015)* `new_link_token`, `can_share_event`, `valid_event_link`, `join_event_core` (the former
+`join_event`, now wrapped to refuse removed people).
+
+Changes in 0015:
+- `list_event_participants` returns `via_link` and `link_shared_by` (filled for the organizer only).
+- `get_user_profile` also lists the events (even private) that both people are in.
+- `friendships_after_delete` detaches my card for an ex-friend from the events they're still in,
+  so they stay listed as themselves (not as "pas sur SeeU").
+- `ensure_friend_contact` creates cards with no recurring reminder.
+- Notifications `event_join` carry `via_link`, `rsvp` and `shared_by` when someone joined with a link.
 
 Since 0012, `is_blocked(a, b)` is also true when either account is **banned**: a ban hides the
 account everywhere a block does (search, feeds, events, participants, avatars, notifications,
@@ -887,7 +941,7 @@ sequenceDiagram
   A->>DB: admin_ban_user(user, reason, report)
   DB->>DB: profiles.banned_at, auth.users.banned_until, sessions revoked
   DB->>DB: admin_actions (report_status, ban)
-  Note over DB: is_blocked() now true for that account → hidden everywhere;<br/>seeu_pre_request refuses its requests (seeu:banned)
+  Note over DB: is_blocked() now true for that account → hidden everywhere,<br/>seeu_pre_request refuses its requests (seeu:banned)
 ```
 
 ### Public profile *(0013)*
@@ -906,6 +960,24 @@ An event (organized or joined) whose place is ≥ 40 km from my home: the event 
 form show the friends (city shared with friends or public) and contacts (city on my card) living
 ≤ 40 km from it, except those already in the event; `run_travel_hints()` pushes it once, a few
 days before.
+
+### Invitation link *(0015)*
+
+```mermaid
+sequenceDiagram
+  actor O as Organizer
+  actor X as Someone with the link
+  participant DB as Postgres
+  O->>DB: create_event_link(event)
+  DB-->>O: token (https://site/j/token)
+  O-->>X: shares the link (WhatsApp, SMS…)
+  X->>DB: get_link_preview(token) (website) / get_event_by_link(token) (app)
+  X->>DB: join_event_by_link(token, accepted)
+  DB->>DB: rendezvous copy (joined_via_link_of), counters
+  DB-->>O: notification event_join (via_link)
+  O->>DB: remove_event_member(event, X) (optional)
+  DB->>DB: event_removals: the link no longer lets X in
+```
 
 ## 10. Changing the schema
 

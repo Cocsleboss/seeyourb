@@ -289,6 +289,31 @@ class Api {
   Future<String?> joinEvent(String eventId, Rsvp answer) async =>
       await sb.rpc('join_event', params: {'p_event': eventId, 'p_status': answer.name}) as String?;
 
+  // ---- Invitation links ----
+  /// My link for this event (created if needed); [renew]: a new one, the old stops working.
+  Future<String> createEventLink(String eventId, {bool renew = false}) async =>
+      await sb.rpc('create_event_link', params: {'p_event': eventId, 'p_new': renew}) as String;
+
+  /// My active link, if any (doesn't create one).
+  Future<String?> myEventLink(String eventId) async => await sb.rpc('get_my_event_link', params: {'p_event': eventId}) as String?;
+
+  /// Disables my link ([all]: every link of the event; organizer only).
+  Future<void> revokeEventLink(String eventId, {bool all = false}) =>
+      sb.rpc('revoke_event_link', params: {'p_event': eventId, 'p_all': all});
+
+  Future<LinkedEvent?> eventByLink(String token) async {
+    final res = await sb.rpc('get_event_by_link', params: {'p_token': token});
+    return res == null ? null : LinkedEvent.fromJson(Map<String, dynamic>.from(res as Map));
+  }
+
+  /// Joins through a link ([answer]: accepted or pending). Returns my copy's id.
+  Future<String> joinByLink(String token, Rsvp answer) async =>
+      await sb.rpc('join_event_by_link', params: {'p_token': token, 'p_status': answer.name}) as String;
+
+  /// Organizer: removes someone from the event (they can't come back by a link).
+  Future<void> removeEventMember(String eventId, String userId) =>
+      sb.rpc('remove_event_member', params: {'p_event': eventId, 'p_user': userId});
+
   Future<bool> canCreatePublicEvents() async => (await sb.rpc('can_create_public_events')) as bool? ?? false;
 
   /// scope: 'contacts' (friends' events) or 'public'.

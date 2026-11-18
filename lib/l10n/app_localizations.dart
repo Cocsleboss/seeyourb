@@ -4247,13 +4247,13 @@ abstract class AppLocalizations {
   /// No description provided for @guestsCanInvite.
   ///
   /// In fr, this message translates to:
-  /// **'Les invités peuvent inviter leurs amis'**
+  /// **'Les invités peuvent inviter d\'autres personnes'**
   String get guestsCanInvite;
 
   /// No description provided for @guestsCanInviteHelp.
   ///
   /// In fr, this message translates to:
-  /// **'Sinon, vous seul pouvez ajouter des participants.'**
+  /// **'Sinon, vous seul pouvez ajouter des participants ou partager un lien d\'invitation.'**
   String get guestsCanInviteHelp;
 
   /// No description provided for @blockContactDeleted.
@@ -5101,6 +5101,252 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Demande envoyée'**
   String get friendRequestSentShort;
+
+  /// No description provided for @inviteWithLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter avec un lien'**
+  String get inviteWithLink;
+
+  /// No description provided for @inviteLinkShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien d\'invitation'**
+  String get inviteLinkShort;
+
+  /// No description provided for @inviteWithLinkHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez un lien à envoyer par WhatsApp, Messenger, SMS… à des personnes qui ne sont pas (encore) vos amis SeeU.'**
+  String get inviteWithLinkHelp;
+
+  /// No description provided for @linkAnyoneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toute personne qui a ce lien peut rejoindre l\'événement'**
+  String get linkAnyoneTitle;
+
+  /// No description provided for @linkAnyoneBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même sans être votre ami SeeU. Envoyez-le seulement aux personnes que vous voulez inviter : si elle circule, désactivez-le ou créez-en un nouveau.'**
+  String get linkAnyoneBody;
+
+  /// No description provided for @createLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer le lien d\'invitation'**
+  String get createLink;
+
+  /// No description provided for @newLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau lien'**
+  String get newLink;
+
+  /// No description provided for @newLinkHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouveau lien remplace l\'ancien, qui ne fonctionne plus. Les personnes déjà inscrites restent.'**
+  String get newLinkHelp;
+
+  /// No description provided for @linkRenewed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau lien créé : l\'ancien ne fonctionne plus'**
+  String get linkRenewed;
+
+  /// No description provided for @disableLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver'**
+  String get disableLink;
+
+  /// No description provided for @disableLinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver le lien ?'**
+  String get disableLinkTitle;
+
+  /// No description provided for @disableLinkMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre lien ne permettra plus de rejoindre l\'événement. Les personnes déjà inscrites restent.'**
+  String get disableLinkMessage;
+
+  /// No description provided for @disableLinkMessageOrganizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les liens de l\'événement (aussi ceux partagés par les invités) ne permettront plus de le rejoindre. Les personnes déjà inscrites restent.'**
+  String get disableLinkMessageOrganizer;
+
+  /// No description provided for @linkDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien désactivé'**
+  String get linkDisabled;
+
+  /// No description provided for @shareInviteText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je t\'invite à « {title} » sur SeeU : {link}'**
+  String shareInviteText(String title, String link);
+
+  /// No description provided for @testAppLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien de test (ouvre directement l\'app)'**
+  String get testAppLink;
+
+  /// No description provided for @testAppLinkHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attendant le site web : ce lien seeu:// ouvre SeeU sur ce téléphone, comme le fera la page web.'**
+  String get testAppLinkHelp;
+
+  /// No description provided for @linkInvalidTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien d\'invitation invalide'**
+  String get linkInvalidTitle;
+
+  /// No description provided for @invitedByLinkOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} vous invite avec un lien'**
+  String invitedByLinkOf(String name);
+
+  /// No description provided for @imGoing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je viens'**
+  String get imGoing;
+
+  /// No description provided for @joinByLinkHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} sera prévenu·e. Vous retrouverez l\'événement dans votre agenda.'**
+  String joinByLinkHint(String name);
+
+  /// No description provided for @yourOwnEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est votre événement.'**
+  String get yourOwnEvent;
+
+  /// No description provided for @removedFromEventInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'organisateur vous a retiré de cet événement : ce lien ne vous permet plus de le rejoindre.'**
+  String get removedFromEventInfo;
+
+  /// No description provided for @errLinkInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien d\'invitation ne fonctionne plus.'**
+  String get errLinkInvalid;
+
+  /// No description provided for @errRemovedFromEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'organisateur vous a retiré de cet événement.'**
+  String get errRemovedFromEvent;
+
+  /// No description provided for @joinedViaLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Venu·e avec le lien'**
+  String get joinedViaLink;
+
+  /// No description provided for @joinedViaLinkOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Venu·e avec le lien de {name}'**
+  String joinedViaLinkOf(String name);
+
+  /// No description provided for @seeProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil'**
+  String get seeProfile;
+
+  /// No description provided for @removeFromEvent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de l\'événement'**
+  String get removeFromEvent;
+
+  /// No description provided for @removeFromEventTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer {name} ?'**
+  String removeFromEventTitle(String name);
+
+  /// No description provided for @removeFromEventMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette personne ne fera plus partie de l\'événement et ne pourra pas revenir avec un lien. Vous pourrez l\'inviter à nouveau vous-même.'**
+  String get removeFromEventMessage;
+
+  /// No description provided for @removedFromEventToast.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} ne fait plus partie de l\'événement'**
+  String removedFromEventToast(String name);
+
+  /// No description provided for @withWhomPrivateHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personne pour l\'instant ? Après la création, vous pourrez partager un lien d\'invitation.'**
+  String get withWhomPrivateHint;
+
+  /// No description provided for @noContactsShareLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de contacts : créez l\'événement, puis partagez un lien d\'invitation.'**
+  String get noContactsShareLater;
+
+  /// No description provided for @guestsCanInviteOnHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'En invitant leurs amis SeeU, ou avec un lien d\'invitation.'**
+  String get guestsCanInviteOnHelp;
+
+  /// No description provided for @publicProfileOffInfo2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivé : pas de page web ni de lien. On peut vous ajouter depuis l\'app SeeU, en cherchant @{username}.'**
+  String publicProfileOffInfo2(String username);
+
+  /// No description provided for @shareHandleNoLinkText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute-moi sur SeeU : @{username}\nL\'app : {link}'**
+  String shareHandleNoLinkText(String username, String link);
+
+  /// No description provided for @friendCityHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Celle de son compte SeeU, si elle la partage avec ses amis.'**
+  String get friendCityHelp;
+
+  /// No description provided for @friendNoCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de ville indiquée'**
+  String get friendNoCity;
+
+  /// No description provided for @friendNoCard.
+  ///
+  /// In fr, this message translates to:
+  /// **'ami SeeU, sans fiche'**
+  String get friendNoCard;
+
+  /// No description provided for @groupFriendsNoCard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amis SeeU sans fiche'**
+  String get groupFriendsNoCard;
 
   /// No description provided for @publicProfileTitle.
   ///

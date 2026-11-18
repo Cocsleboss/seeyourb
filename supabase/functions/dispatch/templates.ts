@@ -139,7 +139,12 @@ const fr: Record<string, (c: Ctx) => Rendered> = {
     title: `${c.p.name} organise ${str(c.p.title) ?? "un événement"}`,
     body: `${eventLine(c)}. ${c.p.slots ? "Indiquez vos disponibilités" : "Rejoignez-le"} dans SeeU.`,
   }),
-  event_join: (c) => ({ title: `${c.p.name} vient à ${str(c.p.title) ?? "votre événement"} 🎉`, body: eventLine(c, { place: false }) }),
+  event_join: (c) => c.p.via_link
+    ? {
+      title: `${c.p.name} a rejoint ${str(c.p.title) ?? "votre événement"}${c.p.rsvp === "pending" ? " (à confirmer)" : ""} 🔗`,
+      body: [str(c.p.shared_by) ? `Via le lien de ${c.p.shared_by}` : "Via le lien d'invitation", eventLine(c, { place: false })].filter(Boolean).join(" · "),
+    }
+    : { title: `${c.p.name} vient à ${str(c.p.title) ?? "votre événement"} 🎉`, body: eventLine(c, { place: false }) },
   event_message: (c) => ({ title: `${c.p.name} · ${str(c.p.title) ?? "Discussion"}`, body: String(c.p.text ?? "") }),
   event_announcement: (c) => ({ title: `📣 ${str(c.p.title) ?? c.p.name}`, body: String(c.p.text ?? "") }),
   travel_nearby: (c) => {
@@ -232,7 +237,12 @@ const en: Record<string, (c: Ctx) => Rendered> = {
     title: `${c.p.name} is organizing ${str(c.p.title) ?? "an event"}`,
     body: `${eventLine(c)}. ${c.p.slots ? "Share your availability" : "Join"} in SeeU.`,
   }),
-  event_join: (c) => ({ title: `${c.p.name} is coming to ${str(c.p.title) ?? "your event"} 🎉`, body: eventLine(c, { place: false }) }),
+  event_join: (c) => c.p.via_link
+    ? {
+      title: `${c.p.name} joined ${str(c.p.title) ?? "your event"}${c.p.rsvp === "pending" ? " (maybe)" : ""} 🔗`,
+      body: [str(c.p.shared_by) ? `Through ${c.p.shared_by}'s link` : "Through the invitation link", eventLine(c, { place: false })].filter(Boolean).join(" · "),
+    }
+    : { title: `${c.p.name} is coming to ${str(c.p.title) ?? "your event"} 🎉`, body: eventLine(c, { place: false }) },
   event_message: (c) => ({ title: `${c.p.name} · ${str(c.p.title) ?? "Chat"}`, body: String(c.p.text ?? "") }),
   event_announcement: (c) => ({ title: `📣 ${str(c.p.title) ?? c.p.name}`, body: String(c.p.text ?? "") }),
   travel_nearby: (c) => {

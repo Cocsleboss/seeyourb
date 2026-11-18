@@ -314,7 +314,7 @@ class ContactInput {
     this.notes,
     this.lastMeetingDate,
     this.frequencyValue = 1,
-    this.frequencyUnit = FrequencyUnit.months,
+    this.frequencyUnit = FrequencyUnit.never,
     this.linkedUserId,
     this.city,
     this.country,
@@ -649,7 +649,15 @@ class FeedEvent {
 }
 
 class Participant {
-  Participant({required this.userId, required this.name, this.username, required this.role, this.isFriend = false});
+  Participant({
+    required this.userId,
+    required this.name,
+    this.username,
+    required this.role,
+    this.isFriend = false,
+    this.viaLink = false,
+    this.linkSharedBy,
+  });
   final String userId;
   final String name;
   final String? username;
@@ -657,6 +665,12 @@ class Participant {
   /// 'organizer' | 'accepted' | 'pending'
   final String role;
   final bool isFriend;
+
+  /// Joined with an invitation link (only told to the organizer).
+  final bool viaLink;
+
+  /// The member whose link they used (null: the organizer's link).
+  final String? linkSharedBy;
 
   bool get isOrganizer => role == 'organizer';
 
@@ -666,6 +680,82 @@ class Participant {
         username: j['username'] as String?,
         role: (j['rsvp'] as String?) ?? 'pending',
         isFriend: (j['is_friend'] as bool?) ?? false,
+        viaLink: (j['via_link'] as bool?) ?? false,
+        linkSharedBy: j['link_shared_by'] as String?,
+      );
+}
+
+/// What an invitation link leads to (get_event_by_link).
+class LinkedEvent {
+  LinkedEvent({
+    required this.eventId,
+    this.title,
+    this.location,
+    this.description,
+    required this.startsAt,
+    this.slotsOpen = false,
+    this.status = RdvStatus.planifie,
+    this.visibility = EventVisibility.private,
+    this.going = 1,
+    this.link,
+    this.lat,
+    this.lng,
+    required this.organizerId,
+    required this.organizerName,
+    this.organizerUsername,
+    this.sharedByName,
+    this.isMine = false,
+    this.myRdvId,
+    this.myRsvp,
+    this.removed = false,
+  });
+  final String eventId;
+  final String? title;
+  final String? location;
+  final String? description;
+  final DateTime startsAt;
+  final bool slotsOpen;
+  final RdvStatus status;
+  final EventVisibility visibility;
+  final int going;
+  final String? link;
+  final double? lat;
+  final double? lng;
+  final String organizerId;
+  final String organizerName;
+  final String? organizerUsername;
+  final String? sharedByName;
+  final bool isMine;
+  final String? myRdvId;
+  final Rsvp? myRsvp;
+  final bool removed;
+
+  /// Already in my agenda (organizer, going or "à confirmer").
+  bool get joined => myRdvId != null && myRsvp != Rsvp.declined;
+
+  String get displayTitle => (title?.trim().isNotEmpty ?? false) ? title!.trim() : tr.eventBy(organizerName);
+
+  factory LinkedEvent.fromJson(Map<String, dynamic> j) => LinkedEvent(
+        eventId: j['event_id'] as String,
+        title: j['title'] as String?,
+        location: j['location'] as String?,
+        description: j['description'] as String?,
+        startsAt: DateTime.parse(j['starts_at'] as String).toLocal(),
+        slotsOpen: (j['slots_open'] as bool?) ?? false,
+        status: RdvStatus.parse(j['status'] as String?),
+        visibility: EventVisibility.parse(j['visibility'] as String?),
+        going: (j['going'] as num?)?.toInt() ?? 1,
+        link: j['link'] as String?,
+        lat: (j['lat'] as num?)?.toDouble(),
+        lng: (j['lng'] as num?)?.toDouble(),
+        organizerId: j['organizer_id'] as String,
+        organizerName: (j['organizer_name'] as String?) ?? 'SeeU',
+        organizerUsername: j['organizer_username'] as String?,
+        sharedByName: j['shared_by_name'] as String?,
+        isMine: (j['is_mine'] as bool?) ?? false,
+        myRdvId: j['my_rdv_id'] as String?,
+        myRsvp: Rsvp.parse(j['my_rsvp'] as String?),
+        removed: (j['removed'] as bool?) ?? false,
       );
 }
 

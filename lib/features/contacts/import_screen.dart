@@ -51,7 +51,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
   List<ImportedContact> _queue = [];
   int _index = 0;
   final Map<String, _Choice?> _decisions = {}; // null = ignored
-  _Choice _current = _Choice(value: 1, unit: FrequencyUnit.months);
+  _Choice _current = _Choice(value: 1, unit: FrequencyUnit.never);
   DedupeResult? _dedupe;
 
   bool _saving = false;

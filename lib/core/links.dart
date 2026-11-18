@@ -1,44 +1,61 @@
 // Shareable links and the destination kept while signing up.
 //
-//   <SHARE_LINK_BASE>/u/<username>   a profile (website page + app link)
-//   <SHARE_LINK_BASE>/e/<event id>   an event
+//   <WEBSITE_URL>/@<username>   a public profile (website page, then the app)
+//   <WEBSITE_URL>/j/<token>     an invitation link to an event (anyone holding
+//                               it may join; the token is random and secret)
+//   <WEBSITE_URL>/e/<event id>  a public event (public events are hidden for now)
 //
-// With an https SHARE_LINK_BASE (Android App Links / iOS Universal Links), the
-// link opens the app directly when it's installed, else the website. Someone
-// not signed in yet is sent to the login / sign-up screen first: the
-// destination is remembered (also across an app restart, e.g. while confirming
-// the email) and opened once the account is ready.
+// The website shows the page and opens the app with the same path on the app's
+// scheme (seeu://app/@andrea, seeu://app/j/<token>), else offers the stores.
+// With App Links / Universal Links verified, the https link opens the app
+// directly. Someone not signed in yet is sent to the login / sign-up screen
+// first: the destination is remembered (also across an app restart, e.g. while
+// confirming the email) and opened once the account is ready.
+// Older links (/u/<username>, /friends?q=) are still understood.
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config.dart';
 
-String profileLink(String username) => '${Config.shareLinkBase}/u/${Uri.encodeComponent(username)}';
+String profileLink(String username) => '${Config.websiteUrl}/@${Uri.encodeComponent(username)}';
+String profileAppLink(String username) => '${Config.appLinkBase}/@${Uri.encodeComponent(username)}';
 
-String eventLink(String eventId) => '${Config.shareLinkBase}/e/$eventId';
+String eventLink(String eventId) => '${Config.websiteUrl}/e/$eventId';
+
+String eventInviteLink(String token) => '${Config.websiteUrl}/j/$token';
+String eventInviteAppLink(String token) => '${Config.appLinkBase}/j/$token';
 
 /// What a shared link points to.
-enum LinkKind { profile, event, friendSearch }
+enum LinkKind { profile, event, eventInvite, friendSearch }
 
 class LinkTarget {
   const LinkTarget(this.kind, this.value);
   final LinkKind kind;
 
-  /// username (profile / search) or event id.
+  /// username (profile / search), event id, or invitation token.
   final String value;
 
   /// In-app location to open.
   String get location => switch (kind) {
         LinkKind.profile => '/u/${Uri.encodeComponent(value)}',
         LinkKind.event => '/event/$value',
+        LinkKind.eventInvite => '/j/$value',
         LinkKind.friendSearch => '/friends?q=${Uri.encodeQueryComponent(value)}',
       };
 
   static final _username = RegExp(r'^@?[a-z0-9][a-z0-9_.]{2,19}$');
   static final _uuid = RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$');
+  static final _token = RegExp(r'^[A-Za-z0-9_-]{32,64}$');
 
   /// A location coming from a link worth keeping through sign-up (null otherwise).
   static LinkTarget? parse(Uri uri) {
     final seg = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+    if (seg.length == 1 && seg[0].startsWith('@')) {
+      final u = seg[0].toLowerCase();
+      return _username.hasMatch(u) ? LinkTarget(LinkKind.profile, u.substring(1)) : null;
+    }
+    if (seg.length == 2 && seg[0] == 'j') {
+      return _token.hasMatch(seg[1]) ? LinkTarget(LinkKind.eventInvite, seg[1]) : null;
+    }
     if (seg.length == 2 && seg[0] == 'u') {
       final u = seg[1].toLowerCase();
       return _username.hasMatch(u) ? LinkTarget(LinkKind.profile, u.replaceFirst('@', '')) : null;

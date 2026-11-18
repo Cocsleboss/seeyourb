@@ -31,23 +31,27 @@ The app owns the custom URL scheme **`seeu://`**
 | URL | Used for | Configured in |
 | --- | --- | --- |
 | `seeu://auth-callback` | Sign-up confirmation, magic link, password reset emails: Supabase redirects here after verifying the link, the app exchanges the code for a session (PKCE) | `config/env.json` → `AUTH_REDIRECT`; Supabase → Authentication → URL Configuration (**Site URL** and **Redirect URLs**) |
-| `<SHARE_LINK_BASE>/u/<username>` | Profile link ("Copier le lien", "Partager", QR code, "Ajoute-moi sur SeeU : @andrea"): opens that profile in the app | `config/env.json` → `SHARE_LINK_BASE` (`seeu://app` today, `https://<domain>` once the website is live) |
-| `<SHARE_LINK_BASE>/e/<event id>` | Event link (⋯ → "Partager l'événement", public and "Entre amis" events) | same |
-| `seeu://app/friends?q=<username>` | Older share links: Friends tab with the search prefilled (still handled) | — |
-| `https://<domain>/u/…`, `/e/…` | Android App Links (intent filter with `autoVerify`, host from `seeu.linkHost` in `android/gradle.properties`) and iOS Universal Links (Associated Domains, needs the paid account). Verification files: [`deeplinks/`](../deeplinks/README.md), served by the website | `android/gradle.properties`, Xcode capability |
+| `<WEBSITE_URL>/@<username>` | Profile link, only when the public profile is on ("Copier le lien", "Partager", QR code): the website page, which then opens the app on `seeu://app/@<username>` | `config/env.json` → `WEBSITE_URL` (domain not chosen yet; default `https://seeu.app`) |
+| `<WEBSITE_URL>/j/<token>` | Event invitation link (private and "Entre amis" events): anyone holding it can join. The website shows a preview and opens `seeu://app/j/<token>` | same; tokens in `event_links` (migration 0015) |
+| `seeu://app/@<username>`, `seeu://app/j/<token>` | The same pages opened directly in the app (what the website opens; also shown as "test link" in the app while the site doesn't exist, `SHOW_APP_LINKS`) | — |
+| `<WEBSITE_URL>/e/<event id>` | Public event link (public events are hidden in the app for now) | same |
+| `seeu://app/u/<username>`, `seeu://app/friends?q=<username>` | Older share links (still handled) | — |
+| `https://<domain>/@…`, `/j/…`, `/u/…`, `/e/…` | Android App Links (intent filter with `autoVerify`, host from `seeu.linkHost` in `android/gradle.properties`) and iOS Universal Links (Associated Domains, needs the paid account). Verification files: [`deeplinks/`](../deeplinks/README.md), served by the website | `android/gradle.properties`, Xcode capability |
 | `https://seeu.app` (placeholder) | "Envoyer le lien de l'app" to people without the app | `config/env.json` → `APP_DOWNLOAD_URL` |
 | `https://klqzmegiydmwtmxfguvl.supabase.co/functions/v1/dispatch` | Called by the database to deliver notifications | built from Vault `project_url` in `request_dispatch()` |
 | `https://fcm.googleapis.com/v1/projects/seeu-94040/messages:send` | Push sending (FCM HTTP v1) | built from `FCM_SERVICE_ACCOUNT.project_id` in the `dispatch` function |
 
 In-app paths (also used as notification targets): `/`, `/contacts`, `/contacts/<id>`,
 `/contacts/new`, `/contacts/import`, `/rdv/new?contact=<id>`, `/rdv/<id>`, `/friends`,
-`/history`, `/settings`, `/settings/public-profile`, `/u/<username>`, `/event/<id>` (`/e/<id>` redirects there).
+`/history`, `/settings`, `/settings/public-profile`, `/u/<username>` (`/@<username>` redirects there),
+`/event/<id>` (`/e/<id>` redirects there), `/j/<token>` (invitation link), `/rdv/<id>?share=1` (opens the link sheet).
+Website pages and behaviour: [`WEBSITE.md`](WEBSITE.md).
 
 A link opened while signed out is remembered (2 days, `lib/core/links.dart`): the app shows
 the sign-up screen with a banner, then opens the profile / event once the account is ready.
 
 > Before the public launch: custom schemes aren't clickable in most messaging apps.
-> With the website's domain: `SHARE_LINK_BASE=https://<domain>`, `seeu.linkHost=<domain>`,
+> With the website's domain: `WEBSITE_URL=https://<domain>`, `seeu.linkHost=<domain>`,
 > serve the two files of `deeplinks/.well-known/` (fingerprints and Team ID filled in), add the
 > Associated Domains capability in Xcode, and point `APP_DOWNLOAD_URL` (and optionally the auth
 > redirect) to it. Details: [`deeplinks/README.md`](../deeplinks/README.md).
@@ -56,7 +60,7 @@ the sign-up screen with a banner, then opens the profile / event once the accoun
 
 | Name | Contains | Lives in | In git? |
 | --- | --- | --- | --- |
-| `config/env.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (public by design), `AUTH_REDIRECT`, `SHARE_LINK_BASE`, `APP_DOWNLOAD_URL` | your machine; template `config/env.example.json` | No |
+| `config/env.json` | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (public by design), `AUTH_REDIRECT`, `WEBSITE_URL`, `APP_DOWNLOAD_URL`, `SHOW_APP_LINKS` | your machine; template `config/env.example.json` | No |
 | `android/app/google-services.json` | Firebase Android client config | your machine | No |
 | `ios/Runner/GoogleService-Info.plist` | Firebase iOS client config (the Xcode project references it: needed to build iOS) | your machine | No |
 | Vault `project_url` | Supabase URL, so the DB can call Edge Functions | Supabase → Vault | — |
@@ -202,7 +206,7 @@ calendar. Contact pictures are 384 px. Photos uploaded before this change keep t
 - [ ] Paid Apple account → Xcode: add **Push Notifications** capability; developer.apple.com → APNs key
       (`.p8`) → upload in Firebase → Project settings → Cloud Messaging (Key ID + Team ID).
 - [ ] Email provider: `EMAIL_FROM` + API key as function secrets; custom SMTP in Supabase Auth.
-- [ ] Domain for share links / App Links / Universal Links (website, step 2): fill and serve `deeplinks/.well-known/*`, set `SHARE_LINK_BASE`, `seeu.linkHost`, Associated Domains.
+- [ ] Domain for share links / App Links / Universal Links (website, step 2): fill and serve `deeplinks/.well-known/*`, set `WEBSITE_URL`, `seeu.linkHost`, Associated Domains.
 - [ ] Apply migrations `0012`–`0014` (and `0010`–`0011` if still missing), redeploy `dispatch` (new `travel_nearby` text), add the first admin: step-by-step guide in French for the project owner in [`MIGRATION_ETAPE1.md`](MIGRATION_ETAPE1.md).
 - [ ] Android release signing (replace the debug signing config in `android/app/build.gradle.kts`).
 - [ ] Ads: see `docs/ADS.md` (AdMob account, consent flow, AdsService implementation).

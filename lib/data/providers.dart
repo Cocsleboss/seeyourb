@@ -229,6 +229,16 @@ final blockedProvider = FutureProvider<List<BlockedUser>>((ref) => _api(ref).lis
 /// Someone's profile page (/u/:username); null = not found / not visible to me.
 final userProfileProvider = FutureProvider.family<UserProfile?, String>((ref, username) => _api(ref).getUserProfile(username));
 
+/// A SeeU friend's city, as they share it with their friends (null: none, or
+/// not shared). Shown on my card for them instead of a city I'd type.
+final friendCityProvider = FutureProvider.family<String?, String>((ref, userId) async {
+  final friends = await ref.watch(friendsProvider.future);
+  final username = friends.where((f) => f.userId == userId && f.accepted).firstOrNull?.username;
+  if (username == null) return null;
+  final profile = await ref.watch(userProfileProvider(username).future);
+  return profile?.cityLabel;
+});
+
 /// "You could see them while there": people living near a place far from my home.
 final peopleNearProvider = FutureProvider.family<List<NearbyPerson>, ({double lat, double lng, String? eventId})>(
     (ref, k) => _api(ref).peopleNear(k.lat, k.lng, eventId: k.eventId));

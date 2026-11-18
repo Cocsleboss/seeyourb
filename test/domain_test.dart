@@ -259,7 +259,17 @@ void main() {
   });
 
   test('share links: profile and event targets, kept through sign-up', () {
-    expect(profileLink('andrea'), endsWith('/u/andrea'));
+    expect(profileLink('andrea'), allOf(startsWith('https://'), endsWith('/@andrea')));
+    expect(profileAppLink('andrea'), 'seeu://app/@andrea');
+    const token = 'Ab3_-Ab3_-Ab3_-Ab3_-Ab3_-Ab3_-Ab3_-Ab3_-xyz';
+    expect(eventInviteLink(token), allOf(startsWith('https://'), endsWith('/j/$token')));
+    expect(eventInviteAppLink(token), 'seeu://app/j/$token');
+    final j = LinkTarget.parse(Uri.parse(eventInviteAppLink(token)))!;
+    expect((j.kind, j.location), (LinkKind.eventInvite, '/j/$token'));
+    expect(LinkTarget.parse(Uri.parse('https://seeu.app/j/short')), isNull);
+    final at = LinkTarget.parse(Uri.parse('https://seeu.app/@Andrea'))!;
+    expect((at.kind, at.location), (LinkKind.profile, '/u/andrea'));
+    expect(LinkTarget.parse(Uri.parse('seeu://app/@a')), isNull);
     expect(eventLink('0f8c2d3e-1111-4222-8333-944445555666'), endsWith('/e/0f8c2d3e-1111-4222-8333-944445555666'));
     final p = LinkTarget.parse(Uri.parse('https://seeu.app/u/Andrea'))!;
     expect((p.kind, p.value, p.location), (LinkKind.profile, 'andrea', '/u/andrea'));

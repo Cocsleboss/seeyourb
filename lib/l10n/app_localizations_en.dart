@@ -2626,10 +2626,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slotsInviteHint => 'Open the event to answer slot by slot.';
 
   @override
-  String get guestsCanInvite => 'Guests can invite their friends';
+  String get guestsCanInvite => 'Guests can invite other people';
 
   @override
-  String get guestsCanInviteHelp => 'Otherwise only you can add participants.';
+  String get guestsCanInviteHelp =>
+      'Otherwise only you can add participants or share an invitation link.';
 
   @override
   String blockContactDeleted(String name) {
@@ -3151,6 +3152,158 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get friendRequestSentShort => 'Request sent';
+
+  @override
+  String get inviteWithLink => 'Invite with a link';
+
+  @override
+  String get inviteLinkShort => 'Invite link';
+
+  @override
+  String get inviteWithLinkHelp =>
+      'Create a link to send by WhatsApp, Messenger, text… to people who aren\'t (yet) your SeeU friends.';
+
+  @override
+  String get linkAnyoneTitle => 'Anyone with this link can join the event';
+
+  @override
+  String get linkAnyoneBody =>
+      'Even without being your SeeU friend. Only send it to people you want to invite: if it gets passed around, disable it or create a new one.';
+
+  @override
+  String get createLink => 'Create the invitation link';
+
+  @override
+  String get newLink => 'New link';
+
+  @override
+  String get newLinkHelp =>
+      'A new link replaces the old one, which stops working. People who already joined stay.';
+
+  @override
+  String get linkRenewed => 'New link created: the old one no longer works';
+
+  @override
+  String get disableLink => 'Disable';
+
+  @override
+  String get disableLinkTitle => 'Disable the link?';
+
+  @override
+  String get disableLinkMessage =>
+      'Your link will no longer let people join. People who already joined stay.';
+
+  @override
+  String get disableLinkMessageOrganizer =>
+      'Every link to this event (also those shared by guests) will stop letting people join. People who already joined stay.';
+
+  @override
+  String get linkDisabled => 'Link disabled';
+
+  @override
+  String shareInviteText(String title, String link) {
+    return 'You\'re invited to “$title” on SeeU: $link';
+  }
+
+  @override
+  String get testAppLink => 'Test link (opens the app directly)';
+
+  @override
+  String get testAppLinkHelp =>
+      'Until the website exists: this seeu:// link opens SeeU on this phone, as the web page will.';
+
+  @override
+  String get linkInvalidTitle => 'Invalid invitation link';
+
+  @override
+  String invitedByLinkOf(String name) {
+    return '$name invites you with a link';
+  }
+
+  @override
+  String get imGoing => 'I\'m going';
+
+  @override
+  String joinByLinkHint(String name) {
+    return '$name will be told. You\'ll find the event in your agenda.';
+  }
+
+  @override
+  String get yourOwnEvent => 'This is your event.';
+
+  @override
+  String get removedFromEventInfo =>
+      'The organizer removed you from this event: this link no longer lets you join.';
+
+  @override
+  String get errLinkInvalid => 'This invitation link no longer works.';
+
+  @override
+  String get errRemovedFromEvent =>
+      'The organizer removed you from this event.';
+
+  @override
+  String get joinedViaLink => 'Came with the link';
+
+  @override
+  String joinedViaLinkOf(String name) {
+    return 'Came with $name\'s link';
+  }
+
+  @override
+  String get seeProfile => 'See profile';
+
+  @override
+  String get removeFromEvent => 'Remove from the event';
+
+  @override
+  String removeFromEventTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get removeFromEventMessage =>
+      'This person will no longer be part of the event and can\'t come back with a link. You can invite them again yourself.';
+
+  @override
+  String removedFromEventToast(String name) {
+    return '$name is no longer part of the event';
+  }
+
+  @override
+  String get withWhomPrivateHint =>
+      'Nobody yet? Once it\'s created, you can share an invitation link.';
+
+  @override
+  String get noContactsShareLater =>
+      'No contacts yet: create the event, then share an invitation link.';
+
+  @override
+  String get guestsCanInviteOnHelp =>
+      'By inviting their SeeU friends, or with an invitation link.';
+
+  @override
+  String publicProfileOffInfo2(String username) {
+    return 'Off: no web page and no link. People can add you from the SeeU app by searching @$username.';
+  }
+
+  @override
+  String shareHandleNoLinkText(String username, String link) {
+    return 'Add me on SeeU: @$username\nThe app: $link';
+  }
+
+  @override
+  String get friendCityHelp =>
+      'The one on their SeeU account, if they share it with friends.';
+
+  @override
+  String get friendNoCity => 'No city given';
+
+  @override
+  String get friendNoCard => 'SeeU friend, no card';
+
+  @override
+  String get groupFriendsNoCard => 'SeeU friends without a card';
 
   @override
   String get publicProfileTitle => 'Public profile & sharing';

@@ -30,10 +30,15 @@ import '../events/event_widgets.dart';
 import '../events/moderation.dart';
 import '../events/slot_poll.dart';
 import '../../core/i18n.dart';
+import '../../core/features.dart';
+import '../events/event_share.dart';
 
 class RdvDetailScreen extends ConsumerWidget {
-  const RdvDetailScreen({super.key, required this.id});
+  const RdvDetailScreen({super.key, required this.id, this.openShare = false});
   final String id;
+
+  /// Just created with nobody invited: open the invitation link sheet.
+  final bool openShare;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,9 +74,12 @@ class RdvDetailScreen extends ConsumerWidget {
             icon: LucideIcons.ellipsis,
             tooltip: tr.moreActions,
             onPressed: () => showModerationSheet(context, title: rdv.displayTitle, actions: [
-              // a link others can open: public events, and "friends" ones for the organizer's friends
-              if (rdv.visibility != EventVisibility.private && rdv.status != RdvStatus.annule)
-                ModerationAction(LucideIcons.share2, tr.shareEvent, () => shareEvent(event.id, rdv.displayTitle)),
+              // public events: their page; others: an invitation link (where I may invite)
+              if (rdv.visibility == EventVisibility.public && rdv.status != RdvStatus.annule)
+                ModerationAction(LucideIcons.share2, tr.shareEvent, () => shareEvent(event.id, rdv.displayTitle))
+              else if (rdv.status != RdvStatus.annule && (rdv.isOrganizer || (rdv.event?.guestsCanInvite ?? false)))
+                ModerationAction(LucideIcons.link, tr.inviteWithLink,
+                    () => showEventLinkSheet(context, eventId: event.id, title: rdv.displayTitle, isOrganizer: rdv.isOrganizer)),
               event.mutedEvent
                   ? ModerationAction(LucideIcons.bell, tr.unmuteEvent, () => setEventMuted(ref, event.id, false))
                   : ModerationAction(LucideIcons.bellOff, tr.muteEvent, () => setEventMuted(ref, event.id, true)),
@@ -90,7 +98,7 @@ class RdvDetailScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: AsyncBody(value: value, onRetry: () => ref.invalidate(rdvProvider(id)), builder: (_) => const SizedBox()),
             )
-          : _Body(rdv),
+          : _Body(rdv, openShare: openShare),
     );
     if (!guardSlots) return scaffold;
     return Consumer(builder: (context, ref, _) {
@@ -107,11 +115,28 @@ class RdvDetailScreen extends ConsumerWidget {
   }
 }
 
-class _Body extends ConsumerWidget {
-  const _Body(this.rdv);
+class _Body extends ConsumerStatefulWidget {
+  const _Body(this.rdv, {this.openShare = false});
   final Rendezvous rdv;
+  final bool openShare;
+  @override
+  ConsumerState<_Body> createState() => _BodyState();
+}
 
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+class _BodyState extends ConsumerState<_Body> {
+  Rendezvous get rdv => widget.rdv;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.openShare && rdv.eventId != null && rdv.isOrganizer) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) showEventLinkSheet(context, eventId: rdv.eventId!, title: rdv.displayTitle, isOrganizer: true);
+      });
+    }
+  }
+
+  Future<void> _delete(BuildContext context) async {
     final ok = await confirmSheet(
       context,
       title: rdv.isOrganizer ? tr.deleteRdvTitle : tr.leaveEventTitle,
@@ -161,7 +186,7 @@ class _Body extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final c = context.colors;
     final shared = rdv.isShared ? ref.watch(sharedRdvPhotosProvider(rdv.id)) : null;
     final photos = shared == null
@@ -170,7 +195,10 @@ class _Body extends ConsumerWidget {
     final event = rdv.eventId == null ? null : ref.watch(eventProvider(rdv.eventId!)).value;
     final public = rdv.visibility == EventVisibility.public;
 
+    // Not lazy: sections rebuilt at another height when scrolled back into view
+    // made the page bounce up and down at the bottom.
     return PageList(
+      lazy: false,
       onRefresh: () async {
         refreshData(ref);
         await ref.read(rdvProvider(rdv.id).future);
@@ -206,14 +234,21 @@ class _Body extends ConsumerWidget {
         AppCard(
           padding: const EdgeInsets.all(20),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              PhasePill(rdv),
-              if (rdv.isTentative) ...[const SizedBox(width: 6), const TentativePill()],
-              if (rdv.isShared) ...[const SizedBox(width: 6), VisibilityPill(rdv.visibility)],
-              const Spacer(),
+            // Pills wrap on narrow screens ("En cours · À confirmer · Privé" + "Aujourd'hui" overflowed).
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                child: Wrap(spacing: 6, runSpacing: 6, children: [
+                  PhasePill(rdv),
+                  if (rdv.isTentative) const TentativePill(),
+                  if (rdv.isShared) VisibilityPill(rdv.visibility),
+                ]),
+              ),
               // "Aujourd'hui" / "Demain" / "Hier" only (otherwise it repeats the date below)
               if (!rdv.slotsOpen && calendarDaysBetween(today(), rdv.appointmentAt).abs() <= 1)
-                Text(relativeDayLabel(rdv.appointmentAt), style: TextStyle(color: c.textMuted, fontSize: 15)),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 3),
+                  child: Text(relativeDayLabel(rdv.appointmentAt), style: TextStyle(color: c.textMuted, fontSize: 15)),
+                ),
             ]),
             const SizedBox(height: 14),
             if (rdv.slotsOpen)
@@ -288,7 +323,7 @@ class _Body extends ConsumerWidget {
         TravelHintCard(rdv: rdv),
 
         // 2a'. My public event on my public profile
-        if (public && rdv.eventId != null && rdv.status == RdvStatus.planifie && (rdv.rsvp == null || rdv.rsvp == Rsvp.accepted))
+        if (Features.publicEvents && public && rdv.eventId != null && rdv.status == RdvStatus.planifie && (rdv.rsvp == null || rdv.rsvp == Rsvp.accepted))
           _ShowOnProfileRow(rdv: rdv),
 
         // 2b. Timeslot poll
@@ -336,7 +371,7 @@ class _Body extends ConsumerWidget {
         if (rdv.isOrganizer || rdv.rsvp != Rsvp.declined) ...[
           const SizedBox(height: 28),
           AppButton(rdv.isOrganizer ? tr.deleteRdv : tr.removeFromAgenda,
-              icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context, ref)),
+              icon: LucideIcons.trash2, variant: ButtonVariant.danger, full: true, onPressed: () => _delete(context)),
         ],
       ],
     );

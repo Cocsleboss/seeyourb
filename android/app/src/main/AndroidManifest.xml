@@ -29,21 +29,24 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Deep links: auth emails (seeu://auth-callback) and shared links (seeu://app/friends?q=…) -->
+            <!-- Deep links: auth emails (seeu://auth-callback) and shared links (seeu://app/@andrea, seeu://app/j/<token>…) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="seeu"/>
             </intent-filter>
-            <!-- App Links: https://<site>/u/<username> (profile) and /e/<id> (event) open the app
-                 directly when it's installed. Verified with /.well-known/assetlinks.json on the site. -->
+            <!-- App Links: https://<site>/@<username> (profile), /j/<token> (event invitation link),
+                 /u/<username> and /e/<id> (older / public) open the app directly when it's installed.
+                 Verified with /.well-known/assetlinks.json on the site. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="https"/>
                 <data android:host="${linkHost}"/>
+                <data android:pathPrefix="/@"/>
+                <data android:pathPrefix="/j/"/>
                 <data android:pathPrefix="/u/"/>
                 <data android:pathPrefix="/e/"/>
             </intent-filter>

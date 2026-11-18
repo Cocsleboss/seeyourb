@@ -1523,8 +1523,8 @@
   "severalSlotsProposed": "Plusieurs créneaux proposés",
   "giveAvailability": "Indiquer mes disponibilités",
   "slotsInviteHint": "Ouvrez l'événement pour répondre créneau par créneau.",
-  "guestsCanInvite": "Les invités peuvent inviter leurs amis",
-  "guestsCanInviteHelp": "Sinon, vous seul pouvez ajouter des participants.",
+  "guestsCanInvite": "Les invités peuvent inviter d'autres personnes",
+  "guestsCanInviteHelp": "Sinon, vous seul pouvez ajouter des participants ou partager un lien d'invitation.",
   "blockContactDeleted": "Votre contact « {name} » sera aussi supprimé : plus de rappels pour le revoir.",
   "@blockContactDeleted": {
     "placeholders": {
@@ -1836,6 +1836,109 @@
   "noReminderHelp": "Pas de rappel : ce contact n'apparaîtra jamais dans « Garder le contact ».",
   "addAsFriend": "Ajouter en ami SeeU",
   "friendRequestSentShort": "Demande envoyée",
+  "inviteWithLink": "Inviter avec un lien",
+  "inviteLinkShort": "Lien d'invitation",
+  "inviteWithLinkHelp": "Créez un lien à envoyer par WhatsApp, Messenger, SMS… à des personnes qui ne sont pas (encore) vos amis SeeU.",
+  "linkAnyoneTitle": "Toute personne qui a ce lien peut rejoindre l'événement",
+  "linkAnyoneBody": "Même sans être votre ami SeeU. Envoyez-le seulement aux personnes que vous voulez inviter : si elle circule, désactivez-le ou créez-en un nouveau.",
+  "createLink": "Créer le lien d'invitation",
+  "newLink": "Nouveau lien",
+  "newLinkHelp": "Un nouveau lien remplace l'ancien, qui ne fonctionne plus. Les personnes déjà inscrites restent.",
+  "linkRenewed": "Nouveau lien créé : l'ancien ne fonctionne plus",
+  "disableLink": "Désactiver",
+  "disableLinkTitle": "Désactiver le lien ?",
+  "disableLinkMessage": "Votre lien ne permettra plus de rejoindre l'événement. Les personnes déjà inscrites restent.",
+  "disableLinkMessageOrganizer": "Tous les liens de l'événement (aussi ceux partagés par les invités) ne permettront plus de le rejoindre. Les personnes déjà inscrites restent.",
+  "linkDisabled": "Lien désactivé",
+  "shareInviteText": "Je t'invite à « {title} » sur SeeU : {link}",
+  "@shareInviteText": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "testAppLink": "Lien de test (ouvre directement l'app)",
+  "testAppLinkHelp": "En attendant le site web : ce lien seeu:// ouvre SeeU sur ce téléphone, comme le fera la page web.",
+  "linkInvalidTitle": "Lien d'invitation invalide",
+  "invitedByLinkOf": "{name} vous invite avec un lien",
+  "@invitedByLinkOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "imGoing": "Je viens",
+  "joinByLinkHint": "{name} sera prévenu·e. Vous retrouverez l'événement dans votre agenda.",
+  "@joinByLinkHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "yourOwnEvent": "C'est votre événement.",
+  "removedFromEventInfo": "L'organisateur vous a retiré de cet événement : ce lien ne vous permet plus de le rejoindre.",
+  "errLinkInvalid": "Ce lien d'invitation ne fonctionne plus.",
+  "errRemovedFromEvent": "L'organisateur vous a retiré de cet événement.",
+  "joinedViaLink": "Venu·e avec le lien",
+  "joinedViaLinkOf": "Venu·e avec le lien de {name}",
+  "@joinedViaLinkOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "seeProfile": "Voir le profil",
+  "removeFromEvent": "Retirer de l'événement",
+  "removeFromEventTitle": "Retirer {name} ?",
+  "@removeFromEventTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFromEventMessage": "Cette personne ne fera plus partie de l'événement et ne pourra pas revenir avec un lien. Vous pourrez l'inviter à nouveau vous-même.",
+  "removedFromEventToast": "{name} ne fait plus partie de l'événement",
+  "@removedFromEventToast": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "withWhomPrivateHint": "Personne pour l'instant ? Après la création, vous pourrez partager un lien d'invitation.",
+  "noContactsShareLater": "Pas encore de contacts : créez l'événement, puis partagez un lien d'invitation.",
+  "guestsCanInviteOnHelp": "En invitant leurs amis SeeU, ou avec un lien d'invitation.",
+  "publicProfileOffInfo2": "Désactivé : pas de page web ni de lien. On peut vous ajouter depuis l'app SeeU, en cherchant @{username}.",
+  "@publicProfileOffInfo2": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "shareHandleNoLinkText": "Ajoute-moi sur SeeU : @{username}\nL'app : {link}",
+  "@shareHandleNoLinkText": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "friendCityHelp": "Celle de son compte SeeU, si elle la partage avec ses amis.",
+  "friendNoCity": "Pas de ville indiquée",
+  "friendNoCard": "ami SeeU, sans fiche",
+  "groupFriendsNoCard": "Amis SeeU sans fiche",
   "publicProfileTitle": "Profil public et partage",
   "publicProfileRowSub": "Votre lien, ce que les autres voient, vos événements publics",
   "myProfileLink": "Votre lien de profil",

@@ -287,10 +287,13 @@ class PhotoAuthorBadge extends ConsumerWidget {
 
 /// A photo in a grid, with its uploader's avatar bottom-right (every photo).
 class PhotoTile extends StatelessWidget {
-  const PhotoTile({super.key, required this.photos, required this.index, this.eventId});
+  const PhotoTile({super.key, required this.photos, required this.index, this.eventId, this.small = false});
   final List<Photo> photos;
   final int index;
   final String? eventId;
+
+  /// Thumbnail size (history day view): smaller corners and badge.
+  final bool small;
 
   @override
   Widget build(BuildContext context) {
@@ -298,9 +301,13 @@ class PhotoTile extends StatelessWidget {
     return Stack(fit: StackFit.expand, children: [
       GestureDetector(
         onTap: () => openPhotoViewer(context, photos, index, eventId: eventId),
-        child: ClipRRect(borderRadius: BorderRadius.circular(12), child: StorageImage(p.previewPath, cacheWidth: 360)),
+        child: ClipRRect(borderRadius: BorderRadius.circular(small ? 8 : 12), child: StorageImage(p.previewPath, cacheWidth: small ? 200 : 360)),
       ),
-      Positioned(right: 5, bottom: 5, child: PhotoAuthorBadge(photo: p, eventId: eventId)),
+      Positioned(
+        right: small ? 3 : 5,
+        bottom: small ? 3 : 5,
+        child: PhotoAuthorBadge(photo: p, eventId: eventId, size: small ? 18 : 24),
+      ),
     ]);
   }
 }

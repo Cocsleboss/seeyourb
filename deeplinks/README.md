@@ -1,7 +1,8 @@
 # Deep link verification files
 
-Files the website (step 2) must serve **as is** so that `https://<domain>/u/<username>`
-and `https://<domain>/e/<event id>` open the SeeU app when it is installed:
+Files the website (step 2) must serve **as is** so that `https://<domain>/@<username>`,
+`https://<domain>/j/<token>` (and the older `/u/<username>`, `/e/<event id>`) open the SeeU app
+when it is installed:
 
 | File | Served at | Content-Type | Used by |
 | --- | --- | --- | --- |
@@ -22,7 +23,8 @@ authentication, no file extension added to the Apple file.
 3. **iOS**: `appIDs` = `<Team ID>.com.seeuapp.mobile`. `52HGFA36M9` is the current (free) Personal Team:
    replace it with the paid team's ID. Then in Xcode → Runner → Signing & Capabilities → **+ Associated Domains**:
    `applinks:<domain>` (needs the paid Apple Developer account; a Personal Team can't sign this capability).
-4. **App**: `SHARE_LINK_BASE` in `config/env.json` = `https://<domain>` (no trailing slash).
+4. **App**: `WEBSITE_URL` in `config/env.json` = `https://<domain>` (no trailing slash).
+   Optionally `"SHOW_APP_LINKS": false` to hide the `seeu://` test links.
 
 Check: Android `adb shell pm get-app-links com.seeuapp.mobile` (state `verified`);
 iOS: long-press a link in Notes → "Open in SeeU".

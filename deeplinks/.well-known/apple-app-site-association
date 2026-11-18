@@ -7,12 +7,20 @@
         ],
         "components": [
           {
+            "/": "/@*",
+            "comment": "Profile: /@<username>"
+          },
+          {
+            "/": "/j/*",
+            "comment": "Event invitation link: /j/<token>"
+          },
+          {
             "/": "/u/*",
-            "comment": "Profile: /u/<username>"
+            "comment": "Profile (older links): /u/<username>"
           },
           {
             "/": "/e/*",
-            "comment": "Event: /e/<event id>"
+            "comment": "Public event: /e/<event id>"
           }
         ]
       }

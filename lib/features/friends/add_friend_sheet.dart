@@ -145,7 +145,7 @@ class _AddFriendState extends ConsumerState<_AddFriend> {
               ]),
             ),
             AppButton(tr.share,
-                icon: LucideIcons.share2, variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: () => shareMyHandle(profile.username!)),
+                icon: LucideIcons.share2, variant: ButtonVariant.secondary, size: ButtonSize.sm, onPressed: () => shareMyHandle(profile.username!, public: profile.publicProfile)),
           ]),
         ),
     ]);

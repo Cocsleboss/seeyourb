@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/i18n.dart';
+import '../../core/features.dart';
 import 'travel_hint.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
@@ -148,7 +149,9 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
 
   List<Contact> get _friendParticipants => _selectedContacts.where((c) => c.linkedUserId != null).toList();
 
-  bool get _contactsRequired => _visibility == EventVisibility.private && _organizer;
+  // A private event may start with nobody: right after creating it, the
+  // invitation link sheet opens (someone new to SeeU has no friends yet).
+  bool get _contactsRequired => false;
 
 
   bool _titleMissing = false;
@@ -203,7 +206,8 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
     if (_editing) {
       context.pop();
     } else {
-      context.pushReplacement('/rdv/$id');
+      final alone = _visibility == EventVisibility.private && _selected.isEmpty;
+      context.pushReplacement(alone ? '/rdv/$id?share=1' : '/rdv/$id');
     }
   }
 
@@ -259,12 +263,12 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             label: _contactsRequired ? tr.participants : tr.withWhomOptional,
             icon: LucideIcons.users,
             required: _contactsRequired,
-            hint: _visibility == EventVisibility.private || !_organizer ? null : tr.withWhomHint,
+            hint: !_organizer ? null : (_visibility == EventVisibility.private ? tr.withWhomPrivateHint : tr.withWhomHint),
             error: _error == tr.chooseOneContact ? _error : null,
             child: widget.contacts.isEmpty
                 ? AppCard(
                     child: Column(children: [
-                      Text(tr.createContactFirst, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
+                      Text(_organizer ? tr.noContactsShareLater : tr.createContactFirst, textAlign: TextAlign.center, style: TextStyle(color: c.textMuted)),
                       const SizedBox(height: 12),
                       AppButton(tr.createAContact, icon: LucideIcons.userPlus, onPressed: () => context.push('/contacts/new')),
                     ]),
@@ -462,7 +466,7 @@ class _RdvFormState extends ConsumerState<_RdvForm> {
             AppCard(
               child: ToggleRow(
                 title: tr.guestsCanInvite,
-                subtitle: _guestsCanInvite ? null : tr.guestsCanInviteHelp,
+                subtitle: _guestsCanInvite ? tr.guestsCanInviteOnHelp : tr.guestsCanInviteHelp,
                 value: _guestsCanInvite,
                 onChanged: (v) => setState(() => _guestsCanInvite = v),
               ),
@@ -579,7 +583,8 @@ class VisibilityPicker extends StatelessWidget {
     return Column(children: [
       option(EventVisibility.private, tr.visPrivateHelp),
       option(EventVisibility.contacts, tr.visContactsHelp),
-      option(EventVisibility.public, tr.visPublicHelp),
+      // Public events are hidden for now (an event already public keeps its choice).
+      if (Features.publicEvents || value == EventVisibility.public) option(EventVisibility.public, tr.visPublicHelp),
     ]);
   }
 }
